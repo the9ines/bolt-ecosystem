@@ -80,6 +80,12 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 | S1 | Core protocol conformance harness (Rust SDK) | DONE-MERGED | bolt-core-sdk | `sdk-v0.5.4-s1-conformance-harness` | `cced058` |
 | S2 | Transfer performance program | IN-PROGRESS | bolt-core-sdk | `sdk-v0.5.5-s2-policy-skeleton`, `sdk-v0.5.6-s2-policy-contract-tests`, `transport-web-v0.6.1-s2b-instrumentation` | `31bdc0b`, `39ed6dc`, `02e36b1` |
 
+## Governance Phases
+
+| Phase | Description | Status | Repo(s) | Commit(s) |
+|-------|-------------|--------|---------|-----------|
+| CONFORMANCE-1R | Spec conformance matrix + PR review gate | DONE | bolt-protocol, bolt-ecosystem | bolt-protocol: `69a0907`, bolt-ecosystem: see below |
+
 ## P-Phase Ledger (Post-H Hardening)
 
 | Phase | Description | Status | Repo(s) | Tag(s) | Commit(s) |

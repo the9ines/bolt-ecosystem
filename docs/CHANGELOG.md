@@ -5,6 +5,22 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## CONFORMANCE-1R — Spec Conformance Matrix + PR Review Gate (2026-02-26)
+
+Introduced spec-to-implementation conformance matrix and CI review discipline
+gate. Any PR to bolt-protocol that modifies PROTOCOL.md or LOCALBOLT_PROFILE.md
+must also update docs/CONFORMANCE.md, or CI fails.
+
+- **bolt-protocol** (`69a0907`): docs/CONFORMANCE.md (new) — maps all top-level
+  spec sections to bolt-core-sdk and bolt-daemon implementation locations.
+  .github/workflows/ci-conformance.yml (new) — PR gate using git merge-base diff.
+  README.md updated with conformance link.
+- **bolt-ecosystem**: DOC_ROUTING.md updated with CONFORMANCE.md entry.
+  STATE.md and CHANGELOG.md updated.
+- **No runtime code changed. No existing CI workflows modified. No dependencies added.**
+
+---
+
 ## P1 — Inbound Error Validation Hardening (2026-02-26)
 
 Daemon-side strict validation of inbound `{type:"error"}` messages.

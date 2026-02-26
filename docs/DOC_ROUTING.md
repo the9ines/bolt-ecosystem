@@ -85,9 +85,14 @@ These paths are managed via git subtree sync from bolt-rendezvous. They MUST NOT
 |------|----------------|------|---------|
 | PROTOCOL.md | bolt-protocol | /PROTOCOL.md | Core Bolt protocol spec |
 | LOCALBOLT_PROFILE.md | bolt-protocol | /LOCALBOLT_PROFILE.md | LocalBolt Profile spec |
+| CONFORMANCE.md | bolt-protocol | /docs/CONFORMANCE.md | Spec-to-implementation conformance matrix |
 
 Protocol and profile specifications reside exclusively in bolt-protocol.
 Implementation repos must not redefine protocol semantics.
+
+CONFORMANCE.md is the canonical drift sentinel — any change to PROTOCOL.md or
+LOCALBOLT_PROFILE.md must include a corresponding update to this matrix.
+A CI guard in bolt-protocol enforces this on pull requests.
 
 ---
 
