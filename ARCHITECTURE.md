@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Last Updated:** 2026-02-21
-> **Canonical Protocol Spec:** `bolt-core-sdk/PROTOCOL.md` (until bolt-protocol is separated)
+> **Canonical Protocol Spec:** `bolt-protocol/PROTOCOL.md` (canonical)
 
 This document defines architectural invariants, security guarantees, protocol structure, and repository boundaries for the Bolt ecosystem. It uses RFC 2119 language: MUST, MUST NOT, NEVER, REQUIRED, SHOULD.
 
@@ -204,7 +204,7 @@ MUST preserve:
 | Native multi-platform app | localbolt-app | Open source |
 | Web app (Netlify) | localbolt-v3 | Open source |
 | Commercial global app | bytebolt-app | Commercial |
-| Protocol spec (temp) | bolt-core-sdk | Until bolt-protocol separated |
+| Protocol spec (stubs) | bolt-core-sdk | Stubs pointing to bolt-protocol |
 
 ### Subtree Policy
 
@@ -228,7 +228,7 @@ MUST preserve:
 | Repo | Allowed | Forbidden |
 |------|---------|-----------|
 | bolt-protocol | Markdown specs only | Code, configs, CI |
-| bolt-core-sdk | SDK code, tests, spec (temp) | Product UI, transport impl |
+| bolt-core-sdk | SDK code, tests, spec stubs | Product UI, transport impl |
 | bolt-rendezvous | Rendezvous server code | Protocol logic, UI |
 | bolt-daemon | Daemon code, IPC API | Protocol logic, UI |
 | localbolt | Web app, vendored signal | SDK internals, spec |

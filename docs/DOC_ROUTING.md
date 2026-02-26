@@ -79,6 +79,18 @@ These paths are managed via git subtree sync from bolt-rendezvous. They MUST NOT
 
 ---
 
+## Cross-Repo Specification Authority
+
+| File | Canonical Repo | Path | Purpose |
+|------|----------------|------|---------|
+| PROTOCOL.md | bolt-protocol | /PROTOCOL.md | Core Bolt protocol spec |
+| LOCALBOLT_PROFILE.md | bolt-protocol | /LOCALBOLT_PROFILE.md | LocalBolt Profile spec |
+
+Protocol and profile specifications reside exclusively in bolt-protocol.
+Implementation repos must not redefine protocol semantics.
+
+---
+
 ## Archived Docs
 
 Historical artifacts no longer under active governance. Preserved in `docs/archive/`.

@@ -207,8 +207,8 @@ Act as a senior cryptography and protocol engineer with systems-level Rust and T
 | ARCHITECTURE.md | Workspace root | Invariants, security, protocol, repo boundaries |
 | PRD.md | Workspace root | Ecosystem product requirements |
 | ROADMAP.md | Workspace root | Ecosystem roadmap and release sequencing |
-| PROTOCOL.md | bolt-core-sdk (temp) | Canonical Bolt Core specification |
-| LOCALBOLT_PROFILE.md | bolt-core-sdk (temp) | LocalBolt Profile specification |
+| PROTOCOL.md | bolt-protocol (canonical) | Canonical Bolt Core specification |
+| LOCALBOLT_PROFILE.md | bolt-protocol (canonical) | LocalBolt Profile specification |
 | .claude/agents/AGENTS.md | Workspace root | Agent manifest, pipeline, escalation |
 | docs/CHANGELOG.md | Per repo | Release history |
 | docs/STATE.md | Per repo | Current project state |
