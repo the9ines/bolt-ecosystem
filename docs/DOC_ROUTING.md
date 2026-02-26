@@ -10,11 +10,15 @@ This file is the single authoritative routing map for all documentation in the B
 
 ## Warning
 
-**Agents must not update any docs outside these canonical paths.**
+**Agents must not update any documentation outside the canonical paths defined in this file.**
 
 Modifications to documentation not listed here require explicit human approval.
 
-When a prompt says "update STATE.md" or "update CHANGELOG.md" without specifying a repo and exact path, agents MUST stop and ask — never guess.
+If a prompt states "update STATE.md" or "update CHANGELOG.md" without specifying both:
+- the repository, and
+- the exact path,
+
+the agent MUST stop and request clarification. Agents must never infer or guess the target file.
 
 ---
 
