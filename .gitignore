@@ -1,0 +1,24 @@
+# Child repos (independent git repositories)
+bolt-core-sdk/
+bolt-daemon/
+bolt-rendezvous/
+bolt-protocol/
+localbolt/
+localbolt-app/
+localbolt-v3/
+bytebolt-app/
+bytebolt-relay/
+
+# OS and editor artifacts
+.DS_Store
+.vscode/
+*.swp
+*.swo
+*~
+
+# Build artifacts
+node_modules/
+*.tgz
+
+# Shell artifacts
+=
