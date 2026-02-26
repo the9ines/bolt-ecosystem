@@ -14,6 +14,8 @@ This file is the single authoritative routing map for all documentation in the B
 
 Modifications to documentation not listed here require explicit human approval.
 
+When a prompt says "update STATE.md" or "update CHANGELOG.md" without specifying a repo and exact path, agents MUST stop and ask — never guess.
+
 ---
 
 ## Canonical Ecosystem Docs
