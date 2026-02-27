@@ -200,6 +200,20 @@ Act as a senior cryptography and protocol engineer with systems-level Rust and T
 
 ---
 
+## Audit Execution Discipline
+
+- No runtime patch may begin unless a finding exists in `docs/AUDIT_TRACKER.md` (with an ID).
+- Findings from external audits must be imported with a non-colliding ID series.
+- Every finding must map to exactly one Track and at least one Phase (TBD allowed, but must be explicit).
+- No tag may be created unless the phase prompt explicitly authorizes tagging and includes a tag window after gates.
+- No agent may merge branches or create tags outside declared STOP gates ("no stealth merges").
+- Evidence minimums by severity must be satisfied before DONE-VERIFIED:
+  - HIGH: INTEROP + at least one ADVERSARIAL test.
+  - MEDIUM: UNIT + at least one ADVERSARIAL or INTEROP.
+  - LOW: UNIT or documented rationale (DONE-BY-DESIGN).
+
+---
+
 ## Reference Table
 
 | Document | Location | Purpose |
@@ -210,5 +224,7 @@ Act as a senior cryptography and protocol engineer with systems-level Rust and T
 | PROTOCOL.md | bolt-protocol (canonical) | Canonical Bolt Core specification |
 | LOCALBOLT_PROFILE.md | bolt-protocol (canonical) | LocalBolt Profile specification |
 | .claude/agents/AGENTS.md | Workspace root | Agent manifest, pipeline, escalation |
+| docs/AUDIT_TRACKER.md | Workspace root | Canonical audit tracker (all ID series) |
+| docs/AUDITS/ | Workspace root | Frozen audit source files |
 | docs/CHANGELOG.md | Per repo | Release history |
 | docs/STATE.md | Per repo | Current project state |
