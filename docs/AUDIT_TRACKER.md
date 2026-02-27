@@ -143,6 +143,7 @@ bolt-daemon, and bolt-transport-web. Imported as SA-series to avoid collision wi
 O1–O12 (PROTO-HARDEN-1 observations above).
 
 **Canonical audit source:** [`docs/AUDITS/2026-02-26-security-audit.md`](AUDITS/2026-02-26-security-audit.md)
+**Execution bindings:** [`docs/AUDITS/2026-02-26-execution-bindings.md`](AUDITS/2026-02-26-execution-bindings.md) (AUDIT-GOV-2 — per-finding contracts)
 
 ### Tracks
 

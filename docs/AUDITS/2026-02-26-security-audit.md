@@ -2,6 +2,7 @@
 
 > **Status:** Frozen audit source. Not updated after initial import.
 > **Canonical Tracker:** `docs/AUDIT_TRACKER.md` (SA-series section) tracks live status.
+> **Execution Bindings:** `docs/AUDITS/2026-02-26-execution-bindings.md` (AUDIT-GOV-2 — per-finding contracts)
 > **Raw Audit:** `AUDIT-2026-02-26.md` (workspace root)
 
 ---
