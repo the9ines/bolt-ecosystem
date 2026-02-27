@@ -85,6 +85,7 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 | Phase | Description | Status | Repo(s) | Commit(s) |
 |-------|-------------|--------|---------|-----------|
 | CONFORMANCE-1R | Spec conformance matrix + PR review gate | DONE | bolt-protocol, bolt-ecosystem | bolt-protocol: `69a0907`, bolt-ecosystem: see below |
+| CONFORMANCE-2R | Enforceable conformance matrix with minimum coverage | DONE | bolt-protocol, bolt-ecosystem | bolt-protocol: pending, bolt-ecosystem: pending |
 
 ## P-Phase Ledger (Post-H Hardening)
 

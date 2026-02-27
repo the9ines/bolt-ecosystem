@@ -93,6 +93,8 @@ Implementation repos must not redefine protocol semantics.
 CONFORMANCE.md is the canonical drift sentinel — any change to PROTOCOL.md or
 LOCALBOLT_PROFILE.md must include a corresponding update to this matrix.
 A CI guard in bolt-protocol enforces this on pull requests.
+CONFORMANCE-2R introduced minimum coverage enforcement (N=10 protocol, N=5 profile)
+with mandatory evidence links validated by CI.
 
 ---
 

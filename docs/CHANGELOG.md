@@ -5,6 +5,24 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## CONFORMANCE-2R — Enforceable Conformance Matrix with Minimum Coverage (2026-02-26)
+
+Expanded conformance matrix with Evidence column, minimum coverage enforcement,
+and CI validation. Converts IMPLEMENTED/PARTIAL assertions into demonstrated
+traceability via concrete test file paths.
+
+- **bolt-protocol**: docs/CONFORMANCE.md expanded — Evidence column added to both
+  tables, 12/13 PROTOCOL rows and 12/13 PROFILE rows now have evidence links.
+  Coverage Requirements section documents N=10 (protocol) and N=5 (profile)
+  thresholds. Status migration: NOT REVIEWED → TODO (2 rows).
+  .github/workflows/ci-conformance.yml updated — new inline coverage validation
+  step parses Evidence column and enforces minimum counts.
+- **bolt-ecosystem**: DOC_ROUTING.md updated with CONFORMANCE-2R note.
+  STATE.md and CHANGELOG.md updated.
+- **No runtime code changed. No dependencies added. No new script files created.**
+
+---
+
 ## CONFORMANCE-1R — Spec Conformance Matrix + PR Review Gate (2026-02-26)
 
 Introduced spec-to-implementation conformance matrix and CI review discipline
