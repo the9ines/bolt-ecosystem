@@ -30,7 +30,7 @@ Before contract generation, all SA items were reconciled against current repo st
 
 | SA_ID | Prior Status | Reconciled Status | Rationale |
 |-------|-------------|-------------------|-----------|
-| SA1 | OPEN | **OPEN** | Distinct from I6 (CLOSED-NO-BUG). I6 verified crypto algorithm/wire format parity. SA1 identifies key-type asymmetry (identity vs ephemeral) — a different layer. PROTOCOL.md §15.1 mandates ephemeral-first. |
+| SA1 | OPEN | **OPEN** | Distinct from I6 (CLOSED-NO-BUG). I6 verified crypto algorithm/wire format parity. SA1 identifies identity/ephemeral role conflation in daemon — single keypair serves both signaling and HELLO identity roles, leaking identity via signaling and breaking TOFU semantics. PROTOCOL.md §15.1 mandates separation. Corrected from original "key-type mismatch causes decryption failure" claim (AUDIT-GOV-3A erratum). |
 | SA2 | DONE-VERIFIED | **DONE-VERIFIED** | Resolved by PROTO-HARDEN-2A. No contract needed. |
 | SA3 | DONE-VERIFIED | **DONE-VERIFIED** | Resolved by PROTO-HARDEN-2A. No contract needed. |
 | SA4 | OPEN | **OPEN** | No intervening fix. |
@@ -56,31 +56,34 @@ Before contract generation, all SA items were reconciled against current repo st
 
 ## PROTOCOL Track
 
-### SA1 — HELLO Key Material Mismatch (HIGH)
+### SA1 — HELLO Identity/Ephemeral Role Conflation (HIGH)
 
-**Invariant:** Daemon and web use the same key type (ephemeral) for HELLO seal/open; the signaling `publicKey` field maps to the same key role on both sides, per PROTOCOL.md §15.1 ephemeral-first model.
+**Invariant:** HELLO `identityPublicKey` MUST be a persistent identity key distinct from the per-connection ephemeral seal key; identity keys MUST NOT appear in signaling `publicKey` and MUST only travel inside the encrypted HELLO payload, per PROTOCOL.md §15.1 and `identity.rs:21-22`.
 
 **Scope Boundary:**
-- `bolt-daemon/src/rendezvous.rs` — keypair generation for HELLO (offerer and answerer paths). Change from `generate_identity_keypair()` to ephemeral generation, or restructure to pass ephemeral key to `build_hello_message`.
-- `bolt-daemon/src/web_hello.rs` — `build_hello_message()`, `parse_hello_typed()`. These functions are key-type-agnostic; the fix is in the caller.
-- Out of scope: bolt-core-sdk crypto primitives, web client key generation, PROTOCOL.md schema.
+- `bolt-daemon/src/rendezvous.rs` — keypair generation and signaling key assignment (offerer and answerer paths). Currently calls `generate_identity_keypair()` per connection and uses the same keypair for both signaling `publicKey` and HELLO `identityPublicKey`.
+- `bolt-daemon/src/web_hello.rs` — `build_hello_message()` inner payload construction. Currently sets `identityPublicKey` to `local_keypair.public_key` — the same key used for sealing.
+- Out of scope: bolt-core-sdk crypto primitives (`seal_box_payload`, `open_box_payload`), web client key generation, PROTOCOL.md spec edits.
 
 **Abort Conditions:**
-- If fix requires changing PROTOCOL.md §3 HELLO schema — escalate (spec change, not runtime fix).
-- If daemon signaling layer cannot transmit ephemeral public key alongside identity key — escalate (transport constraint).
-- If ephemeral key lifecycle in daemon conflicts with session teardown in `rendezvous.rs` — escalate.
+- If fix requires PROTOCOL.md edits — escalate (spec change, not runtime fix).
+- If fix requires altering NaCl box seal/open primitives or key exchange math — escalate.
+- If implementing persistent identity key storage in the daemon exceeds single-phase scope — split into: Phase A (daemon identity key storage infrastructure), Phase B (role separation enforcement).
 
 **Evidence Contract:**
-- Must prove: daemon-sealed HELLO decrypts correctly on web using the key advertised in signaling.
-- Must prove: web-sealed HELLO decrypts correctly on daemon using the key advertised in signaling.
-- Must prove: mismatched key type in signaling `publicKey` field causes explicit decryption failure, not silent misbehavior.
-- Must prove: `HelloError::KeyMismatch` is either removed (dead code) or wired to a live error path.
+Evidence Minimum: INTEROP + ADVERSARIAL (severity = HIGH).
+- Must prove: daemon uses a persistent identity key that survives across sessions/reconnections.
+- Must prove: signaling `publicKey` corresponds only to the ephemeral seal key and rotates per connection.
+- Must prove: HELLO `identityPublicKey` is the persistent identity key, distinct from signaling `publicKey` within the same session.
+- Must prove: TOFU pinning binds to the persistent identity key and produces meaningful mismatch on identity change.
+- Adversarial: MITM substituting a different identity key inside HELLO triggers detectable TOFU mismatch. Attempt to pin on ephemeral (signaling) key must fail or be impossible by construction.
 
 **Definition of Done:**
-- Daemon passes ephemeral keypair (not identity) to `build_hello_message()` and `parse_hello_typed()`.
-- Cross-implementation golden vector: daemon HELLO round-trip with web succeeds.
-- `HelloError::KeyMismatch` resolved (removed or actively used).
-- No identity keypair used for HELLO encryption anywhere in daemon code paths.
+- Persistent identity key exists in daemon and survives reconnection.
+- For any given session: signaling `publicKey` ≠ HELLO `identityPublicKey`.
+- No identity key material travels via signaling channel.
+- TOFU mismatch is demonstrable when identity key changes between sessions.
+- `identity.rs:21-22` constraint enforced: identity keys only inside encrypted DataChannel messages.
 
 ---
 

@@ -33,7 +33,7 @@ for PROTO-HARDEN-1 governance observations. To avoid collision, this audit uses 
 
 | SA_ID | OriginalID | Severity | Component | Title | Detail | Track | Phase Mapping | Closure Mode | Evidence Minimum |
 |-------|-----------|----------|-----------|-------|--------|-------|---------------|--------------|------------------|
-| SA1 | O1 | HIGH | bolt-daemon | HELLO key material mismatch | Daemon encrypts HELLO with identity keypairs (`web_hello.rs:191`); web uses ephemeral keypairs. Signaling `publicKey` maps to different key types. | PROTOCOL | TBD | OPEN | INTEROP + ADVERSARIAL |
+| SA1 | O1 | HIGH | bolt-daemon | HELLO identity/ephemeral role conflation | Daemon uses single per-connection keypair for both signaling `publicKey` and HELLO `identityPublicKey`; identity role leaks via signaling; TOFU pinning meaningless. Violates PROTOCOL.md §15.1. (Erratum AUDIT-GOV-3A: original claim of decryption failure was false.) | PROTOCOL | TBD | OPEN | INTEROP + ADVERSARIAL |
 | SA2 | O2 | HIGH | bolt-transport-web | Web client no inbound error code validation | `WebRTCService.ts:849-853` accepted any error code string without registry check. | PROTOCOL | PROTO-HARDEN-2A | DONE-VERIFIED | INTEROP + ADVERSARIAL |
 | SA3 | O3 | HIGH | bolt-daemon | Daemon error code registry incomplete (8/22) | `envelope.rs:131-140` missing 14 codes the web legitimately sends; valid codes classified as PROTOCOL_VIOLATION. | PROTOCOL | PROTO-HARDEN-2A | DONE-VERIFIED | INTEROP + ADVERSARIAL |
 | SA4 | O4 | MEDIUM | bolt-core-sdk (Rust) | KeyPair not zeroed on Drop | `crypto.rs:22-28` has no `Drop` impl, no `zeroize` crate. Secret key bytes persist in memory. | MEMORY | TBD | OPEN | UNIT + ADVERSARIAL |

@@ -165,7 +165,7 @@ O1–O12 (PROTO-HARDEN-1 observations above).
 
 | SA_ID | Summary | Track | Status | Phase | Evidence |
 |-------|---------|-------|--------|-------|----------|
-| SA1 | HELLO key material mismatch: daemon uses identity keypairs, web uses ephemeral (`web_hello.rs:191` vs `WebRTCService.ts:438`) | PROTOCOL | **OPEN** | TBD | — |
+| SA1 | Daemon conflates identity and ephemeral into single per-connection keypair; same key used for signaling `publicKey` and HELLO `identityPublicKey`, leaking identity role via signaling and making TOFU pinning meaningless; violates PROTOCOL.md §15.1 separation and `identity.rs` constraint (`rendezvous.rs:579`, `web_hello.rs:187`) | PROTOCOL | **OPEN** | TBD | — |
 | SA2 | Web client accepted any inbound error code without registry validation (`WebRTCService.ts:849-853`) | PROTOCOL | **DONE-VERIFIED** | PROTO-HARDEN-2A | `sdk-v0.5.7-proto-harden-2a` (`5759164`). `WIRE_ERROR_CODES` 22-entry registry + `isValidWireErrorCode()` guard. Inbound validation rejects unknown/malformed codes. 11 new transport-web tests (7 enveloped + 2 plaintext + 2 outbound guard). ADVERSARIAL: unknown code, missing code, non-string code, empty code, non-string message all tested. |
 | SA3 | Daemon `CANONICAL_ERROR_CODES` had 8/22 codes; 14 valid codes rejected as PROTOCOL_VIOLATION (`envelope.rs:131-140`) | PROTOCOL | **DONE-VERIFIED** | PROTO-HARDEN-2A | `daemon-v0.2.13-proto-harden-2a` (`f88a78b`). Expanded to 22 entries matching PROTOCOL.md §10. +8 daemon tests including per-code acceptance for all 22. INTEROP: both registries now identical. ADVERSARIAL: unknown code rejection preserved. |
 
