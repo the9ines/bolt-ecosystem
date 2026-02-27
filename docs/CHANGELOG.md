@@ -5,6 +5,30 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## PROTO-HARDEN-1 — Handshake Invariants Codified in Spec (2026-02-26)
+
+Formalized five categories of handshake security properties as normative
+spec text in PROTOCOL.md §15. Twelve numbered invariants (PROTO-HARDEN-01
+through PROTO-HARDEN-12) make previously implicit guarantees explicit and
+auditable.
+
+**Categories:**
+- §15.1 Ephemeral-first keying model — identity keys delivered only inside encrypted HELLO
+- §15.2 Identity-ephemeral cryptographic binding — envelope MAC + SAS
+- §15.3 Error registry invariants — single canonical registry, cross-impl parity
+- §15.4 Post-handshake envelope requirement — no plaintext errors in normal operation
+- §15.5 HELLO state machine — no reentrancy, exactly-once, immutable capabilities
+
+**Deliverables:**
+- **bolt-protocol** (`ee024d7`, `v0.1.2-spec`): PROTOCOL.md §15 added (+149 lines).
+  docs/CONFORMANCE.md updated with 6 new rows (Status=TODO pending implementation audit).
+- **bolt-ecosystem**: STATE.md, CHANGELOG.md, AUDIT_TRACKER.md updated.
+  12 observations (O1–O12) mapped to PROTO-HARDEN invariants.
+
+**No runtime code changed. No wire format changed. Governance only.**
+
+---
+
 ## CONFORMANCE-2R — Enforceable Conformance Matrix with Minimum Coverage (2026-02-26)
 
 Expanded conformance matrix with Evidence column, minimum coverage enforcement,

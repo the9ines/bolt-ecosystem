@@ -84,11 +84,38 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 
 ## SUMMARY
 
-- **Total findings:** 29
+- **Total findings:** 41
 - **DONE:** 25
+- **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DEFERRED:** 2 (I4, Q4)
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md`
+
+---
+
+## PROTOCOL HARDENING OBSERVATIONS (PROTO-HARDEN-1)
+
+Observations identified during PROTO-HARDEN-1 governance phase. Each maps to
+a numbered invariant in PROTOCOL.md §15. Implementation audit is pending —
+these are spec-level codifications, not runtime fixes.
+
+| ID | Observation | Invariant | Severity | Status | Resolution |
+|----|------------|-----------|----------|--------|------------|
+| O1 | HELLO keying model (ephemeral-first vs identity-first) not explicitly defined | PROTO-HARDEN-01 | MEDIUM | **CODIFIED** | §15.1 formalizes ephemeral-first model |
+| O2 | No explicit requirement that identity_key must be inside an envelope-authenticated payload | PROTO-HARDEN-01 | MEDIUM | **CODIFIED** | §15.2 Mechanism 1: envelope MAC authenticates identity_key |
+| O3 | SAS computation inputs not explicitly bound to the specific HELLO/envelope that carried them | PROTO-HARDEN-02 | MEDIUM | **CODIFIED** | §15.2 Mechanism 2: SAS must use exact keys from the session |
+| O4 | Error registry split across PROTOCOL.md §10 (11 codes) and PROTOCOL_ENFORCEMENT.md Appendix A (14 codes) | PROTO-HARDEN-03, 04 | LOW | **CODIFIED** | §15.3 defines relationship: §10 is protocol-level, Appendix A is superset with transport-level codes |
+| O5 | No explicit requirement for error code parity between Rust and TypeScript implementations | PROTO-HARDEN-05 | MEDIUM | **CODIFIED** | §15.3 requires identical error code strings for identical violations |
+| O6 | Post-handshake plaintext ERROR messages permitted by PROTOCOL_ENFORCEMENT.md §6 | PROTO-HARDEN-06, 07 | MEDIUM | **CODIFIED** | §15.4 restricts plaintext errors to terminal disconnect frames only |
+| O7 | No explicit prohibition of plaintext ERROR during normal envelope-required operation | PROTO-HARDEN-07 | MEDIUM | **CODIFIED** | §15.4 PROTO-HARDEN-07: plaintext error exception is disconnect-only |
+| O8 | HELLO state machine not formally defined (exactly-once scattered across §3, §13) | PROTO-HARDEN-08, 09 | MEDIUM | **CODIFIED** | §15.5 defines explicit four-state machine |
+| O9 | No explicit reentrancy guard for concurrent HELLO processing | PROTO-HARDEN-11 | MEDIUM | **CODIFIED** | §15.5 PROTO-HARDEN-11: HELLO processing must be serialized |
+| O10 | No explicit "handshake complete" predicate definition | PROTO-HARDEN-09 | LOW | **CODIFIED** | §15.5 PROTO-HARDEN-09: transition to HANDSHAKE_COMPLETE is exactly-once |
+| O11 | Capability negotiation mutability not explicitly prohibited after handshake | PROTO-HARDEN-12 | MEDIUM | **CODIFIED** | §15.5 PROTO-HARDEN-12: capabilities immutable after HANDSHAKE_COMPLETE |
+| O12 | HELLO send atomicity not specified (could a peer send partial HELLO then another) | PROTO-HARDEN-08 | LOW | **CODIFIED** | §15.5 PROTO-HARDEN-08: HELLO_SENT transition is atomic |
+
+**Summary:** 12 observations, all CODIFIED in PROTOCOL.md §15. Implementation audit to verify
+conformance is the next phase (not in PROTO-HARDEN-1 scope).
 
 ---
 
