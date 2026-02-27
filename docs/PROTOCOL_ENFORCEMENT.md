@@ -208,24 +208,14 @@ An implementation claiming conformance to this enforcement posture MUST pass the
 
 ---
 
-## Appendix A: Error Code Registry
+## Appendix A: Error Code Registry (Non-Normative)
 
-| Code | Section | Trigger |
-|------|---------|---------|
-| `DUPLICATE_HELLO` | 1 | Second HELLO received after exchange complete |
-| `ENVELOPE_REQUIRED` | 2 | Plaintext frame in envelope-required session |
-| `ENVELOPE_UNNEGOTIATED` | 2 | Envelope received when capability not negotiated |
-| `ENVELOPE_DECRYPT_FAIL` | 3 | Sealed payload fails decryption |
-| `ENVELOPE_INVALID` | 3 | Decrypted payload fails parse/schema validation |
-| `HELLO_PARSE_ERROR` | 3 | HELLO outer frame unparseable |
-| `HELLO_DECRYPT_FAIL` | 3 | HELLO sealed payload fails decryption |
-| `HELLO_SCHEMA_ERROR` | 3 | HELLO inner payload missing required fields or wrong types |
-| `KEY_MISMATCH` | 3 | Identity key does not match pinned key (TOFU violation) |
-| `INVALID_MESSAGE` | 3 | Inner message (post-envelope decrypt) fails parse |
-| `UNKNOWN_MESSAGE_TYPE` | 3 | Inner message parses but contains unrecognized type |
-| `INVALID_STATE` | 3 | Message received in unexpected session state |
-| `LIMIT_EXCEEDED` | 3 | Message exceeds size cap or rate limit |
-| `PROTOCOL_VIOLATION` | 3 | Catch-all for violations not covered by a specific code |
+> **Canonical registry moved to `bolt-protocol/PROTOCOL.md` §10
+> (PROTO-HARDEN-1R1).** The authoritative wire error code registry is
+> the unified 22-code table in PROTOCOL.md §10 (11 PROTOCOL-class +
+> 11 ENFORCEMENT-class). This appendix formerly contained 14
+> enforcement codes; those are now part of the unified registry.
+> **Do not add or edit error codes here — all changes go to §10.**
 
 **SDK Conformance Harness Coverage (S1):**
 Error codes `ENVELOPE_DECRYPT_FAIL` and `HELLO_DECRYPT_FAIL` are enforced at the Rust core SDK level via `BoltError::Encryption` (conformance tests in `rust/bolt-core/tests/conformance/error_code_mapping.rs`). `KEY_MISMATCH` is enforced via `KeyMismatchError`. The remaining 11 codes (`DUPLICATE_HELLO`, `ENVELOPE_REQUIRED`, `ENVELOPE_UNNEGOTIATED`, `ENVELOPE_INVALID`, `HELLO_PARSE_ERROR`, `HELLO_SCHEMA_ERROR`, `INVALID_MESSAGE`, `UNKNOWN_MESSAGE_TYPE`, `INVALID_STATE`, `LIMIT_EXCEEDED`, `PROTOCOL_VIOLATION`) are transport-level concerns enforced in TS `WebRTCService` (H2) and Rust daemon (INTEROP-2 through H5), not in the core SDK crate.

@@ -5,6 +5,26 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## PROTO-HARDEN-1R1 — Canonical Error Registry Unification (2026-02-26)
+
+Unified the split error code registry (audit observation O4) into a single
+canonical 22-code table in PROTOCOL.md §10. Previously, 11 protocol-level
+codes lived in §10 and 14 enforcement codes in PROTOCOL_ENFORCEMENT.md
+Appendix A, with only 3 overlapping. Now §10 is the sole authority.
+
+**Deliverables:**
+- **bolt-protocol** (`6a6de3f`, `v0.1.3-spec`): PROTOCOL.md §10 expanded
+  to 22-code unified registry (11 PROTOCOL + 11 ENFORCEMENT) with Class,
+  When, Framing, Semantics columns. §15.3 updated to reference unified §10.
+  docs/CONFORMANCE.md §10 and §15.3 rows updated.
+- **bolt-ecosystem**: PROTOCOL_ENFORCEMENT.md Appendix A converted to
+  non-normative back-reference. STATE.md, CHANGELOG.md, AUDIT_TRACKER.md
+  updated.
+
+**No runtime code changed. No wire format changed. Governance/spec only.**
+
+---
+
 ## PROTO-HARDEN-1 — Handshake Invariants Codified in Spec (2026-02-26)
 
 Formalized five categories of handshake security properties as normative

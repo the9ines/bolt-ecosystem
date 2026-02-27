@@ -87,6 +87,7 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 | CONFORMANCE-1R | Spec conformance matrix + PR review gate | DONE | bolt-protocol, bolt-ecosystem | bolt-protocol: `69a0907`, bolt-ecosystem: see below |
 | CONFORMANCE-2R | Enforceable conformance matrix with minimum coverage | DONE | bolt-protocol, bolt-ecosystem | bolt-protocol: `81171c5` (`v0.1.1-spec`), bolt-ecosystem: `0b68fe2` (`ecosystem-v0.1.1-conformance-2r`) |
 | PROTO-HARDEN-1 | Handshake invariants codified in spec (§15, 12 invariants) | DONE | bolt-protocol, bolt-ecosystem | bolt-protocol: `ee024d7` (`v0.1.2-spec`) |
+| PROTO-HARDEN-1R1 | Canonical error registry unification in §10 (22 codes) | DONE | bolt-protocol, bolt-ecosystem | bolt-protocol: `6a6de3f` (`v0.1.3-spec`) |
 
 ## P-Phase Ledger (Post-H Hardening)
 
@@ -156,7 +157,7 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 | localbolt | `localbolt-v1.0.17` | `276047a` |
 | localbolt-app | `localbolt-app-v1.2.1` | `2e8ef6a` |
 | localbolt-v3 | `v3.0.63-s0-canonical-rendezvous` | `2963539` |
-| bolt-protocol | `v0.1.2-spec` | `ee024d7` |
+| bolt-protocol | `v0.1.3-spec` | `6a6de3f` |
 | bytebolt-app | `bytebolt-v0.0.1` | — |
 | bytebolt-relay | `relay-v0.0.1` | — |
 
