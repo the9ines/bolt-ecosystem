@@ -85,13 +85,13 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 ## SUMMARY
 
 - **Total findings:** 60 (41 prior + 19 SA-series)
-- **DONE / DONE-VERIFIED:** 29
+- **DONE / DONE-VERIFIED:** 31
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 1 (SA11)
-- **IN-PROGRESS:** 1 (SA9)
+- **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN (SA-series):** 14 (SA1, SA4–SA7, SA10, SA12–SA19)
+- **OPEN (SA-series):** 12 (SA1, SA4–SA7, SA10, SA13–SA19)
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md` and SA-series below
 
 ---
@@ -178,10 +178,10 @@ O1–O12 (PROTO-HARDEN-1 observations above).
 | SA6 | Signaling listener never unregistered; no `offSignal()` in `SignalingProvider` (`WebRTCService.ts:165`) | LIFECYCLE | **OPEN** | TBD | — |
 | SA7 | `remoteIdentityKey` set to null without `fill(0)` on disconnect (`WebRTCService.ts:667`) | MEMORY | **OPEN** | TBD | — |
 | SA8 | Daemon sent plaintext errors post-handshake; web's ENVELOPE_REQUIRED guard rejected them | PROTOCOL | **DONE-VERIFIED** | I5 (interop-error-framing) | `daemon-v0.2.11-interop-error-framing` (`600fef4`): `build_error_payload()` wraps in envelope when negotiated. `transport-web-v0.6.2-interop-error-framing` (`e463e1a`): web sends + accepts enveloped errors. +4 daemon tests, +5 web tests. INTEROP: both sides envelope-aware. ADVERSARIAL: plaintext-in-envelope-mode rejected. |
-| SA9 | `routeInnerMessage` silently drops non-file-chunk types in legacy plaintext path (`WebRTCService.ts:882`) | PROTOCOL | **IN-PROGRESS** | PROTO-HARDEN-2A (partial) | Plaintext `type:'error'` now validated and handled (PROTO-HARDEN-2A added plaintext error handler before `routeInnerMessage`). Remaining: other unknown types in legacy plaintext mode still silently drop instead of emitting UNKNOWN_MESSAGE_TYPE. |
+| SA9 | `routeInnerMessage` silently drops non-file-chunk types in legacy plaintext path (`WebRTCService.ts:882`) | PROTOCOL | **DONE-VERIFIED** | PROTO-CORRECTNESS-2 | PROTO-HARDEN-2A added plaintext `type:'error'` handler/validation groundwork. PROTO-CORRECTNESS-2 (`sdk-v0.5.8-proto-correctness-2`, `01e76e4`) completed the fix: unknown/missing/empty type → `UNKNOWN_MESSAGE_TYPE` + disconnect; malformed file-chunk (missing/empty filename) → `INVALID_MESSAGE` + disconnect. Enforcement at legacy plaintext call site before `routeInnerMessage`. 3 UNIT + 3 ADVERSARIAL tests in `sa9-legacy-plaintext-drops.test.ts`. |
 | SA10 | HELLO timeout silently downgrades to unauthenticated legacy mode after 5s (`WebRTCService.ts:433-446`) | TRANSPORT | **OPEN** | TBD | — |
 | SA11 | Identity key not cryptographically bound to ephemeral key in HELLO | PROTOCOL | **DONE-BY-DESIGN** | N/A (spec) | PROTOCOL.md §3 defines SAS computation binding identity + ephemeral keys via `SHA-256(sort32(identity_A, identity_B) \|\| sort32(ephemeral_A, ephemeral_B))`. §15.2 documents this as the v1 mitigation. v2 may add transcript hash binding. Accepted design. |
-| SA12 | Async race: `processHello()` invoked without synchronous guard; concurrent execution possible (`WebRTCService.ts:803`) | PROTOCOL | **OPEN** | TBD | — |
+| SA12 | Async race: `processHello()` invoked without synchronous guard; concurrent execution possible (`WebRTCService.ts:803`) | PROTOCOL | **DONE-VERIFIED** | PROTO-CORRECTNESS-2 | `sdk-v0.5.8-proto-correctness-2` (`01e76e4`). Synchronous `helloProcessing` guard set before first `await` in `processHello()`. Concurrent entry rejected with `DUPLICATE_HELLO` + disconnect. Guard reset in `disconnect()` for clean new-session semantics. 2 UNIT + 2 ADVERSARIAL tests in `sa12-hello-reentrancy.test.ts`. |
 
 ### LOW Severity
 
@@ -200,6 +200,6 @@ O1–O12 (PROTO-HARDEN-1 observations above).
 | Severity | Total | Resolved | Open |
 |----------|-------|----------|------|
 | HIGH | 3 | 2 (SA2, SA3) | 1 (SA1) |
-| MEDIUM | 9 | 3 (SA8, SA11 by-design, SA9 partial) | 6 (SA4–SA7, SA10, SA12) |
+| MEDIUM | 9 | 5 (SA8, SA9, SA11 by-design, SA12) | 4 (SA4–SA7, SA10) |
 | LOW | 7 | 0 | 7 (SA13–SA19) |
-| **Total** | **19** | **5** | **14** |
+| **Total** | **19** | **7** | **12** |

@@ -109,6 +109,15 @@ Evidence Minimum: INTEROP + ADVERSARIAL (severity = HIGH).
 - No silent return paths remain in `routeInnerMessage()`.
 - Tests cover unknown type, missing type, empty type scenarios.
 
+**Resolution:**
+Implemented in `sdk-v0.5.8-proto-correctness-2` (`01e76e4`), phase PROTO-CORRECTNESS-2.
+Enforcement applied at the legacy plaintext call site in `handleMessage()` before
+`routeInnerMessage()` is reached — unknown/missing/empty type → `UNKNOWN_MESSAGE_TYPE` +
+disconnect; malformed file-chunk with missing/empty filename → `INVALID_MESSAGE` + disconnect.
+`routeInnerMessage()` internal guard retained as defense-in-depth; envelope path unmodified
+(already validated upstream). Invariant satisfied.
+Evidence: 3 UNIT + 3 ADVERSARIAL tests in `sa9-legacy-plaintext-drops.test.ts`.
+
 ---
 
 ### SA12 — Async Race in processHello (MEDIUM)
@@ -132,6 +141,13 @@ Evidence Minimum: INTEROP + ADVERSARIAL (severity = HIGH).
 - Synchronous guard state set at `processHello()` entry, before any `await`.
 - Concurrent entry returns `DUPLICATE_HELLO` error + disconnect.
 - Guard state cleared on all exit paths (success, error, disconnect).
+
+**Resolution:**
+Implemented in `sdk-v0.5.8-proto-correctness-2` (`01e76e4`), phase PROTO-CORRECTNESS-2.
+Synchronous `helloProcessing` boolean guard set at `processHello()` entry before any `await`.
+Concurrent entry rejected with `DUPLICATE_HELLO` + disconnect via `sendErrorAndDisconnect`.
+Guard reset in `disconnect()` for clean new-session semantics. Invariant satisfied.
+Evidence: 2 UNIT + 2 ADVERSARIAL tests in `sa12-hello-reentrancy.test.ts`.
 
 ---
 
