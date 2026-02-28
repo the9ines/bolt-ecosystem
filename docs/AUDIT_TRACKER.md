@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-02-27
+**Last updated:** 2026-02-28
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -85,13 +85,13 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 ## SUMMARY
 
 - **Total findings:** 60 (41 prior + 19 SA-series)
-- **DONE / DONE-VERIFIED:** 31
+- **DONE / DONE-VERIFIED:** 33
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 1 (SA11)
 - **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN (SA-series):** 12 (SA1, SA4–SA7, SA10, SA13–SA19)
+- **OPEN (SA-series):** 11 (SA1, SA4–SA6, SA10, SA13–SA18)
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md` and SA-series below
 
 ---
@@ -176,7 +176,7 @@ O1–O12 (PROTO-HARDEN-1 observations above).
 | SA4 | Rust `KeyPair` has no `Drop`/`zeroize`; secret key persists in memory (`crypto.rs:22-28`) | MEMORY | **OPEN** | TBD | — |
 | SA5 | `PeerConnection` leaked on `handleOffer` error; `disconnect()` not called (`WebRTCService.ts:195-198`) | LIFECYCLE | **OPEN** | TBD | — |
 | SA6 | Signaling listener never unregistered; no `offSignal()` in `SignalingProvider` (`WebRTCService.ts:165`) | LIFECYCLE | **OPEN** | TBD | — |
-| SA7 | `remoteIdentityKey` set to null without `fill(0)` on disconnect (`WebRTCService.ts:667`) | MEMORY | **OPEN** | TBD | — |
+| SA7 | `remoteIdentityKey` set to null without `fill(0)` on disconnect (`WebRTCService.ts:667`) | MEMORY | **DONE-VERIFIED** | MEMORY-HARDEN-1A | `sdk-v0.5.9-memory-harden-1a` (`5821e65`). `remoteIdentityKey.fill(0)` before null assignment in `disconnect()`. Guard: `instanceof Uint8Array`. 6 tests in `sa7-sa19-key-zeroization.test.ts`. |
 | SA8 | Daemon sent plaintext errors post-handshake; web's ENVELOPE_REQUIRED guard rejected them | PROTOCOL | **DONE-VERIFIED** | I5 (interop-error-framing) | `daemon-v0.2.11-interop-error-framing` (`600fef4`): `build_error_payload()` wraps in envelope when negotiated. `transport-web-v0.6.2-interop-error-framing` (`e463e1a`): web sends + accepts enveloped errors. +4 daemon tests, +5 web tests. INTEROP: both sides envelope-aware. ADVERSARIAL: plaintext-in-envelope-mode rejected. |
 | SA9 | `routeInnerMessage` silently drops non-file-chunk types in legacy plaintext path (`WebRTCService.ts:882`) | PROTOCOL | **DONE-VERIFIED** | PROTO-CORRECTNESS-2 | PROTO-HARDEN-2A added plaintext `type:'error'` handler/validation groundwork. PROTO-CORRECTNESS-2 (`sdk-v0.5.8-proto-correctness-2`, `01e76e4`) completed the fix: unknown/missing/empty type → `UNKNOWN_MESSAGE_TYPE` + disconnect; malformed file-chunk (missing/empty filename) → `INVALID_MESSAGE` + disconnect. Enforcement at legacy plaintext call site before `routeInnerMessage`. 3 UNIT + 3 ADVERSARIAL tests in `sa9-legacy-plaintext-drops.test.ts`. |
 | SA10 | HELLO timeout silently downgrades to unauthenticated legacy mode after 5s (`WebRTCService.ts:433-446`) | TRANSPORT | **OPEN** | TBD | — |
@@ -193,13 +193,13 @@ O1–O12 (PROTO-HARDEN-1 observations above).
 | SA16 | TLS stream silently skips `set_read_timeout` (`rendezvous.rs:171-175`) | TRANSPORT | **OPEN** | TBD | — |
 | SA17 | No max length enforced on remote capabilities array in HELLO | TRANSPORT | **OPEN** | TBD | — |
 | SA18 | `decodeProfileEnvelopeV1()` dead code returns null instead of throwing (`WebRTCService.ts:1215-1226`) | GOVERNANCE | **OPEN** | TBD | — |
-| SA19 | `remotePublicKey` set to null without `fill(0)` on disconnect (`WebRTCService.ts:642`) | MEMORY | **OPEN** | TBD | — |
+| SA19 | `remotePublicKey` set to null without `fill(0)` on disconnect (`WebRTCService.ts:642`) | MEMORY | **DONE-VERIFIED** | MEMORY-HARDEN-1A | `sdk-v0.5.9-memory-harden-1a` (`5821e65`). `remotePublicKey.fill(0)` before null assignment in `disconnect()`. Guard: `instanceof Uint8Array`. 6 tests in `sa7-sa19-key-zeroization.test.ts`. |
 
 ### SA-series Summary
 
 | Severity | Total | Resolved | Open |
 |----------|-------|----------|------|
 | HIGH | 3 | 2 (SA2, SA3) | 1 (SA1) |
-| MEDIUM | 9 | 5 (SA8, SA9, SA11 by-design, SA12) | 4 (SA4–SA7, SA10) |
-| LOW | 7 | 0 | 7 (SA13–SA19) |
-| **Total** | **19** | **7** | **12** |
+| MEDIUM | 9 | 5 (SA7, SA8, SA9, SA11 by-design, SA12) | 4 (SA4–SA6, SA10) |
+| LOW | 7 | 1 (SA19) | 6 (SA13–SA18) |
+| **Total** | **19** | **8** | **11** |
