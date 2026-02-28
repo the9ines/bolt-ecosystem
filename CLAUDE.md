@@ -95,7 +95,7 @@ Encrypted peer-to-peer file transfer ecosystem built on the Bolt Protocol. Open-
 |------|------|--------|----------|
 | bolt-core-sdk | Protocol SDK | Active | Rust, TypeScript |
 | bolt-rendezvous | Infrastructure | Active | Rust, WebSocket |
-| bolt-daemon | Infrastructure | Planned | Rust |
+| bolt-daemon | Infrastructure | Active | Rust |
 | bolt-protocol | Specification | Planned | Markdown only |
 | localbolt | Product (open) | Active | React, TS, Vite, Tailwind |
 | localbolt-app | Product (open) | Active | Tauri v2, React, Rust |
