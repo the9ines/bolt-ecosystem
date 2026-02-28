@@ -85,13 +85,13 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 ## SUMMARY
 
 - **Total findings:** 60 (41 prior + 19 SA-series)
-- **DONE / DONE-VERIFIED:** 34
+- **DONE / DONE-VERIFIED:** 36
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 1 (SA11)
 - **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN (SA-series):** 10 (SA1, SA5–SA6, SA10, SA13–SA18)
+- **OPEN (SA-series):** 8 (SA1, SA10, SA13–SA18)
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md` and SA-series below
 
 > **OPEN (global)** = all findings across all series with Status = OPEN.
@@ -179,8 +179,8 @@ O1–O12 (PROTO-HARDEN-1 observations above).
 | SA_ID | Summary | Track | Status | Phase | Evidence |
 |-------|---------|-------|--------|-------|----------|
 | SA4 | Rust `KeyPair` has no `Drop`/`zeroize`; secret key persists in memory (`crypto.rs:22-28`) | MEMORY | **DONE-VERIFIED** | MEMORY-HARDEN-1B | `sdk-v0.5.10-memory-harden-1b` (`781997d`). `impl Drop for KeyPair` with `write_volatile` per byte of `secret_key` + `compiler_fence(SeqCst)`. Tests: `keypair_drop_zeroizes_secret` (heap-drop proof via `read_volatile`), `keypair_drop_zeros_safe`. Note: daemon has one `clone()` site extending secret lifetime; out-of-scope optimization, not a blocker. |
-| SA5 | `PeerConnection` leaked on `handleOffer` error; `disconnect()` not called (`WebRTCService.ts:195-198`) | LIFECYCLE | **OPEN** | TBD | — |
-| SA6 | Signaling listener never unregistered; no `offSignal()` in `SignalingProvider` (`WebRTCService.ts:165`) | LIFECYCLE | **OPEN** | TBD | — |
+| SA5 | `PeerConnection` leaked on `handleOffer` error; `disconnect()` not called (`WebRTCService.ts:195-198`) | LIFECYCLE | **DONE-VERIFIED** | LIFECYCLE-HARDEN-1 | `sdk-v0.5.11-lifecycle-harden-1` (`1962891`). `handleSignal()` catch block calls `disconnect()` before `onError()`. `createPeerConnection()` nulls `this.pc` after closing old connection. 3 tests (1 UNIT: disconnect-before-onError ordering, 1 UNIT: idempotent double-call, 1 ADVERSARIAL: throw-with-no-pc). |
+| SA6 | Signaling listener never unregistered; no `offSignal()` in `SignalingProvider` (`WebRTCService.ts:165`) | LIFECYCLE | **DONE-VERIFIED** | LIFECYCLE-HARDEN-1 | `sdk-v0.5.11-lifecycle-harden-1` (`1962891`). `SignalingProvider.onSignal()` returns unsubscribe function. WebSocketSignaling + DualSignaling return closures splicing callback from array (idempotent). WebRTCService stores handle, invokes early in `disconnect()`. 5 tests (1 UNIT: unsubscribe invoked, 1 UNIT: post-disconnect emission blocked, 1 ADVERSARIAL: reconnect dedup, 2 signaling unit). |
 | SA7 | `remoteIdentityKey` set to null without `fill(0)` on disconnect (`WebRTCService.ts:667`) | MEMORY | **DONE-VERIFIED** | MEMORY-HARDEN-1A | `sdk-v0.5.9-memory-harden-1a` (`5821e65`). `remoteIdentityKey.fill(0)` before null assignment in `disconnect()`. Guard: `instanceof Uint8Array`. 6 tests in `sa7-sa19-key-zeroization.test.ts`. |
 | SA8 | Daemon sent plaintext errors post-handshake; web's ENVELOPE_REQUIRED guard rejected them | PROTOCOL | **DONE-VERIFIED** | I5 (interop-error-framing) | `daemon-v0.2.11-interop-error-framing` (`600fef4`): `build_error_payload()` wraps in envelope when negotiated. `transport-web-v0.6.2-interop-error-framing` (`e463e1a`): web sends + accepts enveloped errors. +4 daemon tests, +5 web tests. INTEROP: both sides envelope-aware. ADVERSARIAL: plaintext-in-envelope-mode rejected. |
 | SA9 | `routeInnerMessage` silently drops non-file-chunk types in legacy plaintext path (`WebRTCService.ts:882`) | PROTOCOL | **DONE-VERIFIED** | PROTO-CORRECTNESS-2 | PROTO-HARDEN-2A added plaintext `type:'error'` handler/validation groundwork. PROTO-CORRECTNESS-2 (`sdk-v0.5.8-proto-correctness-2`, `01e76e4`) completed the fix: unknown/missing/empty type → `UNKNOWN_MESSAGE_TYPE` + disconnect; malformed file-chunk (missing/empty filename) → `INVALID_MESSAGE` + disconnect. Enforcement at legacy plaintext call site before `routeInnerMessage`. 3 UNIT + 3 ADVERSARIAL tests in `sa9-legacy-plaintext-drops.test.ts`. |
@@ -205,6 +205,6 @@ O1–O12 (PROTO-HARDEN-1 observations above).
 | Severity | Total | Resolved | Open |
 |----------|-------|----------|------|
 | HIGH | 3 | 2 (SA2, SA3) | 1 (SA1) |
-| MEDIUM | 9 | 6 (SA4, SA7, SA8, SA9, SA11 by-design, SA12) | 3 (SA5–SA6, SA10) |
+| MEDIUM | 9 | 8 (SA4–SA6, SA7, SA8, SA9, SA11 by-design, SA12) | 1 (SA10) |
 | LOW | 7 | 1 (SA19) | 6 (SA13–SA18) |
-| **Total** | **19** | **9** | **10** |
+| **Total** | **19** | **11** | **8** |

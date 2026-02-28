@@ -5,6 +5,26 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## LIFECYCLE-HARDEN-1 — Deterministic Signaling Teardown (2026-02-28)
+
+SA5 + SA6 lifecycle hardening in bolt-transport-web. Closes both
+MEDIUM-severity LIFECYCLE-track findings from the 2026-02-26 audit.
+
+**Deliverables:**
+- **bolt-core-sdk** (`1962891`, `sdk-v0.5.11-lifecycle-harden-1`):
+  - SA5: `handleSignal()` catch block calls `disconnect()` before
+    `onError()`. `createPeerConnection()` nulls `this.pc` after close.
+  - SA6: `SignalingProvider.onSignal()` returns unsubscribe function.
+    WebSocketSignaling/DualSignaling return idempotent closures.
+    WebRTCService stores handle, invokes early in `disconnect()`.
+  - 8 new tests (3 SA5 + 5 SA6). 196 transport-web tests total.
+- **bolt-ecosystem**: SA5/SA6 promoted to DONE-VERIFIED in tracker.
+
+**Semver note:** `SignalingProvider.onSignal` return type changed from
+`void` to `(() => void) | void`. Runtime-safe for void-return impls.
+
+---
+
 ## PROTO-HARDEN-1R1 — Canonical Error Registry Unification (2026-02-26)
 
 Unified the split error code registry (audit observation O4) into a single
