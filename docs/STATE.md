@@ -1,14 +1,14 @@
 ---
 Snapshot Derived From:
-- sdk-v0.5.11-lifecycle-harden-1 (1962891)
+- sdk-v0.5.12-transport-harden-2 (ad8cd3c)
 - daemon-v0.2.13-proto-harden-2a (f88a78b)
 - transport-web-v0.6.2-interop-error-framing (e463e1a)  [provenance only]
-Last Refreshed By: AUDIT-GOV-8
+Last Refreshed By: AUDIT-GOV-9
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-02-28 (AUDIT-GOV-8 SA5/SA6 promotion)
+> **Last Updated:** 2026-02-28 (AUDIT-GOV-9 SA10 promotion)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -105,12 +105,12 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 
 ---
 
-## Security Audit (SA-series) Snapshot — ecosystem-v0.1.10-audit-gov-7
+## Security Audit (SA-series) Snapshot — ecosystem-v0.1.11-audit-gov-9
 
-- **SA resolved:** 9
-- **SA open:** 10
+- **SA resolved:** 12
+- **SA open:** 7
 - **SA in-progress:** 0
-- **DONE-VERIFIED:** SA2, SA3, SA4, SA7, SA8, SA9, SA12, SA19
+- **DONE-VERIFIED:** SA2, SA3, SA4, SA5, SA6, SA7, SA8, SA9, SA10, SA12, SA19
 
 > Full detail in `docs/AUDIT_TRACKER.md`. This section is summary-level only.
 
@@ -172,7 +172,7 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
-| bolt-core-sdk | `sdk-v0.5.11-lifecycle-harden-1` | `1962891` |
+| bolt-core-sdk | `sdk-v0.5.12-transport-harden-2` | `ad8cd3c` |
 | bolt-daemon | `daemon-v0.2.13-proto-harden-2a` | `f88a78b` |
 | bolt-rendezvous | `rendezvous-v0.2.2-s0-canonical-lib-verified` | `fd8d3df` |
 | localbolt | `localbolt-v1.0.17` | `276047a` |
@@ -189,7 +189,7 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 | Repo | Tests | Notes |
 |------|------:|-------|
 | bolt-core-sdk (TS bolt-core) | 104 | Includes H2 enforcement + H3 golden vectors + H6 nonce tests |
-| bolt-core-sdk (TS transport-web) | 196 | Includes H2 enforcement + S2B metrics + interop error framing + SA5/SA6 lifecycle harden |
+| bolt-core-sdk (TS transport-web) | 199 | Includes H2 enforcement + S2B metrics + interop error framing + SA5/SA6 lifecycle harden + SA10 hello timeout |
 | bolt-core-sdk (Rust, default) | 87 | main (61 unit + 11 S1 conformance + 15 S2 contract) |
 | bolt-core-sdk (Rust, vectors) | 117 | main (61 unit + 27 S1 conformance + 14 H3 vectors + 15 S2 contract) |
 | bolt-daemon (default) | 212 | main |
