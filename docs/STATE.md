@@ -1,14 +1,14 @@
 ---
 Snapshot Derived From:
 - sdk-v0.5.12-transport-harden-2 (ad8cd3c)
-- daemon-v0.2.15-daemon-identity-separation-1 (255ff5d)
-- transport-web-v0.6.2-interop-error-framing (e463e1a)  [provenance only]
-Last Refreshed By: AUDIT-GOV-11
+- daemon-v0.2.16-low-sa-sweep-1
+- transport-web-v0.6.4-low-sa-sweep-1
+Last Refreshed By: AUDIT-GOV-12A
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-02-28 (AUDIT-GOV-11 SA1 promoted to DONE-VERIFIED)
+> **Last Updated:** 2026-02-28 (AUDIT-GOV-12A — SA13–SA18 promoted, 2026-02-28 audit registered)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -105,14 +105,32 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 
 ---
 
-## Security Audit (SA-series) Snapshot — ecosystem-v0.1.13-audit-gov-11
+## Security Audit (SA-series) Snapshot — ecosystem-v0.1.14-audit-gov-12a
 
-- **SA resolved:** 13
-- **SA open:** 6
+- **SA resolved:** 19
+- **SA open:** 0
 - **SA in-progress:** 0
-- **DONE-VERIFIED:** SA1, SA2, SA3, SA4, SA5, SA6, SA7, SA8, SA9, SA10, SA12, SA19
+- **DONE-VERIFIED:** SA1, SA2, SA3, SA4, SA5, SA6, SA7, SA8, SA9, SA10, SA12, SA13, SA14, SA16, SA17, SA18, SA19
+- **DONE-BY-DESIGN:** SA11, SA15
 
-All HIGH findings resolved. Remaining open: SA13–SA18 (all LOW).
+SA-series fully closed. All 19 findings resolved.
+
+> Full detail in `docs/AUDIT_TRACKER.md`. This section is summary-level only.
+
+---
+
+## 2026-02-28 Audit Delta (N-series) — ecosystem-v0.1.14-audit-gov-12a
+
+- **Total findings (global):** 71
+- **N-series total:** 11
+- **N-series open:** 11
+- **HIGH open:** 1 (N1)
+- **MEDIUM open:** 6 (N2–N7)
+- **LOW open:** 4 (N8–N11)
+
+**Canonical audit source:** `docs/AUDITS/2026-02-28-security-audit.md`
+
+N1 extends the SA13 surface (`onbufferedamountlow` missed in DC handler null fix).
 
 > Full detail in `docs/AUDIT_TRACKER.md`. This section is summary-level only.
 
@@ -174,8 +192,8 @@ All HIGH findings resolved. Remaining open: SA13–SA18 (all LOW).
 
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
-| bolt-core-sdk | `sdk-v0.5.12-transport-harden-2` | `ad8cd3c` |
-| bolt-daemon | `daemon-v0.2.15-daemon-identity-separation-1` | `255ff5d` |
+| bolt-core-sdk | `transport-web-v0.6.4-low-sa-sweep-1` | `a7d578a` |
+| bolt-daemon | `daemon-v0.2.16-low-sa-sweep-1` | `7cf69e6` |
 | bolt-rendezvous | `rendezvous-v0.2.2-s0-canonical-lib-verified` | `fd8d3df` |
 | localbolt | `localbolt-v1.0.17` | `276047a` |
 | localbolt-app | `localbolt-app-v1.2.1` | `2e8ef6a` |

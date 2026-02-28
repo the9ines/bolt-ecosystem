@@ -84,20 +84,20 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 
 ## SUMMARY
 
-- **Total findings:** 60 (41 prior + 19 SA-series)
-- **DONE / DONE-VERIFIED:** 38
+- **Total findings:** 71 (41 prior + 19 SA-series + 11 N-series)
+- **DONE / DONE-VERIFIED:** 43
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
-- **DONE-BY-DESIGN:** 1 (SA11)
+- **DONE-BY-DESIGN:** 2 (SA11, SA15)
 - **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN (SA-series):** 6 (SA13–SA18)
-- **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md` and SA-series below
+- **OPEN (N-series):** 11 (N1–N11)
+- **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md`, SA-series (closed), and N-series below
 
 > **OPEN (global)** = all findings across all series with Status = OPEN.
 > Does not include IN-PROGRESS, DEFERRED, CODIFIED, CLOSED-NO-BUG, or DONE-BY-DESIGN.
 
-Arithmetic reconciled in AUDIT-GOV-11 — SA1 promoted to DONE-VERIFIED.
+Arithmetic reconciled in AUDIT-GOV-12A — SA13–SA18 promoted, 2026-02-28 findings registered.
 
 ---
 
@@ -192,12 +192,12 @@ O1–O12 (PROTO-HARDEN-1 observations above).
 
 | SA_ID | Summary | Track | Status | Phase | Evidence |
 |-------|---------|-------|--------|-------|----------|
-| SA13 | DC handlers not nulled before `dc.close()` (`WebRTCService.ts:629-632`) | LIFECYCLE | **OPEN** | TBD | — |
-| SA14 | `helloTimeout` stale callback race; no session generation counter | LIFECYCLE | **OPEN** | TBD | — |
-| SA15 | `bolt.file-hash` missing from `DAEMON_CAPABILITIES` (`web_hello.rs:36`) | TRANSPORT | **OPEN** | TBD | — |
-| SA16 | TLS stream silently skips `set_read_timeout` (`rendezvous.rs:171-175`) | TRANSPORT | **OPEN** | TBD | — |
-| SA17 | No max length enforced on remote capabilities array in HELLO | TRANSPORT | **OPEN** | TBD | — |
-| SA18 | `decodeProfileEnvelopeV1()` dead code returns null instead of throwing (`WebRTCService.ts:1215-1226`) | GOVERNANCE | **OPEN** | TBD | — |
+| SA13 | DC handlers not nulled before `dc.close()` (`WebRTCService.ts:629-632`) | LIFECYCLE | **DONE-VERIFIED** | SA-LOW-SWEEP-1 | `transport-web-v0.6.4-low-sa-sweep-1`. DC event handlers (`onopen`, `onclose`, `onerror`, `onmessage`) nulled before `dc.close()`. 1 UNIT test. |
+| SA14 | `helloTimeout` stale callback race; no session generation counter | LIFECYCLE | **DONE-VERIFIED** | SA-LOW-SWEEP-1 | `transport-web-v0.6.4-low-sa-sweep-1`. Session generation counter incremented on connect/disconnect; stale timeout callbacks rejected. 1 UNIT test. |
+| SA15 | `bolt.file-hash` missing from `DAEMON_CAPABILITIES` (`web_hello.rs:36`) | TRANSPORT | **DONE-BY-DESIGN** | SA-LOW-SWEEP-1 | Daemon does not implement file transfer; advertising `bolt.file-hash` would be misleading. Capability will be added when daemon gains transfer support. Documented rationale. |
+| SA16 | TLS stream silently skips `set_read_timeout` (`rendezvous.rs:171-175`) | TRANSPORT | **DONE-VERIFIED** | SA-LOW-SWEEP-1 | `daemon-v0.2.16-low-sa-sweep-1`. TLS streams now receive `set_read_timeout` with same duration as plaintext. 1 UNIT test. |
+| SA17 | No max length enforced on remote capabilities array in HELLO | TRANSPORT | **DONE-VERIFIED** | SA-LOW-SWEEP-1 | `daemon-v0.2.16-low-sa-sweep-1`. `MAX_CAPABILITIES_COUNT` (32) enforced during HELLO parsing; oversized arrays rejected with `INVALID_HELLO`. 1 UNIT test. |
+| SA18 | `decodeProfileEnvelopeV1()` dead code returns null instead of throwing (`WebRTCService.ts:1215-1226`) | GOVERNANCE | **DONE-VERIFIED** | SA-LOW-SWEEP-1 | `transport-web-v0.6.4-low-sa-sweep-1`. Dead code null-return replaced with throw. 1 UNIT test. |
 | SA19 | `remotePublicKey` set to null without `fill(0)` on disconnect (`WebRTCService.ts:642`) | MEMORY | **DONE-VERIFIED** | MEMORY-HARDEN-1A | `sdk-v0.5.9-memory-harden-1a` (`5821e65`). `remotePublicKey.fill(0)` before null assignment in `disconnect()`. Guard: `instanceof Uint8Array`. 6 tests in `sa7-sa19-key-zeroization.test.ts`. |
 
 ### SA-series Summary
@@ -206,5 +206,58 @@ O1–O12 (PROTO-HARDEN-1 observations above).
 |----------|-------|----------|------|
 | HIGH | 3 | 3 (SA1, SA2, SA3) | 0 |
 | MEDIUM | 9 | 9 (SA4–SA6, SA7, SA8, SA9, SA10, SA11 by-design, SA12) | 0 |
-| LOW | 7 | 1 (SA19) | 6 (SA13–SA18) |
-| **Total** | **19** | **13** | **6** |
+| LOW | 7 | 7 (SA13, SA14, SA15 by-design, SA16, SA17, SA18, SA19) | 0 |
+| **Total** | **19** | **19** | **0** |
+
+---
+
+## SECURITY AUDIT — 2026-02-28 (N-series)
+
+Findings from the 2026-02-28 read-only security audit of bolt-core-sdk (Rust + TS),
+bolt-daemon, and bolt-transport-web. Registered as N-series to avoid collision with
+SA-series (2026-02-26) and O-series (PROTO-HARDEN-1).
+
+**Canonical audit source:** [`docs/AUDITS/2026-02-28-security-audit.md`](AUDITS/2026-02-28-security-audit.md)
+
+### Tracks
+
+- PROTOCOL: wire semantics, handshake, capability semantics
+- LIFECYCLE: resource teardown, listeners, object lifetime, disconnect correctness
+- MEMORY: zeroization, secret lifetime, key handling
+- TRANSPORT: timeouts, bounds, backpressure, framing transport behaviors
+- GOVERNANCE: docs, conformance, tag discipline, process controls
+
+### HIGH Severity
+
+| N_ID | Summary | Track | Status | Phase | Evidence |
+|------|---------|-------|--------|-------|----------|
+| N1 | `onbufferedamountlow` not nulled in `disconnect()` — backpressure await may suspend permanently. Related to SA13 handler-null fix; missed `onbufferedamountlow` in same block. Component: `WebRTCService.ts` | LIFECYCLE | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
+
+### MEDIUM Severity
+
+| N_ID | Summary | Track | Status | Phase | Evidence |
+|------|---------|-------|--------|-------|----------|
+| N2 | `helloProcessing` never reset after success/error — reconnect blocked | LIFECYCLE | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
+| N3 | `SignalingProvider.onSignal` return type allows void — listener may be unregisterable | LIFECYCLE | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
+| N4 | `KeyPair` derives `Clone` — secret key silently duplicable | MEMORY | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
+| N5 | Envelope-v1 not enforced unilaterally — downgrade possible | PROTOCOL | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
+| N6 | Daemon answerer pre-HELLO failure exits silently without typed error | PROTOCOL | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
+| N7 | Answerer does not wire `HelloState` into DC HELLO path — exactly-once structural only | PROTOCOL | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
+
+### LOW Severity
+
+| N_ID | Summary | Track | Status | Phase | Evidence |
+|------|---------|-------|--------|-------|----------|
+| N8 | No per-capability string length bound | TRANSPORT | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
+| N9 | No cross-language golden vector test (TS seal → Rust open) | GOVERNANCE | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
+| N10 | Completion `setTimeout` not cancellable by `disconnect()` | LIFECYCLE | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
+| N11 | TS `openBoxPayload` missing explicit length guard before nonce slice | TRANSPORT | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
+
+### N-series Summary
+
+| Severity | Total | Resolved | Open |
+|----------|-------|----------|------|
+| HIGH | 1 | 0 | 1 (N1) |
+| MEDIUM | 6 | 0 | 6 (N2–N7) |
+| LOW | 4 | 0 | 4 (N8–N11) |
+| **Total** | **11** | **0** | **11** |
