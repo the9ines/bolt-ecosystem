@@ -94,6 +94,11 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 - **OPEN (SA-series):** 11 (SA1, SA4–SA6, SA10, SA13–SA18)
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md` and SA-series below
 
+> **OPEN (global)** = all findings across all series with Status = OPEN.
+> Does not include IN-PROGRESS, DEFERRED, CODIFIED, CLOSED-NO-BUG, or DONE-BY-DESIGN.
+
+Arithmetic reconciled in AUDIT-GOV-6B — no discrepancies found.
+
 ---
 
 ## PROTOCOL HARDENING OBSERVATIONS (PROTO-HARDEN-1)
