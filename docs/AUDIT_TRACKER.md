@@ -85,19 +85,19 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 ## SUMMARY
 
 - **Total findings:** 60 (41 prior + 19 SA-series)
-- **DONE / DONE-VERIFIED:** 37
+- **DONE / DONE-VERIFIED:** 38
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 1 (SA11)
 - **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN (SA-series):** 7 (SA1, SA13–SA18)
+- **OPEN (SA-series):** 6 (SA13–SA18)
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md` and SA-series below
 
 > **OPEN (global)** = all findings across all series with Status = OPEN.
 > Does not include IN-PROGRESS, DEFERRED, CODIFIED, CLOSED-NO-BUG, or DONE-BY-DESIGN.
 
-Arithmetic reconciled in AUDIT-GOV-10 — SA1 Phase A recorded, no status changes.
+Arithmetic reconciled in AUDIT-GOV-11 — SA1 promoted to DONE-VERIFIED.
 
 ---
 
@@ -170,7 +170,7 @@ O1–O12 (PROTO-HARDEN-1 observations above).
 
 | SA_ID | Summary | Track | Status | Phase | Evidence |
 |-------|---------|-------|--------|-------|----------|
-| SA1 | Daemon conflates identity and ephemeral into single per-connection keypair; same key used for signaling `publicKey` and HELLO `identityPublicKey`, leaking identity role via signaling and making TOFU pinning meaningless; violates PROTOCOL.md §15.1 separation and `identity.rs` constraint (`rendezvous.rs:579`, `web_hello.rs:187`) | PROTOCOL | **OPEN** | DAEMON-IDENTITY-PERSIST-1 (Phase A) | Phase A — persistent identity storage implemented. `daemon-v0.2.14-daemon-identity-persist-1` (`6625e23`). Role separation pending (Phase B). |
+| SA1 | Daemon conflates identity and ephemeral into single per-connection keypair; same key used for signaling `publicKey` and HELLO `identityPublicKey`, leaking identity role via signaling and making TOFU pinning meaningless; violates PROTOCOL.md §15.1 separation and `identity.rs` constraint (`rendezvous.rs:579`, `web_hello.rs:187`) | PROTOCOL | **DONE-VERIFIED** | DAEMON-IDENTITY-SEPARATION-1 | Phase A — `daemon-v0.2.14-daemon-identity-persist-1` (`6625e23`). Phase B — `daemon-v0.2.15-daemon-identity-separation-1` (`255ff5d`). Ephemeral vs persistent role separation verified by 12 separation tests. |
 | SA2 | Web client accepted any inbound error code without registry validation (`WebRTCService.ts:849-853`) | PROTOCOL | **DONE-VERIFIED** | PROTO-HARDEN-2A | `sdk-v0.5.7-proto-harden-2a` (`5759164`). `WIRE_ERROR_CODES` 22-entry registry + `isValidWireErrorCode()` guard. Inbound validation rejects unknown/malformed codes. 11 new transport-web tests (7 enveloped + 2 plaintext + 2 outbound guard). ADVERSARIAL: unknown code, missing code, non-string code, empty code, non-string message all tested. |
 | SA3 | Daemon `CANONICAL_ERROR_CODES` had 8/22 codes; 14 valid codes rejected as PROTOCOL_VIOLATION (`envelope.rs:131-140`) | PROTOCOL | **DONE-VERIFIED** | PROTO-HARDEN-2A | `daemon-v0.2.13-proto-harden-2a` (`f88a78b`). Expanded to 22 entries matching PROTOCOL.md §10. +8 daemon tests including per-code acceptance for all 22. INTEROP: both registries now identical. ADVERSARIAL: unknown code rejection preserved. |
 
@@ -204,7 +204,7 @@ O1–O12 (PROTO-HARDEN-1 observations above).
 
 | Severity | Total | Resolved | Open |
 |----------|-------|----------|------|
-| HIGH | 3 | 2 (SA2, SA3) | 1 (SA1) |
+| HIGH | 3 | 3 (SA1, SA2, SA3) | 0 |
 | MEDIUM | 9 | 9 (SA4–SA6, SA7, SA8, SA9, SA10, SA11 by-design, SA12) | 0 |
 | LOW | 7 | 1 (SA19) | 6 (SA13–SA18) |
-| **Total** | **19** | **12** | **7** |
+| **Total** | **19** | **13** | **6** |

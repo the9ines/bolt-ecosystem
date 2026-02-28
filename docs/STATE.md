@@ -1,14 +1,14 @@
 ---
 Snapshot Derived From:
 - sdk-v0.5.12-transport-harden-2 (ad8cd3c)
-- daemon-v0.2.14-daemon-identity-persist-1 (6625e23)
+- daemon-v0.2.15-daemon-identity-separation-1 (255ff5d)
 - transport-web-v0.6.2-interop-error-framing (e463e1a)  [provenance only]
-Last Refreshed By: AUDIT-GOV-10
+Last Refreshed By: AUDIT-GOV-11
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-02-28 (AUDIT-GOV-10 SA1 Phase A recorded)
+> **Last Updated:** 2026-02-28 (AUDIT-GOV-11 SA1 promoted to DONE-VERIFIED)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -105,15 +105,14 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 
 ---
 
-## Security Audit (SA-series) Snapshot — ecosystem-v0.1.12-audit-gov-10
+## Security Audit (SA-series) Snapshot — ecosystem-v0.1.13-audit-gov-11
 
-- **SA resolved:** 12
-- **SA open:** 7
+- **SA resolved:** 13
+- **SA open:** 6
 - **SA in-progress:** 0
-- **DONE-VERIFIED:** SA2, SA3, SA4, SA5, SA6, SA7, SA8, SA9, SA10, SA12, SA19
+- **DONE-VERIFIED:** SA1, SA2, SA3, SA4, SA5, SA6, SA7, SA8, SA9, SA10, SA12, SA19
 
-SA1 Phase A complete (daemon identity persistence).
-Phase B (role separation) pending.
+All HIGH findings resolved. Remaining open: SA13–SA18 (all LOW).
 
 > Full detail in `docs/AUDIT_TRACKER.md`. This section is summary-level only.
 
@@ -176,7 +175,7 @@ Phase B (role separation) pending.
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
 | bolt-core-sdk | `sdk-v0.5.12-transport-harden-2` | `ad8cd3c` |
-| bolt-daemon | `daemon-v0.2.14-daemon-identity-persist-1` | `6625e23` |
+| bolt-daemon | `daemon-v0.2.15-daemon-identity-separation-1` | `255ff5d` |
 | bolt-rendezvous | `rendezvous-v0.2.2-s0-canonical-lib-verified` | `fd8d3df` |
 | localbolt | `localbolt-v1.0.17` | `276047a` |
 | localbolt-app | `localbolt-app-v1.2.1` | `2e8ef6a` |
