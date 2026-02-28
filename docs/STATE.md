@@ -1,6 +1,15 @@
+---
+Snapshot Derived From:
+- ecosystem-v0.1.6-audit-gov-4
+- sdk-v0.5.8-proto-correctness-2 (01e76e4)
+- daemon-v0.2.13-proto-harden-2a (f88a78b)
+- transport-web-v0.6.2-interop-error-framing (e463e1a)  [provenance only]
+Last Refreshed By: AUDIT-GOV-5
+---
+
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-02-26 (S2 policy core in progress)
+> **Last Updated:** 2026-02-28 (AUDIT-GOV-5 snapshot refresh)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -95,6 +104,19 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 |-------|-------------|--------|---------|--------|-----------|
 | P1 | Inbound error validation hardening | DONE | bolt-daemon | `daemon-v0.2.12-p1-inbound-error-validation` | `8c45819` |
 
+---
+
+## Security Audit (SA-series) Snapshot — ecosystem-v0.1.6-audit-gov-4
+
+- **SA resolved:** 7
+- **SA open:** 12
+- **SA in-progress:** 0
+- **DONE-VERIFIED:** SA2, SA3, SA8, SA9, SA12
+
+> Full detail in `docs/AUDIT_TRACKER.md`. This section is summary-level only.
+
+---
+
 ### S1 Completion Notes
 
 - **bolt-core-sdk** (`cced058`): Deterministic Rust conformance harness under `rust/bolt-core/tests/conformance/`. 27 tests (16 envelope + 5 SAS + 6 error mapping, with 11 error_code_mapping tests running under default `cargo test`). Enforces MUST-level invariants: envelope roundtrip determinism (PROTO-01, PROTO-07), MAC verification (SEC-06), nonce freshness/uniqueness (SEC-01, SEC-02), SAS determinism (PROTO-06), and error code mapping stability (Appendix A, Rust surface). No protocol behavior, wire format, or crypto logic changed.
@@ -141,7 +163,7 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 | Exactly-once HELLO | `WebRTCService` (H2) | `web_hello.rs` HelloState | SDK: 21 H2 tests, daemon: 20 tests | Yes |
 | Envelope-required binary enforcement | `WebRTCService` envelope mode (H2) | `envelope.rs` (INTEROP-3) | SDK: H2 rejection tests, daemon: 12 tests | Yes |
 | Fail-closed semantics | All protocol errors → disconnect (H2) | Error framing + disconnect | SDK: per-error-code tests, daemon: EnvelopeError | Yes |
-| Error code registry (14 codes) | Appendix A codes emitted | DcErrorMessage framing | H2: emission tests per code | Yes |
+| Error code registry (22 codes — §10, unified in v0.1.3-spec) | WIRE_ERROR_CODES | CANONICAL_ERROR_CODES | H2+: emission tests per code | Yes |
 | Downgrade resistance | No runtime flag disables enforcement (H2) | web_dc_v1 no-downgrade gate | H2: downgrade resistance suite | Yes |
 | Golden vector parity | SAS, HELLO-open, envelope-open (H3) | SAS, HELLO-open, envelope-open (H3) | SDK: 97 TS + 96 Rust (incl. S1 conformance), daemon: 267 tests | Yes |
 
@@ -151,8 +173,8 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
-| bolt-core-sdk | `transport-web-v0.6.1-s2b-instrumentation` | `02e36b1` |
-| bolt-daemon | `daemon-v0.2.10-h3-h6-mainline` | `0b16392` |
+| bolt-core-sdk | `sdk-v0.5.8-proto-correctness-2` | `01e76e4` |
+| bolt-daemon | `daemon-v0.2.13-proto-harden-2a` | `f88a78b` |
 | bolt-rendezvous | `rendezvous-v0.2.2-s0-canonical-lib-verified` | `fd8d3df` |
 | localbolt | `localbolt-v1.0.17` | `276047a` |
 | localbolt-app | `localbolt-app-v1.2.1` | `2e8ef6a` |
@@ -168,11 +190,11 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 | Repo | Tests | Notes |
 |------|------:|-------|
 | bolt-core-sdk (TS bolt-core) | 97 | Includes H2 enforcement + H3 golden vectors + H6 nonce tests |
-| bolt-core-sdk (TS transport-web) | 156 | Includes H2 enforcement tests + 24 S2B transfer metrics |
+| bolt-core-sdk (TS transport-web) | 182 | Includes H2 enforcement tests + S2B transfer metrics + interop error framing |
 | bolt-core-sdk (Rust, default) | 85 | main (59 unit + 11 S1 conformance + 15 S2 contract) |
 | bolt-core-sdk (Rust, vectors) | 115 | main (59 unit + 27 S1 conformance + 14 H3 vectors + 15 S2 contract) |
 | bolt-daemon (default) | 212 | main |
-| bolt-daemon (test-support) | 267 | main (includes H3/H5 tests) |
+| bolt-daemon (test-support) | 276 | main (includes H3/H5/P1 tests) |
 | bolt-rendezvous | 49 | main (48 unit + 1 doc-test) |
 | localbolt-v3 (TS) | 26 | main (includes H5-v3 TOFU/SAS tests) |
 | localbolt-v3 (Rust signal) | 36 | main (S0 canonical bolt-rendezvous wrapper, up from 32) |
