@@ -85,19 +85,19 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 ## SUMMARY
 
 - **Total findings:** 60 (41 prior + 19 SA-series)
-- **DONE / DONE-VERIFIED:** 33
+- **DONE / DONE-VERIFIED:** 34
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 1 (SA11)
 - **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN (SA-series):** 11 (SA1, SA4–SA6, SA10, SA13–SA18)
+- **OPEN (SA-series):** 10 (SA1, SA5–SA6, SA10, SA13–SA18)
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md` and SA-series below
 
 > **OPEN (global)** = all findings across all series with Status = OPEN.
 > Does not include IN-PROGRESS, DEFERRED, CODIFIED, CLOSED-NO-BUG, or DONE-BY-DESIGN.
 
-Arithmetic reconciled in AUDIT-GOV-6B — no discrepancies found.
+Arithmetic reconciled in AUDIT-GOV-7 — SA4 promoted, counts verified.
 
 ---
 
@@ -178,7 +178,7 @@ O1–O12 (PROTO-HARDEN-1 observations above).
 
 | SA_ID | Summary | Track | Status | Phase | Evidence |
 |-------|---------|-------|--------|-------|----------|
-| SA4 | Rust `KeyPair` has no `Drop`/`zeroize`; secret key persists in memory (`crypto.rs:22-28`) | MEMORY | **OPEN** | TBD | — |
+| SA4 | Rust `KeyPair` has no `Drop`/`zeroize`; secret key persists in memory (`crypto.rs:22-28`) | MEMORY | **DONE-VERIFIED** | MEMORY-HARDEN-1B | `sdk-v0.5.10-memory-harden-1b` (`781997d`). `impl Drop for KeyPair` with `write_volatile` per byte of `secret_key` + `compiler_fence(SeqCst)`. Tests: `keypair_drop_zeroizes_secret` (heap-drop proof via `read_volatile`), `keypair_drop_zeros_safe`. Note: daemon has one `clone()` site extending secret lifetime; out-of-scope optimization, not a blocker. |
 | SA5 | `PeerConnection` leaked on `handleOffer` error; `disconnect()` not called (`WebRTCService.ts:195-198`) | LIFECYCLE | **OPEN** | TBD | — |
 | SA6 | Signaling listener never unregistered; no `offSignal()` in `SignalingProvider` (`WebRTCService.ts:165`) | LIFECYCLE | **OPEN** | TBD | — |
 | SA7 | `remoteIdentityKey` set to null without `fill(0)` on disconnect (`WebRTCService.ts:667`) | MEMORY | **DONE-VERIFIED** | MEMORY-HARDEN-1A | `sdk-v0.5.9-memory-harden-1a` (`5821e65`). `remoteIdentityKey.fill(0)` before null assignment in `disconnect()`. Guard: `instanceof Uint8Array`. 6 tests in `sa7-sa19-key-zeroization.test.ts`. |
@@ -205,6 +205,6 @@ O1–O12 (PROTO-HARDEN-1 observations above).
 | Severity | Total | Resolved | Open |
 |----------|-------|----------|------|
 | HIGH | 3 | 2 (SA2, SA3) | 1 (SA1) |
-| MEDIUM | 9 | 5 (SA7, SA8, SA9, SA11 by-design, SA12) | 4 (SA4–SA6, SA10) |
+| MEDIUM | 9 | 6 (SA4, SA7, SA8, SA9, SA11 by-design, SA12) | 3 (SA5–SA6, SA10) |
 | LOW | 7 | 1 (SA19) | 6 (SA13–SA18) |
-| **Total** | **19** | **8** | **11** |
+| **Total** | **19** | **9** | **10** |
