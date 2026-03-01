@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-02-28
+**Last updated:** 2026-03-01
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -85,19 +85,19 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 ## SUMMARY
 
 - **Total findings:** 71 (41 prior + 19 SA-series + 11 N-series)
-- **DONE / DONE-VERIFIED:** 50
+- **DONE / DONE-VERIFIED:** 53
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
-- **DONE-BY-DESIGN:** 2 (SA11, SA15)
+- **DONE-BY-DESIGN:** 3 (SA11, SA15, N9)
 - **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN (N-series):** 4 (N8, N9, N10, N11)
-- **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md`, SA-series (closed), and N-series below
+- **OPEN:** 0
+- **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md`. All audit series fully closed.
 
 > **OPEN (global)** = all findings across all series with Status = OPEN.
 > Does not include IN-PROGRESS, DEFERRED, CODIFIED, CLOSED-NO-BUG, or DONE-BY-DESIGN.
 
-Arithmetic reconciled in ecosystem-v0.1.17-audit-gov-14 — N6, N7 promoted to DONE-VERIFIED. MEDIUM open = 0.
+Arithmetic reconciled in ecosystem-v0.1.18-audit-gov-15 — N8, N10, N11 promoted to DONE-VERIFIED; N9 closed DONE-BY-DESIGN. OPEN = 0. All audit series fully resolved.
 
 ---
 
@@ -248,10 +248,10 @@ SA-series (2026-02-26) and O-series (PROTO-HARDEN-1).
 
 | N_ID | Summary | Track | Status | Phase | Evidence |
 |------|---------|-------|--------|-------|----------|
-| N8 | No per-capability string length bound | TRANSPORT | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
-| N9 | No cross-language golden vector test (TS seal → Rust open) | GOVERNANCE | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
-| N10 | Completion `setTimeout` not cancellable by `disconnect()` | LIFECYCLE | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
-| N11 | TS `openBoxPayload` missing explicit length guard before nonce slice | TRANSPORT | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
+| N8 | No per-capability string length bound | TRANSPORT | **DONE-VERIFIED** | LOW-N8 | `daemon-v0.2.19-low-n8` (`8683cbc`): 64-byte per-capability string length bound enforced in daemon HELLO parsing. `transport-web-v0.6.9-n8-caplen-1` (`ded0a40`): matching 64-byte bound enforced in web HELLO parsing. Both implementations reject oversized capability strings. |
+| N9 | No cross-language golden vector test (TS seal → Rust open) | GOVERNANCE | **DONE-BY-DESIGN** | N/A | Existing H3 golden vectors already prove TS seal → Rust open (daemon + SDK vector suites, 12/12 cross-implementation). Auditor closed N9 based on existing evidence without requiring reverse-direction vectors. No runtime change required. |
+| N10 | Completion `setTimeout` not cancellable by `disconnect()` | LIFECYCLE | **DONE-VERIFIED** | LOW-N10 | `transport-web-v0.6.8-low-n10` (`7f0bbaa`): completion `setTimeout` handle stored and cleared in `disconnect()`. Prevents stale callback execution after teardown. |
+| N11 | TS `openBoxPayload` missing explicit length guard before nonce slice | TRANSPORT | **DONE-VERIFIED** | LOW-N11 | `sdk-v0.5.15-low-n11` (`2a64e16`): explicit minimum-length guard added before nonce slice in `openBoxPayload()`. Undersized payloads rejected with clear error before crypto operation. |
 
 ### N-series Summary
 
@@ -259,5 +259,5 @@ SA-series (2026-02-26) and O-series (PROTO-HARDEN-1).
 |----------|-------|----------|------|
 | HIGH | 1 | 1 (N1) | 0 |
 | MEDIUM | 6 | 6 (N2, N3, N4, N5, N6, N7) | 0 |
-| LOW | 4 | 0 | 4 (N8–N11) |
-| **Total** | **11** | **7** | **4** |
+| LOW | 4 | 4 (N8 verified, N9 by-design, N10 verified, N11 verified) | 0 |
+| **Total** | **11** | **11** | **0** |

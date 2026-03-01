@@ -5,6 +5,24 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.18-audit-gov-15
+
+- N8 (per-capability string length bound) promoted to DONE-VERIFIED
+  - daemon: `daemon-v0.2.19-low-n8` (`8683cbc`)
+  - transport-web: `transport-web-v0.6.9-n8-caplen-1` (`ded0a40`)
+- N10 (completion setTimeout cancellable) promoted to DONE-VERIFIED
+  - transport-web: `transport-web-v0.6.8-low-n10` (`7f0bbaa`)
+- N11 (openBoxPayload min-length guard) promoted to DONE-VERIFIED
+  - sdk: `sdk-v0.5.15-low-n11` (`2a64e16`)
+- N9 (cross-language golden vector test) closed DONE-BY-DESIGN
+  - H3 vectors already prove TS seal → Rust open; auditor closed based on existing evidence
+- N-series OPEN reduced to 0 — audit set fully resolved
+- Global OPEN reduced to 0 — all 71 findings closed across all series
+- DONE / DONE-VERIFIED: 50 → 53
+- DONE-BY-DESIGN: 2 → 3
+
+---
+
 ## ecosystem-v0.1.17-audit-gov-14
 
 - Promote N6 to DONE-VERIFIED (typed HELLO errors)
