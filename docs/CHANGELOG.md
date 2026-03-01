@@ -5,6 +5,18 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.19-audit-gov-16
+
+- Registered 2026-03 Full Ecosystem Audit (AC-Series, 25 findings)
+- Committed frozen audit source (`docs/AUDITS/2026-03-01-full-ecosystem-audit.md`)
+- AC-1 through AC-22: OPEN (9 HIGH, 7 MEDIUM, 6 LOW)
+- AC-23, AC-24, AC-25: DONE-BY-DESIGN
+- Total findings now 96 (was 71)
+- OPEN = 22, DONE-BY-DESIGN = 6
+- No runtime changes
+
+---
+
 ## ecosystem-v0.1.18-audit-gov-15
 
 - N8 (per-capability string length bound) promoted to DONE-VERIFIED

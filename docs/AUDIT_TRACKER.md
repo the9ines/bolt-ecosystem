@@ -84,20 +84,20 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 
 ## SUMMARY
 
-- **Total findings:** 71 (41 prior + 19 SA-series + 11 N-series)
+- **Total findings:** 96 (41 prior + 19 SA-series + 11 N-series + 25 AC-series)
 - **DONE / DONE-VERIFIED:** 53
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
-- **DONE-BY-DESIGN:** 3 (SA11, SA15, N9)
+- **DONE-BY-DESIGN:** 6 (SA11, SA15, N9, AC-23, AC-24, AC-25)
 - **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN:** 0
-- **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md`. All audit series fully closed.
+- **OPEN:** 22 (AC-1 through AC-22)
+- **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md` and AC-series findings below.
 
 > **OPEN (global)** = all findings across all series with Status = OPEN.
 > Does not include IN-PROGRESS, DEFERRED, CODIFIED, CLOSED-NO-BUG, or DONE-BY-DESIGN.
 
-Arithmetic reconciled in ecosystem-v0.1.18-audit-gov-15 — N8, N10, N11 promoted to DONE-VERIFIED; N9 closed DONE-BY-DESIGN. OPEN = 0. All audit series fully resolved.
+Arithmetic reconciled in ecosystem-v0.1.19-audit-gov-16 — 25 AC-series findings registered. OPEN = 22 (AC-1 through AC-22). DONE-BY-DESIGN = 6 (+3 AC-series).
 
 ---
 
@@ -261,3 +261,77 @@ SA-series (2026-02-26) and O-series (PROTO-HARDEN-1).
 | MEDIUM | 6 | 6 (N2, N3, N4, N5, N6, N7) | 0 |
 | LOW | 4 | 4 (N8 verified, N9 by-design, N10 verified, N11 verified) | 0 |
 | **Total** | **11** | **11** | **0** |
+
+---
+
+## 2026-03 FULL ECOSYSTEM AUDIT (AC-Series)
+
+Findings from the 2026-03-01 full ecosystem audit covering all 9 repositories.
+Five parallel audits: spec-implementation conformance, dependency graph & trust boundary,
+crypto & security primitive review, test coverage gap analysis, wire format & interop readiness.
+
+**Canonical audit source:** [`docs/AUDITS/2026-03-01-full-ecosystem-audit.md`](AUDITS/2026-03-01-full-ecosystem-audit.md)
+
+### Tracks
+
+- PROTOCOL: wire semantics, handshake, capability semantics
+- INTEROP: cross-implementation compatibility
+- TRANSPORT: timeouts, bounds, backpressure, framing transport behaviors
+- LIFECYCLE: resource teardown, listeners, object lifetime, disconnect correctness
+- MEMORY: zeroization, secret lifetime, key handling
+- GOVERNANCE: docs, conformance, tag discipline, process controls, CI gates
+
+### HIGH Severity
+
+| AC_ID | Summary | Track | Status | Phase | Evidence |
+|-------|---------|-------|--------|-------|----------|
+| AC-1 | localbolt-app has zero web frontend tests and no CI test gate enforcing npm test | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-2 | bolt-core-sdk CI does not require Rust tests or transport-web tests as mandatory checks | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-3 | localbolt subtrees structurally diverged from canonical bolt-rendezvous | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-4 | localbolt-v3 coverage thresholds defined but not enforced in CI | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-5 | 4 of 12 §15 handshake invariants lack automated regression tests | PROTOCOL | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-6 | No cross-implementation interop test (TS client ↔ Rust signaling server) | INTEROP | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-7 | verify-constants.sh CI guard references outdated path and is inert | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-8 | Rust SDK lacks canonical wire error code registry matching TS | PROTOCOL | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-9 | Five §14 protocol constants missing from core SDK constants files | PROTOCOL | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+
+### MEDIUM Severity
+
+| AC_ID | Summary | Track | Status | Phase | Evidence |
+|-------|---------|-------|--------|-------|----------|
+| AC-10 | Six stale TODO rows remain in CONFORMANCE.md | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-11 | Daemon pins bolt-rendezvous-protocol at stale v0.1.0 | PROTOCOL | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-12 | ARCHITECTURE.md missing documentation of cargo git dependency | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-13 | Three shadow tests test copied logic rather than SDK imports | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-14 | localbolt subtrees may be behind canonical bolt-rendezvous (staleness risk) | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-15 | find_peer allows cross-room relay lookup | TRANSPORT | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-16 | X-Forwarded-For trusted without proxy allowlist | TRANSPORT | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+
+### LOW Severity
+
+| AC_ID | Summary | Track | Status | Phase | Evidence |
+|-------|---------|-------|--------|-------|----------|
+| AC-17 | 56% of transport-web exports unused | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-18 | crypto-utils.ts in localbolt is dead code | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-19 | TS ServerMessage union missing error variant typing | INTEROP | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-20 | No golden vectors for signaling messages | INTEROP | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-21 | §10 spec references bolt.envelope but implementation uses bolt.profile-envelope-v1 | PROTOCOL | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-22 | No concurrent WebSocket connection limit on signal server | TRANSPORT | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+
+### DONE-BY-DESIGN
+
+| AC_ID | Summary | Track | Status | Phase | Evidence |
+|-------|---------|-------|--------|-------|----------|
+| AC-23 | Peer code validation asymmetry intentional (TS stricter) | INTEROP | **DONE-BY-DESIGN** | N/A | See 2026-03-01-full-ecosystem-audit.md |
+| AC-24 | SAS logged to console during verification flow (acceptable UX tradeoff) | LIFECYCLE | **DONE-BY-DESIGN** | N/A | See 2026-03-01-full-ecosystem-audit.md |
+| AC-25 | Identity secret stored in IndexedDB (browser boundary accepted) | MEMORY | **DONE-BY-DESIGN** | N/A | See 2026-03-01-full-ecosystem-audit.md |
+
+### AC-series Summary
+
+| Severity | Total | Open | Resolved |
+|----------|-------|------|----------|
+| HIGH | 9 | 9 (AC-1 through AC-9) | 0 |
+| MEDIUM | 7 | 7 (AC-10 through AC-16) | 0 |
+| LOW | 6 | 6 (AC-17 through AC-22) | 0 |
+| DONE-BY-DESIGN | 3 | — | 3 (AC-23, AC-24, AC-25) |
+| **Total** | **25** | **22** | **3** |

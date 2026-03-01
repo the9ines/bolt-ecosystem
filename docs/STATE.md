@@ -2,12 +2,12 @@
 Snapshot Derived From:
 - transport-web-v0.6.9-n8-caplen-1 (ded0a40)
 - daemon-v0.2.19-low-n8 (8683cbc)
-Last Refreshed By: AUDIT-GOV-15
+Last Refreshed By: AUDIT-GOV-16
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-01 (AUDIT-GOV-15 — N8, N9, N10, N11 closed; N-series fully resolved)
+> **Last Updated:** 2026-03-01 (AUDIT-GOV-16 — AC-Series registered)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -134,6 +134,25 @@ SA-series fully closed. All 19 findings resolved.
 
 > Full detail in `docs/AUDIT_TRACKER.md`. This section is summary-level only.
 > N-series fully resolved as of AUDIT-GOV-15. All audit series closed.
+
+---
+
+## 2026-03 Full Ecosystem Audit (AC-Series) — ecosystem-v0.1.19-audit-gov-16
+
+- **Total:** 25
+- **HIGH:** 9
+- **MEDIUM:** 7
+- **LOW:** 6
+- **DONE-BY-DESIGN:** 3
+- **OPEN:** 22
+- **DONE / DONE-VERIFIED (global):** 53
+- **OPEN (global):** 22
+- **Total findings (global):** 96
+
+**Canonical audit source:** `docs/AUDITS/2026-03-01-full-ecosystem-audit.md`
+
+> Full detail in `docs/AUDIT_TRACKER.md`. This section is summary-level only.
+> N-series remains fully resolved (0 open). Provenance snapshot lines unchanged.
 
 ---
 
