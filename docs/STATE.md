@@ -1,14 +1,14 @@
 ---
 Snapshot Derived From:
-- sdk-v0.5.12-transport-harden-2 (ad8cd3c)
+- sdk-v0.5.13-type-surface-harden-1 (5dc2d12)
 - daemon-v0.2.16-low-sa-sweep-1
-- transport-web-v0.6.4-low-sa-sweep-1
-Last Refreshed By: AUDIT-GOV-12A
+- transport-web-v0.6.7-transport-harden-5 (677926e)
+Last Refreshed By: AUDIT-GOV-12B
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-02-28 (AUDIT-GOV-12A — SA13–SA18 promoted, 2026-02-28 audit registered)
+> **Last Updated:** 2026-02-28 (AUDIT-GOV-12B — N1, N2, N3, N5 promoted to DONE-VERIFIED)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -119,18 +119,18 @@ SA-series fully closed. All 19 findings resolved.
 
 ---
 
-## 2026-02-28 Audit Delta (N-series) — ecosystem-v0.1.14-audit-gov-12a
+## 2026-02-28 Audit Delta (N-series) — ecosystem-v0.1.15-audit-gov-12b
 
 - **Total findings (global):** 71
 - **N-series total:** 11
-- **N-series open:** 11
-- **HIGH open:** 1 (N1)
-- **MEDIUM open:** 6 (N2–N7)
+- **N-series resolved:** 4 (N1, N2, N3, N5)
+- **N-series open:** 7 (N4, N6, N7, N8, N9, N10, N11)
+- **HIGH open:** 0
+- **MEDIUM open:** 3 (N4, N6, N7)
 - **LOW open:** 4 (N8–N11)
+- **DONE / DONE-VERIFIED (global):** 47
 
 **Canonical audit source:** `docs/AUDITS/2026-02-28-security-audit.md`
-
-N1 extends the SA13 surface (`onbufferedamountlow` missed in DC handler null fix).
 
 > Full detail in `docs/AUDIT_TRACKER.md`. This section is summary-level only.
 
@@ -192,7 +192,7 @@ N1 extends the SA13 surface (`onbufferedamountlow` missed in DC handler null fix
 
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
-| bolt-core-sdk | `transport-web-v0.6.4-low-sa-sweep-1` | `a7d578a` |
+| bolt-core-sdk | `transport-web-v0.6.7-transport-harden-5` | `677926e` |
 | bolt-daemon | `daemon-v0.2.16-low-sa-sweep-1` | `7cf69e6` |
 | bolt-rendezvous | `rendezvous-v0.2.2-s0-canonical-lib-verified` | `fd8d3df` |
 | localbolt | `localbolt-v1.0.17` | `276047a` |

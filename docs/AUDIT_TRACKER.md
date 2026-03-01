@@ -85,19 +85,19 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 ## SUMMARY
 
 - **Total findings:** 71 (41 prior + 19 SA-series + 11 N-series)
-- **DONE / DONE-VERIFIED:** 43
+- **DONE / DONE-VERIFIED:** 47
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 2 (SA11, SA15)
 - **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN (N-series):** 11 (N1–N11)
+- **OPEN (N-series):** 7 (N4, N6, N7, N8, N9, N10, N11)
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md`, SA-series (closed), and N-series below
 
 > **OPEN (global)** = all findings across all series with Status = OPEN.
 > Does not include IN-PROGRESS, DEFERRED, CODIFIED, CLOSED-NO-BUG, or DONE-BY-DESIGN.
 
-Arithmetic reconciled in AUDIT-GOV-12A — SA13–SA18 promoted, 2026-02-28 findings registered.
+Arithmetic reconciled in AUDIT-GOV-12B — N1, N2, N3, N5 promoted to DONE-VERIFIED. HIGH open = 0.
 
 ---
 
@@ -231,16 +231,16 @@ SA-series (2026-02-26) and O-series (PROTO-HARDEN-1).
 
 | N_ID | Summary | Track | Status | Phase | Evidence |
 |------|---------|-------|--------|-------|----------|
-| N1 | `onbufferedamountlow` not nulled in `disconnect()` — backpressure await may suspend permanently. Related to SA13 handler-null fix; missed `onbufferedamountlow` in same block. Component: `WebRTCService.ts` | LIFECYCLE | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
+| N1 | `onbufferedamountlow` not nulled in `disconnect()` — backpressure await may suspend permanently. Related to SA13 handler-null fix; missed `onbufferedamountlow` in same block. Component: `WebRTCService.ts` | LIFECYCLE | **DONE-VERIFIED** | TRANSPORT-HARDEN-3 | `transport-web-v0.6.5-transport-harden-3` (`459d682`). |
 
 ### MEDIUM Severity
 
 | N_ID | Summary | Track | Status | Phase | Evidence |
 |------|---------|-------|--------|-------|----------|
-| N2 | `helloProcessing` never reset after success/error — reconnect blocked | LIFECYCLE | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
-| N3 | `SignalingProvider.onSignal` return type allows void — listener may be unregisterable | LIFECYCLE | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
+| N2 | `helloProcessing` never reset after success/error — reconnect blocked | LIFECYCLE | **DONE-VERIFIED** | TRANSPORT-HARDEN-5 | `transport-web-v0.6.7-transport-harden-5` (`677926e`). |
+| N3 | `SignalingProvider.onSignal` return type allows void — listener may be unregisterable | LIFECYCLE | **DONE-VERIFIED** | TYPE-SURFACE-HARDEN-1 | `sdk-v0.5.13-type-surface-harden-1` (`5dc2d12`). Tightens `SignalingProvider.onSignal` return type to `() => void`, resolving the unregisterable-listener contract issue. |
 | N4 | `KeyPair` derives `Clone` — secret key silently duplicable | MEMORY | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
-| N5 | Envelope-v1 not enforced unilaterally — downgrade possible | PROTOCOL | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
+| N5 | Envelope-v1 not enforced unilaterally — downgrade possible | PROTOCOL | **DONE-VERIFIED** | TRANSPORT-HARDEN-4 | `transport-web-v0.6.6-transport-harden-4` (`6748a0a`). |
 | N6 | Daemon answerer pre-HELLO failure exits silently without typed error | PROTOCOL | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
 | N7 | Answerer does not wire `HelloState` into DC HELLO path — exactly-once structural only | PROTOCOL | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
 
@@ -257,7 +257,7 @@ SA-series (2026-02-26) and O-series (PROTO-HARDEN-1).
 
 | Severity | Total | Resolved | Open |
 |----------|-------|----------|------|
-| HIGH | 1 | 0 | 1 (N1) |
-| MEDIUM | 6 | 0 | 6 (N2–N7) |
+| HIGH | 1 | 1 (N1) | 0 |
+| MEDIUM | 6 | 3 (N2, N3, N5) | 3 (N4, N6, N7) |
 | LOW | 4 | 0 | 4 (N8–N11) |
-| **Total** | **11** | **0** | **11** |
+| **Total** | **11** | **4** | **7** |
