@@ -1,14 +1,14 @@
 ---
 Snapshot Derived From:
 - sdk-v0.5.14-memory-harden-2 (903b63f)
-- daemon-v0.2.17-memory-harden-2 (3155793)
+- daemon-v0.2.18-protocol-harden-4 (0b9933f)
 - transport-web-v0.6.7-transport-harden-5 (677926e)
-Last Refreshed By: AUDIT-GOV-13
+Last Refreshed By: AUDIT-GOV-14
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-02-28 (AUDIT-GOV-13 — N4 promoted to DONE-VERIFIED)
+> **Last Updated:** 2026-02-28 (AUDIT-GOV-14 — N6, N7 promoted to DONE-VERIFIED)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -119,16 +119,16 @@ SA-series fully closed. All 19 findings resolved.
 
 ---
 
-## 2026-02-28 Audit Delta (N-series) — ecosystem-v0.1.16-audit-gov-13
+## 2026-02-28 Audit Delta (N-series) — ecosystem-v0.1.17-audit-gov-14
 
 - **Total findings (global):** 71
 - **N-series total:** 11
-- **N-series resolved:** 5 (N1, N2, N3, N4, N5)
-- **N-series open:** 6 (N6, N7, N8, N9, N10, N11)
+- **N-series resolved:** 7 (N1, N2, N3, N4, N5, N6, N7)
+- **N-series open:** 4 (N8, N9, N10, N11)
 - **HIGH open:** 0
-- **MEDIUM open:** 2 (N6, N7)
+- **MEDIUM open:** 0
 - **LOW open:** 4 (N8–N11)
-- **DONE / DONE-VERIFIED (global):** 48
+- **DONE / DONE-VERIFIED (global):** 50
 
 **Canonical audit source:** `docs/AUDITS/2026-02-28-security-audit.md`
 
@@ -193,7 +193,7 @@ SA-series fully closed. All 19 findings resolved.
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
 | bolt-core-sdk | `sdk-v0.5.14-memory-harden-2` | `903b63f` |
-| bolt-daemon | `daemon-v0.2.17-memory-harden-2` | `3155793` |
+| bolt-daemon | `daemon-v0.2.18-protocol-harden-4` | `0b9933f` |
 | bolt-rendezvous | `rendezvous-v0.2.2-s0-canonical-lib-verified` | `fd8d3df` |
 | localbolt | `localbolt-v1.0.17` | `276047a` |
 | localbolt-app | `localbolt-app-v1.2.1` | `2e8ef6a` |

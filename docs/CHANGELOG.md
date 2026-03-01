@@ -5,6 +5,15 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.17-audit-gov-14
+
+- Promote N6 to DONE-VERIFIED (typed HELLO errors)
+- Promote N7 to DONE-VERIFIED (explicit HelloState guard)
+- MEDIUM open reduced to 0
+- Total findings unchanged (71)
+
+---
+
 ## LIFECYCLE-HARDEN-1 — Deterministic Signaling Teardown (2026-02-28)
 
 SA5 + SA6 lifecycle hardening in bolt-transport-web. Closes both

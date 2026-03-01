@@ -85,19 +85,19 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 ## SUMMARY
 
 - **Total findings:** 71 (41 prior + 19 SA-series + 11 N-series)
-- **DONE / DONE-VERIFIED:** 48
+- **DONE / DONE-VERIFIED:** 50
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 2 (SA11, SA15)
 - **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN (N-series):** 6 (N6, N7, N8, N9, N10, N11)
+- **OPEN (N-series):** 4 (N8, N9, N10, N11)
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md`, SA-series (closed), and N-series below
 
 > **OPEN (global)** = all findings across all series with Status = OPEN.
 > Does not include IN-PROGRESS, DEFERRED, CODIFIED, CLOSED-NO-BUG, or DONE-BY-DESIGN.
 
-Arithmetic reconciled in AUDIT-GOV-13 — N4 promoted to DONE-VERIFIED. MEDIUM open = 2.
+Arithmetic reconciled in ecosystem-v0.1.17-audit-gov-14 — N6, N7 promoted to DONE-VERIFIED. MEDIUM open = 0.
 
 ---
 
@@ -241,8 +241,8 @@ SA-series (2026-02-26) and O-series (PROTO-HARDEN-1).
 | N3 | `SignalingProvider.onSignal` return type allows void — listener may be unregisterable | LIFECYCLE | **DONE-VERIFIED** | TYPE-SURFACE-HARDEN-1 | `sdk-v0.5.13-type-surface-harden-1` (`5dc2d12`). Tightens `SignalingProvider.onSignal` return type to `() => void`, resolving the unregisterable-listener contract issue. |
 | N4 | `KeyPair` derives `Clone` — secret key silently duplicable | MEMORY | **DONE-VERIFIED** | MEMORY-HARDEN-2 | `sdk-v0.5.14-memory-harden-2` (`903b63f`): removed `#[derive(Clone)]` from KeyPair. `daemon-v0.2.17-memory-harden-2` (`3155793`): refactored 2 production + 7 test clone sites to ownership-move via `.take()`. |
 | N5 | Envelope-v1 not enforced unilaterally — downgrade possible | PROTOCOL | **DONE-VERIFIED** | TRANSPORT-HARDEN-4 | `transport-web-v0.6.6-transport-harden-4` (`6748a0a`). |
-| N6 | Daemon answerer pre-HELLO failure exits silently without typed error | PROTOCOL | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
-| N7 | Answerer does not wire `HelloState` into DC HELLO path — exactly-once structural only | PROTOCOL | **OPEN** | UNASSIGNED | 2026-02-28 Audit |
+| N6 | Daemon answerer pre-HELLO failure exits silently without typed error | PROTOCOL | **DONE-VERIFIED** | PROTOCOL-HARDEN-4 | `daemon-v0.2.18-protocol-harden-4` (`0b9933f`). `parse_hello_message` replaced with `parse_hello_typed`; typed plaintext error sent via `build_error_payload(e.code(), ...)` before disconnect. No wire changes. |
+| N7 | Answerer does not wire `HelloState` into DC HELLO path — exactly-once structural only | PROTOCOL | **DONE-VERIFIED** | PROTOCOL-HARDEN-4 | `daemon-v0.2.18-protocol-harden-4` (`0b9933f`). Explicit `HelloState::new()` + `mark_completed()` guard wired into answerer DC HELLO path. Struct/API unchanged. |
 
 ### LOW Severity
 
@@ -258,6 +258,6 @@ SA-series (2026-02-26) and O-series (PROTO-HARDEN-1).
 | Severity | Total | Resolved | Open |
 |----------|-------|----------|------|
 | HIGH | 1 | 1 (N1) | 0 |
-| MEDIUM | 6 | 4 (N2, N3, N4, N5) | 2 (N6, N7) |
+| MEDIUM | 6 | 6 (N2, N3, N4, N5, N6, N7) | 0 |
 | LOW | 4 | 0 | 4 (N8–N11) |
-| **Total** | **11** | **5** | **6** |
+| **Total** | **11** | **7** | **4** |
