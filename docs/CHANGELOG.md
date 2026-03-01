@@ -5,6 +5,17 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.20-audit-gov-17
+
+- Promoted AC-1 → DONE-VERIFIED
+- Promoted AC-2 → DONE-VERIFIED
+- DONE/DONE-VERIFIED 53 → 55
+- OPEN 22 → 20
+- Repository Tag Snapshot updated
+- Docs-only governance update
+
+---
+
 ## ecosystem-v0.1.19-audit-gov-16
 
 - Registered 2026-03 Full Ecosystem Audit (AC-Series, 25 findings)

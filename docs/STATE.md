@@ -7,7 +7,7 @@ Last Refreshed By: AUDIT-GOV-16
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-01 (AUDIT-GOV-16 — AC-Series registered)
+> **Last Updated:** 2026-03-01 (AUDIT-GOV-17 — AC-1, AC-2 promoted)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -144,15 +144,19 @@ SA-series fully closed. All 19 findings resolved.
 - **MEDIUM:** 7
 - **LOW:** 6
 - **DONE-BY-DESIGN:** 3
-- **OPEN:** 22
-- **DONE / DONE-VERIFIED (global):** 53
-- **OPEN (global):** 22
+- **OPEN:** 20
+- **DONE / DONE-VERIFIED (global):** 55
+- **OPEN (global):** 20
 - **Total findings (global):** 96
 
 **Canonical audit source:** `docs/AUDITS/2026-03-01-full-ecosystem-audit.md`
 
 > Full detail in `docs/AUDIT_TRACKER.md`. This section is summary-level only.
 > N-series remains fully resolved (0 open). Provenance snapshot lines unchanged.
+
+**AUDIT-GOV-17 delta:**
+- AC-1: localbolt-app CI + vitest scaffold → DONE-VERIFIED (`localbolt-app-v1.2.2-ci-harden-1`, `3f07f35`)
+- AC-2: bolt-core-sdk ci-gate workflow → DONE-VERIFIED (`sdk-v0.5.16-ci-gate-1`, `1694aa6`)
 
 ---
 
@@ -212,11 +216,11 @@ SA-series fully closed. All 19 findings resolved.
 
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
-| bolt-core-sdk | `transport-web-v0.6.9-n8-caplen-1` | `ded0a40` |
+| bolt-core-sdk | `sdk-v0.5.16-ci-gate-1` | `1694aa6` |
 | bolt-daemon | `daemon-v0.2.19-low-n8` | `8683cbc` |
 | bolt-rendezvous | `rendezvous-v0.2.2-s0-canonical-lib-verified` | `fd8d3df` |
 | localbolt | `localbolt-v1.0.17` | `276047a` |
-| localbolt-app | `localbolt-app-v1.2.1` | `2e8ef6a` |
+| localbolt-app | `localbolt-app-v1.2.2-ci-harden-1` | `3f07f35` |
 | localbolt-v3 | `v3.0.63-s0-canonical-rendezvous` | `2963539` |
 | bolt-protocol | `v0.1.3-spec` | `6a6de3f` |
 | bytebolt-app | `bytebolt-v0.0.1` | — |

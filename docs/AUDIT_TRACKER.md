@@ -85,19 +85,21 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 ## SUMMARY
 
 - **Total findings:** 96 (41 prior + 19 SA-series + 11 N-series + 25 AC-series)
-- **DONE / DONE-VERIFIED:** 53
+- **DONE / DONE-VERIFIED:** 55
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 6 (SA11, SA15, N9, AC-23, AC-24, AC-25)
 - **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN:** 22 (AC-1 through AC-22)
+- **OPEN:** 20 (AC-3 through AC-22)
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md` and AC-series findings below.
 
 > **OPEN (global)** = all findings across all series with Status = OPEN.
 > Does not include IN-PROGRESS, DEFERRED, CODIFIED, CLOSED-NO-BUG, or DONE-BY-DESIGN.
 
 Arithmetic reconciled in ecosystem-v0.1.19-audit-gov-16 — 25 AC-series findings registered. OPEN = 22 (AC-1 through AC-22). DONE-BY-DESIGN = 6 (+3 AC-series).
+
+Arithmetic reconciled in ecosystem-v0.1.20-audit-gov-17 — AC-1 and AC-2 promoted to DONE-VERIFIED. DONE/DONE-VERIFIED 53 → 55. OPEN 22 → 20. Total findings remain 96.
 
 ---
 
@@ -285,8 +287,8 @@ crypto & security primitive review, test coverage gap analysis, wire format & in
 
 | AC_ID | Summary | Track | Status | Phase | Evidence |
 |-------|---------|-------|--------|-------|----------|
-| AC-1 | localbolt-app has zero web frontend tests and no CI test gate enforcing npm test | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
-| AC-2 | bolt-core-sdk CI does not require Rust tests or transport-web tests as mandatory checks | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-1 | localbolt-app has zero web frontend tests and no CI test gate enforcing npm test | GOVERNANCE | **DONE-VERIFIED** | CI-HARDEN-1 | `localbolt-app-v1.2.2-ci-harden-1` (`3f07f35`) |
+| AC-2 | bolt-core-sdk CI does not require Rust tests or transport-web tests as mandatory checks | GOVERNANCE | **DONE-VERIFIED** | CI-GATE-1 | `sdk-v0.5.16-ci-gate-1` (`1694aa6`) |
 | AC-3 | localbolt subtrees structurally diverged from canonical bolt-rendezvous | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
 | AC-4 | localbolt-v3 coverage thresholds defined but not enforced in CI | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
 | AC-5 | 4 of 12 §15 handshake invariants lack automated regression tests | PROTOCOL | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
@@ -330,8 +332,8 @@ crypto & security primitive review, test coverage gap analysis, wire format & in
 
 | Severity | Total | Open | Resolved |
 |----------|-------|------|----------|
-| HIGH | 9 | 9 (AC-1 through AC-9) | 0 |
+| HIGH | 9 | 7 (AC-3 through AC-9) | 2 |
 | MEDIUM | 7 | 7 (AC-10 through AC-16) | 0 |
 | LOW | 6 | 6 (AC-17 through AC-22) | 0 |
 | DONE-BY-DESIGN | 3 | — | 3 (AC-23, AC-24, AC-25) |
-| **Total** | **25** | **22** | **3** |
+| **Total** | **25** | **20** | **5** |
