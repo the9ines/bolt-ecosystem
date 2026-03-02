@@ -5,6 +5,15 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.22-audit-gov-19
+
+- Closed AC-14 (subtree drift prevention implemented)
+- Evidence: localbolt-v1.0.19-drift-guard-1 (6a4a006)
+- Counters updated: DONE=57, OPEN=18, Total=96
+- Drift guard implemented; staleness detection remains future enhancement
+
+---
+
 ## ecosystem-v0.1.21-audit-gov-18
 
 - Promoted AC-3 to DONE-VERIFIED

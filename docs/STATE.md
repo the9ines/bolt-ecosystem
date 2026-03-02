@@ -7,7 +7,7 @@ Last Refreshed By: AUDIT-GOV-16
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-01 (AUDIT-GOV-18 — AC-3 promoted)
+> **Last Updated:** 2026-03-01 (AUDIT-GOV-19 — AC-14 promoted)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -144,9 +144,9 @@ SA-series fully closed. All 19 findings resolved.
 - **MEDIUM:** 7
 - **LOW:** 6
 - **DONE-BY-DESIGN:** 3
-- **OPEN:** 19
-- **DONE / DONE-VERIFIED (global):** 56
-- **OPEN (global):** 19
+- **OPEN:** 18
+- **DONE / DONE-VERIFIED (global):** 57
+- **OPEN (global):** 18
 - **Total findings (global):** 96
 
 **Canonical audit source:** `docs/AUDITS/2026-03-01-full-ecosystem-audit.md`
@@ -163,6 +163,13 @@ SA-series fully closed. All 19 findings resolved.
   - `rendezvous-v0.2.6-clean-1` (`632544b`)
   - `localbolt-v1.0.18-subtree-refresh-1` (`e9207db`)
   - `localbolt-app-v1.2.3-subtree-refresh-1` (`1d71e66`)
+
+**AUDIT-GOV-19 delta:**
+- AC-14: subtree drift prevention implemented → DONE-VERIFIED
+  - `localbolt-v1.0.19-drift-guard-1` (`6a4a006`)
+  - Subtree refreshed to `rendezvous-v0.2.6-clean-1`
+  - Drift prevention (one-directional tracked-file hash guard)
+  - Staleness detection remains future enhancement
 
 ---
 
@@ -225,7 +232,7 @@ SA-series fully closed. All 19 findings resolved.
 | bolt-core-sdk | `sdk-v0.5.16-ci-gate-1` | `1694aa6` |
 | bolt-daemon | `daemon-v0.2.19-low-n8` | `8683cbc` |
 | bolt-rendezvous | `rendezvous-v0.2.6-clean-1` | `632544b` |
-| localbolt | `localbolt-v1.0.18-subtree-refresh-1` | `e9207db` |
+| localbolt | `localbolt-v1.0.19-drift-guard-1` | `6a4a006` |
 | localbolt-app | `localbolt-app-v1.2.3-subtree-refresh-1` | `1d71e66` |
 | localbolt-v3 | `v3.0.63-s0-canonical-rendezvous` | `2963539` |
 | bolt-protocol | `v0.1.3-spec` | `6a6de3f` |

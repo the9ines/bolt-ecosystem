@@ -85,13 +85,13 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 ## SUMMARY
 
 - **Total findings:** 96 (41 prior + 19 SA-series + 11 N-series + 25 AC-series)
-- **DONE / DONE-VERIFIED:** 56
+- **DONE / DONE-VERIFIED:** 57
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 6 (SA11, SA15, N9, AC-23, AC-24, AC-25)
 - **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN:** 19 (AC-4 through AC-22)
+- **OPEN:** 18 (AC-4 through AC-22, excluding AC-14)
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md` and AC-series findings below.
 
 > **OPEN (global)** = all findings across all series with Status = OPEN.
@@ -102,6 +102,8 @@ Arithmetic reconciled in ecosystem-v0.1.19-audit-gov-16 — 25 AC-series finding
 Arithmetic reconciled in ecosystem-v0.1.20-audit-gov-17 — AC-1 and AC-2 promoted to DONE-VERIFIED. DONE/DONE-VERIFIED 53 → 55. OPEN 22 → 20. Total findings remain 96.
 
 Arithmetic reconciled in ecosystem-v0.1.21-audit-gov-18 — AC-3 promoted to DONE-VERIFIED. DONE/DONE-VERIFIED 55 → 56. OPEN 20 → 19. Total findings remain 96.
+
+Arithmetic reconciled in ecosystem-v0.1.22-audit-gov-19 — AC-14 promoted to DONE-VERIFIED. DONE/DONE-VERIFIED 56 → 57. OPEN 19 → 18. Total findings remain 96.
 
 ---
 
@@ -307,7 +309,7 @@ crypto & security primitive review, test coverage gap analysis, wire format & in
 | AC-11 | Daemon pins bolt-rendezvous-protocol at stale v0.1.0 | PROTOCOL | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
 | AC-12 | ARCHITECTURE.md missing documentation of cargo git dependency | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
 | AC-13 | Three shadow tests test copied logic rather than SDK imports | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
-| AC-14 | localbolt subtrees may be behind canonical bolt-rendezvous (staleness risk) | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-14 | localbolt subtrees may be behind canonical bolt-rendezvous (staleness risk) | GOVERNANCE | **DONE-VERIFIED** | SUBTREE-DRIFT-GUARD-1 | localbolt-v1.0.19-drift-guard-1 (6a4a006). Subtree refreshed to rendezvous-v0.2.6-clean-1. Drift prevention (one-directional tracked-file hash guard). Staleness detection remains future enhancement. |
 | AC-15 | find_peer allows cross-room relay lookup | TRANSPORT | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
 | AC-16 | X-Forwarded-For trusted without proxy allowlist | TRANSPORT | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
 
@@ -335,11 +337,15 @@ crypto & security primitive review, test coverage gap analysis, wire format & in
 | Severity | Total | Open | Resolved |
 |----------|-------|------|----------|
 | HIGH | 9 | 6 (AC-4 through AC-9) | 3 |
-| MEDIUM | 7 | 7 (AC-10 through AC-16) | 0 |
+| MEDIUM | 7 | 6 (AC-10 through AC-16, excluding AC-14) | 1 |
 | LOW | 6 | 6 (AC-17 through AC-22) | 0 |
 | DONE-BY-DESIGN | 3 | — | 3 (AC-23, AC-24, AC-25) |
-| **Total** | **25** | **19** | **6** |
+| **Total** | **25** | **18** | **7** |
 
 Arithmetic reconciled in ecosystem-v0.1.21-audit-gov-18 —
 AC-3 promoted to DONE-VERIFIED.
 OPEN = 19. Total = 96.
+
+Arithmetic reconciled in ecosystem-v0.1.22-audit-gov-19 —
+AC-14 promoted to DONE-VERIFIED.
+OPEN = 18. Total = 96.

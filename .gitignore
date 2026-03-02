@@ -22,3 +22,6 @@ node_modules/
 
 # Shell artifacts
 =
+
+# Raw audit sources (canonical copies in docs/AUDITS/)
+AUDIT-2026-02-26.md
