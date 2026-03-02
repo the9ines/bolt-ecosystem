@@ -7,7 +7,7 @@ Last Refreshed By: AUDIT-GOV-16
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-01 (AUDIT-GOV-19 — AC-14 promoted)
+> **Last Updated:** 2026-03-02 (AUDIT-GOV-20 — AC-21, AC-8, AC-9 promoted; AC-5 reduced)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -144,9 +144,9 @@ SA-series fully closed. All 19 findings resolved.
 - **MEDIUM:** 7
 - **LOW:** 6
 - **DONE-BY-DESIGN:** 3
-- **OPEN:** 18
-- **DONE / DONE-VERIFIED (global):** 57
-- **OPEN (global):** 18
+- **OPEN:** 15
+- **DONE / DONE-VERIFIED (global):** 60
+- **OPEN (global):** 15
 - **Total findings (global):** 96
 
 **Canonical audit source:** `docs/AUDITS/2026-03-01-full-ecosystem-audit.md`
@@ -170,6 +170,12 @@ SA-series fully closed. All 19 findings resolved.
   - Subtree refreshed to `rendezvous-v0.2.6-clean-1`
   - Drift prevention (one-directional tracked-file hash guard)
   - Staleness detection remains future enhancement
+
+**AUDIT-GOV-20 delta:**
+- AC-21: spec capability string fixed → DONE-VERIFIED (`v0.1.4-spec`, `ede90be`)
+- AC-8: Rust wire error registry added → DONE-VERIFIED (`sdk-v0.5.17-protocol-converge-1`, `16cfa92`)
+- AC-9: §14 constants aligned → DONE-VERIFIED (`sdk-v0.5.17-protocol-converge-1`, `16cfa92`)
+- AC-5: REDUCED (+6 explicit PROTO-HARDEN regression tests), remains OPEN
 
 ---
 
@@ -229,13 +235,13 @@ SA-series fully closed. All 19 findings resolved.
 
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
-| bolt-core-sdk | `sdk-v0.5.16-ci-gate-1` | `1694aa6` |
+| bolt-core-sdk | `sdk-v0.5.17-protocol-converge-1` | `16cfa92` |
 | bolt-daemon | `daemon-v0.2.19-low-n8` | `8683cbc` |
 | bolt-rendezvous | `rendezvous-v0.2.6-clean-1` | `632544b` |
 | localbolt | `localbolt-v1.0.19-drift-guard-1` | `6a4a006` |
 | localbolt-app | `localbolt-app-v1.2.3-subtree-refresh-1` | `1d71e66` |
 | localbolt-v3 | `v3.0.63-s0-canonical-rendezvous` | `2963539` |
-| bolt-protocol | `v0.1.3-spec` | `6a6de3f` |
+| bolt-protocol | `v0.1.4-spec` | `ede90be` |
 | bytebolt-app | `bytebolt-v0.0.1` | — |
 | bytebolt-relay | `relay-v0.0.1` | — |
 

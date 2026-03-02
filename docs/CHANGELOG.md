@@ -5,6 +5,17 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.23-audit-gov-20
+
+- Closed AC-21 as DONE-VERIFIED (`v0.1.4-spec`, `ede90be`)
+- Closed AC-8 as DONE-VERIFIED (`sdk-v0.5.17-protocol-converge-1`, `16cfa92`)
+- Closed AC-9 as DONE-VERIFIED (`sdk-v0.5.17-protocol-converge-1`, `16cfa92`)
+- Reduced AC-5 (+6 explicit PROTO-HARDEN regression tests; remains OPEN)
+- Counters updated: DONE/DONE-VERIFIED=60, OPEN=15, Total=96
+- Docs-only governance update; no runtime repositories modified
+
+---
+
 ## ecosystem-v0.1.22-audit-gov-19
 
 - Closed AC-14 (subtree drift prevention implemented)
