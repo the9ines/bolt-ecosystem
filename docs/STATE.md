@@ -275,6 +275,31 @@ SA-series fully closed. All 19 findings resolved.
 
 ---
 
+## Planned Workstreams
+
+> **Canonical doc:** `docs/GOVERNANCE_WORKSTREAMS.md`
+> **Codified:** ecosystem-v0.1.30-workstreams-1 (2026-03-02)
+> **Note:** These are improvement initiatives, not audit findings. Not part of audit counters.
+
+| ID | Workstream | Repo | Goal | Status |
+|----|-----------|------|------|--------|
+| A1 | WebRTCService decomposition | bolt-core-sdk | Extract HandshakeManager | NOT-STARTED |
+| A2 | WebRTCService decomposition | bolt-core-sdk | Extract EnvelopeCodec | NOT-STARTED |
+| A3 | WebRTCService decomposition | bolt-core-sdk | Extract TransferManager | NOT-STARTED |
+| A4 | WebRTCService decomposition | bolt-core-sdk | Slim WebRTCService to coordinator | NOT-STARTED |
+| A5 | WebRTCService decomposition | bolt-core-sdk | Decomposition test hardening | NOT-STARTED |
+| B1 | Daemon transfer convergence | bolt-daemon | Flip interop defaults | NOT-STARTED |
+| B2 | Daemon transfer convergence | bolt-daemon | DataChannel message variants + parsing | NOT-STARTED |
+| B3 | Daemon transfer convergence | bolt-daemon | Transfer engine state machine | NOT-STARTED |
+
+**Deferred (not part of the 8 phases):** B4 (file-hash), B5 (TOFU persistence), B6 (event loop + IPC), D-E2E (cross-stack integration). Prerequisites and sequencing documented in governance doc.
+
+**Parallelization:** A-stream and B-stream can run in parallel (different repos). No cross-stream dependency until deferred D-E2E.
+
+**Scope guardrails:** No protocol, wire-format, or cryptographic changes. A-stream preserves WebRTCService public API.
+
+---
+
 ## Test Counts (post-merge-train, on main)
 
 | Repo | Tests | Notes |

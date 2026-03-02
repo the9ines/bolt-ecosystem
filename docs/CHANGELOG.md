@@ -5,6 +5,30 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.30-workstreams-1 — 2026-03-02
+
+- Codify A/B workstreams and phase gates (WORKSTREAMS-1)
+- **Workstream A (bolt-core-sdk):** WebRTCService decomposition — 5 phases (A1–A5)
+  - A1: Extract HandshakeManager
+  - A2: Extract EnvelopeCodec
+  - A3: Extract TransferManager
+  - A4: Slim WebRTCService to coordinator (public API unchanged)
+  - A5: Decomposition test hardening
+- **Workstream B (bolt-daemon):** File transfer convergence — 3 phases (B1–B3)
+  - B1: Flip interop defaults (blast radius + legacy flag documented)
+  - B2: DataChannel message variants + parsing tests
+  - B3: Transfer engine state machine (no file-hash, no TOFU persistence, no event loop)
+- **Deferred phases documented:** B4, B5, B6, D-E2E (with prerequisites)
+- **SA15 supersession note:** governance-only acknowledgement that DONE-BY-DESIGN rationale will be superseded when B4–B6/D-E2E are reached
+- **Phase gate checklist:** standardized template for all phases
+- **Tag discipline:** per-workstream tag naming rules codified
+- **No-push policy:** default for all phase execution
+- New file: `docs/GOVERNANCE_WORKSTREAMS.md`
+- Updated: `docs/DOC_ROUTING.md`, `docs/STATE.md`, `docs/CHANGELOG.md`
+- Docs-only governance codification; no runtime repositories modified; no pushes
+
+---
+
 ## ecosystem-v0.1.29-audit-gov-25 — 2026-03-02
 
 - Closed AC-13 (shadow tests replaced with canonical SDK imports) as DONE-VERIFIED

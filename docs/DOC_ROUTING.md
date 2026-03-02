@@ -35,6 +35,7 @@ These live at the workspace root (`bolt-ecosystem/docs/`) and govern the entire 
 | RUST_CORE_PLAN.md | `docs/RUST_CORE_PLAN.md` | Rust SDK modernization plan |
 | DOC_ROUTING.md | `docs/DOC_ROUTING.md` | This file — canonical doc routing table |
 | AUDIT_TRACKER.md | `docs/AUDIT_TRACKER.md` | Ecosystem-wide audit findings tracker |
+| GOVERNANCE_WORKSTREAMS.md | `docs/GOVERNANCE_WORKSTREAMS.md` | A/B workstream phase gates and tag discipline |
 
 ---
 
