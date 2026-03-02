@@ -247,7 +247,7 @@ MUST preserve:
 |------|--------------------|----------------|-----------------|
 | localbolt | Yes (subtree) | No (initially) | Yes |
 | localbolt-app | Yes (subtree) | Yes | Yes |
-| localbolt-v3 | No | No | No |
+| localbolt-v3 | Yes (cargo git dep) | No | No |
 | bytebolt-app | No (uses relay) | Yes | No |
 
 - localbolt-v3 MUST NOT bundle servers, daemons, or native binaries.
@@ -282,6 +282,44 @@ The application MUST function without internet connectivity when peers are on th
 6. Tag per repo convention.
 
 MUST NOT modify files under the subtree prefix directly.
+
+### Cargo Git Dependency Pattern
+
+Some Rust crates are consumed via `cargo` git dependencies rather than crates.io
+or local paths. This pattern applies when a crate lives in a sibling repository
+that is not published to crates.io and cannot use a filesystem path (e.g., Docker
+builds, CI runners without sibling repos on disk).
+
+**Rationale:** bolt-rendezvous is not published to crates.io. Consumers that
+cannot use a relative filesystem path (localbolt-v3 deploys on Fly.io,
+bolt-daemon in standalone CI) use tagged git dependencies for deterministic
+resolution.
+
+**Current consumers:**
+
+| Consumer | Crate | Source Repo | Pinned Tag |
+|----------|-------|-------------|------------|
+| localbolt-v3 (`packages/localbolt-signal`) | `bolt-rendezvous` | bolt-rendezvous | `rendezvous-v0.2.2-s0-canonical-lib-verified` |
+| bolt-daemon | `bolt-rendezvous-protocol` | bolt-rendezvous | `rendezvous-v0.2.6-clean-1` |
+
+**Mandatory tag pinning:** All cargo git dependencies MUST use `tag = "<tag>"`
+pointing to an immutable, pushed tag in the source repository. Branch or revision
+pins are prohibited — they create non-reproducible builds and violate tag
+discipline.
+
+**Example Cargo.toml entry:**
+
+```toml
+bolt-rendezvous-protocol = {
+    git = "https://github.com/the9ines/bolt-rendezvous.git",
+    tag = "rendezvous-v0.2.6-clean-1",
+    package = "bolt-rendezvous-protocol"
+}
+```
+
+**Update procedure:** When the source crate is updated and a new tag is pushed,
+bump the `tag` field in Cargo.toml, run `cargo build` to update Cargo.lock,
+verify tests pass, and commit both files.
 
 ### Rendezvous Trust Model
 
