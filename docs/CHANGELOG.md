@@ -5,6 +5,19 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.25-audit-gov-22 — 2026-03-02
+
+- Closed AC-7 (verify-constants CI guard) as DONE-VERIFIED
+- Closed AC-18 (dead crypto-utils barrel) as DONE-VERIFIED
+- Reduced AC-17 (unused VALUE exports removed; types untouched; remains OPEN)
+- Evidence: sdk-v0.5.19-governance-sweep-1 @ 9db3abd
+- Counters updated: DONE/DONE-VERIFIED 63→65, OPEN 12→10, Total 96
+- bolt-core TS test count corrected: 104→120
+- bolt-core-sdk tag snapshot updated to sdk-v0.5.19-governance-sweep-1
+- Docs-only governance update; no runtime repositories modified
+
+---
+
 ## ecosystem-v0.1.24-audit-gov-21 — 2026-03-02
 
 - Closed AC-6, AC-19, AC-20 (INTEROP-CONVERGENCE-1)

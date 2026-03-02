@@ -7,7 +7,7 @@ Last Refreshed By: AUDIT-GOV-16
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-02 (AUDIT-GOV-21 — AC-6, AC-19, AC-20 closed; transport-web test count corrected)
+> **Last Updated:** 2026-03-02 (AUDIT-GOV-22)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -144,9 +144,9 @@ SA-series fully closed. All 19 findings resolved.
 - **MEDIUM:** 7
 - **LOW:** 6
 - **DONE-BY-DESIGN:** 3
-- **OPEN:** 12
-- **DONE / DONE-VERIFIED (global):** 63
-- **OPEN (global):** 12
+- **OPEN:** 10
+- **DONE / DONE-VERIFIED (global):** 65
+- **OPEN (global):** 10
 - **Total findings (global):** 96
 
 **Canonical audit source:** `docs/AUDITS/2026-03-01-full-ecosystem-audit.md`
@@ -182,6 +182,11 @@ SA-series fully closed. All 19 findings resolved.
 - AC-19: ServerMessage error typing → DONE-VERIFIED (`sdk-v0.5.18-interop-converge-1`, `97352af`)
 - AC-20: signaling golden fixtures → DONE-VERIFIED (`sdk-v0.5.18-interop-converge-1`, `97352af`)
 - transport-web test count corrected: 199 → 248 (stale since AUDIT-GOV-16)
+
+**AUDIT-GOV-22 delta:**
+- AC-7: verify-constants CI guard fixed and enforced in CI → DONE-VERIFIED (sdk-v0.5.19-governance-sweep-1, 9db3abd)
+- AC-18: dead crypto-utils barrel removed → DONE-VERIFIED (sdk-v0.5.19-governance-sweep-1, 9db3abd)
+- AC-17: unused VALUE exports reduced (types untouched; WebSocketSignaling kept) → OPEN (REDUCED) (sdk-v0.5.19-governance-sweep-1, 9db3abd)
 
 ---
 
@@ -241,7 +246,7 @@ SA-series fully closed. All 19 findings resolved.
 
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
-| bolt-core-sdk | `sdk-v0.5.18-interop-converge-1` | `97352af` |
+| bolt-core-sdk | `sdk-v0.5.19-governance-sweep-1` | `9db3abd` |
 | bolt-daemon | `daemon-v0.2.19-low-n8` | `8683cbc` |
 | bolt-rendezvous | `rendezvous-v0.2.6-clean-1` | `632544b` |
 | localbolt | `localbolt-v1.0.19-drift-guard-1` | `6a4a006` |
@@ -257,7 +262,7 @@ SA-series fully closed. All 19 findings resolved.
 
 | Repo | Tests | Notes |
 |------|------:|-------|
-| bolt-core-sdk (TS bolt-core) | 104 | Includes H2 enforcement + H3 golden vectors + H6 nonce tests |
+| bolt-core-sdk (TS bolt-core) | 120 | Includes H2 enforcement + H3 golden vectors + H6 nonce tests + governance-sweep-1 |
 | bolt-core-sdk (TS transport-web) | 248 | Includes H2 enforcement + S2B metrics + interop error framing + SA5/SA6 lifecycle harden + SA10 hello timeout + AC-8/AC-9 proto-harden regression + AC-6/AC-19/AC-20 signaling golden vectors |
 | bolt-core-sdk (Rust, default) | 87 | main (61 unit + 11 S1 conformance + 15 S2 contract) |
 | bolt-core-sdk (Rust, vectors) | 117 | main (61 unit + 27 S1 conformance + 14 H3 vectors + 15 S2 contract) |
