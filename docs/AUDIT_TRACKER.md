@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-02 (AUDIT-GOV-22)
+**Last updated:** 2026-03-02 (AUDIT-GOV-23)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -85,13 +85,13 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 ## SUMMARY
 
 - **Total findings:** 96 (41 prior + 19 SA-series + 11 N-series + 25 AC-series)
-- **DONE / DONE-VERIFIED:** 65
+- **DONE / DONE-VERIFIED:** 67
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 6 (SA11, SA15, N9, AC-23, AC-24, AC-25)
 - **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN:** 10 (AC-4 through AC-22, excluding AC-6, AC-7, AC-8, AC-9, AC-14, AC-18, AC-19, AC-20, AC-21)
+- **OPEN:** 8 (AC-4 through AC-22, excluding AC-4, AC-5, AC-6, AC-7, AC-8, AC-9, AC-14, AC-18, AC-19, AC-20, AC-21)
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md` and AC-series findings below.
 
 > **OPEN (global)** = all findings across all series with Status = OPEN.
@@ -294,8 +294,8 @@ crypto & security primitive review, test coverage gap analysis, wire format & in
 | AC-1 | localbolt-app has zero web frontend tests and no CI test gate enforcing npm test | GOVERNANCE | **DONE-VERIFIED** | CI-HARDEN-1 | `localbolt-app-v1.2.2-ci-harden-1` (`3f07f35`) |
 | AC-2 | bolt-core-sdk CI does not require Rust tests or transport-web tests as mandatory checks | GOVERNANCE | **DONE-VERIFIED** | CI-GATE-1 | `sdk-v0.5.16-ci-gate-1` (`1694aa6`) |
 | AC-3 | localbolt subtrees structurally diverged from canonical bolt-rendezvous | GOVERNANCE | **DONE-VERIFIED** | AC-3-SUBTREE-REFRESH | `rendezvous-v0.2.4-subtree-safe-2` (feature-gate removal), `localbolt-v1.0.18-subtree-refresh-1` (`e9207db`), `localbolt-app-v1.2.3-subtree-refresh-1` (`1d71e66`). Deterministic interop CI: `rendezvous-v0.2.5-interop-crate-1`. Dead code cleanup: `rendezvous-v0.2.6-clean-1` (`632544b`). |
-| AC-4 | localbolt-v3 coverage thresholds defined but not enforced in CI | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
-| AC-5 | 4 of 12 §15 handshake invariants lack automated regression tests | PROTOCOL | **OPEN** | PROTOCOL-CONVERGENCE-1 | See 2026-03-01-full-ecosystem-audit.md. REDUCED in `sdk-v0.5.17-protocol-converge-1` (`16cfa92`): +6 explicit PROTO-HARDEN regression tests. |
+| AC-4 | localbolt-v3 coverage thresholds defined but not enforced in CI | GOVERNANCE | **DONE-VERIFIED** | v3.0.64-ac4-coverage-enforced | `v3.0.64-ac4-coverage-enforced` (`a5d0237`). CI now runs `vitest run --coverage`; thresholds enforced (fail on breach). jsdom polyfill for v8 instrumentation fix. PASS→FAIL→PASS proof performed. |
+| AC-5 | 4 of 12 §15 handshake invariants lack automated regression tests | PROTOCOL | **DONE-VERIFIED** | sdk-v0.5.20-protocol-converge-2 | REDUCED in `sdk-v0.5.17-protocol-converge-1` (`16cfa92`): +6 explicit PROTO-HARDEN regression tests. CLOSED in `sdk-v0.5.20-protocol-converge-2` (`28c3baf`): mislabeled PROTO-HARDEN-08→10 corrected, real PROTO-HARDEN-08 send-side atomicity test added, header updated. 12/12 invariants covered (11 explicit + 1 DONE-BY-DESIGN). |
 | AC-6 | No cross-implementation interop test (TS client ↔ Rust signaling server) | INTEROP | **DONE-VERIFIED** | INTEROP-CONVERGENCE-1 | `sdk-v0.5.18-interop-converge-1` (`97352af`). 7 signaling golden vectors (Rust shape ↔ TS encode/decode deep-equal parity). 24 tests. |
 | AC-7 | verify-constants.sh CI guard references outdated path and is inert | GOVERNANCE | **DONE-VERIFIED** | GOVERNANCE-SWEEP-1 | `sdk-v0.5.19-governance-sweep-1` (`9db3abd`). `lib.rs` → `constants.rs` path fix in verify script. CI wired in `ci-gate.yml` bolt-core-ts job with `working-directory: .`. Validated: PASS (stale path) → FAIL (script catches) → PASS (fix applied). |
 | AC-8 | Rust SDK lacks canonical wire error code registry matching TS | PROTOCOL | **DONE-VERIFIED** | PROTOCOL-CONVERGENCE-1 | `sdk-v0.5.17-protocol-converge-1` (`16cfa92`) — Rust `WIRE_ERROR_CODES` (22) + `is_valid_wire_error_code()` + conformance parity tests. |
@@ -336,11 +336,11 @@ crypto & security primitive review, test coverage gap analysis, wire format & in
 
 | Severity | Total | Open | Resolved |
 |----------|-------|------|----------|
-| HIGH | 9 | 2 (AC-4, AC-5) | 7 |
+| HIGH | 9 | 0 | 9 |
 | MEDIUM | 7 | 6 (AC-10, AC-11, AC-12, AC-13, AC-15, AC-16) | 1 |
 | LOW | 6 | 2 (AC-17, AC-22) | 4 |
 | DONE-BY-DESIGN | 3 | — | 3 (AC-23, AC-24, AC-25) |
-| **Total** | **25** | **10** | **15** |
+| **Total** | **25** | **8** | **17** |
 
 Arithmetic reconciled in ecosystem-v0.1.21-audit-gov-18 —
 AC-3 promoted to DONE-VERIFIED.
@@ -361,3 +361,7 @@ OPEN = 12. DONE/DONE-VERIFIED = 63. Total = 96.
 Arithmetic reconciled in ecosystem-v0.1.25-audit-gov-22 —
 Closed: AC-7, AC-18. AC-17 reduced (remains OPEN).
 OPEN = 10. DONE/DONE-VERIFIED = 65. Total = 96.
+
+Arithmetic reconciled in ecosystem-v0.1.26-audit-gov-23 —
+Closed: AC-4, AC-5.
+OPEN = 8. DONE/DONE-VERIFIED = 67. Total = 96.

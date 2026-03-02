@@ -5,6 +5,19 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.26-audit-gov-23 — 2026-03-02
+
+- Closed AC-4 as DONE-VERIFIED (`v3.0.64-ac4-coverage-enforced`, `a5d0237`)
+- Closed AC-5 as DONE-VERIFIED (`sdk-v0.5.20-protocol-converge-2`, `28c3baf`)
+- Counters updated: DONE/DONE-VERIFIED 65→67, OPEN 10→8, Total 96
+- All HIGH findings now closed (9/9 resolved)
+- bolt-core-sdk tag snapshot updated to sdk-v0.5.20-protocol-converge-2
+- localbolt-v3 tag snapshot updated to v3.0.64-ac4-coverage-enforced
+- transport-web test count updated: 248→249 (+1 PROTO-HARDEN-08 send-side atomicity)
+- Docs-only governance update; no runtime repositories modified
+
+---
+
 ## ecosystem-v0.1.25-audit-gov-22 — 2026-03-02
 
 - Closed AC-7 (verify-constants CI guard) as DONE-VERIFIED

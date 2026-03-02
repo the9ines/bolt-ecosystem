@@ -7,7 +7,7 @@ Last Refreshed By: AUDIT-GOV-16
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-02 (AUDIT-GOV-22)
+> **Last Updated:** 2026-03-02 (AUDIT-GOV-23)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -144,9 +144,9 @@ SA-series fully closed. All 19 findings resolved.
 - **MEDIUM:** 7
 - **LOW:** 6
 - **DONE-BY-DESIGN:** 3
-- **OPEN:** 10
-- **DONE / DONE-VERIFIED (global):** 65
-- **OPEN (global):** 10
+- **OPEN:** 8
+- **DONE / DONE-VERIFIED (global):** 67
+- **OPEN (global):** 8
 - **Total findings (global):** 96
 
 **Canonical audit source:** `docs/AUDITS/2026-03-01-full-ecosystem-audit.md`
@@ -187,6 +187,10 @@ SA-series fully closed. All 19 findings resolved.
 - AC-7: verify-constants CI guard fixed and enforced in CI → DONE-VERIFIED (sdk-v0.5.19-governance-sweep-1, 9db3abd)
 - AC-18: dead crypto-utils barrel removed → DONE-VERIFIED (sdk-v0.5.19-governance-sweep-1, 9db3abd)
 - AC-17: unused VALUE exports reduced (types untouched; WebSocketSignaling kept) → OPEN (REDUCED) (sdk-v0.5.19-governance-sweep-1, 9db3abd)
+
+**AUDIT-GOV-23 delta:**
+- AC-4: coverage thresholds enforced in localbolt-v3 CI → DONE-VERIFIED (`v3.0.64-ac4-coverage-enforced`, `a5d0237`)
+- AC-5: §15 handshake invariant coverage completed (12/12; 11 explicit + 1 by-design) → DONE-VERIFIED (`sdk-v0.5.20-protocol-converge-2`, `28c3baf`)
 
 ---
 
@@ -246,12 +250,12 @@ SA-series fully closed. All 19 findings resolved.
 
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
-| bolt-core-sdk | `sdk-v0.5.19-governance-sweep-1` | `9db3abd` |
+| bolt-core-sdk | `sdk-v0.5.20-protocol-converge-2` | `28c3baf` |
 | bolt-daemon | `daemon-v0.2.19-low-n8` | `8683cbc` |
 | bolt-rendezvous | `rendezvous-v0.2.6-clean-1` | `632544b` |
 | localbolt | `localbolt-v1.0.19-drift-guard-1` | `6a4a006` |
 | localbolt-app | `localbolt-app-v1.2.3-subtree-refresh-1` | `1d71e66` |
-| localbolt-v3 | `v3.0.63-s0-canonical-rendezvous` | `2963539` |
+| localbolt-v3 | `v3.0.64-ac4-coverage-enforced` | `a5d0237` |
 | bolt-protocol | `v0.1.4-spec` | `ede90be` |
 | bytebolt-app | `bytebolt-v0.0.1` | — |
 | bytebolt-relay | `relay-v0.0.1` | — |
@@ -263,7 +267,7 @@ SA-series fully closed. All 19 findings resolved.
 | Repo | Tests | Notes |
 |------|------:|-------|
 | bolt-core-sdk (TS bolt-core) | 120 | Includes H2 enforcement + H3 golden vectors + H6 nonce tests + governance-sweep-1 |
-| bolt-core-sdk (TS transport-web) | 248 | Includes H2 enforcement + S2B metrics + interop error framing + SA5/SA6 lifecycle harden + SA10 hello timeout + AC-8/AC-9 proto-harden regression + AC-6/AC-19/AC-20 signaling golden vectors |
+| bolt-core-sdk (TS transport-web) | 249 | Includes H2 enforcement + S2B metrics + interop error framing + SA5/SA6 lifecycle harden + SA10 hello timeout + AC-8/AC-9 proto-harden regression + AC-6/AC-19/AC-20 signaling golden vectors + AC-5 send-side atomicity |
 | bolt-core-sdk (Rust, default) | 87 | main (61 unit + 11 S1 conformance + 15 S2 contract) |
 | bolt-core-sdk (Rust, vectors) | 117 | main (61 unit + 27 S1 conformance + 14 H3 vectors + 15 S2 contract) |
 | bolt-daemon (default) | 233 | main |
