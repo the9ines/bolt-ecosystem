@@ -5,6 +5,19 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.28-audit-gov-24 — 2026-03-02
+
+- Closed AC-10 (CONFORMANCE TODO reconciliation) as DONE-VERIFIED (`v0.1.5-spec-consistency-1`, `d795dd5`)
+- Closed AC-11 (daemon dependency refresh) as DONE-VERIFIED (`daemon-v0.2.20-dep-refresh-1`, `99de9aa`)
+- Closed AC-12 (cargo git dependency documentation) as DONE-VERIFIED (`ecosystem-v0.1.27-arch-consistency-1`, `fdb5545`)
+- Counters updated: DONE/DONE-VERIFIED 67→70, OPEN 8→5, Total 96
+- Remaining OPEN: AC-13, AC-15, AC-16, AC-17, AC-22
+- bolt-daemon tag snapshot updated to daemon-v0.2.20-dep-refresh-1
+- bolt-protocol tag snapshot updated to v0.1.5-spec-consistency-1
+- Docs-only governance update; no runtime repositories modified
+
+---
+
 ## ecosystem-v0.1.26-audit-gov-23 — 2026-03-02
 
 - Closed AC-4 as DONE-VERIFIED (`v3.0.64-ac4-coverage-enforced`, `a5d0237`)

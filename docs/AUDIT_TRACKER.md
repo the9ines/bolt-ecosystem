@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-02 (AUDIT-GOV-23)
+**Last updated:** 2026-03-02 (AUDIT-GOV-24)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -85,13 +85,13 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 ## SUMMARY
 
 - **Total findings:** 96 (41 prior + 19 SA-series + 11 N-series + 25 AC-series)
-- **DONE / DONE-VERIFIED:** 67
+- **DONE / DONE-VERIFIED:** 70
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 6 (SA11, SA15, N9, AC-23, AC-24, AC-25)
 - **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN:** 8 (AC-4 through AC-22, excluding AC-4, AC-5, AC-6, AC-7, AC-8, AC-9, AC-14, AC-18, AC-19, AC-20, AC-21)
+- **OPEN:** 5 (AC-13, AC-15, AC-16, AC-17, AC-22)
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md` and AC-series findings below.
 
 > **OPEN (global)** = all findings across all series with Status = OPEN.
@@ -305,9 +305,9 @@ crypto & security primitive review, test coverage gap analysis, wire format & in
 
 | AC_ID | Summary | Track | Status | Phase | Evidence |
 |-------|---------|-------|--------|-------|----------|
-| AC-10 | Six stale TODO rows remain in CONFORMANCE.md | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
-| AC-11 | Daemon pins bolt-rendezvous-protocol at stale v0.1.0 | PROTOCOL | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
-| AC-12 | ARCHITECTURE.md missing documentation of cargo git dependency | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-10 | Six stale TODO rows remain in CONFORMANCE.md | GOVERNANCE | **DONE-VERIFIED** | CONSISTENCY-SWEEP-1 | `v0.1.5-spec-consistency-1` (`d795dd5`). 6 TODO rows updated to IMPLEMENTED with concrete test evidence paths. §11, §15.1, §15.2, §15.4, §15.5 (PROTOCOL.md) and §9 (LOCALBOLT_PROFILE.md). |
+| AC-11 | Daemon pins bolt-rendezvous-protocol at stale v0.1.0 | PROTOCOL | **DONE-VERIFIED** | CONSISTENCY-SWEEP-1 | `daemon-v0.2.20-dep-refresh-1` (`99de9aa`). Cargo.toml tag bumped from `rendezvous-protocol-v0.1.0` to `rendezvous-v0.2.6-clean-1`. Crate source identical (zero diff); pin now resolves to canonical stable commit. 319 tests pass. |
+| AC-12 | ARCHITECTURE.md missing documentation of cargo git dependency | GOVERNANCE | **DONE-VERIFIED** | CONSISTENCY-SWEEP-1 | `ecosystem-v0.1.27-arch-consistency-1` (`fdb5545`). Added "Cargo Git Dependency Pattern" section to ARCHITECTURE.md §6 with rationale, consumer table, mandatory tag pinning rule, example, and update procedure. Bundling matrix corrected for localbolt-v3. |
 | AC-13 | Three shadow tests test copied logic rather than SDK imports | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
 | AC-14 | localbolt subtrees may be behind canonical bolt-rendezvous (staleness risk) | GOVERNANCE | **DONE-VERIFIED** | SUBTREE-DRIFT-GUARD-1 | localbolt-v1.0.19-drift-guard-1 (6a4a006). Subtree refreshed to rendezvous-v0.2.6-clean-1. Drift prevention (one-directional tracked-file hash guard). Staleness detection remains future enhancement. |
 | AC-15 | find_peer allows cross-room relay lookup | TRANSPORT | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
@@ -337,10 +337,10 @@ crypto & security primitive review, test coverage gap analysis, wire format & in
 | Severity | Total | Open | Resolved |
 |----------|-------|------|----------|
 | HIGH | 9 | 0 | 9 |
-| MEDIUM | 7 | 6 (AC-10, AC-11, AC-12, AC-13, AC-15, AC-16) | 1 |
+| MEDIUM | 7 | 3 (AC-13, AC-15, AC-16) | 4 |
 | LOW | 6 | 2 (AC-17, AC-22) | 4 |
 | DONE-BY-DESIGN | 3 | — | 3 (AC-23, AC-24, AC-25) |
-| **Total** | **25** | **8** | **17** |
+| **Total** | **25** | **5** | **20** |
 
 Arithmetic reconciled in ecosystem-v0.1.21-audit-gov-18 —
 AC-3 promoted to DONE-VERIFIED.
@@ -365,3 +365,7 @@ OPEN = 10. DONE/DONE-VERIFIED = 65. Total = 96.
 Arithmetic reconciled in ecosystem-v0.1.26-audit-gov-23 —
 Closed: AC-4, AC-5.
 OPEN = 8. DONE/DONE-VERIFIED = 67. Total = 96.
+
+Arithmetic reconciled in ecosystem-v0.1.28-audit-gov-24 —
+Closed: AC-10, AC-11, AC-12.
+OPEN = 5. DONE/DONE-VERIFIED = 70. Total = 96.

@@ -7,7 +7,7 @@ Last Refreshed By: AUDIT-GOV-16
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-02 (AUDIT-GOV-23)
+> **Last Updated:** 2026-03-02 (AUDIT-GOV-24)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -144,9 +144,9 @@ SA-series fully closed. All 19 findings resolved.
 - **MEDIUM:** 7
 - **LOW:** 6
 - **DONE-BY-DESIGN:** 3
-- **OPEN:** 8
-- **DONE / DONE-VERIFIED (global):** 67
-- **OPEN (global):** 8
+- **OPEN:** 5
+- **DONE / DONE-VERIFIED (global):** 70
+- **OPEN (global):** 5
 - **Total findings (global):** 96
 
 **Canonical audit source:** `docs/AUDITS/2026-03-01-full-ecosystem-audit.md`
@@ -191,6 +191,11 @@ SA-series fully closed. All 19 findings resolved.
 **AUDIT-GOV-23 delta:**
 - AC-4: coverage thresholds enforced in localbolt-v3 CI → DONE-VERIFIED (`v3.0.64-ac4-coverage-enforced`, `a5d0237`)
 - AC-5: §15 handshake invariant coverage completed (12/12; 11 explicit + 1 by-design) → DONE-VERIFIED (`sdk-v0.5.20-protocol-converge-2`, `28c3baf`)
+
+**AUDIT-GOV-24 delta:**
+- AC-10: CONFORMANCE.md TODO rows reconciled → DONE-VERIFIED (`v0.1.5-spec-consistency-1`, `d795dd5`)
+- AC-11: daemon dependency refreshed → DONE-VERIFIED (`daemon-v0.2.20-dep-refresh-1`, `99de9aa`)
+- AC-12: ARCHITECTURE.md cargo git dependency documented → DONE-VERIFIED (`ecosystem-v0.1.27-arch-consistency-1`, `fdb5545`)
 
 ---
 
@@ -251,12 +256,12 @@ SA-series fully closed. All 19 findings resolved.
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
 | bolt-core-sdk | `sdk-v0.5.20-protocol-converge-2` | `28c3baf` |
-| bolt-daemon | `daemon-v0.2.19-low-n8` | `8683cbc` |
+| bolt-daemon | `daemon-v0.2.20-dep-refresh-1` | `99de9aa` |
 | bolt-rendezvous | `rendezvous-v0.2.6-clean-1` | `632544b` |
 | localbolt | `localbolt-v1.0.19-drift-guard-1` | `6a4a006` |
 | localbolt-app | `localbolt-app-v1.2.3-subtree-refresh-1` | `1d71e66` |
 | localbolt-v3 | `v3.0.64-ac4-coverage-enforced` | `a5d0237` |
-| bolt-protocol | `v0.1.4-spec` | `ede90be` |
+| bolt-protocol | `v0.1.5-spec-consistency-1` | `d795dd5` |
 | bytebolt-app | `bytebolt-v0.0.1` | — |
 | bytebolt-relay | `relay-v0.0.1` | — |
 
