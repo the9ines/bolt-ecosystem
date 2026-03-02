@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-01
+**Last updated:** 2026-03-01 (AUDIT-GOV-18)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -85,13 +85,13 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 ## SUMMARY
 
 - **Total findings:** 96 (41 prior + 19 SA-series + 11 N-series + 25 AC-series)
-- **DONE / DONE-VERIFIED:** 55
+- **DONE / DONE-VERIFIED:** 56
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 6 (SA11, SA15, N9, AC-23, AC-24, AC-25)
 - **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN:** 20 (AC-3 through AC-22)
+- **OPEN:** 19 (AC-4 through AC-22)
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md` and AC-series findings below.
 
 > **OPEN (global)** = all findings across all series with Status = OPEN.
@@ -100,6 +100,8 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 Arithmetic reconciled in ecosystem-v0.1.19-audit-gov-16 — 25 AC-series findings registered. OPEN = 22 (AC-1 through AC-22). DONE-BY-DESIGN = 6 (+3 AC-series).
 
 Arithmetic reconciled in ecosystem-v0.1.20-audit-gov-17 — AC-1 and AC-2 promoted to DONE-VERIFIED. DONE/DONE-VERIFIED 53 → 55. OPEN 22 → 20. Total findings remain 96.
+
+Arithmetic reconciled in ecosystem-v0.1.21-audit-gov-18 — AC-3 promoted to DONE-VERIFIED. DONE/DONE-VERIFIED 55 → 56. OPEN 20 → 19. Total findings remain 96.
 
 ---
 
@@ -289,7 +291,7 @@ crypto & security primitive review, test coverage gap analysis, wire format & in
 |-------|---------|-------|--------|-------|----------|
 | AC-1 | localbolt-app has zero web frontend tests and no CI test gate enforcing npm test | GOVERNANCE | **DONE-VERIFIED** | CI-HARDEN-1 | `localbolt-app-v1.2.2-ci-harden-1` (`3f07f35`) |
 | AC-2 | bolt-core-sdk CI does not require Rust tests or transport-web tests as mandatory checks | GOVERNANCE | **DONE-VERIFIED** | CI-GATE-1 | `sdk-v0.5.16-ci-gate-1` (`1694aa6`) |
-| AC-3 | localbolt subtrees structurally diverged from canonical bolt-rendezvous | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-3 | localbolt subtrees structurally diverged from canonical bolt-rendezvous | GOVERNANCE | **DONE-VERIFIED** | AC-3-SUBTREE-REFRESH | `rendezvous-v0.2.4-subtree-safe-2` (feature-gate removal), `localbolt-v1.0.18-subtree-refresh-1` (`e9207db`), `localbolt-app-v1.2.3-subtree-refresh-1` (`1d71e66`). Deterministic interop CI: `rendezvous-v0.2.5-interop-crate-1`. Dead code cleanup: `rendezvous-v0.2.6-clean-1` (`632544b`). |
 | AC-4 | localbolt-v3 coverage thresholds defined but not enforced in CI | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
 | AC-5 | 4 of 12 §15 handshake invariants lack automated regression tests | PROTOCOL | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
 | AC-6 | No cross-implementation interop test (TS client ↔ Rust signaling server) | INTEROP | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
@@ -332,8 +334,12 @@ crypto & security primitive review, test coverage gap analysis, wire format & in
 
 | Severity | Total | Open | Resolved |
 |----------|-------|------|----------|
-| HIGH | 9 | 7 (AC-3 through AC-9) | 2 |
+| HIGH | 9 | 6 (AC-4 through AC-9) | 3 |
 | MEDIUM | 7 | 7 (AC-10 through AC-16) | 0 |
 | LOW | 6 | 6 (AC-17 through AC-22) | 0 |
 | DONE-BY-DESIGN | 3 | — | 3 (AC-23, AC-24, AC-25) |
-| **Total** | **25** | **20** | **5** |
+| **Total** | **25** | **19** | **6** |
+
+Arithmetic reconciled in ecosystem-v0.1.21-audit-gov-18 —
+AC-3 promoted to DONE-VERIFIED.
+OPEN = 19. Total = 96.

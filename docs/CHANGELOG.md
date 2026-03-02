@@ -5,6 +5,17 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.21-audit-gov-18
+
+- Promoted AC-3 to DONE-VERIFIED
+- Subtree refresh complete for signal/ in localbolt + localbolt-app
+- Deterministic interop CI crate in place (no Cargo.toml mutation)
+- Dead feature gate + unreachable cfg-gated tests removed
+- DONE/DONE-VERIFIED 55 → 56
+- OPEN 20 → 19
+
+---
+
 ## ecosystem-v0.1.20-audit-gov-17
 
 - Promoted AC-1 → DONE-VERIFIED
