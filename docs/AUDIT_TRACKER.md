@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-02 (AUDIT-GOV-24)
+**Last updated:** 2026-03-02 (AUDIT-GOV-25)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -85,14 +85,14 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 ## SUMMARY
 
 - **Total findings:** 96 (41 prior + 19 SA-series + 11 N-series + 25 AC-series)
-- **DONE / DONE-VERIFIED:** 70
+- **DONE / DONE-VERIFIED:** 75
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 6 (SA11, SA15, N9, AC-23, AC-24, AC-25)
 - **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN:** 5 (AC-13, AC-15, AC-16, AC-17, AC-22)
-- **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md` and AC-series findings below.
+- **OPEN:** 0
+- **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md`.
 
 > **OPEN (global)** = all findings across all series with Status = OPEN.
 > Does not include IN-PROGRESS, DEFERRED, CODIFIED, CLOSED-NO-BUG, or DONE-BY-DESIGN.
@@ -308,21 +308,21 @@ crypto & security primitive review, test coverage gap analysis, wire format & in
 | AC-10 | Six stale TODO rows remain in CONFORMANCE.md | GOVERNANCE | **DONE-VERIFIED** | CONSISTENCY-SWEEP-1 | `v0.1.5-spec-consistency-1` (`d795dd5`). 6 TODO rows updated to IMPLEMENTED with concrete test evidence paths. §11, §15.1, §15.2, §15.4, §15.5 (PROTOCOL.md) and §9 (LOCALBOLT_PROFILE.md). |
 | AC-11 | Daemon pins bolt-rendezvous-protocol at stale v0.1.0 | PROTOCOL | **DONE-VERIFIED** | CONSISTENCY-SWEEP-1 | `daemon-v0.2.20-dep-refresh-1` (`99de9aa`). Cargo.toml tag bumped from `rendezvous-protocol-v0.1.0` to `rendezvous-v0.2.6-clean-1`. Crate source identical (zero diff); pin now resolves to canonical stable commit. 319 tests pass. |
 | AC-12 | ARCHITECTURE.md missing documentation of cargo git dependency | GOVERNANCE | **DONE-VERIFIED** | CONSISTENCY-SWEEP-1 | `ecosystem-v0.1.27-arch-consistency-1` (`fdb5545`). Added "Cargo Git Dependency Pattern" section to ARCHITECTURE.md §6 with rationale, consumer table, mandatory tag pinning rule, example, and update procedure. Bundling matrix corrected for localbolt-v3. |
-| AC-13 | Three shadow tests test copied logic rather than SDK imports | GOVERNANCE | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-13 | Three shadow tests test copied logic rather than SDK imports | GOVERNANCE | **DONE-VERIFIED** | HARDEN-SWEEP-2A | `sdk-v0.5.21-ac13-export-surface-1` (SDK export surface expanded, export-only). `localbolt-v1.0.20-ac13-shadow-test-fix-1` (shadow tests replaced with canonical SDK imports). Zero shadow crypto/store/util logic remains. Net -79 lines of duplicated code. 272 localbolt tests pass. |
 | AC-14 | localbolt subtrees may be behind canonical bolt-rendezvous (staleness risk) | GOVERNANCE | **DONE-VERIFIED** | SUBTREE-DRIFT-GUARD-1 | localbolt-v1.0.19-drift-guard-1 (6a4a006). Subtree refreshed to rendezvous-v0.2.6-clean-1. Drift prevention (one-directional tracked-file hash guard). Staleness detection remains future enhancement. |
-| AC-15 | find_peer allows cross-room relay lookup | TRANSPORT | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
-| AC-16 | X-Forwarded-For trusted without proxy allowlist | TRANSPORT | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-15 | find_peer allows cross-room relay lookup | TRANSPORT | **DONE-VERIFIED** | HARDEN-SWEEP-2A | `rendezvous-v0.2.7-hardening-1` (`6ae3f77`). `find_peer` requires `caller_room` parameter; cross-room resolution structurally impossible. Signal relay passes `client_ip` as caller room. Regression test added. 51 tests pass. |
+| AC-16 | X-Forwarded-For trusted without proxy allowlist | TRANSPORT | **DONE-VERIFIED** | HARDEN-SWEEP-2A | `rendezvous-v0.2.7-hardening-1` (`6ae3f77`). XFF header trusted only when connecting socket is in `trusted_proxies` allowlist. Default fail-closed (empty list = header always ignored). `with_trusted_proxies()` builder + `TRUSTED_PROXIES` env var. 51 tests pass. |
 
 ### LOW Severity
 
 | AC_ID | Summary | Track | Status | Phase | Evidence |
 |-------|---------|-------|--------|-------|----------|
-| AC-17 | 56% of transport-web exports unused | GOVERNANCE | **OPEN** | GOVERNANCE-SWEEP-1 | `sdk-v0.5.19-governance-sweep-1` (`9db3abd`). 4 VALUE exports removed; type-only exports untouched. `WebSocketSignaling` explicitly preserved (consumer dependency). Tests: transport-web 248, bolt-core TS 120. Remains OPEN — further reduction pending consumer audit. |
+| AC-17 | 56% of transport-web exports unused | GOVERNANCE | **DONE-VERIFIED** | HARDEN-SWEEP-2A | Initial reduction: `sdk-v0.5.19-governance-sweep-1` (`9db3abd`), 4 VALUE exports removed. Final consumer matrix audit (HARDEN-SWEEP-2A): 33/33 remaining VALUE exports confirmed in use across localbolt, localbolt-app, localbolt-v3, and SDK CI. No further safe reductions possible. Exhausted. |
 | AC-18 | crypto-utils.ts in localbolt is dead code | GOVERNANCE | **DONE-VERIFIED** | GOVERNANCE-SWEEP-1 | `sdk-v0.5.19-governance-sweep-1` (`9db3abd`). Dead `crypto-utils` barrel deleted. Zero internal imports confirmed. Zero consumer imports confirmed. |
 | AC-19 | TS ServerMessage union missing error variant typing | INTEROP | **DONE-VERIFIED** | INTEROP-CONVERGENCE-1 | `sdk-v0.5.18-interop-converge-1` (`97352af`). `ServerErrorMessage` type added to union. Runtime `case "error"` handler. 4 handler tests. |
 | AC-20 | No golden vectors for signaling messages | INTEROP | **DONE-VERIFIED** | INTEROP-CONVERGENCE-1 | `sdk-v0.5.18-interop-converge-1` (`97352af`). 7 JSON fixtures sourced from `rendezvous-v0.2.6-clean-1` canonical Rust `json!()` shapes. Deep-equal parity + roundtrip tests. |
 | AC-21 | §10 spec references bolt.envelope but implementation uses bolt.profile-envelope-v1 | PROTOCOL | **DONE-VERIFIED** | PROTOCOL-CONVERGENCE-1 | `v0.1.4-spec` (`ede90be`) — PROTOCOL.md line 579: `bolt.envelope` → `bolt.profile-envelope-v1`. |
-| AC-22 | No concurrent WebSocket connection limit on signal server | TRANSPORT | **OPEN** | TBD | See 2026-03-01-full-ecosystem-audit.md |
+| AC-22 | No concurrent WebSocket connection limit on signal server | TRANSPORT | **DONE-VERIFIED** | HARDEN-SWEEP-2A | `rendezvous-v0.2.8-ac22-ws-conn-limit-1` (`bb59440`). Default limit 256 (`DEFAULT_MAX_WS_CONNECTIONS`). Config: `with_max_connections()` builder + `MAX_WS_CONNECTIONS` env var. AtomicUsize + CAS pre-check + RAII `ConnectionGuard` drop guard. TCP stream dropped before WS upgrade on rejection. 4 deterministic tests added. 55 total tests pass. No protocol/wire/crypto changes. |
 
 ### DONE-BY-DESIGN
 
@@ -337,10 +337,10 @@ crypto & security primitive review, test coverage gap analysis, wire format & in
 | Severity | Total | Open | Resolved |
 |----------|-------|------|----------|
 | HIGH | 9 | 0 | 9 |
-| MEDIUM | 7 | 3 (AC-13, AC-15, AC-16) | 4 |
-| LOW | 6 | 2 (AC-17, AC-22) | 4 |
+| MEDIUM | 7 | 0 | 7 |
+| LOW | 6 | 0 | 6 |
 | DONE-BY-DESIGN | 3 | — | 3 (AC-23, AC-24, AC-25) |
-| **Total** | **25** | **5** | **20** |
+| **Total** | **25** | **0** | **25** |
 
 Arithmetic reconciled in ecosystem-v0.1.21-audit-gov-18 —
 AC-3 promoted to DONE-VERIFIED.
@@ -369,3 +369,7 @@ OPEN = 8. DONE/DONE-VERIFIED = 67. Total = 96.
 Arithmetic reconciled in ecosystem-v0.1.28-audit-gov-24 —
 Closed: AC-10, AC-11, AC-12.
 OPEN = 5. DONE/DONE-VERIFIED = 70. Total = 96.
+
+Arithmetic reconciled in ecosystem-v0.1.29-audit-gov-25 —
+Closed: AC-13, AC-15, AC-16, AC-17, AC-22.
+OPEN = 0. DONE/DONE-VERIFIED = 75. Total = 96.

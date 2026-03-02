@@ -7,7 +7,7 @@ Last Refreshed By: AUDIT-GOV-16
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-02 (AUDIT-GOV-24)
+> **Last Updated:** 2026-03-02 (AUDIT-GOV-25)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -144,9 +144,9 @@ SA-series fully closed. All 19 findings resolved.
 - **MEDIUM:** 7
 - **LOW:** 6
 - **DONE-BY-DESIGN:** 3
-- **OPEN:** 5
-- **DONE / DONE-VERIFIED (global):** 70
-- **OPEN (global):** 5
+- **OPEN:** 0
+- **DONE / DONE-VERIFIED (global):** 75
+- **OPEN (global):** 0
 - **Total findings (global):** 96
 
 **Canonical audit source:** `docs/AUDITS/2026-03-01-full-ecosystem-audit.md`
@@ -196,6 +196,14 @@ SA-series fully closed. All 19 findings resolved.
 - AC-10: CONFORMANCE.md TODO rows reconciled → DONE-VERIFIED (`v0.1.5-spec-consistency-1`, `d795dd5`)
 - AC-11: daemon dependency refreshed → DONE-VERIFIED (`daemon-v0.2.20-dep-refresh-1`, `99de9aa`)
 - AC-12: ARCHITECTURE.md cargo git dependency documented → DONE-VERIFIED (`ecosystem-v0.1.27-arch-consistency-1`, `fdb5545`)
+
+**AUDIT-GOV-25 delta:**
+- AC-13: shadow tests replaced with canonical SDK imports → DONE-VERIFIED (`sdk-v0.5.21-ac13-export-surface-1`, `localbolt-v1.0.20-ac13-shadow-test-fix-1`)
+- AC-15: find_peer room isolation enforced → DONE-VERIFIED (`rendezvous-v0.2.7-hardening-1`, `6ae3f77`)
+- AC-16: XFF proxy allowlist (fail-closed) → DONE-VERIFIED (`rendezvous-v0.2.7-hardening-1`, `6ae3f77`)
+- AC-17: export matrix exhausted (33/33 used) → DONE-VERIFIED
+- AC-22: WebSocket connection limit (256 default) → DONE-VERIFIED (`rendezvous-v0.2.8-ac22-ws-conn-limit-1`, `bb59440`)
+- **AC-series fully closed. All 25 findings resolved. OPEN = 0.**
 
 ---
 
@@ -255,10 +263,10 @@ SA-series fully closed. All 19 findings resolved.
 
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
-| bolt-core-sdk | `sdk-v0.5.20-protocol-converge-2` | `28c3baf` |
+| bolt-core-sdk | `sdk-v0.5.21-ac13-export-surface-1` | `829af85` |
 | bolt-daemon | `daemon-v0.2.20-dep-refresh-1` | `99de9aa` |
-| bolt-rendezvous | `rendezvous-v0.2.6-clean-1` | `632544b` |
-| localbolt | `localbolt-v1.0.19-drift-guard-1` | `6a4a006` |
+| bolt-rendezvous | `rendezvous-v0.2.8-ac22-ws-conn-limit-1` | `bb59440` |
+| localbolt | `localbolt-v1.0.20-ac13-shadow-test-fix-1` | `b4d1a49` |
 | localbolt-app | `localbolt-app-v1.2.3-subtree-refresh-1` | `1d71e66` |
 | localbolt-v3 | `v3.0.64-ac4-coverage-enforced` | `a5d0237` |
 | bolt-protocol | `v0.1.5-spec-consistency-1` | `d795dd5` |

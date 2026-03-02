@@ -5,6 +5,22 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.29-audit-gov-25 — 2026-03-02
+
+- Closed AC-13 (shadow tests replaced with canonical SDK imports) as DONE-VERIFIED
+  - `sdk-v0.5.21-ac13-export-surface-1` (`829af85`)
+  - `localbolt-v1.0.20-ac13-shadow-test-fix-1` (`b4d1a49`)
+- Closed AC-15 (find_peer room isolation enforced) as DONE-VERIFIED (`rendezvous-v0.2.7-hardening-1`, `6ae3f77`)
+- Closed AC-16 (XFF proxy allowlist, fail-closed) as DONE-VERIFIED (`rendezvous-v0.2.7-hardening-1`, `6ae3f77`)
+- Closed AC-17 (export matrix exhausted, 33/33 VALUE exports in use) as DONE-VERIFIED
+- Closed AC-22 (WebSocket connection limit, default 256) as DONE-VERIFIED (`rendezvous-v0.2.8-ac22-ws-conn-limit-1`, `bb59440`)
+- Counters updated: DONE/DONE-VERIFIED 70→75, OPEN 5→0, Total 96
+- **AC-series fully closed. All 25 findings resolved. OPEN = 0.**
+- Tag snapshots updated: bolt-core-sdk, bolt-rendezvous, localbolt
+- Docs-only governance reconciliation; no runtime repositories modified
+
+---
+
 ## ecosystem-v0.1.28-audit-gov-24 — 2026-03-02
 
 - Closed AC-10 (CONFORMANCE TODO reconciliation) as DONE-VERIFIED (`v0.1.5-spec-consistency-1`, `d795dd5`)
