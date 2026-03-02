@@ -5,6 +5,15 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.24-audit-gov-21 — 2026-03-02
+
+- Closed AC-6, AC-19, AC-20 (INTEROP-CONVERGENCE-1)
+- Updated bolt-core-sdk snapshot to `sdk-v0.5.18-interop-converge-1` (`97352af`)
+- Corrected stale transport-web test count (199 → 248)
+- Severity table and OPEN counters reconciled (12 open, 13 resolved)
+
+---
+
 ## ecosystem-v0.1.23-audit-gov-20
 
 - Closed AC-21 as DONE-VERIFIED (`v0.1.4-spec`, `ede90be`)
