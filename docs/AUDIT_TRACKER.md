@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-03 (AUDIT-GOV-39)
+**Last updated:** 2026-03-03 (AUDIT-GOV-40)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -78,14 +78,14 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 |------|-----------|------------------------|------------------------|-------|-------|
 | localbolt | 0.4.0 | 0.6.0 | 0.6.2 (pending) | 272/272 | pass |
 | localbolt-app | 0.4.0 | 0.6.0 | 0.6.2 (pending) | N/A | pass |
-| localbolt-v3 | 0.4.0 | 0.6.1 | 0.6.2 (pending) | 4/4 | pass |
+| localbolt-v3 | 0.5.0 | 0.6.1 | 0.6.2 (pending) | 4/4 | pass |
 
 ---
 
 ## SUMMARY
 
-- **Total findings:** 102 (41 prior + 19 SA-series + 11 N-series + 25 AC-series + 6 DP-series)
-- **DONE / DONE-VERIFIED:** 81
+- **Total findings:** 103 (41 prior + 19 SA-series + 11 N-series + 25 AC-series + 7 DP-series)
+- **DONE / DONE-VERIFIED:** 82
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 6 (SA11, SA15, N9, AC-23, AC-24, AC-25)
@@ -346,13 +346,14 @@ Findings discovered during Fly.io deployment of bolt-rendezvous signal server (2
 | DP-4 | One-way file transfer: TOFU verification gate blocks file upload for `unverified` peers (`transfer.ts:43`). On first contact both sides are `unverified`. `markPeerVerified()` only updates local state — no mutual verification signal sent to remote (`HandshakeManager.ts:221-229`). Result: only the side that clicked "Verify" can send files; the other side's upload UI remains hidden. | TRANSPORT | **DONE-VERIFIED** | DP-4 | `v3.0.65-dp3b-dp4-phantom-transfer` (`08382f1`): removed verification-based gate on file upload. All three TOFU states (verified, unverified, legacy) have working E2E encryption — SAS verification is an optional MITM confirmation, not a prerequisite for secure transfer. |
 | DP-5 | Server race condition: stale peer replacement in `add_peer` (DP-3a) drops the old sender, which causes the old connection's cleanup task (`server.rs:513`) to call `remove_peer(&client_ip, &peer_code)` — removing the NEW replacement connection. `remove_peer` matches only on `peer_code` with no session/generation guard, so the old connection's teardown deletes the new connection from the room. Result: replaced peer disappears from room; other devices lose visibility of it. | TRANSPORT | **DONE-VERIFIED** | DP-5 | `rendezvous-v0.2.12-dp5-session-guard` (`aa8bed0`): monotonic `session_id` on PeerInfo; `remove_peer` requires matching session_id, preventing stale cleanup from removing replacement. 55 tests (+1 DP-5 regression). Deployed to Fly.io (3 regions). |
 | DP-6 | Responder cannot send files after receiving: file-upload module's store subscription for receive progress sets local `progress` variable but never clears it when the store resets `transferProgress` to null. The subscriber condition `if (transferProgress && transferProgress !== progress)` is falsy when `transferProgress` is null, so `progress` stays as the completed receive object. Since `sendBtn.disabled = !!progress`, the "Start Transfer" button is permanently disabled on the responder after the first receive. Root cause: `file-upload.ts:160-166` — store subscription missing null-clearing branch. Affected repo: bolt-core-sdk (`@the9ines/bolt-transport-web`). | SDK | **DONE-VERIFIED** | DP-6 | SDK fix: `sdk-v0.5.24-dp6-responder-send-fix` (`3c71407`). Added `else if (!transferProgress && progress)` null-clearing branch to store subscription. Published `@the9ines/bolt-transport-web@0.6.1`. Consumer adoption: `v3.0.66-dp6-transport-web-bump` (`8f98716`). |
+| DP-7 | Build failure after transport-web 0.6.1 bump: `isValidWireErrorCode` imported from `@the9ines/bolt-core` by `WebRTCService.js`, but bolt-core 0.4.0 was published before SA2/AC-8 added the wire error code registry. Rollup build fails with `"isValidWireErrorCode" is not exported`. Netlify deploy blocked; WebRTC connections cannot establish because the app never loads. Root cause: bolt-core 0.4.0 was never republished after `WIRE_ERROR_CODES` and `isValidWireErrorCode` were added to source. transport-web 0.6.1 was built against the local `file:../bolt-core` dev dependency (which has it) but consumers use the published 0.4.0 (which doesn't). | GOVERNANCE | **DONE-VERIFIED** | DP-7 | Published `@the9ines/bolt-core@0.5.0` (`sdk-v0.5.25-bolt-core-050`, `c776118`). Consumer adoption: `v3.0.67-dp7-bolt-core-050` (`6bb21b3`). Build passes. |
 
 ### DP-series Summary
 
 | Severity | Total | Open | Resolved |
 |----------|-------|------|----------|
-| MEDIUM | 6 | 0 | 6 |
-| **Total** | **6** | **0** | **6** |
+| MEDIUM | 7 | 0 | 7 |
+| **Total** | **7** | **0** | **7** |
 
 ---
 
@@ -417,3 +418,7 @@ DONE/DONE-VERIFIED = 80. OPEN = 1. Total = 102.
 Arithmetic reconciled in ecosystem-v0.1.45-audit-gov-39 —
 Closed: DP-6 (responder send fix, SDK 0.6.1 published, localbolt-v3 adopted).
 DONE/DONE-VERIFIED = 81. OPEN = 0. Total = 102.
+
+Arithmetic reconciled in ecosystem-v0.1.46-audit-gov-40 —
+Registered + closed: DP-7 (bolt-core 0.5.0 publish, wire error code registry).
+DONE/DONE-VERIFIED = 82. OPEN = 0. Total = 103.
