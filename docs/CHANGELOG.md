@@ -5,6 +5,21 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.34-audit-gov-28 — 2026-03-02
+
+- Reconcile governance with daemon tags pushed to origin (B5, B6-P1, plus dep-refresh, B1B2, FMT-1)
+- **B5 DONE:** `daemon-v0.2.23-b5-tofu-persist` (`0faa729`) — persistent TOFU pinning bound to DC HELLO identity key
+- **B6-P1 DONE:** `daemon-v0.2.24-b6-loop-container` (`8666f44`) — shared `run_post_hello_loop()` with fail-closed transfer message policy
+- Daemon test counts updated: 273 default / 353 test-support (was 254/334)
+- Daemon tag snapshot updated: `daemon-v0.2.24-b6-loop-container` (`8666f44`)
+- B3 description updated to reflect B6-P1 codebase state (transfer messages now INVALID_STATE, not Ok(None))
+- Dependency graph updated: B5 DONE, B6 IN-PROGRESS, B3 sole remaining critical-path blocker
+- Tag naming deviations documented for B5 and B6-P1 (tags immutable, deviation recorded)
+- Updated: `docs/GOVERNANCE_WORKSTREAMS.md`, `docs/STATE.md`, `docs/CHANGELOG.md`
+- Docs-only; no runtime repos modified
+
+---
+
 ## ecosystem-v0.1.33-forward-dev-enrich — 2026-03-02
 
 - Enriched deferred phases B3, B4, B5, B6, D-E2E with verified spec references, corrected dependencies, gates, and acceptance definitions
