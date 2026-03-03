@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.36-audit-gov-30 — 2026-03-03
+
+- **B3-P2 DONE:** `daemon-v0.2.26-b3-transfer-sm-p2` (`5844199`) — receive-side transfer data plane with chunk reassembly
+  - TransferSession extended: Idle → OfferReceived → Receiving → Completed (+ Rejected from P1)
+  - Auto-accept policy: FileOffer → `accept_current_offer()` → send `DcMessage::FileAccept`
+  - Chunk receive: base64 decode via `bolt_core::encoding::from_base64` → `on_file_chunk` with sequential index enforcement
+  - In-memory reassembly with `MAX_TRANSFER_BYTES` (256 MiB) cap at offer and chunk level
+  - Transfer completion via `on_file_finish` → Completed state, `completed_bytes()` accessor
+  - FileChunk and FileFinish carved out of `route_inner_message` to `Ok(None)` for loop-level handling
+  - Loop interception expanded: `match` on FileOffer/FileChunk/FileFinish with full error handling
+  - No disk writes, no send-side, no hashing (B4 scope), no pause/resume, no concurrent transfers
+  - Files changed: `src/transfer.rs`, `src/envelope.rs`, `src/rendezvous.rs`
+- Daemon test counts updated: 291 default / 371 test-support (was 279/359, +12)
+- Daemon tag snapshot updated: `daemon-v0.2.26-b3-transfer-sm-p2` (`5844199`)
+- B3 status: IN-PROGRESS → IN-PROGRESS (P2 complete; remaining: pause/resume, cancel, disk writes, send-side, hashing)
+- B6 status: loop now handles full receive path (FileOffer/FileChunk/FileFinish)
+- Audit counters unchanged (75 DONE, 0 OPEN, 96 total) — no audit findings created or modified
+- Updated: `docs/GOVERNANCE_WORKSTREAMS.md`, `docs/STATE.md`, `docs/CHANGELOG.md`
+- Docs-only; no runtime repos modified
+
+---
+
 ## ecosystem-v0.1.35-audit-gov-29 — 2026-03-03
 
 - **B3-P1 DONE:** `daemon-v0.2.25-b3-transfer-sm-p1` (`edebe5d`) — transfer state machine skeleton with FileOffer → Cancel reject

@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Tag:** ecosystem-v0.1.35-audit-gov-29
+> **Tag:** ecosystem-v0.1.36-audit-gov-30
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -424,15 +424,16 @@ These are not speculative — they are protocol-bound execution gaps already def
 B5 (TOFU wiring) ─── DONE (daemon-v0.2.23-b5-tofu-persist)
 
 B3 (transfer SM) ─┐  B3-P1 DONE (FileOffer→Cancel skeleton)
+                  │   B3-P2 DONE (receive + reassembly in memory)
                   ├── coupled deliverable
-B6 (event loop) ──┘   B6-P1 DONE (loop container); B3-P1 integrated
+B6 (event loop) ──┘   B6-P1 DONE (loop container); B3-P2 integrated
                       │
-B4 (file-hash) ────── blocked on B3 full (accept + chunk streaming)
+B4 (file-hash) ────── blocked on B3 full (pause/resume, cancel, disk writes)
                       │
 D-E2E ─────────────── blocked on B3 full + B4 + B6
 ```
 
-**Progress update (AUDIT-GOV-29):** B3-P1 delivered TransferSession skeleton with FileOffer interception and deterministic Cancel reject inside `run_post_hello_loop`. The loop now intercepts FileOffer before `route_inner_message`, transitions through Idle→OfferReceived→Rejected, and sends Cancel with `cancelled_by="receiver"`. Second offer while not Idle triggers INVALID_STATE disconnect. Remaining B3 work: FileAccept handling, chunk streaming, reassembly, concurrent transfers. B5 is complete (independent, no longer on critical path).
+**Progress update (AUDIT-GOV-30):** B3-P2 extended TransferSession with full receive path: auto-accept (FileOffer→accept→send FileAccept), chunk receive (base64 decode→sequential index enforcement→in-memory reassembly), and transfer completion (FileFinish→Completed). MAX_TRANSFER_BYTES (256 MiB) cap enforced. FileChunk and FileFinish carved out to Ok(None) in `route_inner_message`. Loop interception expanded to match on FileOffer/FileChunk/FileFinish. +12 tests (default: 279→291, test-support: 359→371). No disk writes, no hashing, no send-side. Remaining B3 work: pause/resume, cancel, disk writes, send-side, concurrent transfers. B5 complete (independent). B4 blocked on full B3.
 
 **Amendment from WORKSTREAMS-1:** B5 was previously listed as dependent on B3. This is incorrect — TOFU pin wiring requires only the HELLO-derived identity key (already present post-INTEROP-2). B6 was previously listed as dependent on B5. This is also incorrect — the event loop routes messages to the transfer engine, not to the pin store.
 
@@ -459,11 +460,24 @@ Introduced `TransferSession` (Idle → OfferReceived → Rejected) integrated in
 
 **Tag naming deviation:** Governance spec defined format `daemon-vX.Y.Z-transfer-converge-B3`. Actual tag is `daemon-v0.2.25-b3-transfer-sm-p1`. Tag is immutable; deviation documented.
 
-**Remaining B3 work:** FileAccept handling beyond fail-closed, FileChunk streaming, reassembly, hashing, disk writes, multiple concurrent transfers, pause/resume semantics.
+#### B3-P2 — MVP Data Plane: Receive + Reassembly in Memory (DONE)
+
+**Tag:** `daemon-v0.2.26-b3-transfer-sm-p2` (`5844199`)
+**Date:** 2026-03-03
+
+Extended TransferSession beyond P1 cancel-only behavior to support receiver-side accept, chunk receive with in-memory reassembly, and transfer completion. TransferState extended with Receiving and Completed variants. Auto-accept policy: FileOffer triggers `on_file_offer` (validates size/chunks/cap) → `accept_current_offer` (OfferReceived→Receiving, pre-allocates buffer) → send `DcMessage::FileAccept`. FileChunk: base64 decoded via `bolt_core::encoding::from_base64` in loop before `on_file_chunk` (sequential index enforcement, buffer overflow guard). FileFinish: `on_file_finish` (Receiving→Completed). `completed_bytes()` accessor for test verification. MAX_TRANSFER_BYTES (256 MiB) enforced at offer and chunk level. FileChunk and FileFinish carved out of `route_inner_message` to `Ok(None)` for loop-level handling. Loop interception expanded from `if let` FileOffer pattern to `match` on FileOffer/FileChunk/FileFinish with full error handling. No disk writes, no send-side, no hashing (B4 scope), no pause/resume, no concurrent transfers.
+
+**Files changed:** `src/transfer.rs` (extended), `src/envelope.rs` (carve-outs), `src/rendezvous.rs` (loop interception)
+**Tests:** +12 (default: 279→291, test-support: 359→371)
+**Gates:** All green (fmt, clippy -D warnings, no unsafe, no unwrap in production)
+
+**Tag naming deviation:** Governance spec defined format `daemon-vX.Y.Z-transfer-converge-B3`. Actual tag is `daemon-v0.2.26-b3-transfer-sm-p2`. Tag is immutable; deviation documented.
+
+**Remaining B3 work:** Pause/resume semantics, cancel handling, disk writes (sender-side streaming), multiple concurrent transfers, hashing (B4 scope).
 
 #### B3 Original Description
 
-The daemon recognizes all seven file transfer message types at the wire level (B2: `daemon-v0.2.21-transfer-converge-B1B2`). As of B3-P1, FileOffer is intercepted at loop level and rejected via Cancel. All other transfer message types remain `INVALID_STATE("transfer SM not active")` via `route_inner_message`.
+The daemon recognizes all seven file transfer message types at the wire level (B2: `daemon-v0.2.21-transfer-converge-B1B2`). As of B3-P2, FileOffer, FileChunk, and FileFinish are intercepted at loop level and processed by TransferSession (auto-accept + in-memory reassembly). FileAccept, Pause, Resume, and Cancel remain `INVALID_STATE("transfer SM not active")` via `route_inner_message`.
 
 **Derived From:**
 - PROTOCOL.md §8 (File Transfer — chunking, backpressure, integrity, replay, resource limits)
@@ -496,11 +510,24 @@ The daemon recognizes all seven file transfer message types at the wire level (B
 - [x] Commit + local tag: `daemon-v0.2.25-b3-transfer-sm-p1`
 - [x] Pushed to origin
 
+**Gates (B3-P2 — receive data plane):**
+- [x] Working tree clean before and after
+- [x] All existing daemon tests pass: `cargo test` (291 default)
+- [x] All existing daemon tests pass: `cargo test --features test-support` (371 test-support)
+- [x] New B3-P2 tests pass (12 tests: 9 unit + 1 envelope + 2 loop integration)
+- [x] `cargo clippy -- -D warnings` clean
+- [x] `cargo fmt -- --check` clean
+- [x] State machine covers: IDLE → OFFERED → RECEIVING → COMPLETED
+- [x] FileAccept sent on auto-accept
+- [x] Chunk receive with base64 decode + sequential index enforcement
+- [x] In-memory reassembly with MAX_TRANSFER_BYTES cap
+- [x] Commit + local tag: `daemon-v0.2.26-b3-transfer-sm-p2`
+- [x] Pushed to origin
+
 **Gates (full B3 — remaining):**
-- [ ] State machine covers: IDLE → OFFERED → ACCEPTED → TRANSFERRING → COMPLETED
 - [ ] State machine covers: PAUSE, RESUME, CANCEL transitions
-- [ ] FileAccept handling beyond fail-closed
-- [ ] Chunk streaming and reassembly
+- [ ] Disk writes (sender-side streaming)
+- [ ] Multiple concurrent transfers
 - [ ] `scripts/check_no_panic.sh` passes
 
 **Acceptance Definition (full B3):**
@@ -631,9 +658,11 @@ Introduced shared `run_post_hello_loop()` used by both offerer and answerer WebD
 
 **Tag naming deviation:** Governance spec defined format `daemon-vX.Y.Z-event-loop-B6`. Actual tag is `daemon-v0.2.24-b6-loop-container`. Tag is immutable; deviation documented.
 
-**B3-P1 integration (AUDIT-GOV-29):** B3-P1 (`daemon-v0.2.25-b3-transfer-sm-p1`) integrated TransferSession into `run_post_hello_loop`. FileOffer is now intercepted at loop level and rejected via Cancel. Remaining transfer messages still hit INVALID_STATE via `route_inner_message`.
+**B3-P1 integration (AUDIT-GOV-29):** B3-P1 (`daemon-v0.2.25-b3-transfer-sm-p1`) integrated TransferSession into `run_post_hello_loop`. FileOffer intercepted at loop level and rejected via Cancel.
 
-**Remaining B6 work:** Full B6 completion requires full B3 — FileAccept, chunk streaming, and remaining transfer lifecycle routing into the event loop.
+**B3-P2 integration (AUDIT-GOV-30):** B3-P2 (`daemon-v0.2.26-b3-transfer-sm-p2`) expanded loop interception to handle FileOffer (auto-accept→send FileAccept), FileChunk (base64 decode→reassembly), and FileFinish (Receiving→Completed). FileAccept, Pause, Resume, Cancel still hit INVALID_STATE via `route_inner_message`.
+
+**Remaining B6 work:** Full B6 completion requires full B3 — pause/resume, cancel transitions, and remaining transfer lifecycle routing into the event loop.
 
 **Goal:** Replace the deadline-bounded demo loops (INTEROP-3/4) with a persistent recv → decode → route → respond loop after HELLO completes. Both offerer and answerer paths require parity.
 

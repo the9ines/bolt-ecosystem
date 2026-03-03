@@ -1,13 +1,13 @@
 ---
 Snapshot Derived From:
 - transport-web-v0.6.9-n8-caplen-1 (ded0a40)
-- daemon-v0.2.25-b3-transfer-sm-p1 (edebe5d)
-Last Refreshed By: AUDIT-GOV-29
+- daemon-v0.2.26-b3-transfer-sm-p2 (5844199)
+Last Refreshed By: AUDIT-GOV-30
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-03 (AUDIT-GOV-29)
+> **Last Updated:** 2026-03-03 (AUDIT-GOV-30)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -255,7 +255,7 @@ SA-series fully closed. All 19 findings resolved.
 | Fail-closed semantics | All protocol errors → disconnect (H2) | Error framing + disconnect | SDK: per-error-code tests, daemon: EnvelopeError | Yes |
 | Error code registry (22 codes — §10, unified in v0.1.3-spec) | WIRE_ERROR_CODES | CANONICAL_ERROR_CODES | H2+: emission tests per code | Yes |
 | Downgrade resistance | No runtime flag disables enforcement (H2) | web_dc_v1 no-downgrade gate | H2: downgrade resistance suite | Yes |
-| Golden vector parity | SAS, HELLO-open, envelope-open (H3) | SAS, HELLO-open, envelope-open (H3) | SDK: 97 TS + 96 Rust (incl. S1 conformance), daemon: 273 tests | Yes |
+| Golden vector parity | SAS, HELLO-open, envelope-open (H3) | SAS, HELLO-open, envelope-open (H3) | SDK: 97 TS + 96 Rust (incl. S1 conformance), daemon: 291 tests | Yes |
 
 ---
 
@@ -264,7 +264,7 @@ SA-series fully closed. All 19 findings resolved.
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
 | bolt-core-sdk | `sdk-v0.5.22-webrtc-decompose-A2` | `7f7811d` |
-| bolt-daemon | `daemon-v0.2.25-b3-transfer-sm-p1` | `edebe5d` |
+| bolt-daemon | `daemon-v0.2.26-b3-transfer-sm-p2` | `5844199` |
 | bolt-rendezvous | `rendezvous-v0.2.8-ac22-ws-conn-limit-1` | `bb59440` |
 | localbolt | `localbolt-v1.0.20-ac13-shadow-test-fix-1` | `b4d1a49` |
 | localbolt-app | `localbolt-app-v1.2.3-subtree-refresh-1` | `1d71e66` |
@@ -273,14 +273,14 @@ SA-series fully closed. All 19 findings resolved.
 | bytebolt-app | `bytebolt-v0.0.1` | — |
 | bytebolt-relay | `relay-v0.0.1` | — |
 
-> **Note:** bolt-core-sdk snapshot reflects local workstream tags (not yet pushed to origin per no-push policy). Previous main tag: `sdk-v0.5.21-ac13-export-surface-1` (`829af85`). Daemon tags through `daemon-v0.2.25-b3-transfer-sm-p1` pushed to origin.
+> **Note:** bolt-core-sdk snapshot reflects local workstream tags (not yet pushed to origin per no-push policy). Previous main tag: `sdk-v0.5.21-ac13-export-surface-1` (`829af85`). Daemon tags through `daemon-v0.2.26-b3-transfer-sm-p2` pushed to origin.
 
 ---
 
 ## Active Governance Workstreams
 
 > **Canonical doc:** `docs/GOVERNANCE_WORKSTREAMS.md`
-> **Codified:** ecosystem-v0.1.35-audit-gov-29 (2026-03-03)
+> **Codified:** ecosystem-v0.1.36-audit-gov-30 (2026-03-03)
 > **Note:** These are improvement initiatives, not audit findings. Not part of audit counters.
 
 ### A-STREAM-1 — WebRTCService Decomposition (bolt-core-sdk): COMPLETE
@@ -303,10 +303,11 @@ WebRTCService reduced 1,369 → 790 LOC. Public API unchanged. 249 transport-web
 | B1 | Flip interop defaults | DONE | `daemon-v0.2.21-transfer-converge-B1B2` (`95d672f`) |
 | B2 | DataChannel message variants + parsing | DONE | `daemon-v0.2.21-transfer-converge-B1B2` (`95d672f`) |
 | B3-P1 | Transfer SM skeleton (FileOffer → Cancel) | DONE | `daemon-v0.2.25-b3-transfer-sm-p1` (`edebe5d`) |
+| B3-P2 | Receive data plane (accept + chunks + reassembly) | DONE | `daemon-v0.2.26-b3-transfer-sm-p2` (`5844199`) |
 | B5 | TOFU pin persistence | DONE | `daemon-v0.2.23-b5-tofu-persist` (`0faa729`) |
 | B6-P1 | Post-HELLO event loop container | DONE | `daemon-v0.2.24-b6-loop-container` (`8666f44`) |
 
-Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning. B6-P1 introduced shared `run_post_hello_loop()`. B3-P1 integrated TransferSession into loop — FileOffer intercepted after envelope decrypt, rejected via Cancel with `cancelled_by="receiver"`. Second offer while not Idle triggers INVALID_STATE disconnect. All other transfer messages remain INVALID_STATE via `route_inner_message`.
+Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning. B6-P1 introduced shared `run_post_hello_loop()`. B3-P1 integrated TransferSession into loop — FileOffer intercepted after envelope decrypt, rejected via Cancel. B3-P2 replaced Cancel reject with auto-accept + receive path: FileOffer→accept→send FileAccept, FileChunk→base64 decode→sequential reassembly in memory, FileFinish→Completed. 256 MiB cap enforced. No disk writes, no hashing (B4 scope).
 
 ### Governance Process Items
 
@@ -314,13 +315,13 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 |----|------------|----------|--------|
 | FMT-GATE-1 | Daemon rustfmt verification drift | LOW | DONE-VERIFIED (`daemon-v0.2.22-fmt-sync-1`, `9d0a485`) |
 
-### Deferred Phases — Corrected Dependencies (AUDIT-GOV-29)
+### Deferred Phases — Corrected Dependencies (AUDIT-GOV-30)
 
 | ID | Goal | Status | Dependencies | Notes |
 |----|------|--------|-------------|-------|
 | B5 | TOFU pin persistence | DONE | None (independent) | `daemon-v0.2.23-b5-tofu-persist` (`0faa729`) |
-| B3 | Transfer engine state machine | IN-PROGRESS | B2 (DONE) | B3-P1 done (`daemon-v0.2.25-b3-transfer-sm-p1`); full B3 remains (accept, chunks, reassembly) |
-| B6 | Post-HELLO persistent event loop | IN-PROGRESS | Coupled with B3 | B6-P1 done; B3-P1 integrated into loop; full B6 requires full B3 |
+| B3 | Transfer engine state machine | IN-PROGRESS | B2 (DONE) | B3-P1+P2 done; remaining: pause/resume, cancel, disk writes, send-side |
+| B6 | Post-HELLO persistent event loop | IN-PROGRESS | Coupled with B3 | B6-P1 done; B3-P2 integrated into loop; full B6 requires full B3 |
 | B4 | File-hash capability | NOT-STARTED | B3 full | SA15 supersession applies |
 | D-E2E | Cross-stack integration test | NOT-STARTED | B3 full + B4 + B6 | First multi-repo phase |
 
@@ -329,6 +330,8 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 **B5/B6-P1 completion (AUDIT-GOV-28):** B5 delivered persistent TOFU pinning bound to HELLO identity key. B6-P1 delivered shared `run_post_hello_loop()` — deterministic recv→decode→route loop with deadline exit, periodic ping (2s), and fail-closed transfer message policy.
 
 **B3-P1 completion (AUDIT-GOV-29):** B3-P1 delivered TransferSession (Idle→OfferReceived→Rejected) integrated into `run_post_hello_loop`. FileOffer intercepted after envelope decrypt, rejected via Cancel (`cancelled_by="receiver"`). Second offer while not Idle triggers INVALID_STATE disconnect. FileOffer carved out of `route_inner_message` combined transfer arm to `Ok(None)`. All other transfer messages remain INVALID_STATE. Tag naming deviates from governance spec (see GOVERNANCE_WORKSTREAMS.md).
+
+**B3-P2 completion (AUDIT-GOV-30):** B3-P2 replaced Cancel reject with auto-accept + full receive path. TransferState extended with Receiving and Completed variants. FileOffer auto-accepted (on_file_offer→accept_current_offer→send FileAccept). FileChunk decoded from base64 via `bolt_core::encoding::from_base64` then sequential index enforcement and in-memory reassembly. FileFinish transitions Receiving→Completed. MAX_TRANSFER_BYTES (256 MiB) enforced at offer and chunk level. FileChunk and FileFinish carved out to Ok(None) in `route_inner_message`. Loop interception expanded from if-let to match on FileOffer/FileChunk/FileFinish. +12 tests (9 unit, 1 envelope, 2 loop integration). No disk writes, no hashing, no send-side.
 
 **Scope guardrails:** No protocol, wire-format, or cryptographic changes. A-stream preserves WebRTCService public API.
 
@@ -342,8 +345,8 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 | bolt-core-sdk (TS transport-web) | 249 | Includes H2 enforcement + S2B metrics + interop error framing + SA5/SA6 lifecycle harden + SA10 hello timeout + AC-8/AC-9 proto-harden regression + AC-6/AC-19/AC-20 signaling golden vectors + AC-5 send-side atomicity |
 | bolt-core-sdk (Rust, default) | 87 | main (61 unit + 11 S1 conformance + 15 S2 contract) |
 | bolt-core-sdk (Rust, vectors) | 117 | main (61 unit + 27 S1 conformance + 14 H3 vectors + 15 S2 contract) |
-| bolt-daemon (default) | 279 | main (includes B1B2, B5, B6-P1, B3-P1: +6 transfer SM tests) |
-| bolt-daemon (test-support) | 359 | main (includes H3/H5/P1/SA1/B5/B6-P1/B3-P1 tests) |
+| bolt-daemon (default) | 291 | main (includes B1B2, B5, B6-P1, B3-P1, B3-P2: +12 receive path tests) |
+| bolt-daemon (test-support) | 371 | main (includes H3/H5/P1/SA1/B5/B6-P1/B3-P1/B3-P2 tests) |
 | bolt-rendezvous | 49 | main (48 unit + 1 doc-test) |
 | localbolt-v3 (TS) | 26 | main (includes H5-v3 TOFU/SAS tests) |
 | localbolt-v3 (Rust signal) | 36 | main (S0 canonical bolt-rendezvous wrapper, up from 32) |
