@@ -5,6 +5,26 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.35-audit-gov-29 — 2026-03-03
+
+- **B3-P1 DONE:** `daemon-v0.2.25-b3-transfer-sm-p1` (`edebe5d`) — transfer state machine skeleton with FileOffer → Cancel reject
+  - TransferSession (Idle → OfferReceived → Rejected) integrated into `run_post_hello_loop`
+  - FileOffer intercepted after envelope decrypt, rejected via Cancel (`cancelled_by="receiver"`)
+  - Second offer while not Idle triggers INVALID_STATE disconnect
+  - FileOffer carved out of `route_inner_message` combined transfer arm to Ok(None)
+  - New files: `src/transfer.rs` (TransferSession, TransferState, TransferError)
+  - Modified: `src/envelope.rs`, `src/rendezvous.rs`, `src/lib.rs`, `src/main.rs`
+- Daemon test counts updated: 279 default / 359 test-support (was 273/353, +6)
+- Daemon tag snapshot updated: `daemon-v0.2.25-b3-transfer-sm-p1` (`edebe5d`)
+- B3 status changed: NOT-STARTED → IN-PROGRESS (B3-P1 complete)
+- Dependency graph updated: B3-P1 integrated into B6-P1 loop container
+- Tag naming deviation documented (spec: `daemon-vX.Y.Z-transfer-converge-B3`, actual: `daemon-v0.2.25-b3-transfer-sm-p1`)
+- Audit counters unchanged (75 DONE, 0 OPEN, 96 total) — no audit findings created or modified
+- Updated: `docs/GOVERNANCE_WORKSTREAMS.md`, `docs/STATE.md`, `docs/CHANGELOG.md`
+- Docs-only; no runtime repos modified
+
+---
+
 ## ecosystem-v0.1.34-audit-gov-28 — 2026-03-02
 
 - Reconcile governance with daemon tags pushed to origin (B5, B6-P1, plus dep-refresh, B1B2, FMT-1)
