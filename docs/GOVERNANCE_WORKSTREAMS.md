@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Tag:** ecosystem-v0.1.48-audit-gov-42
+> **Tag:** ecosystem-v0.1.49-audit-gov-43
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -425,8 +425,9 @@ B5 (TOFU wiring) ─── DONE (daemon-v0.2.23-b5-tofu-persist)
 
 B3 (transfer SM) ─┐  B3-P1 DONE (FileOffer→Cancel skeleton)
                   │   B3-P2 DONE (receive + reassembly in memory)
+                  │   B3-P3 DONE (sender-side MVP + chunk streaming)
                   ├── coupled deliverable
-B6 (event loop) ──┘   B6-P1 DONE (loop container); B3-P2 integrated
+B6 (event loop) ──┘   B6-P1 DONE (loop container); B3-P3 integrated
                       │
 B4 (file-hash) ────── DONE (daemon-v0.2.27-b4-file-hash)
                       │   Receiver-side SHA-256 verification; SA15 superseded
@@ -436,6 +437,8 @@ D-E2E-B ────────────── NOT-STARTED (cross-implementa
 
 **Progress update (AUDIT-GOV-31):** B4 delivered receiver-side SHA-256 hash verification gated by `bolt.file-hash` capability negotiation. `DAEMON_CAPABILITIES` now advertises `bolt.file-hash`. TransferSession extended with `expected_hash` field; `on_file_offer` accepts optional hash; `on_file_finish` verifies via `bolt_core::hash::sha256_hex` (case-insensitive). Capability gating at loop level: negotiated + missing hash → `INTEGRITY_FAILED` + disconnect; not negotiated → hash on wire ignored. New `TransferError::IntegrityFailed` variant. +9 tests (default: 291→300, test-support: 371→380). SA15 superseded. Sender-side hashing out of scope (daemon is receive-only). Remaining for D-E2E: B3 full (pause/resume, cancel, disk writes, send-side) + B6 full.
 
+**Progress update (AUDIT-GOV-43):** B3-P3 delivered sender-side SendSession with cursor-driven chunk streaming. SendSession state machine: Idle→OfferSent→Sending→Completed/Cancelled. `begin_send()` computes metadata and optional SHA-256 hash (gated by `file_hash_negotiated`). FileAccept and Cancel carved out from `route_inner_message` to Ok(None) for loop-level interception. Loop-level FileAccept drives send-side SM: stream all chunks (DEFAULT_CHUNK_SIZE = 16,384 bytes) then send FileFinish; absorbed gracefully when no active outbound transfer. Cancel same pattern. Pause/Resume remain INVALID_STATE. No new DcMessage variants, no new EnvelopeError variants, no new canonical error codes. dc_messages.rs unchanged. +16 tests (default: 302→318, test-support: 382→398 + 1 ignored). Remaining B3 work: pause/resume semantics, disk writes, concurrent transfers.
+
 **Previous update (AUDIT-GOV-30):** B3-P2 extended TransferSession with full receive path: auto-accept (FileOffer→accept→send FileAccept), chunk receive (base64 decode→sequential index enforcement→in-memory reassembly), and transfer completion (FileFinish→Completed). MAX_TRANSFER_BYTES (256 MiB) cap enforced. FileChunk and FileFinish carved out to Ok(None) in `route_inner_message`. Loop interception expanded to match on FileOffer/FileChunk/FileFinish. +12 tests (default: 279→291, test-support: 359→371). No disk writes, no hashing, no send-side. Remaining B3 work: pause/resume, cancel, disk writes, send-side, concurrent transfers. B5 complete (independent).
 
 **Amendment from WORKSTREAMS-1:** B5 was previously listed as dependent on B3. This is incorrect — TOFU pin wiring requires only the HELLO-derived identity key (already present post-INTEROP-2). B6 was previously listed as dependent on B5. This is also incorrect — the event loop routes messages to the transfer engine, not to the pin store.
@@ -444,7 +447,7 @@ D-E2E-B ────────────── NOT-STARTED (cross-implementa
 
 ### B3 — Transfer Engine State Machine
 
-**Status:** IN-PROGRESS (B3-P1 complete)
+**Status:** IN-PROGRESS (B3-P1, B3-P2, B3-P3 complete)
 **Prerequisites:** B2 (message types — DONE)
 **Coupled with:** B6 (post-HELLO event loop)
 
@@ -476,11 +479,26 @@ Extended TransferSession beyond P1 cancel-only behavior to support receiver-side
 
 **Tag naming deviation:** Governance spec defined format `daemon-vX.Y.Z-transfer-converge-B3`. Actual tag is `daemon-v0.2.26-b3-transfer-sm-p2`. Tag is immutable; deviation documented.
 
-**Remaining B3 work:** Pause/resume semantics, cancel handling, disk writes (sender-side streaming), multiple concurrent transfers. (Hashing delivered in B4.)
+#### B3-P3 — Sender-Side Transfer MVP (DONE)
+
+**Tag:** `daemon-v0.2.29-b3-transfer-sm-p3-sender` (`4fd55e3`)
+**Date:** 2026-03-03
+
+Added sender-side `SendSession` struct (separate from receive-side `TransferSession`) with cursor-driven chunk streaming. State machine: Idle→OfferSent→Sending→Completed/Cancelled. `begin_send()` stores payload, computes metadata (total_chunks from DEFAULT_CHUNK_SIZE = 16,384 bytes), generates monotonic transfer_id, optionally computes SHA-256 hash. `on_accept()` transitions OfferSent→Sending. `next_chunk()` yields one chunk at a time from cursor. `finish()` validates all chunks yielded, transitions Sending→Completed. `on_cancel()` transitions OfferSent/Sending→Cancelled. One outbound transfer per connection max.
+
+FileAccept and Cancel carved out from `route_inner_message` to Ok(None) (previously INVALID_STATE disconnect). Loop-level interception: FileAccept drives send-side SM when active (stream all chunks + FileFinish), absorbed gracefully when idle. Cancel same pattern. Pause/Resume remain INVALID_STATE in `route_inner_message`.
+
+**Files changed:** `src/transfer.rs` (extended), `src/envelope.rs` (carve-outs), `src/rendezvous.rs` (loop interception), `src/lib.rs` (test_support re-exports)
+**Tests:** +16 (default: 302→318, test-support: 382→398 + 1 ignored)
+**Gates:** All green (fmt, clippy -D warnings, no unsafe, no unwrap in production)
+
+**Tag naming deviation:** Governance spec defined format `daemon-vX.Y.Z-transfer-converge-B3`. Actual tag is `daemon-v0.2.29-b3-transfer-sm-p3-sender`. Tag is immutable; deviation documented.
+
+**Remaining B3 work:** Pause/resume semantics, disk writes, multiple concurrent transfers. (Hashing delivered in B4. Send-side delivered in B3-P3. Cancel handling delivered in B3-P3.)
 
 #### B3 Original Description
 
-The daemon recognizes all seven file transfer message types at the wire level (B2: `daemon-v0.2.21-transfer-converge-B1B2`). As of B3-P2, FileOffer, FileChunk, and FileFinish are intercepted at loop level and processed by TransferSession (auto-accept + in-memory reassembly). FileAccept, Pause, Resume, and Cancel remain `INVALID_STATE("transfer SM not active")` via `route_inner_message`.
+The daemon recognizes all seven file transfer message types at the wire level (B2: `daemon-v0.2.21-transfer-converge-B1B2`). As of B3-P3, FileOffer, FileChunk, FileFinish, FileAccept, and Cancel are all intercepted at loop level. FileOffer/FileChunk/FileFinish are processed by TransferSession (receive-side, auto-accept + in-memory reassembly). FileAccept and Cancel are processed by SendSession (send-side, cursor-driven chunk streaming). Pause and Resume remain `INVALID_STATE("transfer SM not active")` via `route_inner_message`.
 
 **Derived From:**
 - PROTOCOL.md §8 (File Transfer — chunking, backpressure, integrity, replay, resource limits)
@@ -527,9 +545,23 @@ The daemon recognizes all seven file transfer message types at the wire level (B
 - [x] Commit + local tag: `daemon-v0.2.26-b3-transfer-sm-p2`
 - [x] Pushed to origin
 
+**Gates (B3-P3 — sender-side MVP):**
+- [x] Working tree clean before and after
+- [x] All existing daemon tests pass: `cargo test` (318 default)
+- [x] All existing daemon tests pass: `cargo test --features test-support` (398 test-support + 1 ignored)
+- [x] New B3-P3 tests pass (16 tests: 10 unit + 3 loop integration + 3 net envelope routing)
+- [x] `cargo clippy -- -D warnings` clean
+- [x] `cargo fmt -- --check` clean
+- [x] dc_messages.rs unchanged, run_post_hello_loop signature unchanged
+- [x] No new DcMessage/EnvelopeError variants, no new canonical error codes
+- [x] Commit + tag: `daemon-v0.2.29-b3-transfer-sm-p3-sender`
+- [x] Pushed to origin
+
 **Gates (full B3 — remaining):**
-- [ ] State machine covers: PAUSE, RESUME, CANCEL transitions
-- [ ] Disk writes (sender-side streaming)
+- [x] Send-side transfer (B3-P3)
+- [x] Cancel handling (B3-P3)
+- [ ] State machine covers: PAUSE, RESUME transitions
+- [ ] Disk writes
 - [ ] Multiple concurrent transfers
 - [ ] `scripts/check_no_panic.sh` passes
 
@@ -663,7 +695,9 @@ Introduced shared `run_post_hello_loop()` used by both offerer and answerer WebD
 
 **B3-P2 integration (AUDIT-GOV-30):** B3-P2 (`daemon-v0.2.26-b3-transfer-sm-p2`) expanded loop interception to handle FileOffer (auto-accept→send FileAccept), FileChunk (base64 decode→reassembly), and FileFinish (Receiving→Completed). FileAccept, Pause, Resume, Cancel still hit INVALID_STATE via `route_inner_message`.
 
-**Remaining B6 work:** Full B6 completion requires full B3 — pause/resume, cancel transitions, and remaining transfer lifecycle routing into the event loop.
+**B3-P3 integration (AUDIT-GOV-43):** B3-P3 (`daemon-v0.2.29-b3-transfer-sm-p3-sender`) added SendSession to `run_post_hello_loop`. FileAccept and Cancel carved out from `route_inner_message` to Ok(None) for loop-level interception. FileAccept drives send-side SM when active (stream chunks + FileFinish), absorbed when idle. Cancel same pattern. Pause/Resume remain INVALID_STATE.
+
+**Remaining B6 work:** Full B6 completion requires full B3 — pause/resume transitions and remaining transfer lifecycle routing into the event loop.
 
 **Goal:** Replace the deadline-bounded demo loops (INTEROP-3/4) with a persistent recv → decode → route → respond loop after HELLO completes. Both offerer and answerer paths require parity.
 
@@ -852,7 +886,7 @@ D-E2E-A proves live end-to-end file transfer with SHA-256 hash verification usin
 - **Within A-stream:** Phases A1–A4 are sequential (each depends on the prior extraction). A5 depends on A1–A4.
 - **Within B-stream (corrected AUDIT-GOV-27):**
   - B1→B2: sequential (B2 depends on B1 defaults). DONE.
-  - B3+B6: coupled deliverable (transfer SM needs event loop; event loop needs SM). **Critical path.**
+  - B3+B6: coupled deliverable (transfer SM needs event loop; event loop needs SM). **Critical path.** B3-P1/P2/P3 done; remaining: pause/resume, disk writes, concurrent transfers.
   - B4: **DONE** (`daemon-v0.2.27-b4-file-hash`). Receiver-side only; B3-P2 receive path was sufficient.
   - B5: **DONE** (`daemon-v0.2.23-b5-tofu-persist`). Independent.
   - D-E2E-A: **DONE** (`daemon-v0.2.28-d-e2e-a-live-transfer`). Live Rust↔Rust E2E.

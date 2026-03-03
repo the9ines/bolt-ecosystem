@@ -5,6 +5,25 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.49-audit-gov-43 — 2026-03-03
+
+- **B3-P3 DONE:** `daemon-v0.2.29-b3-transfer-sm-p3-sender` (`4fd55e3`) — sender-side transfer MVP
+  - SendSession state machine: Idle → OfferSent → Sending → Completed/Cancelled
+  - Cursor-driven chunk streaming (DEFAULT_CHUNK_SIZE = 16,384 bytes)
+  - SHA-256 hash gating via `bolt_core::hash::sha256_hex` when bolt.file-hash negotiated
+  - FileAccept/Cancel carved out from `route_inner_message` to Ok(None) for loop-level interception
+  - Loop-level FileAccept drives send-side SM when active, absorbed when idle; Cancel same pattern
+  - Pause/Resume remain INVALID_STATE (not implemented this phase)
+  - No new DcMessage variants, no new EnvelopeError variants, no new canonical error codes
+  - No disk IO, no async, no new dependencies, dc_messages.rs unchanged
+  - Files changed: `src/transfer.rs`, `src/envelope.rs`, `src/rendezvous.rs`, `src/lib.rs`
+- Daemon test counts updated: 318 default / 398 test-support + 1 ignored (was 302/382, +16)
+- Daemon tag snapshot updated: `daemon-v0.2.29-b3-transfer-sm-p3-sender` (`4fd55e3`)
+- B3 status: remaining work reduced (send-side delivered; pause/resume, disk writes, concurrent transfers remain)
+- Updated: `docs/CHANGELOG.md`, `docs/STATE.md`, `docs/GOVERNANCE_WORKSTREAMS.md`
+
+---
+
 ## ecosystem-v0.1.48-audit-gov-42 — 2026-03-03
 
 Reconciliation commit: backfills DP-series (GOV-32–39) and DP-7 (GOV-41)
