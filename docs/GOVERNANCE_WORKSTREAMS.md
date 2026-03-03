@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Tag:** ecosystem-v0.1.31-workstreams-2
+> **Tag:** ecosystem-v0.1.33-forward-dev-enrich
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -412,32 +412,280 @@ Tag: `daemon-v0.2.22-fmt-sync-1` (`9d0a485`)
 
 ---
 
-## Deferred Phases
+## Deferred Phases — Enriched (AUDIT-GOV-27)
 
-The following phases are explicitly NOT part of the 8-phase workstream plan. They are documented here as future work with prerequisites. Each requires a separate governance codification before execution.
+The following phases are explicitly NOT part of the completed B-STREAM-1 workstream. They are documented here as future work with verified spec references, corrected dependencies, and acceptance definitions. Each requires a separate governance codification before execution.
+
+These are not speculative — they are protocol-bound execution gaps already defined normatively in PROTOCOL.md and referenced in audit findings.
+
+### Corrected Dependency Graph
+
+```
+B5 (TOFU wiring) ─── independent, can begin immediately
+                      │
+B3 (transfer SM) ─┐   │
+                  ├── coupled deliverable (critical path)
+B6 (event loop) ──┘   │
+                      │
+B4 (file-hash) ────── blocked on B3
+                      │
+D-E2E ─────────────── blocked on B3 + B4 + B6
+```
+
+**Critical path:** B3+B6 (coupled). Without a persistent event loop (B6), the transfer state machine (B3) has no message stream to drive it. Without the state machine (B3), the event loop (B6) has nothing to route messages to.
+
+**Amendment from WORKSTREAMS-1:** B5 was previously listed as dependent on B3. This is incorrect — TOFU pin wiring requires only the HELLO-derived identity key (already present post-INTEROP-2). B6 was previously listed as dependent on B5. This is also incorrect — the event loop routes messages to the transfer engine, not to the pin store.
+
+---
+
+### B3 — Transfer Engine State Machine
+
+**Status:** NOT-STARTED
+**Prerequisites:** B2 (message types — DONE)
+**Coupled with:** B6 (post-HELLO event loop)
+
+**Goal:** Implement full transfer state machine inside bolt-daemon per PROTOCOL.md §8 and §9.
+
+The daemon currently recognizes all seven file transfer message types at the wire level (B2: `daemon-v0.2.21-transfer-converge-B1B2`) but performs no transfer logic. `route_inner_message()` dispatches to log + `Ok(None)` for all transfer variants. No `src/transfer.rs` exists.
+
+**Derived From:**
+- PROTOCOL.md §8 (File Transfer — chunking, backpressure, integrity, replay, resource limits)
+- PROTOCOL.md §9 (State Machines — Transfer State: IDLE → OFFERED → ACCEPTED → TRANSFERRING ↔ PAUSED → COMPLETED, with ERROR and CANCELLED)
+- I2 tracker note: "transport-level E2E (daemon ↔ web live transfer) not yet in CI"
+- SA15 (DONE-BY-DESIGN): "Daemon does not implement file transfer" — rationale will be superseded when B3 lands
+
+**Constraints:**
+- No protocol semantic changes.
+- State machine states must align with PROTOCOL.md §9 transfer lifecycle.
+- Transfer engine is internal; session module routes messages to it.
+- No async runtime introduced.
+
+**Allowed files (bolt-daemon):**
+- `src/transfer.rs` (new — transfer state machine)
+- `src/session.rs` or `src/envelope.rs` (routing from session/envelope to transfer engine)
+- `src/lib.rs` or `src/main.rs` (module declaration)
+- `tests/b3_transfer_engine.rs` (new)
+- Existing test files (verify green)
+
+**Gates:**
+- [ ] Working tree clean before and after
+- [ ] All existing daemon tests pass: `cargo test` (report actual count)
+- [ ] All existing daemon tests pass: `cargo test --features test-support` (report actual count)
+- [ ] New B3 transfer engine tests pass (report actual count)
+- [ ] `cargo clippy -- -D warnings` clean
+- [ ] `cargo fmt -- --check` clean
+- [ ] `scripts/check_no_panic.sh` passes
+- [ ] State machine covers: IDLE → OFFERED → ACCEPTED → TRANSFERRING → COMPLETED
+- [ ] State machine covers: PAUSE, RESUME, CANCEL transitions
+- [ ] Fail-closed on invalid transitions
+- [ ] No silent drop paths
+- [ ] Commit + local tag: `daemon-vX.Y.Z-transfer-converge-B3`
+- [ ] Phase report filed
+
+**Acceptance Definition:**
+- Transfer state machine implemented with all normative state transitions enforced
+- Fail-closed on invalid transitions (ERROR + disconnect)
+- No silent drop paths — every message variant either advances state or errors
+- All tests passing, no warnings
+- Tagged release
+
+**Tag format:** `daemon-vX.Y.Z-transfer-converge-B3`
+
+---
 
 ### B4 — File-Hash Capability + Integrity Enforcement
 
-**Prerequisites:** B2 (message types), B3 (transfer engine)
-**Goal:** Implement `bolt.file-hash` capability negotiation and SHA-256 integrity verification on completed transfers.
-**Note:** This phase will require alignment with PROTOCOL.md §5 (Capabilities) and §8 (FILE_FINISH).
+**Status:** NOT-STARTED
+**Prerequisites:** B3 (transfer engine)
+
+**Goal:** Add SHA-256 integrity verification to daemon transfer path. Advertise `bolt.file-hash` in `DAEMON_CAPABILITIES`.
+
+Sender computes hash prior to `FILE_OFFER`. Receiver computes hash after reassembly and verifies if capability negotiated. Existing `hash.rs` in Rust SDK provides the SHA-256 primitive.
+
+**Derived From:**
+- PROTOCOL.md §8 "File Integrity Verification": when `bolt.file-hash` negotiated, `FILE_OFFER` MUST include SHA-256; receiver MUST verify after reassembly; mismatch → `ERROR(INTEGRITY_FAILED)`
+- PROTOCOL.md §4 (Version and Capability Negotiation)
+- SA15 (DONE-BY-DESIGN): intentional omission of `bolt.file-hash` from `DAEMON_CAPABILITIES` because daemon lacked transfer support
+
+**Constraints:**
+- No protocol semantic changes — capability already defined in spec.
+- Hash computation must use same algorithm as web implementation (SHA-256).
+- Mismatch must be fail-closed: discard file + `ERROR(INTEGRITY_FAILED)`.
+
+**Allowed files (bolt-daemon):**
+- `src/transfer.rs` (modified — add hash computation)
+- `src/web_hello.rs` (add `bolt.file-hash` to `DAEMON_CAPABILITIES`)
+- `tests/b4_file_hash.rs` (new)
+- Existing test files (verify green)
+
+**Gates:**
+- [ ] Working tree clean before and after
+- [ ] All existing daemon tests pass (default + test-support)
+- [ ] New B4 tests pass (report actual count)
+- [ ] `cargo clippy -- -D warnings` clean
+- [ ] `cargo fmt -- --check` clean
+- [ ] Hash computed sender-side
+- [ ] Hash verified receiver-side
+- [ ] Mismatch aborts transfer with `INTEGRITY_FAILED`
+- [ ] Capability negotiation respected (no hash check when not negotiated)
+- [ ] Commit + local tag: `daemon-vX.Y.Z-transfer-converge-B4`
+- [ ] Phase report filed
+
+**Acceptance Definition:**
+- SHA-256 hash computed sender-side, verified receiver-side
+- Mismatch aborts transfer (fail-closed)
+- `bolt.file-hash` advertised in `DAEMON_CAPABILITIES`
+- Capability negotiation respected
+- All tests passing, no warnings, tagged release
+
+**Tag format:** `daemon-vX.Y.Z-transfer-converge-B4`
+
+**Note:** SA15 supersession applies — see SA15 Supersession Note below.
+
+---
 
 ### B5 — TOFU Pin Persistence Activation
 
-**Prerequisites:** B3 (transfer engine with session routing)
-**Goal:** Activate TOFU identity pin persistence in the daemon. The daemon already has pin store infrastructure from INTEROP-2; this phase wires it into the live session lifecycle.
-**Note:** SA15 tension applies — see SA15 Supersession Note below.
+**Status:** NOT-STARTED
+**Prerequisites:** None (independent — may begin immediately)
 
-### B6 — Post-HELLO Long-Lived Event Loop + IPC/CLI Control
+**Goal:** Wire `TrustStore` to HELLO-derived identity public key. Enable persistent `save()`. Replace ephemeral peer_id binding. Infrastructure exists but persistence is disabled.
 
-**Prerequisites:** B3 (transfer engine), B5 (TOFU persistence)
-**Goal:** Implement a persistent post-HELLO event loop that keeps sessions alive for multiple transfers. Add IPC interface for CLI control (list sessions, initiate transfer, cancel, status).
-**Note:** This is the phase that transforms the daemon from a handshake-only tool into a usable file transfer service.
+**Derived From:**
+- PROTOCOL.md §2 (Identity — TOFU pinning requirement)
+- `src/identity_store.rs`: persistent identity key generation/loading (SA1 delivered separation)
+- `src/ipc/trust.rs`: TrustStore with pin/verify/revoke operations (17 tests passing)
+- SA1: identity separation delivered persistent identity keys as prerequisite
+- SA15 Supersession Note: TOFU guarantee effectively disabled without pin persistence
+
+**Dependency correction (AUDIT-GOV-27):** WORKSTREAMS-1 listed B3 as a prerequisite. This is incorrect. TOFU pin wiring requires only the HELLO-derived identity public key, which is already available after `parse_hello_message()` returns `inner.identity_public_key`. No transfer engine is needed. B5 is truly independent.
+
+**Constraints:**
+- No protocol semantic changes — spec already mandates TOFU.
+- Permissions 0600 preserved on pin store files.
+- Zeroization guarantees preserved for secret key material.
+- This is wiring work, not architectural expansion.
+
+**Allowed files (bolt-daemon):**
+- `src/rendezvous.rs` (wire TrustStore into HELLO completion path)
+- `src/ipc/trust.rs` (modifications if needed for persistence path)
+- `tests/b5_tofu_persistence.rs` (new)
+- Existing test files (verify green)
+
+**Gates:**
+- [ ] Working tree clean before and after
+- [ ] All existing daemon tests pass (default + test-support)
+- [ ] New B5 tests pass (report actual count)
+- [ ] `cargo clippy -- -D warnings` clean
+- [ ] `cargo fmt -- --check` clean
+- [ ] `scripts/check_no_panic.sh` passes
+- [ ] Identity public key pinned on first contact
+- [ ] Subsequent connections validated against pin
+- [ ] Mismatch aborts connection (fail-closed)
+- [ ] Permissions 0600 preserved
+- [ ] Commit + local tag: `daemon-vX.Y.Z-tofu-persist-B5`
+- [ ] Phase report filed
+
+**Acceptance Definition:**
+- Identity public key pinned on first contact
+- Subsequent connections validated against pinned key
+- Key mismatch aborts connection (fail-closed)
+- File permissions 0600 preserved
+- Zeroization guarantees preserved
+- All tests passing, no warnings, tagged release
+
+**Tag format:** `daemon-vX.Y.Z-tofu-persist-B5`
+
+**Note:** SA15 supersession applies — see SA15 Supersession Note below.
+
+---
+
+### B6 — Post-HELLO Persistent Event Loop
+
+**Status:** NOT-STARTED
+**Prerequisites:** None standalone, but **coupled with B3** for useful operation
+**Coupled with:** B3 (transfer state machine)
+
+**Goal:** Replace the deadline-bounded demo loops (INTEROP-3/4) with a persistent recv → decode → route → respond loop after HELLO completes. Both offerer and answerer paths require parity.
+
+Currently, both paths have post-HELLO loops (`rendezvous.rs` lines ~800 and ~1185) but they are bounded by a phase timeout and only handle ping/pong/app_message. They are not persistent and do not route file transfer messages to a state machine.
+
+**Derived From:**
+- PROTOCOL.md §6 (Bolt Message Protection — all post-handshake messages must be enveloped)
+- PROTOCOL.md §15.4 (Post-Handshake Envelope Requirement)
+- `src/envelope.rs`: encode/decode envelope operations exist
+- `src/rendezvous.rs`: offerer loop (line ~800) and answerer loop (line ~1185) — both deadline-bounded demo loops
+
+**Dependency correction (AUDIT-GOV-27):** WORKSTREAMS-1 listed B5 (TOFU persistence) as a prerequisite. This is incorrect. The event loop routes messages to the transfer engine and envelope decoder, not to the pin store. B6 depends only on B3 for useful operation.
+
+**Constraints:**
+- No async runtime introduced.
+- Deterministic shutdown behavior.
+- Unknown message types → `UNKNOWN_MESSAGE_TYPE` + disconnect.
+- Malformed known types → `INVALID_MESSAGE` + disconnect.
+- No silent drops.
+
+**Allowed files (bolt-daemon):**
+- `src/rendezvous.rs` (replace demo loops with persistent loops)
+- `src/envelope.rs` (if routing adjustments needed)
+- `tests/b6_event_loop.rs` (new)
+- Existing test files (verify green)
+
+**Gates:**
+- [ ] Working tree clean before and after
+- [ ] All existing daemon tests pass (default + test-support)
+- [ ] New B6 tests pass (report actual count)
+- [ ] `cargo clippy -- -D warnings` clean
+- [ ] `cargo fmt -- --check` clean
+- [ ] `scripts/check_no_panic.sh` passes
+- [ ] Event loop runs until disconnect (no deadline timeout)
+- [ ] Unknown message types → `UNKNOWN_MESSAGE_TYPE` + disconnect
+- [ ] Malformed known types → `INVALID_MESSAGE` + disconnect
+- [ ] No silent drop paths
+- [ ] Offerer/answerer parity
+- [ ] Commit + local tag: `daemon-vX.Y.Z-event-loop-B6`
+- [ ] Phase report filed
+
+**Acceptance Definition:**
+- Persistent event loop runs until disconnect
+- All post-HELLO messages routed through envelope decode → transfer SM
+- Error handling fail-closed (no silent drops)
+- No async runtime
+- Deterministic shutdown
+- All tests passing, no warnings, tagged release
+
+**Tag format:** `daemon-vX.Y.Z-event-loop-B6`
+
+---
 
 ### D-E2E — Cross-Stack Integration Test
 
-**Prerequisites:** B3 (minimum), realistically B6 (full daemon file transfer)
-**Goal:** End-to-end test proving daemon-to-web (localbolt-v3 or transport-web) file transfer roundtrip. This is the first phase that touches multiple repos simultaneously.
+**Status:** NOT-STARTED
+**Prerequisites:** B3 (transfer SM), B4 (file-hash), B6 (event loop)
+
+**Goal:** End-to-end integration test connecting Rust daemon, bolt-rendezvous signaling server, and TypeScript web client. Complete HELLO, transfer file, verify integrity both ends.
+
+**Derived From:**
+- I2 tracker note: "transport-level E2E (daemon ↔ web live transfer) not yet in CI"
+- AC-6: signaling golden vectors prove format parity but not live transfer
+- H3: golden vectors prove crypto interop (TS seal → Rust open) but not transport-level roundtrip
+
+**Constraints:**
+- CI reproducible — no flake.
+- Real signaling server instance (bolt-rendezvous).
+- Deterministic pass criteria.
+- This is the first phase that touches multiple repos simultaneously.
+
+**Acceptance Definition:**
+- Daemon-to-web file transfer roundtrip completes
+- SHA-256 integrity verified both ends
+- CI reproducible with no flake
+- Real signaling server instance
+- Deterministic pass/fail
+- No warnings
+
+**Tag format:** `daemon-vX.Y.Z-e2e-1` (daemon repo) + consumer repo tags as needed
+
 **Note:** This is the convergence proof — until D-E2E passes, daemon file transfer is not validated against the web implementation.
 
 ---
@@ -499,7 +747,10 @@ The following phases are explicitly NOT part of the 8-phase workstream plan. The
 | Workstream | Repo | Format | Example |
 |------------|------|--------|---------|
 | A-stream | bolt-core-sdk | `sdk-vX.Y.Z-webrtc-decompose-A{0..5}` | `sdk-v0.5.22-webrtc-decompose-A0` |
-| B-stream | bolt-daemon | `daemon-vX.Y.Z-transfer-converge-B{1..3}` | `daemon-v0.2.21-transfer-converge-B1` |
+| B-stream (B1–B4) | bolt-daemon | `daemon-vX.Y.Z-transfer-converge-B{1..4}` | `daemon-v0.2.21-transfer-converge-B1` |
+| B-stream (B5) | bolt-daemon | `daemon-vX.Y.Z-tofu-persist-B5` | `daemon-v0.2.23-tofu-persist-B5` |
+| B-stream (B6) | bolt-daemon | `daemon-vX.Y.Z-event-loop-B6` | `daemon-v0.2.24-event-loop-B6` |
+| D-E2E | bolt-daemon | `daemon-vX.Y.Z-e2e-1` | `daemon-v0.2.25-e2e-1` |
 | Governance | bolt-ecosystem | `ecosystem-v0.1.X-workstreams-N` | `ecosystem-v0.1.30-workstreams-1` |
 
 **Rules:**
@@ -514,8 +765,13 @@ The following phases are explicitly NOT part of the 8-phase workstream plan. The
 
 - **A-stream and B-stream CAN run in parallel.** They operate in different repos (bolt-core-sdk vs bolt-daemon) with no shared code changes.
 - **Within A-stream:** Phases A1–A4 are sequential (each depends on the prior extraction). A5 depends on A1–A4.
-- **Within B-stream:** Phases B1–B3 are sequential (B2 depends on B1 defaults; B3 depends on B2 types).
-- **Cross-stream dependency:** None until D-E2E, which is gated on B3+ completion (and realistically B6).
+- **Within B-stream (corrected AUDIT-GOV-27):**
+  - B1→B2: sequential (B2 depends on B1 defaults). DONE.
+  - B3+B6: coupled deliverable (transfer SM needs event loop; event loop needs SM). **Critical path.**
+  - B4: blocked on B3 (file-hash needs transfer engine).
+  - B5: **independent** — may begin immediately (TOFU wiring needs only HELLO-derived identity key).
+  - D-E2E: blocked on B3+B4+B6.
+- **Cross-stream dependency:** None until D-E2E, which is gated on B3+B4+B6 completion.
 
 ---
 

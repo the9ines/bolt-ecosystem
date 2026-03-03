@@ -5,6 +5,24 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.33-forward-dev-enrich — 2026-03-02
+
+- Enriched deferred phases B3, B4, B5, B6, D-E2E with verified spec references, corrected dependencies, gates, and acceptance definitions
+- **Dependency corrections:**
+  - B5 (TOFU wiring): independent — removed incorrect B3 prerequisite
+  - B6 (event loop): removed incorrect B5 prerequisite; coupled with B3 only
+  - B3+B6 identified as coupled critical path
+- All "Derived From" references verified against PROTOCOL.md:
+  - §8 (File Transfer), §9 (State Machines), §4 (Capabilities), §6 (Message Protection), §15.4 (Post-Handshake Envelope), §2 (Identity/TOFU)
+- Daemon facts verified: `src/ipc/trust.rs` (17 tests), no `src/transfer.rs`, both event loops are deadline-bounded demo loops
+- Tag naming rules extended for B4–B6 and D-E2E
+- Parallelization rules updated to reflect corrected dependency graph
+- Audit counters unchanged (75 DONE, 0 OPEN, 96 total) — no audit findings created or modified
+- Updated: `docs/GOVERNANCE_WORKSTREAMS.md`, `docs/STATE.md`, `docs/CHANGELOG.md`
+- Docs-only; no runtime repos modified; no pushes
+
+---
+
 ## ecosystem-v0.1.32-audit-gov-26 — 2026-03-02
 
 - Closed FMT-GATE-1 (daemon rustfmt verification drift) as DONE-VERIFIED

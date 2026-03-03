@@ -7,7 +7,7 @@ Last Refreshed By: AUDIT-GOV-16
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-02 (AUDIT-GOV-26)
+> **Last Updated:** 2026-03-02 (AUDIT-GOV-27)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -280,7 +280,7 @@ SA-series fully closed. All 19 findings resolved.
 ## Active Governance Workstreams
 
 > **Canonical doc:** `docs/GOVERNANCE_WORKSTREAMS.md`
-> **Codified:** ecosystem-v0.1.31-workstreams-2 (2026-03-02)
+> **Codified:** ecosystem-v0.1.33-forward-dev-enrich (2026-03-02)
 > **Note:** These are improvement initiatives, not audit findings. Not part of audit counters.
 
 ### A-STREAM-1 — WebRTCService Decomposition (bolt-core-sdk): COMPLETE
@@ -312,7 +312,17 @@ Fail-closed option C. Defaults flipped to Web*. +15 tests (254 default / 334 tes
 |----|------------|----------|--------|
 | FMT-GATE-1 | Daemon rustfmt verification drift | LOW | DONE-VERIFIED (`daemon-v0.2.22-fmt-sync-1`, `9d0a485`) |
 
-**Deferred (not part of the 8 phases):** B4 (file-hash), B5 (TOFU persistence), B6 (event loop + IPC), D-E2E (cross-stack integration). Prerequisites and sequencing documented in governance doc.
+### Deferred Phases — Corrected Dependencies (AUDIT-GOV-27)
+
+| ID | Goal | Status | Dependencies | Notes |
+|----|------|--------|-------------|-------|
+| B5 | TOFU pin persistence | NOT-STARTED | None (independent) | Can begin immediately; 17 TrustStore tests exist |
+| B3 | Transfer engine state machine | NOT-STARTED | B2 (DONE) | Coupled with B6; critical path |
+| B6 | Post-HELLO persistent event loop | NOT-STARTED | Coupled with B3 | Replaces INTEROP-3/4 demo loops |
+| B4 | File-hash capability | NOT-STARTED | B3 | SA15 supersession applies |
+| D-E2E | Cross-stack integration test | NOT-STARTED | B3 + B4 + B6 | First multi-repo phase |
+
+**Dependency amendment (AUDIT-GOV-27):** B5 is independent (was incorrectly listed as dependent on B3). B6 does not depend on B5 (was incorrectly listed). B3+B6 are the coupled critical path. See `docs/GOVERNANCE_WORKSTREAMS.md` for full enriched definitions with verified spec references.
 
 **Scope guardrails:** No protocol, wire-format, or cryptographic changes. A-stream preserves WebRTCService public API.
 
