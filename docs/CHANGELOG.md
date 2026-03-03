@@ -5,6 +5,18 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.32-audit-gov-26 — 2026-03-02
+
+- Closed FMT-GATE-1 (daemon rustfmt verification drift) as DONE-VERIFIED
+  - Evidence: `daemon-v0.2.22-fmt-sync-1` (`9d0a485`)
+  - Mechanical `cargo fmt` sync only — no logic or behavior changes
+  - 6 files formatted; all gates green (254 default / 334 test-support)
+- FMT-GATE-1 is a governance process item, not an audit finding — audit counters unchanged (75 DONE, 0 OPEN, 96 total)
+- Updated: `docs/GOVERNANCE_WORKSTREAMS.md`, `docs/STATE.md`, `docs/CHANGELOG.md`
+- Docs-only; no runtime repos modified; no pushes
+
+---
+
 ## ecosystem-v0.1.31-workstreams-2 — 2026-03-02
 
 - Closed A-STREAM-1 (WebRTCService decomposition: A0–A2)

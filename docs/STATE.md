@@ -7,7 +7,7 @@ Last Refreshed By: AUDIT-GOV-16
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-02 (WORKSTREAMS-2)
+> **Last Updated:** 2026-03-02 (AUDIT-GOV-26)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -264,7 +264,7 @@ SA-series fully closed. All 19 findings resolved.
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
 | bolt-core-sdk | `sdk-v0.5.22-webrtc-decompose-A2` | `7f7811d` |
-| bolt-daemon | `daemon-v0.2.21-transfer-converge-B1B2` | `95d672f` |
+| bolt-daemon | `daemon-v0.2.22-fmt-sync-1` | `9d0a485` |
 | bolt-rendezvous | `rendezvous-v0.2.8-ac22-ws-conn-limit-1` | `bb59440` |
 | localbolt | `localbolt-v1.0.20-ac13-shadow-test-fix-1` | `b4d1a49` |
 | localbolt-app | `localbolt-app-v1.2.3-subtree-refresh-1` | `1d71e66` |
@@ -273,7 +273,7 @@ SA-series fully closed. All 19 findings resolved.
 | bytebolt-app | `bytebolt-v0.0.1` | — |
 | bytebolt-relay | `relay-v0.0.1` | — |
 
-> **Note:** bolt-core-sdk and bolt-daemon snapshots reflect local workstream tags (not yet pushed to origin per no-push policy). Previous main tags: `sdk-v0.5.21-ac13-export-surface-1` (`829af85`), `daemon-v0.2.20-dep-refresh-1` (`99de9aa`).
+> **Note:** bolt-core-sdk and bolt-daemon snapshots reflect local workstream tags (not yet pushed to origin per no-push policy). Previous main tags: `sdk-v0.5.21-ac13-export-surface-1` (`829af85`), `daemon-v0.2.20-dep-refresh-1` (`99de9aa`). Daemon FMT-1 tag supersedes `daemon-v0.2.21-transfer-converge-B1B2` (`95d672f`).
 
 ---
 
@@ -310,7 +310,7 @@ Fail-closed option C. Defaults flipped to Web*. +15 tests (254 default / 334 tes
 
 | ID | Description | Severity | Status |
 |----|------------|----------|--------|
-| FMT-GATE-1 | Daemon rustfmt verification drift | LOW | OPEN |
+| FMT-GATE-1 | Daemon rustfmt verification drift | LOW | DONE-VERIFIED (`daemon-v0.2.22-fmt-sync-1`, `9d0a485`) |
 
 **Deferred (not part of the 8 phases):** B4 (file-hash), B5 (TOFU persistence), B6 (event loop + IPC), D-E2E (cross-stack integration). Prerequisites and sequencing documented in governance doc.
 

@@ -382,7 +382,7 @@ These are improvement initiatives — not audit findings, not protocol changes. 
 
 **Severity:** LOW
 **Category:** Process Integrity
-**Status:** OPEN (process-only; not runtime defect)
+**Status:** DONE-VERIFIED
 
 **Facts:**
 - `cargo fmt -- --check` fails on pre-existing files:
@@ -400,11 +400,15 @@ These are improvement initiatives — not audit findings, not protocol changes. 
 - Formatting drift accumulation
 - Refactors inherit noise
 
-**Resolution Plan:**
-Phase FMT-1:
-- Dedicated mechanical `cargo fmt` sync
-- No logic changes
-- Separate tag: `daemon-vX.Y.Z-fmt-sync-1`
+**Resolution:**
+Tag: `daemon-v0.2.22-fmt-sync-1` (`9d0a485`)
+- Mechanical `cargo fmt` sync — all 6 files formatted, no others touched
+- No logic changes, no semantic edits
+- `cargo fmt -- --check`: PASS
+- `cargo clippy -- -D warnings`: PASS
+- `scripts/check_no_panic.sh`: PASS
+- `cargo test` (default): 254 passed
+- `cargo test --features test-support`: 334 passed
 
 ---
 
