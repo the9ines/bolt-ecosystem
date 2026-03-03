@@ -5,6 +5,26 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.31-workstreams-2 — 2026-03-02
+
+- Closed A-STREAM-1 (WebRTCService decomposition: A0–A2)
+  - A0: Shared state scaffolding (`sdk-v0.5.22-webrtc-decompose-A0`, `6f0bb05`)
+  - A1: HandshakeManager extraction (`sdk-v0.5.22-webrtc-decompose-A1`, `e2d2b76`)
+  - A2: EnvelopeCodec + TransferManager extraction (`sdk-v0.5.22-webrtc-decompose-A2`, `7f7811d`)
+  - WebRTCService reduced 1,369 → 790 LOC; public API unchanged; 249 transport-web tests stable
+  - A3/A4 absorbed into A2; A5 remains future work
+- Closed B-STREAM-1 (interop defaults + transfer message types: B1–B2)
+  - B1+B2 combined: `daemon-v0.2.21-transfer-converge-B1B2` (`95d672f`)
+  - Fail-closed option C; defaults flipped to Web*; +15 tests (254 default / 334 test-support)
+  - Governance deviation documented (B1+B2 combined into single tag)
+- Opened FMT-GATE-1 (daemon rustfmt CI discrepancy — LOW, process-only)
+  - 6 pre-existing files fail `cargo fmt -- --check`
+  - Resolution plan: dedicated FMT-1 phase with separate tag
+- Updated: `docs/GOVERNANCE_WORKSTREAMS.md`, `docs/STATE.md`, `docs/CHANGELOG.md`
+- Docs-only governance codification; no runtime repositories modified; audit counters unchanged; no pushes
+
+---
+
 ## ecosystem-v0.1.30-workstreams-1 — 2026-03-02
 
 - Codify A/B workstreams and phase gates (WORKSTREAMS-1)

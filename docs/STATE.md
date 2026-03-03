@@ -7,7 +7,7 @@ Last Refreshed By: AUDIT-GOV-16
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-02 (AUDIT-GOV-25)
+> **Last Updated:** 2026-03-02 (WORKSTREAMS-2)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -263,8 +263,8 @@ SA-series fully closed. All 19 findings resolved.
 
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
-| bolt-core-sdk | `sdk-v0.5.21-ac13-export-surface-1` | `829af85` |
-| bolt-daemon | `daemon-v0.2.20-dep-refresh-1` | `99de9aa` |
+| bolt-core-sdk | `sdk-v0.5.22-webrtc-decompose-A2` | `7f7811d` |
+| bolt-daemon | `daemon-v0.2.21-transfer-converge-B1B2` | `95d672f` |
 | bolt-rendezvous | `rendezvous-v0.2.8-ac22-ws-conn-limit-1` | `bb59440` |
 | localbolt | `localbolt-v1.0.20-ac13-shadow-test-fix-1` | `b4d1a49` |
 | localbolt-app | `localbolt-app-v1.2.3-subtree-refresh-1` | `1d71e66` |
@@ -273,28 +273,46 @@ SA-series fully closed. All 19 findings resolved.
 | bytebolt-app | `bytebolt-v0.0.1` | — |
 | bytebolt-relay | `relay-v0.0.1` | — |
 
+> **Note:** bolt-core-sdk and bolt-daemon snapshots reflect local workstream tags (not yet pushed to origin per no-push policy). Previous main tags: `sdk-v0.5.21-ac13-export-surface-1` (`829af85`), `daemon-v0.2.20-dep-refresh-1` (`99de9aa`).
+
 ---
 
-## Planned Workstreams
+## Active Governance Workstreams
 
 > **Canonical doc:** `docs/GOVERNANCE_WORKSTREAMS.md`
-> **Codified:** ecosystem-v0.1.30-workstreams-1 (2026-03-02)
+> **Codified:** ecosystem-v0.1.31-workstreams-2 (2026-03-02)
 > **Note:** These are improvement initiatives, not audit findings. Not part of audit counters.
 
-| ID | Workstream | Repo | Goal | Status |
-|----|-----------|------|------|--------|
-| A1 | WebRTCService decomposition | bolt-core-sdk | Extract HandshakeManager | NOT-STARTED |
-| A2 | WebRTCService decomposition | bolt-core-sdk | Extract EnvelopeCodec | NOT-STARTED |
-| A3 | WebRTCService decomposition | bolt-core-sdk | Extract TransferManager | NOT-STARTED |
-| A4 | WebRTCService decomposition | bolt-core-sdk | Slim WebRTCService to coordinator | NOT-STARTED |
-| A5 | WebRTCService decomposition | bolt-core-sdk | Decomposition test hardening | NOT-STARTED |
-| B1 | Daemon transfer convergence | bolt-daemon | Flip interop defaults | NOT-STARTED |
-| B2 | Daemon transfer convergence | bolt-daemon | DataChannel message variants + parsing | NOT-STARTED |
-| B3 | Daemon transfer convergence | bolt-daemon | Transfer engine state machine | NOT-STARTED |
+### A-STREAM-1 — WebRTCService Decomposition (bolt-core-sdk): COMPLETE
+
+| ID | Goal | Status | Tag |
+|----|------|--------|-----|
+| A0 | Shared state scaffolding | DONE | `sdk-v0.5.22-webrtc-decompose-A0` (`6f0bb05`) |
+| A1 | Extract HandshakeManager | DONE | `sdk-v0.5.22-webrtc-decompose-A1` (`e2d2b76`) |
+| A2 | EnvelopeCodec + TransferManager extraction | DONE | `sdk-v0.5.22-webrtc-decompose-A2` (`7f7811d`) |
+| A3 | Extract TransferManager | ABSORBED into A2 | — |
+| A4 | Slim WebRTCService to coordinator | ABSORBED into A2 | — |
+| A5 | Decomposition test hardening | NOT-STARTED | — |
+
+WebRTCService reduced 1,369 → 790 LOC. Public API unchanged. 249 transport-web tests stable.
+
+### B-STREAM-1 — Daemon Transfer Convergence (bolt-daemon): COMPLETE
+
+| ID | Goal | Status | Tag |
+|----|------|--------|-----|
+| B1 | Flip interop defaults | DONE | `daemon-v0.2.21-transfer-converge-B1B2` (`95d672f`) |
+| B2 | DataChannel message variants + parsing | DONE | `daemon-v0.2.21-transfer-converge-B1B2` (`95d672f`) |
+| B3 | Transfer engine state machine | NOT-STARTED | — |
+
+Fail-closed option C. Defaults flipped to Web*. +15 tests (254 default / 334 test-support).
+
+### Governance Process Items
+
+| ID | Description | Severity | Status |
+|----|------------|----------|--------|
+| FMT-GATE-1 | Daemon rustfmt verification drift | LOW | OPEN |
 
 **Deferred (not part of the 8 phases):** B4 (file-hash), B5 (TOFU persistence), B6 (event loop + IPC), D-E2E (cross-stack integration). Prerequisites and sequencing documented in governance doc.
-
-**Parallelization:** A-stream and B-stream can run in parallel (different repos). No cross-stream dependency until deferred D-E2E.
 
 **Scope guardrails:** No protocol, wire-format, or cryptographic changes. A-stream preserves WebRTCService public API.
 
@@ -308,8 +326,8 @@ SA-series fully closed. All 19 findings resolved.
 | bolt-core-sdk (TS transport-web) | 249 | Includes H2 enforcement + S2B metrics + interop error framing + SA5/SA6 lifecycle harden + SA10 hello timeout + AC-8/AC-9 proto-harden regression + AC-6/AC-19/AC-20 signaling golden vectors + AC-5 send-side atomicity |
 | bolt-core-sdk (Rust, default) | 87 | main (61 unit + 11 S1 conformance + 15 S2 contract) |
 | bolt-core-sdk (Rust, vectors) | 117 | main (61 unit + 27 S1 conformance + 14 H3 vectors + 15 S2 contract) |
-| bolt-daemon (default) | 233 | main |
-| bolt-daemon (test-support) | 301 | main (includes H3/H5/P1/SA1 tests) |
+| bolt-daemon (default) | 254 | main (includes B1B2 +15: 4 config + 11 serde) |
+| bolt-daemon (test-support) | 334 | main (includes H3/H5/P1/SA1 tests + B1B2) |
 | bolt-rendezvous | 49 | main (48 unit + 1 doc-test) |
 | localbolt-v3 (TS) | 26 | main (includes H5-v3 TOFU/SAS tests) |
 | localbolt-v3 (Rust signal) | 36 | main (S0 canonical bolt-rendezvous wrapper, up from 32) |
