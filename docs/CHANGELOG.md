@@ -5,6 +5,29 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.46-audit-gov-40 — 2026-03-03
+
+- **D-E2E-A DONE:** `daemon-v0.2.28-d-e2e-a-live-transfer` (`b105344`) — live E2E transfer with SHA-256 hash verification
+  - Synthetic Rust offerer → bolt-daemon answerer via real bolt-rendezvous
+  - Real WebRTC (libdatachannel), real NaCl encryption, real profile-envelope-v1
+  - Full signaling: register → hello/ack → SDP offer/answer → ICE exchange → DataChannel open
+  - Full HELLO: encrypted identity exchange, capability negotiation (bolt.file-hash + bolt.profile-envelope-v1)
+  - Full transfer: FileOffer (with SHA-256 hash) → FileChunk (4096 bytes) → FileFinish
+  - Evidence: daemon emits `[B4_VERIFY_OK]` on stderr — unambiguous hash verification proof
+  - Stage 1: `hash_verified()` method on TransferSession + `[B4_VERIFY_OK]` / `[B3]` evidence emission
+  - Stage 2: `#[ignore]` integration test requiring pre-built bolt-rendezvous binary
+  - Dev-dependencies mirrored from deps: tungstenite, serde_json, serde, datachannel, webrtc-sdp, bolt-core
+  - No runtime src/ changes beyond evidence hook (≤10 lines); no wire format changes; no new error codes
+  - Files changed: `src/transfer.rs`, `src/rendezvous.rs`, `Cargo.toml`, `tests/d_e2e_web_to_daemon.rs` (new)
+- Daemon test counts updated: 302 default / 382 test-support + 1 ignored E2E (was 300/380, +2 unit + 1 E2E)
+- Daemon tag snapshot updated: `daemon-v0.2.28-d-e2e-a-live-transfer` (`b105344`)
+- D-E2E status: NOT-STARTED → IN-PROGRESS (D-E2E-A complete; D-E2E-B cross-implementation TS↔Rust deferred)
+- Audit counters unchanged (75 DONE, 0 OPEN, 96 total) — no audit findings created or modified
+- Updated: `docs/GOVERNANCE_WORKSTREAMS.md`, `docs/STATE.md`, `docs/CHANGELOG.md`
+- Docs-only; no runtime repos modified
+
+---
+
 ## ecosystem-v0.1.37-audit-gov-31 — 2026-03-03
 
 - **B4 DONE:** `daemon-v0.2.27-b4-file-hash` (`b41f814`) — receiver-side SHA-256 hash verification gated by bolt.file-hash

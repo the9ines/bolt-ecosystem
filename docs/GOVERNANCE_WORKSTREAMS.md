@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Tag:** ecosystem-v0.1.37-audit-gov-31
+> **Tag:** ecosystem-v0.1.46-audit-gov-40
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -430,7 +430,8 @@ B6 (event loop) ──┘   B6-P1 DONE (loop container); B3-P2 integrated
                       │
 B4 (file-hash) ────── DONE (daemon-v0.2.27-b4-file-hash)
                       │   Receiver-side SHA-256 verification; SA15 superseded
-D-E2E ─────────────── blocked on B3 full + B6
+D-E2E-A ────────────── DONE (daemon-v0.2.28-d-e2e-a-live-transfer)
+D-E2E-B ────────────── NOT-STARTED (cross-implementation TS↔Rust)
 ```
 
 **Progress update (AUDIT-GOV-31):** B4 delivered receiver-side SHA-256 hash verification gated by `bolt.file-hash` capability negotiation. `DAEMON_CAPABILITIES` now advertises `bolt.file-hash`. TransferSession extended with `expected_hash` field; `on_file_offer` accepts optional hash; `on_file_finish` verifies via `bolt_core::hash::sha256_hex` (case-insensitive). Capability gating at loop level: negotiated + missing hash → `INTEGRITY_FAILED` + disconnect; not negotiated → hash on wire ignored. New `TransferError::IntegrityFailed` variant. +9 tests (default: 291→300, test-support: 371→380). SA15 superseded. Sender-side hashing out of scope (daemon is receive-only). Remaining for D-E2E: B3 full (pause/resume, cancel, disk writes, send-side) + B6 full.
@@ -721,7 +722,7 @@ Currently, both paths have post-HELLO loops (`rendezvous.rs` lines ~800 and ~118
 
 ### D-E2E — Cross-Stack Integration Test
 
-**Status:** NOT-STARTED
+**Status:** IN-PROGRESS (D-E2E-A complete)
 **Prerequisites:** B3 (transfer SM), B4 (file-hash), B6 (event loop)
 
 **Goal:** End-to-end integration test connecting Rust daemon, bolt-rendezvous signaling server, and TypeScript web client. Complete HELLO, transfer file, verify integrity both ends.
@@ -748,6 +749,29 @@ Currently, both paths have post-HELLO loops (`rendezvous.rs` lines ~800 and ~118
 **Tag format:** `daemon-vX.Y.Z-e2e-1` (daemon repo) + consumer repo tags as needed
 
 **Note:** This is the convergence proof — until D-E2E passes, daemon file transfer is not validated against the web implementation.
+
+#### D-E2E-A Completion (AUDIT-GOV-40)
+
+**Status:** DONE
+**Tag:** `daemon-v0.2.28-d-e2e-a-live-transfer` (`b105344`)
+**Date:** 2026-03-03
+
+D-E2E-A proves live end-to-end file transfer with SHA-256 hash verification using a synthetic Rust offerer and a real bolt-daemon answerer. The test exercises the full protocol stack:
+
+1. Real bolt-rendezvous child process (WebSocket signaling)
+2. Real bolt-daemon answerer child process (WebRTC, web_v1 interop)
+3. Synthetic offerer in the Rust test process (datachannel crate, tungstenite)
+4. Full signaling: register → hello/ack → SDP offer/answer → ICE exchange
+5. Real WebRTC DataChannel (libdatachannel, localhost)
+6. Encrypted HELLO exchange (NaCl box, capability negotiation)
+7. File transfer: FileOffer (with hash) → FileChunk (4096 bytes) → FileFinish
+8. Evidence: `[B4_VERIFY_OK]` emitted on daemon stderr
+
+**Not covered (deferred to D-E2E-B):** True cross-implementation TS↔Rust interop — requires a standalone Node.js offerer harness with `node-datachannel` and full Bolt protocol implementation.
+
+**Dev-dependencies added (mirrored from deps):** tungstenite, serde_json, serde, datachannel, webrtc-sdp, bolt-core. No new crate dependencies.
+
+**Runtime src/ changes:** ≤10 lines total — `hash_verified()` method on TransferSession (4 lines) + conditional `[B4_VERIFY_OK]` / `[B3]` emission in `run_post_hello_loop` (5 lines).
 
 ---
 
@@ -831,8 +855,9 @@ Currently, both paths have post-HELLO loops (`rendezvous.rs` lines ~800 and ~118
   - B3+B6: coupled deliverable (transfer SM needs event loop; event loop needs SM). **Critical path.**
   - B4: **DONE** (`daemon-v0.2.27-b4-file-hash`). Receiver-side only; B3-P2 receive path was sufficient.
   - B5: **DONE** (`daemon-v0.2.23-b5-tofu-persist`). Independent.
-  - D-E2E: blocked on B3 full + B6.
-- **Cross-stream dependency:** None until D-E2E, which is gated on B3+B4+B6 completion.
+  - D-E2E-A: **DONE** (`daemon-v0.2.28-d-e2e-a-live-transfer`). Live Rust↔Rust E2E.
+  - D-E2E-B: NOT-STARTED. Cross-implementation TS↔Rust E2E. Requires TS offerer harness.
+- **Cross-stream dependency:** None until D-E2E-B, which requires TS harness + A-stream public API stability.
 
 ---
 
