@@ -5,6 +5,30 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.37-audit-gov-31 — 2026-03-03
+
+- **B4 DONE:** `daemon-v0.2.27-b4-file-hash` (`b41f814`) — receiver-side SHA-256 hash verification gated by bolt.file-hash
+  - `bolt.file-hash` added to `DAEMON_CAPABILITIES` (SA15 superseded)
+  - TransferSession: `expected_hash` field, `on_file_offer` accepts optional hash parameter
+  - `on_file_finish`: computes `bolt_core::hash::sha256_hex(&buffer)`, case-insensitive compare
+  - New `TransferError::IntegrityFailed` variant for hash mismatch path
+  - Loop-level capability gating: negotiated + missing hash → `INTEGRITY_FAILED` + disconnect
+  - Not negotiated → hash on wire ignored (transfer succeeds)
+  - Mismatch → `build_error_payload("INTEGRITY_FAILED", ...)` + disconnect
+  - Sender-side hashing out of scope (daemon is receive-only per B3-P2)
+  - No new dependencies, no new EnvelopeError variants, no wire format changes, no new error codes
+  - Files changed: `src/transfer.rs`, `src/rendezvous.rs`, `src/web_hello.rs`
+- Daemon test counts updated: 300 default / 380 test-support (was 291/371, +9)
+- Daemon tag snapshot updated: `daemon-v0.2.27-b4-file-hash` (`b41f814`)
+- B4 status: NOT-STARTED → DONE
+- SA15 status: DONE-BY-DESIGN → SUPERSEDED (bolt.file-hash now implemented)
+- D-E2E dependency updated: blocked on B3 full + B6 (B4 no longer blocking)
+- Audit counters unchanged (75 DONE, 0 OPEN, 96 total) — no audit findings created or modified
+- Updated: `docs/GOVERNANCE_WORKSTREAMS.md`, `docs/STATE.md`, `docs/CHANGELOG.md`
+- Docs-only; no runtime repos modified
+
+---
+
 ## ecosystem-v0.1.36-audit-gov-30 — 2026-03-03
 
 - **B3-P2 DONE:** `daemon-v0.2.26-b3-transfer-sm-p2` (`5844199`) — receive-side transfer data plane with chunk reassembly

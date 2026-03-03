@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Tag:** ecosystem-v0.1.36-audit-gov-30
+> **Tag:** ecosystem-v0.1.37-audit-gov-31
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -428,12 +428,14 @@ B3 (transfer SM) ─┐  B3-P1 DONE (FileOffer→Cancel skeleton)
                   ├── coupled deliverable
 B6 (event loop) ──┘   B6-P1 DONE (loop container); B3-P2 integrated
                       │
-B4 (file-hash) ────── blocked on B3 full (pause/resume, cancel, disk writes)
-                      │
-D-E2E ─────────────── blocked on B3 full + B4 + B6
+B4 (file-hash) ────── DONE (daemon-v0.2.27-b4-file-hash)
+                      │   Receiver-side SHA-256 verification; SA15 superseded
+D-E2E ─────────────── blocked on B3 full + B6
 ```
 
-**Progress update (AUDIT-GOV-30):** B3-P2 extended TransferSession with full receive path: auto-accept (FileOffer→accept→send FileAccept), chunk receive (base64 decode→sequential index enforcement→in-memory reassembly), and transfer completion (FileFinish→Completed). MAX_TRANSFER_BYTES (256 MiB) cap enforced. FileChunk and FileFinish carved out to Ok(None) in `route_inner_message`. Loop interception expanded to match on FileOffer/FileChunk/FileFinish. +12 tests (default: 279→291, test-support: 359→371). No disk writes, no hashing, no send-side. Remaining B3 work: pause/resume, cancel, disk writes, send-side, concurrent transfers. B5 complete (independent). B4 blocked on full B3.
+**Progress update (AUDIT-GOV-31):** B4 delivered receiver-side SHA-256 hash verification gated by `bolt.file-hash` capability negotiation. `DAEMON_CAPABILITIES` now advertises `bolt.file-hash`. TransferSession extended with `expected_hash` field; `on_file_offer` accepts optional hash; `on_file_finish` verifies via `bolt_core::hash::sha256_hex` (case-insensitive). Capability gating at loop level: negotiated + missing hash → `INTEGRITY_FAILED` + disconnect; not negotiated → hash on wire ignored. New `TransferError::IntegrityFailed` variant. +9 tests (default: 291→300, test-support: 371→380). SA15 superseded. Sender-side hashing out of scope (daemon is receive-only). Remaining for D-E2E: B3 full (pause/resume, cancel, disk writes, send-side) + B6 full.
+
+**Previous update (AUDIT-GOV-30):** B3-P2 extended TransferSession with full receive path: auto-accept (FileOffer→accept→send FileAccept), chunk receive (base64 decode→sequential index enforcement→in-memory reassembly), and transfer completion (FileFinish→Completed). MAX_TRANSFER_BYTES (256 MiB) cap enforced. FileChunk and FileFinish carved out to Ok(None) in `route_inner_message`. Loop interception expanded to match on FileOffer/FileChunk/FileFinish. +12 tests (default: 279→291, test-support: 359→371). No disk writes, no hashing, no send-side. Remaining B3 work: pause/resume, cancel, disk writes, send-side, concurrent transfers. B5 complete (independent).
 
 **Amendment from WORKSTREAMS-1:** B5 was previously listed as dependent on B3. This is incorrect — TOFU pin wiring requires only the HELLO-derived identity key (already present post-INTEROP-2). B6 was previously listed as dependent on B5. This is also incorrect — the event loop routes messages to the transfer engine, not to the pin store.
 
@@ -473,7 +475,7 @@ Extended TransferSession beyond P1 cancel-only behavior to support receiver-side
 
 **Tag naming deviation:** Governance spec defined format `daemon-vX.Y.Z-transfer-converge-B3`. Actual tag is `daemon-v0.2.26-b3-transfer-sm-p2`. Tag is immutable; deviation documented.
 
-**Remaining B3 work:** Pause/resume semantics, cancel handling, disk writes (sender-side streaming), multiple concurrent transfers, hashing (B4 scope).
+**Remaining B3 work:** Pause/resume semantics, cancel handling, disk writes (sender-side streaming), multiple concurrent transfers. (Hashing delivered in B4.)
 
 #### B3 Original Description
 
@@ -543,52 +545,50 @@ The daemon recognizes all seven file transfer message types at the wire level (B
 
 ### B4 — File-Hash Capability + Integrity Enforcement
 
-**Status:** NOT-STARTED
-**Prerequisites:** B3 (transfer engine)
+**Status:** DONE
+**Tag:** `daemon-v0.2.27-b4-file-hash` (`b41f814`)
+**Date:** 2026-03-03
+**Prerequisites:** B3 (transfer engine — B3-P2 receive path sufficient)
 
 **Goal:** Add SHA-256 integrity verification to daemon transfer path. Advertise `bolt.file-hash` in `DAEMON_CAPABILITIES`.
 
-Sender computes hash prior to `FILE_OFFER`. Receiver computes hash after reassembly and verifies if capability negotiated. Existing `hash.rs` in Rust SDK provides the SHA-256 primitive.
+Receiver-side only (daemon is receive-only per B3-P2). After reassembly, computes SHA-256 via `bolt_core::hash::sha256_hex` and verifies against `FILE_OFFER` file_hash (case-insensitive). Capability gating at loop level: if `bolt.file-hash` negotiated and offer hash missing → `INTEGRITY_FAILED` + disconnect. If not negotiated → hash on wire ignored. Sender-side hashing is out of scope (daemon does not send files).
 
 **Derived From:**
 - PROTOCOL.md §8 "File Integrity Verification": when `bolt.file-hash` negotiated, `FILE_OFFER` MUST include SHA-256; receiver MUST verify after reassembly; mismatch → `ERROR(INTEGRITY_FAILED)`
 - PROTOCOL.md §4 (Version and Capability Negotiation)
-- SA15 (DONE-BY-DESIGN): intentional omission of `bolt.file-hash` from `DAEMON_CAPABILITIES` because daemon lacked transfer support
+- SA15 (DONE-BY-DESIGN): superseded — `bolt.file-hash` now advertised and enforced
 
-**Constraints:**
+**Constraints (enforced):**
 - No protocol semantic changes — capability already defined in spec.
-- Hash computation must use same algorithm as web implementation (SHA-256).
-- Mismatch must be fail-closed: discard file + `ERROR(INTEGRITY_FAILED)`.
+- Hash computation uses `bolt_core::hash::sha256_hex` (same SHA-256 as web implementation).
+- Mismatch is fail-closed: `INTEGRITY_FAILED` error + disconnect.
+- No new dependencies, no new EnvelopeError variants, no wire format changes.
+- No new canonical error codes (INTEGRITY_FAILED already in registry).
 
-**Allowed files (bolt-daemon):**
-- `src/transfer.rs` (modified — add hash computation)
-- `src/web_hello.rs` (add `bolt.file-hash` to `DAEMON_CAPABILITIES`)
-- `tests/b4_file_hash.rs` (new)
-- Existing test files (verify green)
+**Files changed (bolt-daemon):**
+- `src/transfer.rs` (extended — IntegrityFailed variant, expected_hash field, on_file_offer signature, on_file_finish verify)
+- `src/web_hello.rs` (DAEMON_CAPABILITIES += `bolt.file-hash`, SA15 comment superseded)
+- `src/rendezvous.rs` (loop: capability gating, hash threading, IntegrityFailed error path)
 
-**Gates:**
-- [ ] Working tree clean before and after
-- [ ] All existing daemon tests pass (default + test-support)
-- [ ] New B4 tests pass (report actual count)
-- [ ] `cargo clippy -- -D warnings` clean
-- [ ] `cargo fmt -- --check` clean
-- [ ] Hash computed sender-side
-- [ ] Hash verified receiver-side
-- [ ] Mismatch aborts transfer with `INTEGRITY_FAILED`
-- [ ] Capability negotiation respected (no hash check when not negotiated)
-- [ ] Commit + local tag: `daemon-vX.Y.Z-transfer-converge-B4`
-- [ ] Phase report filed
+**Gates (all green):**
+- [x] Working tree clean before and after
+- [x] All existing daemon tests pass (default + test-support)
+- [x] New B4 tests pass (+9: 4 unit, 5 loop integration)
+- [x] `cargo clippy -- -D warnings` clean
+- [x] `cargo fmt -- --check` clean
+- [x] Hash verified receiver-side (sender-side out of scope — daemon is receive-only)
+- [x] Mismatch aborts transfer with `INTEGRITY_FAILED`
+- [x] Missing hash when negotiated aborts with `INTEGRITY_FAILED`
+- [x] Capability negotiation respected (no hash check when not negotiated)
+- [x] Hash on wire ignored when not negotiated
+- [x] Commit + tag: `daemon-v0.2.27-b4-file-hash` (`b41f814`)
 
-**Acceptance Definition:**
-- SHA-256 hash computed sender-side, verified receiver-side
-- Mismatch aborts transfer (fail-closed)
-- `bolt.file-hash` advertised in `DAEMON_CAPABILITIES`
-- Capability negotiation respected
-- All tests passing, no warnings, tagged release
+**Tests:** +9 (default: 291→300, test-support: 371→380)
 
-**Tag format:** `daemon-vX.Y.Z-transfer-converge-B4`
+**Tag naming deviation:** Governance spec defined format `daemon-vX.Y.Z-transfer-converge-B4`. Actual tag is `daemon-v0.2.27-b4-file-hash`. Tag is immutable; deviation documented.
 
-**Note:** SA15 supersession applies — see SA15 Supersession Note below.
+**Note:** SA15 supersession applies — see SA15 Supersession Note below. SA15 is now superseded: `bolt.file-hash` is advertised and receiver-side enforcement is operational.
 
 ---
 
@@ -829,9 +829,9 @@ Currently, both paths have post-HELLO loops (`rendezvous.rs` lines ~800 and ~118
 - **Within B-stream (corrected AUDIT-GOV-27):**
   - B1→B2: sequential (B2 depends on B1 defaults). DONE.
   - B3+B6: coupled deliverable (transfer SM needs event loop; event loop needs SM). **Critical path.**
-  - B4: blocked on B3 (file-hash needs transfer engine).
-  - B5: **independent** — may begin immediately (TOFU wiring needs only HELLO-derived identity key).
-  - D-E2E: blocked on B3+B4+B6.
+  - B4: **DONE** (`daemon-v0.2.27-b4-file-hash`). Receiver-side only; B3-P2 receive path was sufficient.
+  - B5: **DONE** (`daemon-v0.2.23-b5-tofu-persist`). Independent.
+  - D-E2E: blocked on B3 full + B6.
 - **Cross-stream dependency:** None until D-E2E, which is gated on B3+B4+B6 completion.
 
 ---
