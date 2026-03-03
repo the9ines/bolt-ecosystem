@@ -5,6 +5,48 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.48-audit-gov-42 — 2026-03-03
+
+Reconciliation commit: backfills DP-series (GOV-32–39) and DP-7 (GOV-41)
+into CHANGELOG/STATE/GOVERNANCE, corrects audit counters, and updates all
+repo tag snapshots to match current origin HEADs.
+
+- Audit counters corrected: **103 total, 82 DONE, 0 OPEN** (was stale at 96/75 since GOV-31)
+- Repo tag snapshots reconciled with current origin HEADs
+- DP-series (GOV-32–39) and DP-7 (GOV-41) backfilled below
+- Updated: `docs/CHANGELOG.md`, `docs/STATE.md`, `docs/GOVERNANCE_WORKSTREAMS.md`
+
+---
+
+## ecosystem-v0.1.47-audit-gov-41 — 2026-03-03
+
+- **DP-7 DONE:** `sdk-v0.5.25-bolt-core-050` (`c776118`) + `v3.0.67-dp7-bolt-core-050` (`6bb21b3`)
+  - `transport-web@0.6.1` imports `isValidWireErrorCode` from bolt-core, but bolt-core 0.4.0 predates the wire error registry (AC-8)
+  - Fixed by publishing `@the9ines/bolt-core@0.5.0` with `WIRE_ERROR_CODES` + `isValidWireErrorCode`
+  - localbolt-v3 bumped to bolt-core 0.5.0; Netlify build unblocked
+- Audit counters: 103 total, 82 DONE, 0 OPEN
+- AUDIT_TRACKER only; CHANGELOG/STATE not updated at the time (backfilled in GOV-42)
+
+---
+
+## ecosystem-v0.1.38..v0.1.45 — DP-series (GOV-32–39) — 2026-03-03
+
+Deployment findings discovered during Fly.io deployment of bolt-rendezvous signal server. All 6 findings registered, resolved, and closed in `docs/AUDIT_TRACKER.md`. These commits only touched AUDIT_TRACKER.md; CHANGELOG/STATE/GOVERNANCE were not updated at the time. Backfilled here for completeness.
+
+- **DP-1 DONE:** `rendezvous-v0.2.9-dp1-rust-bump` (`449796a`) — Dockerfile Rust 1.84→1.85 for edition2024 compat
+- **DP-2 DONE:** `rendezvous-v0.2.10-dp2-health-check` (`06a0f42`) — HTTP health check handler for Fly.io proxy
+- **DP-3 DONE:** 3 repos, 3 compounding bugs causing phantom device entries
+  - `rendezvous-v0.2.11-dp3a-stale-peer-replace` (`f00ed7c`) — server replaces stale peer on re-registration
+  - `v3.0.65-dp3b-dp4-phantom-transfer` (`08382f1`) — peer code persisted in sessionStorage
+  - `sdk-v0.5.23-dp3c-stale-peer-cleanup` (`5496030`) — `handlePeersList` emits `peerLost` for stale entries
+- **DP-4 DONE:** `v3.0.65-dp3b-dp4-phantom-transfer` (`08382f1`) — removed verification gate blocking unverified peer uploads
+- **DP-5 DONE:** `rendezvous-v0.2.12-dp5-session-guard` (`aa8bed0`) — monotonic session_id prevents stale cleanup race
+- **DP-6 DONE:** `sdk-v0.5.24-dp6-responder-send-fix` (`3c71407`) — clear stale receive progress; `transport-web@0.6.1` published; `v3.0.66-dp6-transport-web-bump` (`8f98716`) adopted
+- DP-series: 6 findings, 6 resolved, 0 open. All MEDIUM severity.
+- Audit counters at GOV-39: 102 total, 81 DONE, 0 OPEN
+
+---
+
 ## ecosystem-v0.1.46-audit-gov-40 — 2026-03-03
 
 - **D-E2E-A DONE:** `daemon-v0.2.28-d-e2e-a-live-transfer` (`b105344`) — live E2E transfer with SHA-256 hash verification
@@ -14,17 +56,9 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
   - Full HELLO: encrypted identity exchange, capability negotiation (bolt.file-hash + bolt.profile-envelope-v1)
   - Full transfer: FileOffer (with SHA-256 hash) → FileChunk (4096 bytes) → FileFinish
   - Evidence: daemon emits `[B4_VERIFY_OK]` on stderr — unambiguous hash verification proof
-  - Stage 1: `hash_verified()` method on TransferSession + `[B4_VERIFY_OK]` / `[B3]` evidence emission
-  - Stage 2: `#[ignore]` integration test requiring pre-built bolt-rendezvous binary
-  - Dev-dependencies mirrored from deps: tungstenite, serde_json, serde, datachannel, webrtc-sdp, bolt-core
-  - No runtime src/ changes beyond evidence hook (≤10 lines); no wire format changes; no new error codes
   - Files changed: `src/transfer.rs`, `src/rendezvous.rs`, `Cargo.toml`, `tests/d_e2e_web_to_daemon.rs` (new)
 - Daemon test counts updated: 302 default / 382 test-support + 1 ignored E2E (was 300/380, +2 unit + 1 E2E)
-- Daemon tag snapshot updated: `daemon-v0.2.28-d-e2e-a-live-transfer` (`b105344`)
 - D-E2E status: NOT-STARTED → IN-PROGRESS (D-E2E-A complete; D-E2E-B cross-implementation TS↔Rust deferred)
-- Audit counters unchanged (75 DONE, 0 OPEN, 96 total) — no audit findings created or modified
-- Updated: `docs/GOVERNANCE_WORKSTREAMS.md`, `docs/STATE.md`, `docs/CHANGELOG.md`
-- Docs-only; no runtime repos modified
 
 ---
 

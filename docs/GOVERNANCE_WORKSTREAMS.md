@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Tag:** ecosystem-v0.1.46-audit-gov-40
+> **Tag:** ecosystem-v0.1.48-audit-gov-42
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---

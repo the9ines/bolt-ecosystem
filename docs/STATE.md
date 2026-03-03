@@ -2,12 +2,12 @@
 Snapshot Derived From:
 - transport-web-v0.6.9-n8-caplen-1 (ded0a40)
 - daemon-v0.2.28-d-e2e-a-live-transfer (b105344)
-Last Refreshed By: AUDIT-GOV-40
+Last Refreshed By: AUDIT-GOV-42
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-03 (AUDIT-GOV-40)
+> **Last Updated:** 2026-03-03 (AUDIT-GOV-42)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -146,14 +146,14 @@ SA-series fully closed. All 19 findings resolved. SA15 superseded by B4 implemen
 - **LOW:** 6
 - **DONE-BY-DESIGN:** 3
 - **OPEN:** 0
-- **DONE / DONE-VERIFIED (global):** 75
+- **DONE / DONE-VERIFIED (global):** 82
 - **OPEN (global):** 0
-- **Total findings (global):** 96
+- **Total findings (global):** 103
 
 **Canonical audit source:** `docs/AUDITS/2026-03-01-full-ecosystem-audit.md`
 
 > Full detail in `docs/AUDIT_TRACKER.md`. This section is summary-level only.
-> N-series remains fully resolved (0 open). Provenance snapshot lines unchanged.
+> N-series remains fully resolved. AC-series counters unchanged. DP-series (+7 findings, 7 resolved) added per GOV-32–41.
 
 **AUDIT-GOV-17 delta:**
 - AC-1: localbolt-app CI + vitest scaffold → DONE-VERIFIED (`localbolt-app-v1.2.2-ci-harden-1`, `3f07f35`)
@@ -205,6 +205,29 @@ SA-series fully closed. All 19 findings resolved. SA15 superseded by B4 implemen
 - AC-17: export matrix exhausted (33/33 used) → DONE-VERIFIED
 - AC-22: WebSocket connection limit (256 default) → DONE-VERIFIED (`rendezvous-v0.2.8-ac22-ws-conn-limit-1`, `bb59440`)
 - **AC-series fully closed. All 25 findings resolved. OPEN = 0.**
+
+---
+
+## 2026-03-03 Deployment Audit (DP-Series) — GOV-32–41
+
+- **Total:** 7 (DP-1 through DP-7)
+- **MEDIUM:** 7
+- **OPEN:** 0
+- **DONE / DONE-VERIFIED (global):** 82
+- **OPEN (global):** 0
+- **Total findings (global):** 103
+
+Findings discovered during Fly.io deployment of bolt-rendezvous and SDK publish.
+
+- DP-1: Rust version bump (1.84→1.85) → `rendezvous-v0.2.9-dp1-rust-bump` (`449796a`)
+- DP-2: HTTP health check for Fly.io proxy → `rendezvous-v0.2.10-dp2-health-check` (`06a0f42`)
+- DP-3: Phantom device entries (3 compounding bugs, 3 repos) → `rendezvous-v0.2.11-dp3a`, `v3.0.65-dp3b-dp4`, `sdk-v0.5.23-dp3c`
+- DP-4: One-way transfer gate removed → `v3.0.65-dp3b-dp4-phantom-transfer` (`08382f1`)
+- DP-5: Session guard race condition → `rendezvous-v0.2.12-dp5-session-guard` (`aa8bed0`)
+- DP-6: Responder send button fix → `sdk-v0.5.24-dp6-responder-send-fix` (`3c71407`); `transport-web@0.6.1`
+- DP-7: bolt-core 0.5.0 publish (wire error registry) → `sdk-v0.5.25-bolt-core-050` (`c776118`); `v3.0.67-dp7-bolt-core-050`
+
+> Full detail in `docs/AUDIT_TRACKER.md`. Backfilled to CHANGELOG/STATE in GOV-42.
 
 ---
 
@@ -264,24 +287,24 @@ SA-series fully closed. All 19 findings resolved. SA15 superseded by B4 implemen
 
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
-| bolt-core-sdk | `sdk-v0.5.22-webrtc-decompose-A2` | `7f7811d` |
+| bolt-core-sdk | `sdk-v0.5.25-bolt-core-050` | `c776118` |
 | bolt-daemon | `daemon-v0.2.28-d-e2e-a-live-transfer` | `b105344` |
-| bolt-rendezvous | `rendezvous-v0.2.8-ac22-ws-conn-limit-1` | `bb59440` |
+| bolt-rendezvous | `rendezvous-v0.2.12-dp5-session-guard` | `aa8bed0` |
 | localbolt | `localbolt-v1.0.20-ac13-shadow-test-fix-1` | `b4d1a49` |
 | localbolt-app | `localbolt-app-v1.2.3-subtree-refresh-1` | `1d71e66` |
-| localbolt-v3 | `v3.0.64-ac4-coverage-enforced` | `a5d0237` |
+| localbolt-v3 | `v3.0.67-dp7-bolt-core-050` | `47bf601` |
 | bolt-protocol | `v0.1.5-spec-consistency-1` | `d795dd5` |
 | bytebolt-app | `bytebolt-v0.0.1` | — |
 | bytebolt-relay | `relay-v0.0.1` | — |
 
-> **Note:** bolt-core-sdk snapshot reflects local workstream tags (not yet pushed to origin per no-push policy). Previous main tag: `sdk-v0.5.21-ac13-export-surface-1` (`829af85`). Daemon tags through `daemon-v0.2.28-d-e2e-a-live-transfer` pushed to origin.
+> **Note:** Snapshots include DP-series changes. bolt-core-sdk: DP-3c, DP-6, DP-7. bolt-rendezvous: DP-1/2/3a/5. localbolt-v3: DP-3b/4/6/7. All pushed to origin.
 
 ---
 
 ## Active Governance Workstreams
 
 > **Canonical doc:** `docs/GOVERNANCE_WORKSTREAMS.md`
-> **Codified:** ecosystem-v0.1.46-audit-gov-40 (2026-03-03)
+> **Codified:** ecosystem-v0.1.48-audit-gov-42 (2026-03-03)
 > **Note:** These are improvement initiatives, not audit findings. Not part of audit counters.
 
 ### A-STREAM-1 — WebRTCService Decomposition (bolt-core-sdk): COMPLETE
