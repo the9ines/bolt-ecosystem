@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-03 (AUDIT-GOV-33)
+**Last updated:** 2026-03-03 (AUDIT-GOV-34)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -84,14 +84,14 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 
 ## SUMMARY
 
-- **Total findings:** 98 (41 prior + 19 SA-series + 11 N-series + 25 AC-series + 2 DP-series)
+- **Total findings:** 100 (41 prior + 19 SA-series + 11 N-series + 25 AC-series + 4 DP-series)
 - **DONE / DONE-VERIFIED:** 77
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 6 (SA11, SA15, N9, AC-23, AC-24, AC-25)
 - **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN:** 0
+- **OPEN:** 2 (DP-3, DP-4)
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md`.
 
 > **OPEN (global)** = all findings across all series with Status = OPEN.
@@ -342,13 +342,15 @@ Findings discovered during Fly.io deployment of bolt-rendezvous signal server (2
 |-------|---------|-------|--------|-------|----------|
 | DP-1 | Dockerfile pins Rust 1.84; `getrandom 0.4.1` requires edition2024 (Rust 1.85+), blocking container build | TRANSPORT | **DONE-VERIFIED** | DP-1 | `rendezvous-v0.2.9-dp1-rust-bump` (`449796a`). Builder image bumped to `rust:1.85-slim-bookworm`. Fly.io build succeeds. 55 tests pass. |
 | DP-2 | Signal server rejects all non-WebSocket HTTP requests; Fly.io proxy health checks return 502, marking server offline | TRANSPORT | **DONE-VERIFIED** | DP-2 | `rendezvous-v0.2.10-dp2-health-check` (`06a0f42`). TCP peek before WS handshake; non-upgrade requests get HTTP 200 OK. Fly proxy health checks pass. 55 tests pass. Deployed to 3 regions (dfw, nrt, ams). |
+| DP-3 | Phantom device entries: 3 compounding bugs cause 2 real devices to appear as 5+. (a) `generateSecurePeerCode()` creates new random code on every page load — no persistence (`peer-connection.ts:307`). (b) Server rejects re-registration of same peer code instead of replacing stale connection (`room.rs:71`). (c) `handlePeersList` clears internal peer map on reconnect but never fires `peerLostCallback` for removed entries — stale peers accumulate in UI (`WebSocketSignaling.ts:281-289`). | TRANSPORT | **OPEN** | — | — |
+| DP-4 | One-way file transfer: TOFU verification gate blocks file upload for `unverified` peers (`transfer.ts:43`). On first contact both sides are `unverified`. `markPeerVerified()` only updates local state — no mutual verification signal sent to remote (`HandshakeManager.ts:221-229`). Result: only the side that clicked "Verify" can send files; the other side's upload UI remains hidden. | TRANSPORT | **OPEN** | — | — |
 
 ### DP-series Summary
 
 | Severity | Total | Open | Resolved |
 |----------|-------|------|----------|
-| MEDIUM | 2 | 0 | 2 |
-| **Total** | **2** | **0** | **2** |
+| MEDIUM | 4 | 2 | 2 |
+| **Total** | **4** | **2** | **2** |
 
 ---
 
