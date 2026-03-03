@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-02 (AUDIT-GOV-25)
+**Last updated:** 2026-03-03 (AUDIT-GOV-32)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -84,14 +84,14 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 
 ## SUMMARY
 
-- **Total findings:** 96 (41 prior + 19 SA-series + 11 N-series + 25 AC-series)
+- **Total findings:** 98 (41 prior + 19 SA-series + 11 N-series + 25 AC-series + 2 DP-series)
 - **DONE / DONE-VERIFIED:** 75
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 6 (SA11, SA15, N9, AC-23, AC-24, AC-25)
 - **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN:** 0
+- **OPEN:** 2 (DP-1, DP-2)
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md`.
 
 > **OPEN (global)** = all findings across all series with Status = OPEN.
@@ -331,6 +331,26 @@ crypto & security primitive review, test coverage gap analysis, wire format & in
 | AC-23 | Peer code validation asymmetry intentional (TS stricter) | INTEROP | **DONE-BY-DESIGN** | N/A | See 2026-03-01-full-ecosystem-audit.md |
 | AC-24 | SAS logged to console during verification flow (acceptable UX tradeoff) | LIFECYCLE | **DONE-BY-DESIGN** | N/A | See 2026-03-01-full-ecosystem-audit.md |
 | AC-25 | Identity secret stored in IndexedDB (browser boundary accepted) | MEMORY | **DONE-BY-DESIGN** | N/A | See 2026-03-01-full-ecosystem-audit.md |
+
+---
+
+## DEPLOYMENT (DP-Series)
+
+Findings discovered during Fly.io deployment of bolt-rendezvous signal server (2026-03-03).
+
+| DP_ID | Summary | Track | Status | Phase | Evidence |
+|-------|---------|-------|--------|-------|----------|
+| DP-1 | Dockerfile pins Rust 1.84; `getrandom 0.4.1` requires edition2024 (Rust 1.85+), blocking container build | TRANSPORT | **OPEN** | — | `cargo build --release --locked` fails in Dockerfile with `feature edition2024 is required`. |
+| DP-2 | Signal server rejects all non-WebSocket HTTP requests; Fly.io proxy health checks return 502, marking server offline | TRANSPORT | **OPEN** | — | `handle_connection()` passes every TCP connection to `accept_hdr_async_with_config()` which rejects missing `Connection: upgrade`. No HTTP fallback path. |
+
+### DP-series Summary
+
+| Severity | Total | Open | Resolved |
+|----------|-------|------|----------|
+| MEDIUM | 2 | 2 | 0 |
+| **Total** | **2** | **2** | **0** |
+
+---
 
 ### AC-series Summary
 
