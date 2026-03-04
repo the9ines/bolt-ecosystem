@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-03 (AUDIT-GOV-44)
+**Last updated:** 2026-03-04 (AUDIT-GOV-45)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -347,13 +347,14 @@ Findings discovered during Fly.io deployment of bolt-rendezvous signal server (2
 | DP-5 | Server race condition: stale peer replacement in `add_peer` (DP-3a) drops the old sender, which causes the old connection's cleanup task (`server.rs:513`) to call `remove_peer(&client_ip, &peer_code)` — removing the NEW replacement connection. `remove_peer` matches only on `peer_code` with no session/generation guard, so the old connection's teardown deletes the new connection from the room. Result: replaced peer disappears from room; other devices lose visibility of it. | TRANSPORT | **DONE-VERIFIED** | DP-5 | `rendezvous-v0.2.12-dp5-session-guard` (`aa8bed0`): monotonic `session_id` on PeerInfo; `remove_peer` requires matching session_id, preventing stale cleanup from removing replacement. 55 tests (+1 DP-5 regression). Deployed to Fly.io (3 regions). |
 | DP-6 | Responder cannot send files after receiving: file-upload module's store subscription for receive progress sets local `progress` variable but never clears it when the store resets `transferProgress` to null. The subscriber condition `if (transferProgress && transferProgress !== progress)` is falsy when `transferProgress` is null, so `progress` stays as the completed receive object. Since `sendBtn.disabled = !!progress`, the "Start Transfer" button is permanently disabled on the responder after the first receive. Root cause: `file-upload.ts:160-166` — store subscription missing null-clearing branch. Affected repo: bolt-core-sdk (`@the9ines/bolt-transport-web`). | SDK | **DONE-VERIFIED** | DP-6 | SDK fix: `sdk-v0.5.24-dp6-responder-send-fix` (`3c71407`). Added `else if (!transferProgress && progress)` null-clearing branch to store subscription. Published `@the9ines/bolt-transport-web@0.6.1`. Consumer adoption: `v3.0.66-dp6-transport-web-bump` (`8f98716`). |
 | DP-7 | Build failure after transport-web 0.6.1 bump: `isValidWireErrorCode` imported from `@the9ines/bolt-core` by `WebRTCService.js`, but bolt-core 0.4.0 was published before SA2/AC-8 added the wire error code registry. Rollup build fails with `"isValidWireErrorCode" is not exported`. Netlify deploy blocked; WebRTC connections cannot establish because the app never loads. Root cause: bolt-core 0.4.0 was never republished after `WIRE_ERROR_CODES` and `isValidWireErrorCode` were added to source. transport-web 0.6.1 was built against the local `file:../bolt-core` dev dependency (which has it) but consumers use the published 0.4.0 (which doesn't). | GOVERNANCE | **DONE-VERIFIED** | DP-7 | Published `@the9ines/bolt-core@0.5.0` (`sdk-v0.5.25-bolt-core-050`, `c776118`). Consumer adoption: `v3.0.67-dp7-bolt-core-050` (`6bb21b3`). Build passes. |
+| DP-8 | Netlify deployment stale: DP-6 and DP-7 fixes never reached production. `.npmrc` with `@the9ines:registry=https://npm.pkg.github.com` exists only at workspace root (`localbolt-v3/.npmrc`). Netlify config sets `base = "packages/localbolt-web"` — `npm install` runs from there, never finds root `.npmrc`. GitHub Packages requires authentication even for public packages; no auth token configured in Netlify env. Result: `npm install` fails to resolve `@the9ines/bolt-transport-web@0.6.1` and `@the9ines/bolt-core@0.5.0`, build fails, Netlify serves last successful deploy (pre-DP-6, transport-web 0.6.0). Confirmed by comparing deployed bundle hash (`index-skJDUk04.js`, 119KB, missing `DUPLICATE_HELLO`) vs local build (`index-4l3M1tOP.js`, 132KB, has `DUPLICATE_HELLO`). | GOVERNANCE | **DONE-VERIFIED** | DP-8 | Added `.npmrc` with `${NPM_TOKEN}` auth to `packages/localbolt-web/`. User must set `NPM_TOKEN` env var in Netlify dashboard. `v3.0.68-dp8-netlify-npmrc`. |
 
 ### DP-series Summary
 
 | Severity | Total | Open | Resolved |
 |----------|-------|------|----------|
-| MEDIUM | 7 | 0 | 7 |
-| **Total** | **7** | **0** | **7** |
+| MEDIUM | 8 | 0 | 8 |
+| **Total** | **8** | **0** | **8** |
 
 ---
 
@@ -449,3 +450,7 @@ memory/lifecycle). Registered as NF-series.
 Arithmetic reconciled in ecosystem-v0.1.50-audit-gov-44 —
 Registered + closed: NF-1 (envelope filename validation gap).
 DONE/DONE-VERIFIED = 83. OPEN = 0. Total = 104.
+
+Arithmetic reconciled in ecosystem-v0.1.51-audit-gov-45 —
+Registered + closed: DP-8 (Netlify deployment stale, .npmrc missing from workspace).
+DONE/DONE-VERIFIED = 84. OPEN = 0. Total = 105.
