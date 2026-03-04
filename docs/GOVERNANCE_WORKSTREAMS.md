@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Tag:** ecosystem-v0.1.49-audit-gov-43
+> **Tag:** ecosystem-v0.1.54-audit-gov-48
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -432,7 +432,7 @@ B6 (event loop) ──┘   B6-P1 DONE (loop container); B3-P3 integrated
 B4 (file-hash) ────── DONE (daemon-v0.2.27-b4-file-hash)
                       │   Receiver-side SHA-256 verification; SA15 superseded
 D-E2E-A ────────────── DONE (daemon-v0.2.28-d-e2e-a-live-transfer)
-D-E2E-B ────────────── NOT-STARTED (cross-implementation TS↔Rust)
+D-E2E-B ────────────── DONE (daemon-v0.2.30-d-e2e-b-cross-impl)
 ```
 
 **Progress update (AUDIT-GOV-31):** B4 delivered receiver-side SHA-256 hash verification gated by `bolt.file-hash` capability negotiation. `DAEMON_CAPABILITIES` now advertises `bolt.file-hash`. TransferSession extended with `expected_hash` field; `on_file_offer` accepts optional hash; `on_file_finish` verifies via `bolt_core::hash::sha256_hex` (case-insensitive). Capability gating at loop level: negotiated + missing hash → `INTEGRITY_FAILED` + disconnect; not negotiated → hash on wire ignored. New `TransferError::IntegrityFailed` variant. +9 tests (default: 291→300, test-support: 371→380). SA15 superseded. Sender-side hashing out of scope (daemon is receive-only). Remaining for D-E2E: B3 full (pause/resume, cancel, disk writes, send-side) + B6 full.
@@ -756,7 +756,7 @@ Currently, both paths have post-HELLO loops (`rendezvous.rs` lines ~800 and ~118
 
 ### D-E2E — Cross-Stack Integration Test
 
-**Status:** IN-PROGRESS (D-E2E-A complete)
+**Status:** DONE (D-E2E-A + D-E2E-B complete)
 **Prerequisites:** B3 (transfer SM), B4 (file-hash), B6 (event loop)
 
 **Goal:** End-to-end integration test connecting Rust daemon, bolt-rendezvous signaling server, and TypeScript web client. Complete HELLO, transfer file, verify integrity both ends.
@@ -801,11 +801,36 @@ D-E2E-A proves live end-to-end file transfer with SHA-256 hash verification usin
 7. File transfer: FileOffer (with hash) → FileChunk (4096 bytes) → FileFinish
 8. Evidence: `[B4_VERIFY_OK]` emitted on daemon stderr
 
-**Not covered (deferred to D-E2E-B):** True cross-implementation TS↔Rust interop — requires a standalone Node.js offerer harness with `node-datachannel` and full Bolt protocol implementation.
-
 **Dev-dependencies added (mirrored from deps):** tungstenite, serde_json, serde, datachannel, webrtc-sdp, bolt-core. No new crate dependencies.
 
 **Runtime src/ changes:** ≤10 lines total — `hash_verified()` method on TransferSession (4 lines) + conditional `[B4_VERIFY_OK]` / `[B3]` emission in `run_post_hello_loop` (5 lines).
+
+#### D-E2E-B Completion (AUDIT-GOV-48)
+
+**Status:** DONE
+**Tag:** `daemon-v0.2.30-d-e2e-b-cross-impl` (`a8cf108`)
+**Date:** 2026-03-04
+
+D-E2E-B delivers true cross-implementation bidirectional file transfer between a Node.js offerer and a Rust daemon answerer. This completes the convergence proof — daemon file transfer is now validated against a separate implementation in a different language.
+
+1. Real bolt-rendezvous child process (WebSocket signaling)
+2. Real bolt-daemon answerer child process (WebRTC, web_v1 interop)
+3. Node.js offerer (`tests/ts-harness/harness.mjs`) using `node-datachannel`, `tweetnacl`, `ws`
+4. Full signaling: register → hello/ack → SDP offer/answer → ICE exchange
+5. Real WebRTC DataChannel (libdatachannel, localhost)
+6. Encrypted HELLO exchange (NaCl box, capability negotiation: bolt.file-hash + bolt.profile-envelope-v1)
+7. **Bidirectional** file transfer:
+   - JS→daemon: Pattern A (4096 bytes, `((i+1)*31) & 0xFF`), SHA-256 verified by daemon `[B4_VERIFY_OK]`
+   - Daemon→JS: Pattern B (6144 bytes, `((i+1)*37) & 0xFF`), SHA-256 verified by JS harness
+8. Evidence: `BOLT_E2E_BIDIR_OK` (harness stdout) + `[B4_VERIFY_OK]` (daemon stderr)
+
+**Test-only send trigger:** 30 lines in `src/rendezvous.rs`, all `#[cfg(feature = "test-support")]`. Reads `BOLT_TEST_SEND_PAYLOAD_PATH` env var after daemon receives a file and sends it back via SendSession. Helper function `test_send_offer()` builds FileOffer message from file on disk.
+
+**Tests added:** 2 `#[ignore]` integration tests in `tests/d_e2e_bidirectional.rs`:
+- `d_e2e_b_bidirectional_cross_impl` — happy-path bidirectional transfer
+- `d_e2e_b_negative_integrity_mismatch` — flipped hash nibble, harness fails, daemon still verifies its receive
+
+**Test counts:** 318 default (unchanged), 398 test-support + 3 ignored (was +1 ignored).
 
 ---
 
@@ -890,8 +915,8 @@ D-E2E-A proves live end-to-end file transfer with SHA-256 hash verification usin
   - B4: **DONE** (`daemon-v0.2.27-b4-file-hash`). Receiver-side only; B3-P2 receive path was sufficient.
   - B5: **DONE** (`daemon-v0.2.23-b5-tofu-persist`). Independent.
   - D-E2E-A: **DONE** (`daemon-v0.2.28-d-e2e-a-live-transfer`). Live Rust↔Rust E2E.
-  - D-E2E-B: NOT-STARTED. Cross-implementation TS↔Rust E2E. Requires TS offerer harness.
-- **Cross-stream dependency:** None until D-E2E-B, which requires TS harness + A-stream public API stability.
+  - D-E2E-B: **DONE** (`daemon-v0.2.30-d-e2e-b-cross-impl`). Cross-implementation TS↔Rust bidirectional E2E.
+- **Cross-stream dependency:** None. D-E2E complete.
 
 ---
 

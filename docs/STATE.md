@@ -1,13 +1,13 @@
 ---
 Snapshot Derived From:
 - sdk-v0.5.27-dp9-backpressure-fix (1be76c1)
-- daemon-v0.2.29-b3-transfer-sm-p3-sender (4fd55e3)
-Last Refreshed By: AUDIT-GOV-47
+- daemon-v0.2.30-d-e2e-b-cross-impl (a8cf108)
+Last Refreshed By: AUDIT-GOV-48
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-04 (AUDIT-GOV-47)
+> **Last Updated:** 2026-03-04 (AUDIT-GOV-48)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -301,7 +301,7 @@ protocol state machine, interop compatibility, memory/lifecycle).
 | Fail-closed semantics | All protocol errors → disconnect (H2) | Error framing + disconnect | SDK: per-error-code tests, daemon: EnvelopeError | Yes |
 | Error code registry (22 codes — §10, unified in v0.1.3-spec) | WIRE_ERROR_CODES | CANONICAL_ERROR_CODES | H2+: emission tests per code | Yes |
 | Downgrade resistance | No runtime flag disables enforcement (H2) | web_dc_v1 no-downgrade gate | H2: downgrade resistance suite | Yes |
-| Golden vector parity | SAS, HELLO-open, envelope-open (H3) | SAS, HELLO-open, envelope-open (H3) | SDK: 97 TS + 96 Rust (incl. S1 conformance), daemon: 318 tests | Yes |
+| Golden vector parity | SAS, HELLO-open, envelope-open (H3) | SAS, HELLO-open, envelope-open (H3) | SDK: 97 TS + 96 Rust (incl. S1 conformance), daemon: 318 tests + 3 E2E | Yes |
 
 ---
 
@@ -310,7 +310,7 @@ protocol state machine, interop compatibility, memory/lifecycle).
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
 | bolt-core-sdk | `sdk-v0.5.27-dp9-backpressure-fix` | `1be76c1` |
-| bolt-daemon | `daemon-v0.2.29-b3-transfer-sm-p3-sender` | `4fd55e3` |
+| bolt-daemon | `daemon-v0.2.30-d-e2e-b-cross-impl` | `a8cf108` |
 | bolt-rendezvous | `rendezvous-v0.2.12-dp5-session-guard` | `aa8bed0` |
 | localbolt | `localbolt-v1.0.20-ac13-shadow-test-fix-1` | `b4d1a49` |
 | localbolt-app | `localbolt-app-v1.2.3-subtree-refresh-1` | `1d71e66` |
@@ -355,6 +355,7 @@ WebRTCService reduced 1,369 → 790 LOC. Public API unchanged. 249 transport-web
 | B5 | TOFU pin persistence | DONE | `daemon-v0.2.23-b5-tofu-persist` (`0faa729`) |
 | B6-P1 | Post-HELLO event loop container | DONE | `daemon-v0.2.24-b6-loop-container` (`8666f44`) |
 | D-E2E-A | Live E2E transfer (synthetic Rust offerer) | DONE | `daemon-v0.2.28-d-e2e-a-live-transfer` (`b105344`) |
+| D-E2E-B | Cross-implementation bidirectional TS↔Rust E2E | DONE | `daemon-v0.2.30-d-e2e-b-cross-impl` (`a8cf108`) |
 
 Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning. B6-P1 introduced shared `run_post_hello_loop()`. B3-P1 integrated TransferSession into loop — FileOffer intercepted after envelope decrypt, rejected via Cancel. B3-P2 replaced Cancel reject with auto-accept + receive path: FileOffer→accept→send FileAccept, FileChunk→base64 decode→sequential reassembly in memory, FileFinish→Completed. 256 MiB cap enforced. B4 added receiver-side SHA-256 hash verification gated by `bolt.file-hash` capability negotiation; `DAEMON_CAPABILITIES` now advertises `bolt.file-hash` (SA15 superseded). Mismatch → `INTEGRITY_FAILED` + disconnect. D-E2E-A proved live hash-verified transfer via synthetic Rust offerer: real rendezvous, real WebRTC, real NaCl, `[B4_VERIFY_OK]` evidence asserted. B3-P3 added sender-side SendSession (Idle→OfferSent→Sending→Completed/Cancelled) with cursor-driven chunk streaming, SHA-256 hash gating, FileAccept/Cancel loop-level interception. Pause/Resume remain INVALID_STATE.
 
@@ -373,7 +374,7 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 | B6 | Post-HELLO persistent event loop | IN-PROGRESS | Coupled with B3 | B6-P1 done; B3-P2 integrated into loop; full B6 requires full B3 |
 | B4 | File-hash capability (receiver-side) | DONE | B3-P2 (receive path) | `daemon-v0.2.27-b4-file-hash` (`b41f814`); SA15 superseded |
 | D-E2E-A | Live E2E transfer (synthetic Rust offerer) | DONE | B3-P2 + B4 + B6-P1 | `daemon-v0.2.28-d-e2e-a-live-transfer` (`b105344`) |
-| D-E2E-B | Cross-implementation TS↔Rust E2E | NOT-STARTED | D-E2E-A + TS harness | True cross-implementation interop |
+| D-E2E-B | Cross-implementation TS↔Rust E2E | DONE | `daemon-v0.2.30-d-e2e-b-cross-impl` (`a8cf108`) | Bidirectional hash-verified transfer: TS offerer ↔ Rust answerer |
 
 **Dependency amendment (AUDIT-GOV-27):** B5 is independent (was incorrectly listed as dependent on B3). B6 does not depend on B5 (was incorrectly listed). B3+B6 are the coupled critical path. See `docs/GOVERNANCE_WORKSTREAMS.md` for full enriched definitions with verified spec references.
 
@@ -385,7 +386,9 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 
 **B4 completion (AUDIT-GOV-31):** B4 delivered receiver-side SHA-256 hash verification gated by `bolt.file-hash` capability negotiation. `DAEMON_CAPABILITIES` now advertises `bolt.file-hash` (SA15 superseded). TransferSession extended with `expected_hash` field; `on_file_offer` accepts optional hash; `on_file_finish` verifies via `bolt_core::hash::sha256_hex` (case-insensitive). New `TransferError::IntegrityFailed` variant. Capability gating at loop level: negotiated + missing hash → `INTEGRITY_FAILED` + disconnect; not negotiated → hash on wire ignored. No new dependencies, no new EnvelopeError variants, no wire format changes, no new canonical error codes. +9 tests (4 unit, 5 loop integration). Sender-side hashing out of scope.
 
-**D-E2E-A completion (AUDIT-GOV-40):** D-E2E-A delivered a live end-to-end transfer integration test proving hash verification via `[B4_VERIFY_OK]` evidence token. Synthetic Rust offerer drives real bolt-rendezvous + bolt-daemon answerer through WebRTC signaling, encrypted HELLO handshake, capability negotiation (bolt.file-hash + bolt.profile-envelope-v1), and file transfer (4096-byte deterministic payload, single chunk, SHA-256 verified). Stage 1: `hash_verified()` on TransferSession + evidence emission in `run_post_hello_loop`. Stage 2: `#[ignore]` integration test in `tests/d_e2e_web_to_daemon.rs`. D-E2E-B (true cross-implementation TS↔Rust interop) deferred — requires a standalone Node.js WebRTC offerer harness. +2 unit tests, +1 ignored E2E test.
+**D-E2E-A completion (AUDIT-GOV-40):** D-E2E-A delivered a live end-to-end transfer integration test proving hash verification via `[B4_VERIFY_OK]` evidence token. Synthetic Rust offerer drives real bolt-rendezvous + bolt-daemon answerer through WebRTC signaling, encrypted HELLO handshake, capability negotiation (bolt.file-hash + bolt.profile-envelope-v1), and file transfer (4096-byte deterministic payload, single chunk, SHA-256 verified). Stage 1: `hash_verified()` on TransferSession + evidence emission in `run_post_hello_loop`. Stage 2: `#[ignore]` integration test in `tests/d_e2e_web_to_daemon.rs`. +2 unit tests, +1 ignored E2E test.
+
+**D-E2E-B completion (AUDIT-GOV-48):** D-E2E-B delivered true cross-implementation bidirectional E2E transfer between Node.js offerer and Rust daemon answerer. JS harness (`tests/ts-harness/harness.mjs`) implements full Bolt protocol: WebSocket rendezvous signaling, WebRTC DataChannel via `node-datachannel`, NaCl box encryption via `tweetnacl`, Profile Envelope v1, encrypted HELLO exchange with capability negotiation, and bidirectional file transfer with SHA-256 verification. Pattern A (4096 B, `((i+1)*31) & 0xFF`) flows JS→daemon; Pattern B (6144 B, `((i+1)*37) & 0xFF`) flows daemon→JS. Test-only send trigger in `src/rendezvous.rs` (30 lines, all `#[cfg(feature = "test-support")]`) reads `BOLT_TEST_SEND_PAYLOAD_PATH` env var to drive SendSession. Two `#[ignore]` tests: happy-path bidirectional + negative integrity mismatch. D-E2E now fully complete (both A and B).
 
 **B3-P3 completion (AUDIT-GOV-43):** B3-P3 delivered sender-side SendSession (Idle→OfferSent→Sending→Completed/Cancelled) with cursor-driven chunk streaming (DEFAULT_CHUNK_SIZE = 16,384 bytes). `begin_send()` computes metadata and optional SHA-256 hash. `on_accept()` transitions to Sending. `next_chunk()` yields one chunk at a time. `finish()` validates all chunks yielded. FileAccept and Cancel carved out from `route_inner_message` to Ok(None) for loop-level interception. Loop drives send-side SM on FileAccept (stream chunks + finish); absorbs gracefully when no outbound transfer active. Cancel absorbed similarly. Pause/Resume remain INVALID_STATE. No new DcMessage variants, no new EnvelopeError variants, no new canonical error codes. dc_messages.rs unchanged. +16 tests (10 unit, 3 loop integration, 3 net envelope).
 
@@ -401,8 +404,8 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 | bolt-core-sdk (TS transport-web) | 253 | Includes H2 enforcement + S2B metrics + interop error framing + SA5/SA6 lifecycle harden + SA10 hello timeout + AC-8/AC-9 proto-harden regression + AC-6/AC-19/AC-20 signaling golden vectors + AC-5 send-side atomicity + NF-1 envelope filename validation |
 | bolt-core-sdk (Rust, default) | 87 | main (61 unit + 11 S1 conformance + 15 S2 contract) |
 | bolt-core-sdk (Rust, vectors) | 117 | main (61 unit + 27 S1 conformance + 14 H3 vectors + 15 S2 contract) |
-| bolt-daemon (default) | 318 | main (includes B1B2, B5, B6-P1, B3-P1, B3-P2, B4, D-E2E-A, B3-P3: +16 sender-side tests) |
-| bolt-daemon (test-support) | 398 + 1 ignored | main (includes H3/H5/P1/SA1/B5/B6-P1/B3-P1/B3-P2/B4/B3-P3 tests + D-E2E-A live transfer) |
+| bolt-daemon (default) | 318 | main (includes B1B2, B5, B6-P1, B3-P1, B3-P2, B4, D-E2E-A, B3-P3) |
+| bolt-daemon (test-support) | 398 + 3 ignored | main (includes H3/H5/P1/SA1/B5/B6-P1/B3-P1/B3-P2/B4/B3-P3 + D-E2E-A + D-E2E-B) |
 | bolt-rendezvous | 49 | main (48 unit + 1 doc-test) |
 | localbolt-v3 (TS) | 26 | main (includes H5-v3 TOFU/SAS tests) |
 | localbolt-v3 (Rust signal) | 36 | main (S0 canonical bolt-rendezvous wrapper, up from 32) |

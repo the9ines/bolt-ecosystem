@@ -5,6 +5,26 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.54-audit-gov-48 — 2026-03-04
+
+- **D-E2E-B DONE:** `daemon-v0.2.30-d-e2e-b-cross-impl` (`a8cf108`)
+  - Cross-implementation bidirectional file transfer: Node.js offerer ↔ Rust daemon answerer
+  - JS harness (`tests/ts-harness/harness.mjs`): node-datachannel, tweetnacl, ws
+  - Real bolt-rendezvous signaling, real WebRTC DataChannel, real NaCl encryption
+  - Full encrypted HELLO exchange with capability negotiation (bolt.file-hash + bolt.profile-envelope-v1)
+  - Bidirectional transfer: Pattern A (4096 B) JS→daemon, Pattern B (6144 B) daemon→JS
+  - SHA-256 hash verification in both directions: `[B4_VERIFY_OK]` (daemon) + harness hash check (JS)
+  - Test-only send trigger: 30 lines in `src/rendezvous.rs`, all `#[cfg(feature = "test-support")]`
+  - Two `#[ignore]` integration tests: happy-path bidirectional + negative integrity mismatch
+  - Files changed: `src/rendezvous.rs`, `tests/d_e2e_bidirectional.rs` (new), `tests/ts-harness/` (new)
+- D-E2E status: IN-PROGRESS → DONE (both D-E2E-A and D-E2E-B complete)
+- Daemon test counts: 318 default / 398 test-support + 3 ignored (was +1 ignored, +2 ignored E2E)
+- Daemon tag snapshot updated: `daemon-v0.2.30-d-e2e-b-cross-impl` (`a8cf108`)
+- Audit counters unchanged: **106 total, 85 DONE, 0 OPEN**
+- Updated: `docs/STATE.md`, `docs/CHANGELOG.md`, `docs/GOVERNANCE_WORKSTREAMS.md`
+
+---
+
 ## ecosystem-v0.1.53-audit-gov-47 — 2026-03-04
 
 - **DP-9 CLOSED → DONE-VERIFIED:** SDK fix `sdk-v0.5.27-dp9-backpressure-fix` (`1be76c1`)
