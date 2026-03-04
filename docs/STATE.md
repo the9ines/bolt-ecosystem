@@ -1,13 +1,13 @@
 ---
 Snapshot Derived From:
-- transport-web-v0.6.9-n8-caplen-1 (ded0a40)
+- transport-web-v0.6.10-nf1-envelope-filename (c3ccd17)
 - daemon-v0.2.29-b3-transfer-sm-p3-sender (4fd55e3)
-Last Refreshed By: AUDIT-GOV-43
+Last Refreshed By: AUDIT-GOV-44
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-03 (AUDIT-GOV-43)
+> **Last Updated:** 2026-03-03 (AUDIT-GOV-44)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -231,6 +231,26 @@ Findings discovered during Fly.io deployment of bolt-rendezvous and SDK publish.
 
 ---
 
+## 2026-03-03 Security Re-Audit (NF-Series) — ecosystem-v0.1.50-audit-gov-44
+
+- **Total:** 1
+- **MEDIUM:** 1
+- **OPEN:** 0
+- **DONE / DONE-VERIFIED (global):** 83
+- **OPEN (global):** 0
+- **Total findings (global):** 104
+
+Findings from the 2026-03-03 4-agent security re-audit (crypto correctness,
+protocol state machine, interop compatibility, memory/lifecycle).
+
+- NF-1: Envelope path filename validation gap → DONE-VERIFIED (`transport-web-v0.6.10-nf1-envelope-filename`)
+
+**Canonical audit source:** `docs/AUDITS/2026-03-03-security-audit.md`
+
+> Full detail in `docs/AUDIT_TRACKER.md`. NF-series fully resolved. All audit series closed.
+
+---
+
 ### S1 Completion Notes
 
 - **bolt-core-sdk** (`cced058`): Deterministic Rust conformance harness under `rust/bolt-core/tests/conformance/`. 27 tests (16 envelope + 5 SAS + 6 error mapping, with 11 error_code_mapping tests running under default `cargo test`). Enforces MUST-level invariants: envelope roundtrip determinism (PROTO-01, PROTO-07), MAC verification (SEC-06), nonce freshness/uniqueness (SEC-01, SEC-02), SAS determinism (PROTO-06), and error code mapping stability (Appendix A, Rust surface). No protocol behavior, wire format, or crypto logic changed.
@@ -287,7 +307,7 @@ Findings discovered during Fly.io deployment of bolt-rendezvous and SDK publish.
 
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
-| bolt-core-sdk | `sdk-v0.5.25-bolt-core-050` | `c776118` |
+| bolt-core-sdk | `transport-web-v0.6.10-nf1-envelope-filename` | `c3ccd17` |
 | bolt-daemon | `daemon-v0.2.29-b3-transfer-sm-p3-sender` | `4fd55e3` |
 | bolt-rendezvous | `rendezvous-v0.2.12-dp5-session-guard` | `aa8bed0` |
 | localbolt | `localbolt-v1.0.20-ac13-shadow-test-fix-1` | `b4d1a49` |
@@ -304,7 +324,7 @@ Findings discovered during Fly.io deployment of bolt-rendezvous and SDK publish.
 ## Active Governance Workstreams
 
 > **Canonical doc:** `docs/GOVERNANCE_WORKSTREAMS.md`
-> **Codified:** ecosystem-v0.1.49-audit-gov-43 (2026-03-03)
+> **Codified:** ecosystem-v0.1.50-audit-gov-44 (2026-03-03)
 > **Note:** These are improvement initiatives, not audit findings. Not part of audit counters.
 
 ### A-STREAM-1 — WebRTCService Decomposition (bolt-core-sdk): COMPLETE
@@ -376,7 +396,7 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 | Repo | Tests | Notes |
 |------|------:|-------|
 | bolt-core-sdk (TS bolt-core) | 120 | Includes H2 enforcement + H3 golden vectors + H6 nonce tests + governance-sweep-1 |
-| bolt-core-sdk (TS transport-web) | 249 | Includes H2 enforcement + S2B metrics + interop error framing + SA5/SA6 lifecycle harden + SA10 hello timeout + AC-8/AC-9 proto-harden regression + AC-6/AC-19/AC-20 signaling golden vectors + AC-5 send-side atomicity |
+| bolt-core-sdk (TS transport-web) | 253 | Includes H2 enforcement + S2B metrics + interop error framing + SA5/SA6 lifecycle harden + SA10 hello timeout + AC-8/AC-9 proto-harden regression + AC-6/AC-19/AC-20 signaling golden vectors + AC-5 send-side atomicity + NF-1 envelope filename validation |
 | bolt-core-sdk (Rust, default) | 87 | main (61 unit + 11 S1 conformance + 15 S2 contract) |
 | bolt-core-sdk (Rust, vectors) | 117 | main (61 unit + 27 S1 conformance + 14 H3 vectors + 15 S2 contract) |
 | bolt-daemon (default) | 318 | main (includes B1B2, B5, B6-P1, B3-P1, B3-P2, B4, D-E2E-A, B3-P3: +16 sender-side tests) |

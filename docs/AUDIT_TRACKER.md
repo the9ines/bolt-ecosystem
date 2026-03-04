@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-03 (AUDIT-GOV-40)
+**Last updated:** 2026-03-03 (AUDIT-GOV-44)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -84,8 +84,8 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 
 ## SUMMARY
 
-- **Total findings:** 103 (41 prior + 19 SA-series + 11 N-series + 25 AC-series + 7 DP-series)
-- **DONE / DONE-VERIFIED:** 82
+- **Total findings:** 104 (41 prior + 19 SA-series + 11 N-series + 25 AC-series + 7 DP-series + 1 NF-series)
+- **DONE / DONE-VERIFIED:** 83
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 6 (SA11, SA15, N9, AC-23, AC-24, AC-25)
@@ -422,3 +422,30 @@ DONE/DONE-VERIFIED = 81. OPEN = 0. Total = 102.
 Arithmetic reconciled in ecosystem-v0.1.46-audit-gov-40 —
 Registered + closed: DP-7 (bolt-core 0.5.0 publish, wire error code registry).
 DONE/DONE-VERIFIED = 82. OPEN = 0. Total = 103.
+
+---
+
+## SECURITY RE-AUDIT — 2026-03-03 (NF-series)
+
+Findings from the 2026-03-03 read-only security re-audit (4 parallel agents:
+cryptographic correctness, protocol state machine, interop compatibility,
+memory/lifecycle). Registered as NF-series.
+
+**Canonical audit source:** [`docs/AUDITS/2026-03-03-security-audit.md`](AUDITS/2026-03-03-security-audit.md)
+
+### MEDIUM Severity
+
+| NF_ID | Summary | Track | Status | Phase | Evidence |
+|-------|---------|-------|--------|-------|----------|
+| NF-1 | Envelope path in `handleMessage` forwards `file-chunk` to `routeInnerMessage` without validating `inner.filename`; plaintext path correctly rejects missing filename with `INVALID_MESSAGE` + disconnect (`WebRTCService.ts:659`) | PROTOCOL | **DONE-VERIFIED** | NF1-ENVELOPE-FILENAME | `transport-web-v0.6.10-nf1-envelope-filename`. Filename validation added to envelope path mirroring plaintext path. 3 UNIT + 1 ADVERSARIAL tests in `nf1-envelope-filename-validation.test.ts`. 253 total tests pass. |
+
+### NF-series Summary
+
+| Severity | Total | Resolved | Open |
+|----------|-------|----------|------|
+| MEDIUM | 1 | 1 | 0 |
+| **Total** | **1** | **1** | **0** |
+
+Arithmetic reconciled in ecosystem-v0.1.50-audit-gov-44 —
+Registered + closed: NF-1 (envelope filename validation gap).
+DONE/DONE-VERIFIED = 83. OPEN = 0. Total = 104.
