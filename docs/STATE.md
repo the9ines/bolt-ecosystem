@@ -1,13 +1,13 @@
 ---
 Snapshot Derived From:
-- transport-web-v0.6.10-nf1-envelope-filename (c3ccd17)
+- sdk-v0.5.27-dp9-backpressure-fix (1be76c1)
 - daemon-v0.2.29-b3-transfer-sm-p3-sender (4fd55e3)
-Last Refreshed By: AUDIT-GOV-44
+Last Refreshed By: AUDIT-GOV-47
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-03 (AUDIT-GOV-44)
+> **Last Updated:** 2026-03-04 (AUDIT-GOV-47)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -208,16 +208,16 @@ SA-series fully closed. All 19 findings resolved. SA15 superseded by B4 implemen
 
 ---
 
-## 2026-03-03 Deployment Audit (DP-Series) — GOV-32–41
+## 2026-03 Deployment Audit (DP-Series) — GOV-32–47
 
-- **Total:** 7 (DP-1 through DP-7)
-- **MEDIUM:** 7
+- **Total:** 9 (DP-1 through DP-9)
+- **MEDIUM:** 9
 - **OPEN:** 0
-- **DONE / DONE-VERIFIED (global):** 82
+- **DONE / DONE-VERIFIED (global):** 85
 - **OPEN (global):** 0
-- **Total findings (global):** 103
+- **Total findings (global):** 106
 
-Findings discovered during Fly.io deployment of bolt-rendezvous and SDK publish.
+Findings discovered during Fly.io deployment of bolt-rendezvous, SDK publish, and production testing.
 
 - DP-1: Rust version bump (1.84→1.85) → `rendezvous-v0.2.9-dp1-rust-bump` (`449796a`)
 - DP-2: HTTP health check for Fly.io proxy → `rendezvous-v0.2.10-dp2-health-check` (`06a0f42`)
@@ -226,8 +226,10 @@ Findings discovered during Fly.io deployment of bolt-rendezvous and SDK publish.
 - DP-5: Session guard race condition → `rendezvous-v0.2.12-dp5-session-guard` (`aa8bed0`)
 - DP-6: Responder send button fix → `sdk-v0.5.24-dp6-responder-send-fix` (`3c71407`); `transport-web@0.6.1`
 - DP-7: bolt-core 0.5.0 publish (wire error registry) → `sdk-v0.5.25-bolt-core-050` (`c776118`); `v3.0.67-dp7-bolt-core-050`
+- DP-8: Netlify .npmrc auth for GitHub Packages → `v3.0.68-dp8-netlify-npmrc` (`b1a2cd4`)
+- DP-9: Responder sendFile backpressure hang → `sdk-v0.5.27-dp9-backpressure-fix` (`1be76c1`); `transport-web@0.6.2`; `v3.0.69-dp9-backpressure-fix` (`48617f0`)
 
-> Full detail in `docs/AUDIT_TRACKER.md`. Backfilled to CHANGELOG/STATE in GOV-42.
+> Full detail in `docs/AUDIT_TRACKER.md`. Backfilled to CHANGELOG/STATE in GOV-42. DP-8/DP-9 added in GOV-45–47.
 
 ---
 
@@ -236,9 +238,9 @@ Findings discovered during Fly.io deployment of bolt-rendezvous and SDK publish.
 - **Total:** 1
 - **MEDIUM:** 1
 - **OPEN:** 0
-- **DONE / DONE-VERIFIED (global):** 83
+- **DONE / DONE-VERIFIED (global):** 85
 - **OPEN (global):** 0
-- **Total findings (global):** 104
+- **Total findings (global):** 106
 
 Findings from the 2026-03-03 4-agent security re-audit (crypto correctness,
 protocol state machine, interop compatibility, memory/lifecycle).
@@ -307,7 +309,7 @@ protocol state machine, interop compatibility, memory/lifecycle).
 
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
-| bolt-core-sdk | `transport-web-v0.6.10-nf1-envelope-filename` | `c3ccd17` |
+| bolt-core-sdk | `sdk-v0.5.27-dp9-backpressure-fix` | `1be76c1` |
 | bolt-daemon | `daemon-v0.2.29-b3-transfer-sm-p3-sender` | `4fd55e3` |
 | bolt-rendezvous | `rendezvous-v0.2.12-dp5-session-guard` | `aa8bed0` |
 | localbolt | `localbolt-v1.0.20-ac13-shadow-test-fix-1` | `b4d1a49` |

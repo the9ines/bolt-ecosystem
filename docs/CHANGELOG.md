@@ -5,6 +5,51 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.53-audit-gov-47 — 2026-03-04
+
+- **DP-9 CLOSED → DONE-VERIFIED:** SDK fix `sdk-v0.5.27-dp9-backpressure-fix` (`1be76c1`)
+  - `bufferedAmountLowThreshold = 65536` (64KB) set in `setupDataChannel()`
+  - 5s timeout fallback on backpressure await
+  - `sendInProgress` guard prevents concurrent `sendFile` calls
+  - Published `@the9ines/bolt-transport-web@0.6.2`
+  - Consumer adoption: `v3.0.69-dp9-backpressure-fix` (`48617f0`). Deployed to production.
+  - 253 SDK tests pass, 26 localbolt-v3 tests pass
+- Audit counters: **106 total, 85 DONE, 0 OPEN**
+- Repo tag snapshots updated: bolt-core-sdk → `sdk-v0.5.27-dp9-backpressure-fix` (`1be76c1`)
+- Updated: `docs/AUDIT_TRACKER.md`, `docs/STATE.md`, `docs/CHANGELOG.md`
+
+---
+
+## ecosystem-v0.1.52-audit-gov-46 — 2026-03-04
+
+- **DP-9 registered (OPEN):** Responder sendFile backpressure hang — `TransferManager.sendFile()` hangs
+  indefinitely due to `bufferedAmountLowThreshold` defaulting to 0, no timeout fallback, and concurrent
+  `sendFile` calls overwriting `onbufferedamountlow` handlers.
+- Audit counters: **106 total, 84 DONE, 1 OPEN**
+- Updated: `docs/AUDIT_TRACKER.md`
+
+---
+
+## ecosystem-v0.1.51-audit-gov-45 — 2026-03-04
+
+- **DP-8 registered + closed (DONE-VERIFIED):** Netlify deployment stale — `.npmrc` missing from
+  `packages/localbolt-web/`, Netlify couldn't install GitHub Packages scoped deps.
+  Fix: `v3.0.68-dp8-netlify-npmrc` (`b1a2cd4`).
+- Audit counters: **106 total, 84 DONE, 0 OPEN** (before DP-9 registration)
+- Updated: `docs/AUDIT_TRACKER.md`
+
+---
+
+## ecosystem-v0.1.50-audit-gov-44 — 2026-03-03
+
+- **NF-1 registered + closed (DONE-VERIFIED):** Envelope filename missing — file-transfer envelope
+  carried an empty `name` field. SDK fix: `transport-web-v0.6.10-nf1-envelope-filename` (`c3ccd17`).
+- 2026-03-03 4-agent security re-audit frozen as `docs/AUDITS/2026-03-03-security-re-audit.md`
+- Audit counters: **104 total, 83 DONE, 0 OPEN**
+- Updated: `docs/AUDIT_TRACKER.md`, `docs/STATE.md`
+
+---
+
 ## ecosystem-v0.1.49-audit-gov-43 — 2026-03-03
 
 - **B3-P3 DONE:** `daemon-v0.2.29-b3-transfer-sm-p3-sender` (`4fd55e3`) — sender-side transfer MVP
