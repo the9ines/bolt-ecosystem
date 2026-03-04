@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-04 (AUDIT-GOV-45)
+**Last updated:** 2026-03-04 (AUDIT-GOV-46)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -84,14 +84,14 @@ Product repos on main are pinned to published SDK releases. Interop fix (transpo
 
 ## SUMMARY
 
-- **Total findings:** 104 (41 prior + 19 SA-series + 11 N-series + 25 AC-series + 7 DP-series + 1 NF-series)
-- **DONE / DONE-VERIFIED:** 83
+- **Total findings:** 106 (41 prior + 19 SA-series + 11 N-series + 25 AC-series + 9 DP-series + 1 NF-series)
+- **DONE / DONE-VERIFIED:** 84
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 6 (SA11, SA15, N9, AC-23, AC-24, AC-25)
 - **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN:** 0
+- **OPEN:** 1 (DP-9)
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md`.
 
 > **OPEN (global)** = all findings across all series with Status = OPEN.
@@ -348,13 +348,14 @@ Findings discovered during Fly.io deployment of bolt-rendezvous signal server (2
 | DP-6 | Responder cannot send files after receiving: file-upload module's store subscription for receive progress sets local `progress` variable but never clears it when the store resets `transferProgress` to null. The subscriber condition `if (transferProgress && transferProgress !== progress)` is falsy when `transferProgress` is null, so `progress` stays as the completed receive object. Since `sendBtn.disabled = !!progress`, the "Start Transfer" button is permanently disabled on the responder after the first receive. Root cause: `file-upload.ts:160-166` — store subscription missing null-clearing branch. Affected repo: bolt-core-sdk (`@the9ines/bolt-transport-web`). | SDK | **DONE-VERIFIED** | DP-6 | SDK fix: `sdk-v0.5.24-dp6-responder-send-fix` (`3c71407`). Added `else if (!transferProgress && progress)` null-clearing branch to store subscription. Published `@the9ines/bolt-transport-web@0.6.1`. Consumer adoption: `v3.0.66-dp6-transport-web-bump` (`8f98716`). |
 | DP-7 | Build failure after transport-web 0.6.1 bump: `isValidWireErrorCode` imported from `@the9ines/bolt-core` by `WebRTCService.js`, but bolt-core 0.4.0 was published before SA2/AC-8 added the wire error code registry. Rollup build fails with `"isValidWireErrorCode" is not exported`. Netlify deploy blocked; WebRTC connections cannot establish because the app never loads. Root cause: bolt-core 0.4.0 was never republished after `WIRE_ERROR_CODES` and `isValidWireErrorCode` were added to source. transport-web 0.6.1 was built against the local `file:../bolt-core` dev dependency (which has it) but consumers use the published 0.4.0 (which doesn't). | GOVERNANCE | **DONE-VERIFIED** | DP-7 | Published `@the9ines/bolt-core@0.5.0` (`sdk-v0.5.25-bolt-core-050`, `c776118`). Consumer adoption: `v3.0.67-dp7-bolt-core-050` (`6bb21b3`). Build passes. |
 | DP-8 | Netlify deployment stale: DP-6 and DP-7 fixes never reached production. `.npmrc` with `@the9ines:registry=https://npm.pkg.github.com` exists only at workspace root (`localbolt-v3/.npmrc`). Netlify config sets `base = "packages/localbolt-web"` — `npm install` runs from there, never finds root `.npmrc`. GitHub Packages requires authentication even for public packages; no auth token configured in Netlify env. Result: `npm install` fails to resolve `@the9ines/bolt-transport-web@0.6.1` and `@the9ines/bolt-core@0.5.0`, build fails, Netlify serves last successful deploy (pre-DP-6, transport-web 0.6.0). Confirmed by comparing deployed bundle hash (`index-skJDUk04.js`, 119KB, missing `DUPLICATE_HELLO`) vs local build (`index-4l3M1tOP.js`, 132KB, has `DUPLICATE_HELLO`). | GOVERNANCE | **DONE-VERIFIED** | DP-8 | Added `.npmrc` with `${NPM_TOKEN}` auth to `packages/localbolt-web/`. User must set `NPM_TOKEN` env var in Netlify dashboard. `v3.0.68-dp8-netlify-npmrc`. |
+| DP-9 | Responder sendFile hangs indefinitely: `TransferManager.sendFile()` backpressure mechanism uses `dc.onbufferedamountlow` property assignment (not `addEventListener`) with `bufferedAmountLowThreshold` defaulting to 0. On the responder's received data channel, `bufferedAmount` starts at 0 and the threshold is 0, so the condition `bufferedAmount > bufferedAmountLowThreshold` (0 > 0) is false on first chunk — but after the first `dc.send()` increases `bufferedAmount`, the backpressure wait fires with threshold 0, meaning `onbufferedamountlow` may never fire reliably since the buffer must drain to exactly 0. Additionally, no timeout/fallback exists — if the event never fires, the transfer hangs forever. User diagnostic confirmed: `sendFile` called with perfect state (helloComplete=true, dc open, keys present), `[TRANSFER] Sending...` logged, but zero progress, zero completion, zero error. Multiple concurrent clicks compound the issue as `onbufferedamountlow` property overwrites previous handlers. Root cause: `TransferManager.ts:165-181` (backpressure await) + `WebRTCService.ts:367-378` (setupDataChannel never sets `bufferedAmountLowThreshold`). Affected repo: bolt-core-sdk (`@the9ines/bolt-transport-web`). | TRANSPORT | **OPEN** | DP-9 | — |
 
 ### DP-series Summary
 
 | Severity | Total | Open | Resolved |
 |----------|-------|------|----------|
-| MEDIUM | 8 | 0 | 8 |
-| **Total** | **8** | **0** | **8** |
+| MEDIUM | 9 | 1 | 8 |
+| **Total** | **9** | **1** | **8** |
 
 ---
 
@@ -454,3 +455,7 @@ DONE/DONE-VERIFIED = 83. OPEN = 0. Total = 104.
 Arithmetic reconciled in ecosystem-v0.1.51-audit-gov-45 —
 Registered + closed: DP-8 (Netlify deployment stale, .npmrc missing from workspace).
 DONE/DONE-VERIFIED = 84. OPEN = 0. Total = 105.
+
+Arithmetic reconciled in ecosystem-v0.1.52-audit-gov-46 —
+Registered: DP-9 (responder sendFile backpressure hang).
+DONE/DONE-VERIFIED = 84. OPEN = 1. Total = 106.
