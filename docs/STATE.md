@@ -2,15 +2,15 @@
 Snapshot Derived From:
 - sdk-v0.5.27-dp9-backpressure-fix (1be76c1)
 - daemon-v0.2.30-d-e2e-b-cross-impl (a8cf108)
-- v3.0.72-localbolt-core-publish (7cb8d8d)
-- localbolt-v1.0.22-c6-core-guards (ed2d671)
-- localbolt-app-v1.2.5-c6-core-guards (d1761e9)
-Last Refreshed By: Batch 3 — C4+C5+C6
+- v3.0.73-c6-hardening (2a4d098)
+- localbolt-v1.0.24-c6-hardening (c88ec5b)
+- localbolt-app-v1.2.7-c6-hardening (3ff4625)
+Last Refreshed By: Batch 5 — C6 hardening + Q4 closure
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-05 (Batch 3 — C4+C5+C6)
+> **Last Updated:** 2026-03-05 (Batch 5 — C6 hardening + Q4 closure)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -117,7 +117,7 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 | C3 | Migrate localbolt-v3 consumer | DONE | localbolt-v3 | `v3.0.71-localbolt-core-c2` | `aa9e40e` |
 | C4 | Migrate localbolt consumer | DONE | localbolt | `localbolt-v1.0.21-c4-localbolt-core`, `localbolt-v1.0.22-c6-core-guards` | `ed2d671` |
 | C5 | Migrate localbolt-app web consumer | DONE | localbolt-app | `localbolt-app-v1.2.4-c5-localbolt-core`, `localbolt-app-v1.2.5-c6-core-guards` | `d1761e9` |
-| C6 | Drift guards + upgrade protocol | PARTIAL | localbolt-v3, localbolt, localbolt-app | See C4/C5 tags + `v3.0.72-localbolt-core-publish` | C6 guards added; upgrade tooling deferred |
+| C6 | Drift guards + upgrade protocol | DONE | localbolt-v3, localbolt, localbolt-app | `localbolt-v1.0.24-c6-hardening`, `localbolt-app-v1.2.7-c6-hardening`, `v3.0.73-c6-hardening` | Batch 5: upgrade tooling, v3 drift CI, runbook |
 | C7 | Session UX race-hardening | IN-PROGRESS | localbolt, localbolt-app | `localbolt-v1.0.23-c7-tofu-wiring`, `localbolt-app-v1.2.6-c7-tofu-wiring` | `1bcb7b8`, `e902186` |
 
 ### Ledger Notes
@@ -128,7 +128,7 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 - **C3** DONE — localbolt-v3 consumer migrated in same commit as C2. Web imports from `@the9ines/localbolt-core` via workspace dependency. 59 web tests (unchanged). Session-hardening tests kept in web as consumer wiring integration test.
 - **C4** DONE — localbolt consumer migrated to `@the9ines/localbolt-core@0.1.0`. Tags: `localbolt-v1.0.21-c4-localbolt-core`, `localbolt-v1.0.22-c6-core-guards` (`ed2d671`).
 - **C5** DONE — localbolt-app web consumer migrated to `@the9ines/localbolt-core@0.1.0`. Tags: `localbolt-app-v1.2.4-c5-localbolt-core`, `localbolt-app-v1.2.5-c6-core-guards` (`d1761e9`).
-- **C6** PARTIAL — Enforcement guards added to localbolt (C4) and localbolt-app (C5) via C6 tags. CI guard enforcement added in Batch 4B. Upgrade tooling (scripts) deferred.
+- **C6** DONE — Batch 5 completed: `upgrade-localbolt-core.sh` (check + write modes) added to localbolt and localbolt-app; `check-core-drift.sh` added to localbolt-v3 CI (`packages/localbolt-web/src`); workspace exemption documented (v3 is origin, pin/single-install not applicable); manual drift runbook in `docs/LOCALBOLT_CORE_DRIFT_RUNBOOK.md`.
 - **C7** IN-PROGRESS — Identity/TOFU verification flow wired into localbolt (`localbolt-v1.0.23-c7-tofu-wiring`, `1bcb7b8`, 300 tests) and localbolt-app (`localbolt-app-v1.2.6-c7-tofu-wiring`, `e902186`, 11 tests). Generation-guarded stale callback rejection, mismatch fail-closed, verification states reachable. Remaining: formalized session state machine with validated transitions, rapid cycling integration tests.
 - **Session hardening (pre-C7):** `v3.0.70-session-hardening-cpre2` (`cac5e4a`) delivered session orchestration layer + race hardening. Now lives in `@the9ines/localbolt-core`. Transfer gating policy codified as `isTransferAllowed()`.
 - **localbolt-core** located at `localbolt-v3/packages/localbolt-core`. Tags follow localbolt-v3 convention (`v3.0.<N>-<slug>`). Published as `@the9ines/localbolt-core@0.1.0` to GitHub Packages (`v3.0.72-localbolt-core-publish`, `7cb8d8d`). All three consumers now resolve via npm registry (not workspace-only).
@@ -284,25 +284,24 @@ protocol state machine, interop compatibility, memory/lifecycle).
 
 ---
 
-## 2026-03-04 Quality Findings (Q-Series Extension) — ecosystem-v0.1.55-audit-gov-49
+## 2026-03-05 Quality Findings (Q-Series Extension) — Batch 5 C6 Hardening
 
 - **Total (Q-series extension):** 4
 - **MEDIUM:** 4
 - **IN-PROGRESS:** 1 (Q7)
-- **PARTIAL:** 1 (Q10)
-- **DONE-VERIFIED:** 2 (Q8, Q9)
-- **DONE / DONE-VERIFIED (global):** 87
-- **IN-PROGRESS (global):** 2 (Q4, Q7)
-- **PARTIAL (global):** 1 (Q10)
+- **DONE-VERIFIED:** 3 (Q4, Q8, Q9, Q10)
+- **DONE / DONE-VERIFIED (global):** 89
+- **IN-PROGRESS (global):** 1 (Q7)
 - **OPEN (global):** 0
 - **Total findings (global):** 110
 
 App-layer convergence and session UX findings registered as part of Workstream C codification.
 
+- Q4: localbolt-app test coverage → DONE-VERIFIED (Batch 5: `@vitest/coverage-v8` installed, thresholds 90/90/80/90, CI wired to `test:coverage`, baseline 100% on tested files)
 - Q7: Disconnect/reconnect stale callback races → IN-PROGRESS (C7 scope; generation guards wired in localbolt `1bcb7b8` + localbolt-app `e902186`)
 - Q8: Verification policy mismatch (runtime vs tests/docs) → DONE-VERIFIED (C0 locked: unverified blocks transfer; `v3.0.70`)
 - Q9: App-layer behavior drift across products → DONE-VERIFIED (C2–C5 scope; all three consumers migrated to `@the9ines/localbolt-core@0.1.0`)
-- Q10: Missing app-layer drift guards → PARTIAL (C6 scope; CI guard enforcement landed in Batch 4B; upgrade tooling/manual drift scenarios deferred)
+- Q10: Missing app-layer drift guards → DONE-VERIFIED (Batch 5: upgrade tooling + v3 drift CI + workspace exemption documented + runbook)
 
 > Full detail in `docs/AUDIT_TRACKER.md`. Q-series registered for Workstream C governance.
 

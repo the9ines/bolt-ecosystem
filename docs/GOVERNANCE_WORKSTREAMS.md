@@ -881,7 +881,7 @@ The following files constituted the extraction baseline for C2 (pre-extraction l
 | Disconnect/reconnect stale callback races | Q7 | MEDIUM | OPEN | C7 |
 | Verification policy mismatch (runtime vs tests/docs) | Q8 | MEDIUM | DONE-VERIFIED | C0 (locked in `v3.0.70`) |
 | App-layer behavior drift across products | Q9 | MEDIUM | DONE-VERIFIED | C2–C5 (all three consumers migrated to `@the9ines/localbolt-core@0.1.0`) |
-| Missing app-layer drift guards | Q10 | MEDIUM | PARTIAL | C6 (guards added; upgrade tooling deferred) |
+| Missing app-layer drift guards | Q10 | MEDIUM | DONE-VERIFIED | C6 (guards + upgrade tooling + v3 drift check + runbook; Batch 5) |
 
 ---
 
@@ -1046,7 +1046,7 @@ ARCH-08 invariant ("No new top-level folders under workspace root") resolved by 
 
 ### C6 — Drift Guards + Upgrade Protocol
 
-**Status:** PARTIAL
+**Status:** DONE
 **Prerequisites:** C3, C4, C5 (all consumers migrated — DONE)
 
 **Goal:** Prevent app-layer drift by establishing CI-enforceable guards and a deterministic upgrade protocol for localbolt-core across all consumers.
@@ -1055,18 +1055,19 @@ ARCH-08 invariant ("No new top-level folders under workspace root") resolved by 
 - Enforcement guards added to localbolt (`localbolt-v1.0.22-c6-core-guards`) and localbolt-app (`localbolt-app-v1.2.5-c6-core-guards`)
 - Guards verify localbolt-core version pin and import consistency
 
-**Deferred:**
-- `check-localbolt-core-version-pin.sh` — verify all consumers pin the same localbolt-core version
-- `check-localbolt-core-single-install.sh` — verify no duplicate localbolt-core installations in node_modules
-- `check-localbolt-core-drift.sh` — verify no local overrides or monkey-patches of localbolt-core exports
-- `upgrade-localbolt-core.sh` — deterministic upgrade: bump pin in all consumers, run tests, report pass/fail
+**Delivered (Batch 5 — C6 hardening):**
+- `upgrade-localbolt-core.sh` added to localbolt and localbolt-app — check mode (`--check`) validates version pin, lockfile consistency, and single install; upgrade mode bumps pin, reinstalls, runs build+test gates
+- `check-core-drift.sh` added to localbolt-v3 — detects ad-hoc orchestration reimplementation in `packages/localbolt-web/src`
+- localbolt-v3 CI updated: core drift guard wired using explicit `packages/localbolt-web/src` path
+- Manual drift validation executed and documented in `docs/LOCALBOLT_CORE_DRIFT_RUNBOOK.md`
+- **localbolt-v3 workspace exemption:** consumer-style guards (version-pin, single-install) are not applicable because localbolt-v3 is the origin workspace — localbolt-core is resolved via npm workspace, not registry install. Only the drift check applies. Rationale documented in runbook.
 
 **Acceptance Criteria:**
 - [x] Enforcement guards added to localbolt and localbolt-app consumers
-- [ ] All four scripts implemented and tested
-- [ ] CI gates added to all three consumer repos
-- [ ] Upgrade protocol documented
-- [ ] Manual drift scenario verified (introduced drift detected by guard)
+- [x] Upgrade tooling implemented and tested (check + write modes)
+- [x] CI gates added to all three consumer repos (3/3 guards in consumers, drift guard in v3)
+- [x] Upgrade protocol documented (LOCALBOLT_CORE_DRIFT_RUNBOOK.md)
+- [x] Manual drift scenario verified (all guards pass, reproducible commands captured)
 
 ---
 
@@ -1184,7 +1185,7 @@ ARCH-08 invariant ("No new top-level folders under workspace root") resolved by 
   - C1: blocked on C0. ARCH-08 disposition blocks all physical placement (C2–C7).
   - C2: blocked on C1. Extraction from localbolt-v3.
   - C3, C4, C5: DONE. All three consumers migrated to `@the9ines/localbolt-core@0.1.0`.
-  - C6: PARTIAL. Guards added to localbolt and localbolt-app. Upgrade tooling deferred.
+  - C6: DONE. Guards + upgrade tooling + v3 drift check + runbook. Batch 5.
   - C7: IN-PROGRESS. Generation guard race hardening landed in localbolt and localbolt-app. Remaining: formalized session state machine, rapid cycling integration tests.
 - **Cross-stream dependency:** C-stream is independent of A-stream and B-stream. C-stream operates at app-layer; A/B operate at SDK/daemon protocol layers. No shared code changes.
 

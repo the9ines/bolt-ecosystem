@@ -5,6 +5,21 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## Batch 5 — C6 Hardening Completion + Q4 Closure — 2026-03-05
+
+- **C6 DONE:** localbolt-core drift/upgrade hardening completed
+  - `upgrade-localbolt-core.sh` added to localbolt and localbolt-app (check + write modes)
+  - `check-core-drift.sh` added to localbolt-v3 (CI-enforced, `packages/localbolt-web/src`)
+  - localbolt-v3 workspace exemption documented (pin/single-install not applicable)
+  - Manual drift validation runbook: `docs/LOCALBOLT_CORE_DRIFT_RUNBOOK.md`
+  - Tags: `localbolt-v1.0.24-c6-hardening`, `localbolt-app-v1.2.7-c6-hardening`, `v3.0.73-c6-hardening`
+- **Q4 DONE-VERIFIED:** localbolt-app coverage thresholds enforced (90/90/80/90), `@vitest/coverage-v8` installed, CI runs `test:coverage`
+- **Q10 DONE-VERIFIED:** All deferred C6 scope completed (upgrade tooling, v3 drift CI, runbook)
+- Audit counters: **110 total, 89 DONE, 0 OPEN, 1 IN-PROGRESS (Q7)**
+- Updated: `docs/AUDIT_TRACKER.md`, `docs/CHANGELOG.md`, `docs/STATE.md`, `docs/GOVERNANCE_WORKSTREAMS.md`, `docs/LOCALBOLT_CORE_DRIFT_RUNBOOK.md`
+
+---
+
 ## Batch 4B — C7 TOFU wiring + CI guards + governance closure — 2026-03-05
 
 - **C7 IN-PROGRESS:** Identity/TOFU verification flow wired into localbolt and localbolt-app

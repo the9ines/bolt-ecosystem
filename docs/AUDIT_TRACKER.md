@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-04 (AUDIT-GOV-49)
+**Last updated:** 2026-03-05 (AUDIT-GOV-51 — Batch 5 C6 hardening)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -44,13 +44,13 @@
 | Q1 | bolt-core test coverage baseline | MEDIUM | **DONE** | 76 tests across 7 files. Golden vectors, export snapshot guard, rejection sampling, identity, SAS, hash, crypto. |
 | Q2 | bolt-transport-web test coverage | MEDIUM | **DONE** | 117 tests across 11 files. Hello, TOFU, SAS, replay, handshake gating, lifecycle, capabilities, file-hash, envelope, security. |
 | Q3 | localbolt test coverage | MEDIUM | **DONE** | 272 tests across 13 files. Coverage thresholds enforced (80/70/80). |
-| Q4 | localbolt-app test coverage | LOW | **IN-PROGRESS** | 11 tests (2 test files) as of `localbolt-app-v1.2.6-c7-tofu-wiring` (`e902186`). Includes 10 TOFU integration tests + 1 smoke test. Coverage thresholds not yet enforced. |
+| Q4 | localbolt-app test coverage | LOW | **DONE-VERIFIED** | 11 tests (2 test files), coverage thresholds enforced (90/90/80/90 lines/functions/branches/statements). `@vitest/coverage-v8` installed, `test:coverage` script added, CI wired to `npm run test:coverage`. Coverage baseline: 100% on tested files (identity.ts). Ratchet prevents regression. |
 | Q5 | localbolt-v3 test pipeline | MEDIUM | **DONE** | 4 smoke tests (FAQ + app render). Phase TP: `v3.0.53-test-pipeline`. CI step before build. |
 | Q6 | localbolt-v3 coverage thresholds | MEDIUM | **DONE** | `@vitest/coverage-v8`, thresholds 45/5/31/48%. Phase Q6: `v3.0.55-coverage-thresholds`. |
 | Q7 | Disconnect/reconnect stale callback races causing incorrect UI/session state | MEDIUM | **IN-PROGRESS** | Generation-guarded stale callback rejection now wired in localbolt (`localbolt-v1.0.23-c7-tofu-wiring`, `1bcb7b8`) and localbolt-app (`localbolt-app-v1.2.6-c7-tofu-wiring`, `e902186`). All async callbacks check session generation counter before state mutation. Tests cover generation guard race hardening. Remaining: formalized session state machine with validated transitions, integration tests for rapid connect/disconnect cycling and concurrent verification callbacks. Workstream C (C7) scope. |
 | Q8 | Verification policy mismatch between runtime behavior and tests/docs | MEDIUM | **DONE-VERIFIED** | C0 resolved: PM policy decision locked — `unverified` blocks file transfer. Codified in `v3.0.70-session-hardening-cpre2` (`cac5e4a`). Runtime behavior, test expectations, and documentation now consistent. |
 | Q9 | App-layer behavior drift across localbolt-v3, localbolt, localbolt-app | MEDIUM | **DONE-VERIFIED** | C2–C5 resolved: all three consumers now depend on `@the9ines/localbolt-core@0.1.0`. Canonical extraction baseline: session state machine, verification state bus, transfer gating policy. Tags: `v3.0.71-localbolt-core-c2`, `localbolt-v1.0.21-c4-localbolt-core`, `localbolt-app-v1.2.4-c5-localbolt-core`. |
-| Q10 | Missing app-layer drift guards (transport guarded, app layer not guarded) | MEDIUM | **PARTIAL** | C6 partial: CI-enforced core guard scripts (version-pin, single-install, drift) now active in localbolt (`localbolt-v1.0.23-c7-tofu-wiring`) and localbolt-app (`localbolt-app-v1.2.6-c7-tofu-wiring`). Guards detect ad-hoc orchestration reimplementation. **Remaining deferred scope:** upgrade tooling scripts (automated version bump across consumers), manual drift scenario verification (introduced drift detected by guard in CI), localbolt-v3 core guard CI wiring. Workstream C (C6) scope. |
+| Q10 | Missing app-layer drift guards (transport guarded, app layer not guarded) | MEDIUM | **DONE-VERIFIED** | C6 complete: CI-enforced core guard scripts (version-pin, single-install, drift) active in localbolt and localbolt-app. `upgrade-localbolt-core.sh` (check + write modes) added to both consumers. localbolt-v3 core drift guard added to CI (`packages/localbolt-web/src`). Workspace exemption documented (v3 is origin workspace — pin/single-install not applicable). Manual drift validation runbook in `docs/LOCALBOLT_CORE_DRIFT_RUNBOOK.md`. |
 
 ---
 
@@ -82,19 +82,18 @@ Product repos on main are pinned to published SDK releases.
 |------|-----------|------------------------|------------------------|-------|-------|
 | localbolt | 0.5.0 | 0.6.2 | 0.6.2 | 300 | pass |
 | localbolt-app | 0.5.0 | 0.6.2 | 0.6.2 | 11 | pass |
-| localbolt-v3 | 0.5.0 | 0.6.2 | 0.6.2 | 26/26 | pass |
+| localbolt-v3 | 0.5.0 | 0.6.2 | 0.6.2 | 59 | pass |
 
 ---
 
 ## SUMMARY
 
 - **Total findings:** 110 (41 prior + 19 SA-series + 11 N-series + 25 AC-series + 9 DP-series + 1 NF-series + 4 Q-series)
-- **DONE / DONE-VERIFIED:** 87 (+Q8, +Q9)
+- **DONE / DONE-VERIFIED:** 89 (+Q4, +Q10 in Batch 5)
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 6 (SA11, SA15, N9, AC-23, AC-24, AC-25)
-- **IN-PROGRESS:** 2 (Q4, Q7)
-- **PARTIAL:** 1 (Q10)
+- **IN-PROGRESS:** 1 (Q7)
 - **DEFERRED:** 1 (I4)
 - **OPEN:** 0
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md`.
