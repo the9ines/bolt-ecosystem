@@ -118,7 +118,7 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 | C4 | Migrate localbolt consumer | DONE | localbolt | `localbolt-v1.0.21-c4-localbolt-core`, `localbolt-v1.0.22-c6-core-guards` | `ed2d671` |
 | C5 | Migrate localbolt-app web consumer | DONE | localbolt-app | `localbolt-app-v1.2.4-c5-localbolt-core`, `localbolt-app-v1.2.5-c6-core-guards` | `d1761e9` |
 | C6 | Drift guards + upgrade protocol | PARTIAL | localbolt-v3, localbolt, localbolt-app | See C4/C5 tags + `v3.0.72-localbolt-core-publish` | C6 guards added; upgrade tooling deferred |
-| C7 | Session UX race-hardening | NOT-STARTED | TBD (localbolt-core) | — | — |
+| C7 | Session UX race-hardening | IN-PROGRESS | localbolt, localbolt-app | `localbolt-v1.0.23-c7-tofu-wiring`, `localbolt-app-v1.2.6-c7-tofu-wiring` | `1bcb7b8`, `e902186` |
 
 ### Ledger Notes
 
@@ -128,7 +128,8 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 - **C3** DONE — localbolt-v3 consumer migrated in same commit as C2. Web imports from `@the9ines/localbolt-core` via workspace dependency. 59 web tests (unchanged). Session-hardening tests kept in web as consumer wiring integration test.
 - **C4** DONE — localbolt consumer migrated to `@the9ines/localbolt-core@0.1.0`. Tags: `localbolt-v1.0.21-c4-localbolt-core`, `localbolt-v1.0.22-c6-core-guards` (`ed2d671`).
 - **C5** DONE — localbolt-app web consumer migrated to `@the9ines/localbolt-core@0.1.0`. Tags: `localbolt-app-v1.2.4-c5-localbolt-core`, `localbolt-app-v1.2.5-c6-core-guards` (`d1761e9`).
-- **C6** PARTIAL — Enforcement guards added to localbolt (C4) and localbolt-app (C5) via C6 tags. Upgrade tooling (scripts) deferred.
+- **C6** PARTIAL — Enforcement guards added to localbolt (C4) and localbolt-app (C5) via C6 tags. CI guard enforcement added in Batch 4B. Upgrade tooling (scripts) deferred.
+- **C7** IN-PROGRESS — Identity/TOFU verification flow wired into localbolt (`localbolt-v1.0.23-c7-tofu-wiring`, `1bcb7b8`, 300 tests) and localbolt-app (`localbolt-app-v1.2.6-c7-tofu-wiring`, `e902186`, 11 tests). Generation-guarded stale callback rejection, mismatch fail-closed, verification states reachable. Remaining: formalized session state machine with validated transitions, rapid cycling integration tests.
 - **Session hardening (pre-C7):** `v3.0.70-session-hardening-cpre2` (`cac5e4a`) delivered session orchestration layer + race hardening. Now lives in `@the9ines/localbolt-core`. Transfer gating policy codified as `isTransferAllowed()`.
 - **localbolt-core** located at `localbolt-v3/packages/localbolt-core`. Tags follow localbolt-v3 convention (`v3.0.<N>-<slug>`). Published as `@the9ines/localbolt-core@0.1.0` to GitHub Packages (`v3.0.72-localbolt-core-publish`, `7cb8d8d`). All three consumers now resolve via npm registry (not workspace-only).
 
@@ -287,19 +288,21 @@ protocol state machine, interop compatibility, memory/lifecycle).
 
 - **Total (Q-series extension):** 4
 - **MEDIUM:** 4
-- **OPEN:** 1 (Q7)
+- **IN-PROGRESS:** 1 (Q7)
 - **PARTIAL:** 1 (Q10)
 - **DONE-VERIFIED:** 2 (Q8, Q9)
 - **DONE / DONE-VERIFIED (global):** 87
-- **OPEN (global):** 2
+- **IN-PROGRESS (global):** 2 (Q4, Q7)
+- **PARTIAL (global):** 1 (Q10)
+- **OPEN (global):** 0
 - **Total findings (global):** 110
 
 App-layer convergence and session UX findings registered as part of Workstream C codification.
 
-- Q7: Disconnect/reconnect stale callback races → OPEN (C7 scope; generation guards delivered in localbolt-core)
+- Q7: Disconnect/reconnect stale callback races → IN-PROGRESS (C7 scope; generation guards wired in localbolt `1bcb7b8` + localbolt-app `e902186`)
 - Q8: Verification policy mismatch (runtime vs tests/docs) → DONE-VERIFIED (C0 locked: unverified blocks transfer; `v3.0.70`)
 - Q9: App-layer behavior drift across products → DONE-VERIFIED (C2–C5 scope; all three consumers migrated to `@the9ines/localbolt-core@0.1.0`)
-- Q10: Missing app-layer drift guards → PARTIAL (C6 scope; enforcement guards added, upgrade tooling deferred)
+- Q10: Missing app-layer drift guards → PARTIAL (C6 scope; CI guard enforcement landed in Batch 4B; upgrade tooling/manual drift scenarios deferred)
 
 > Full detail in `docs/AUDIT_TRACKER.md`. Q-series registered for Workstream C governance.
 
@@ -364,8 +367,8 @@ App-layer convergence and session UX findings registered as part of Workstream C
 | bolt-core-sdk | `sdk-v0.5.27-dp9-backpressure-fix` | `1be76c1` |
 | bolt-daemon | `daemon-v0.2.30-d-e2e-b-cross-impl` | `a8cf108` |
 | bolt-rendezvous | `rendezvous-v0.2.12-dp5-session-guard` | `aa8bed0` |
-| localbolt | `localbolt-v1.0.22-c6-core-guards` | `ed2d671` |
-| localbolt-app | `localbolt-app-v1.2.5-c6-core-guards` | `d1761e9` |
+| localbolt | `localbolt-v1.0.23-c7-tofu-wiring` | `1bcb7b8` |
+| localbolt-app | `localbolt-app-v1.2.6-c7-tofu-wiring` | `e902186` |
 | localbolt-v3 | `v3.0.72-localbolt-core-publish` | `7cb8d8d` |
 | bolt-protocol | `v0.1.5-spec-consistency-1` | `d795dd5` |
 | bytebolt-app | `bytebolt-v0.0.1` | — |
@@ -459,6 +462,8 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 | bolt-daemon (default) | 318 | main (includes B1B2, B5, B6-P1, B3-P1, B3-P2, B4, D-E2E-A, B3-P3) |
 | bolt-daemon (test-support) | 398 + 3 ignored | main (includes H3/H5/P1/SA1/B5/B6-P1/B3-P1/B3-P2/B4/B3-P3 + D-E2E-A + D-E2E-B) |
 | bolt-rendezvous | 49 | main (48 unit + 1 doc-test) |
+| localbolt (TS) | 300 | 14 test files, 80/70/80% coverage thresholds, includes 27 TOFU tests |
+| localbolt-app (TS) | 11 | 2 test files (1 smoke + 10 TOFU integration), no coverage thresholds yet |
 | localbolt-v3 (TS, localbolt-core) | 41 | Session state machine, verification bus, transfer policy, race hardening |
 | localbolt-v3 (TS, localbolt-web) | 59 | H5-v3 TOFU/SAS tests + session orchestration consumer wiring |
 | localbolt-v3 (Rust signal) | 36 | main (S0 canonical bolt-rendezvous wrapper, up from 32) |

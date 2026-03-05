@@ -1072,8 +1072,8 @@ ARCH-08 invariant ("No new top-level folders under workspace root") resolved by 
 
 ### C7 — Session UX Race-Hardening
 
-**Status:** NOT-STARTED
-**Prerequisites:** C2 (shared session controller in localbolt-core)
+**Status:** IN-PROGRESS
+**Prerequisites:** C2 (shared session controller in localbolt-core) — MET
 
 **Goal:** Harden the shared session controller against disconnect/reconnect race conditions that cause incorrect UI and session state.
 
@@ -1088,10 +1088,10 @@ ARCH-08 invariant ("No new top-level folders under workspace root") resolved by 
 
 **Acceptance Criteria:**
 - [ ] Session state machine formalized in localbolt-core with validated transitions
-- [ ] Session generation counter guards all async callbacks
+- [x] Session generation counter guards all async callbacks — localbolt (`1bcb7b8`), localbolt-app (`e902186`)
 - [ ] Integration tests cover: disconnect during handshake, reconnect during transfer, rapid cycling
-- [ ] No stale state leaks across session boundaries
-- [ ] All consumer tests pass (no regression)
+- [x] No stale state leaks across session boundaries (generation guard prevents stale mutation)
+- [x] All consumer tests pass — localbolt 300, localbolt-app 11
 
 ---
 
@@ -1185,7 +1185,7 @@ ARCH-08 invariant ("No new top-level folders under workspace root") resolved by 
   - C2: blocked on C1. Extraction from localbolt-v3.
   - C3, C4, C5: DONE. All three consumers migrated to `@the9ines/localbolt-core@0.1.0`.
   - C6: PARTIAL. Guards added to localbolt and localbolt-app. Upgrade tooling deferred.
-  - C7: blocked on C2 (needs shared session controller). Can run in parallel with remaining C6 work.
+  - C7: IN-PROGRESS. Generation guard race hardening landed in localbolt and localbolt-app. Remaining: formalized session state machine, rapid cycling integration tests.
 - **Cross-stream dependency:** C-stream is independent of A-stream and B-stream. C-stream operates at app-layer; A/B operate at SDK/daemon protocol layers. No shared code changes.
 
 ---

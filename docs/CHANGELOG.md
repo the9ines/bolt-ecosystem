@@ -5,6 +5,25 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## Batch 4B — C7 TOFU wiring + CI guards + governance closure — 2026-03-05
+
+- **C7 IN-PROGRESS:** Identity/TOFU verification flow wired into localbolt and localbolt-app
+  - localbolt: `localbolt-v1.0.23-c7-tofu-wiring` (`1bcb7b8`) — 300 tests
+  - localbolt-app: `localbolt-app-v1.2.6-c7-tofu-wiring` (`e902186`) — 11 tests
+  - Identity keypair persistence, TOFU pinning, generation-guarded callbacks, mismatch fail-closed
+  - Verification states (unverified, verified) reachable from UI
+- **CI guards enforced:** Core guard scripts (version-pin, single-install, drift) wired into CI for both repos
+- Q4 promoted: DEFERRED → IN-PROGRESS (localbolt-app now has 11 active tests)
+- Q7 promoted: OPEN → IN-PROGRESS (generation guard race hardening landed)
+- Q8 reconciled: OPEN → DONE-VERIFIED (resolved in Batch 3/C0)
+- Q9 reconciled: OPEN → DONE-VERIFIED (resolved in Batch 3/C2-C5)
+- Q10 updated: evidence refreshed with CI guard enforcement, remaining deferred scope listed
+- Adoption table refreshed: localbolt bolt-core 0.5.0/transport-web 0.6.2/300 tests, localbolt-app 0.5.0/0.6.2/11 tests
+- Audit counters: **110 total, 87 DONE, 0 OPEN, 2 IN-PROGRESS, 1 PARTIAL**
+- Updated: `docs/AUDIT_TRACKER.md`, `docs/CHANGELOG.md`, `docs/STATE.md`, `docs/GOVERNANCE_WORKSTREAMS.md`
+
+---
+
 ## Batch 3 — C4+C5+C6: localbolt-core publish + consumer migration — 2026-03-05
 
 - **localbolt-core published:** `@the9ines/localbolt-core@0.1.0` published to GitHub Packages from localbolt-v3

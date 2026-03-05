@@ -44,13 +44,13 @@
 | Q1 | bolt-core test coverage baseline | MEDIUM | **DONE** | 76 tests across 7 files. Golden vectors, export snapshot guard, rejection sampling, identity, SAS, hash, crypto. |
 | Q2 | bolt-transport-web test coverage | MEDIUM | **DONE** | 117 tests across 11 files. Hello, TOFU, SAS, replay, handshake gating, lifecycle, capabilities, file-hash, envelope, security. |
 | Q3 | localbolt test coverage | MEDIUM | **DONE** | 272 tests across 13 files. Coverage thresholds enforced (80/70/80). |
-| Q4 | localbolt-app test coverage | LOW | **DEFERRED** | No test suite. Build-only gate. Will be addressed when app matures past scaffold. |
+| Q4 | localbolt-app test coverage | LOW | **IN-PROGRESS** | 11 tests (2 test files) as of `localbolt-app-v1.2.6-c7-tofu-wiring` (`e902186`). Includes 10 TOFU integration tests + 1 smoke test. Coverage thresholds not yet enforced. |
 | Q5 | localbolt-v3 test pipeline | MEDIUM | **DONE** | 4 smoke tests (FAQ + app render). Phase TP: `v3.0.53-test-pipeline`. CI step before build. |
 | Q6 | localbolt-v3 coverage thresholds | MEDIUM | **DONE** | `@vitest/coverage-v8`, thresholds 45/5/31/48%. Phase Q6: `v3.0.55-coverage-thresholds`. |
-| Q7 | Disconnect/reconnect stale callback races causing incorrect UI/session state | MEDIUM | **OPEN** | Extraction baseline: `localbolt-v3/packages/localbolt-web/src/components/peer-connection.ts`, `localbolt-v3/packages/localbolt-web/src/services/verification-state.ts`. SA14 fixed `helloTimeout` stale callback in SDK; app-layer callbacks (verification state, transfer UI, peer list) remain unguarded across disconnect/reconnect cycles. Workstream C (C7) scope. |
-| Q8 | Verification policy mismatch between runtime behavior and tests/docs | MEDIUM | **OPEN** | DP-4 removed the verification gate blocking unverified peer uploads but the verification state bus still distinguishes `verified`/`unverified`/`legacy` states. Runtime behavior, test expectations, and documentation are inconsistent on whether `unverified` blocks transfer. Extraction baseline: `localbolt-v3/packages/localbolt-web/src/services/verification-state.ts`, `localbolt-v3/packages/localbolt-web/src/__tests__/h5-tofu-verification.test.ts`. Workstream C (C0) scope — requires PM policy decision. |
-| Q9 | App-layer behavior drift across localbolt-v3, localbolt, localbolt-app | MEDIUM | **OPEN** | Three products independently implement app-layer session management, verification UX, identity bootstrap, and transfer gating. No shared module or conformance contract exists. localbolt-v3 has the most advanced wiring (H5-v3 TOFU/SAS, DP-3b peer persistence, DP-4 verification gate removal). localbolt and localbolt-app lag behind with duplicated and divergent behavior. Workstream C (C2–C5) scope. |
-| Q10 | Missing app-layer drift guards (transport guarded, app layer not guarded) | MEDIUM | **OPEN** | Transport layer has subtree drift guard (AC-14, `localbolt-v1.0.19-drift-guard-1`) and CI-enforced conformance tests. App-layer behavior (verification state, identity bootstrap, session controller, transfer visibility) has no equivalent drift prevention mechanism across the three product repos. Workstream C (C6) scope. |
+| Q7 | Disconnect/reconnect stale callback races causing incorrect UI/session state | MEDIUM | **IN-PROGRESS** | Generation-guarded stale callback rejection now wired in localbolt (`localbolt-v1.0.23-c7-tofu-wiring`, `1bcb7b8`) and localbolt-app (`localbolt-app-v1.2.6-c7-tofu-wiring`, `e902186`). All async callbacks check session generation counter before state mutation. Tests cover generation guard race hardening. Remaining: formalized session state machine with validated transitions, integration tests for rapid connect/disconnect cycling and concurrent verification callbacks. Workstream C (C7) scope. |
+| Q8 | Verification policy mismatch between runtime behavior and tests/docs | MEDIUM | **DONE-VERIFIED** | C0 resolved: PM policy decision locked — `unverified` blocks file transfer. Codified in `v3.0.70-session-hardening-cpre2` (`cac5e4a`). Runtime behavior, test expectations, and documentation now consistent. |
+| Q9 | App-layer behavior drift across localbolt-v3, localbolt, localbolt-app | MEDIUM | **DONE-VERIFIED** | C2–C5 resolved: all three consumers now depend on `@the9ines/localbolt-core@0.1.0`. Canonical extraction baseline: session state machine, verification state bus, transfer gating policy. Tags: `v3.0.71-localbolt-core-c2`, `localbolt-v1.0.21-c4-localbolt-core`, `localbolt-app-v1.2.4-c5-localbolt-core`. |
+| Q10 | Missing app-layer drift guards (transport guarded, app layer not guarded) | MEDIUM | **PARTIAL** | C6 partial: CI-enforced core guard scripts (version-pin, single-install, drift) now active in localbolt (`localbolt-v1.0.23-c7-tofu-wiring`) and localbolt-app (`localbolt-app-v1.2.6-c7-tofu-wiring`). Guards detect ad-hoc orchestration reimplementation. **Remaining deferred scope:** upgrade tooling scripts (automated version bump across consumers), manual drift scenario verification (introduced drift detected by guard in CI), localbolt-v3 core guard CI wiring. Workstream C (C6) scope. |
 
 ---
 
@@ -80,8 +80,8 @@ Product repos on main are pinned to published SDK releases.
 
 | Repo | bolt-core | transport-web (pinned) | transport-web (latest) | Tests | Build |
 |------|-----------|------------------------|------------------------|-------|-------|
-| localbolt | 0.4.0 | 0.6.0 | 0.6.2 (pending) | 272/272 | pass |
-| localbolt-app | 0.4.0 | 0.6.0 | 0.6.2 (pending) | N/A | pass |
+| localbolt | 0.5.0 | 0.6.2 | 0.6.2 | 300 | pass |
+| localbolt-app | 0.5.0 | 0.6.2 | 0.6.2 | 11 | pass |
 | localbolt-v3 | 0.5.0 | 0.6.2 | 0.6.2 | 26/26 | pass |
 
 ---
@@ -89,17 +89,18 @@ Product repos on main are pinned to published SDK releases.
 ## SUMMARY
 
 - **Total findings:** 110 (41 prior + 19 SA-series + 11 N-series + 25 AC-series + 9 DP-series + 1 NF-series + 4 Q-series)
-- **DONE / DONE-VERIFIED:** 85
+- **DONE / DONE-VERIFIED:** 87 (+Q8, +Q9)
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 6 (SA11, SA15, N9, AC-23, AC-24, AC-25)
-- **IN-PROGRESS:** 0
-- **DEFERRED:** 2 (I4, Q4)
-- **OPEN:** 4 (Q7, Q8, Q9, Q10)
+- **IN-PROGRESS:** 2 (Q4, Q7)
+- **PARTIAL:** 1 (Q10)
+- **DEFERRED:** 1 (I4)
+- **OPEN:** 0
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md`.
 
 > **OPEN (global)** = all findings across all series with Status = OPEN.
-> Does not include IN-PROGRESS, DEFERRED, CODIFIED, CLOSED-NO-BUG, or DONE-BY-DESIGN.
+> Does not include IN-PROGRESS, PARTIAL, DEFERRED, CODIFIED, CLOSED-NO-BUG, or DONE-BY-DESIGN.
 
 Arithmetic reconciled in ecosystem-v0.1.19-audit-gov-16 — 25 AC-series findings registered. OPEN = 22 (AC-1 through AC-22). DONE-BY-DESIGN = 6 (+3 AC-series).
 
