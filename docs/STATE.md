@@ -2,12 +2,13 @@
 Snapshot Derived From:
 - sdk-v0.5.27-dp9-backpressure-fix (1be76c1)
 - daemon-v0.2.30-d-e2e-b-cross-impl (a8cf108)
-Last Refreshed By: AUDIT-GOV-50
+- v3.0.71-localbolt-core-c2 (aa9e40e)
+Last Refreshed By: C-STREAM-C2
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-04 (AUDIT-GOV-50)
+> **Last Updated:** 2026-03-04 (C-STREAM-C2)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -108,10 +109,10 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 
 | Phase | Description | Status | Repo(s) | Tag(s) | Commit(s) |
 |-------|-------------|--------|---------|--------|-----------|
-| C0 | Policy lock — verification UX decision | NOT-STARTED | localbolt-v3 | — | — |
-| C1 | localbolt-core scaffold + ARCH-08 disposition | NOT-STARTED | TBD (pending ARCH-08 disposition) | — | — |
-| C2 | Extract canonical runtime from v3 baseline | NOT-STARTED | TBD (localbolt-core), localbolt-v3 | — | — |
-| C3 | Migrate localbolt-v3 consumer | NOT-STARTED | localbolt-v3 | — | — |
+| C0 | Policy lock — verification UX decision | DONE | localbolt-v3 | `v3.0.71-localbolt-core-c2` | `aa9e40e` |
+| C1 | localbolt-core scaffold + ARCH-08 disposition | DONE | localbolt-v3 | `v3.0.71-localbolt-core-c2` | `aa9e40e` |
+| C2 | Extract canonical runtime from v3 baseline | DONE | localbolt-v3 (`@the9ines/localbolt-core`) | `v3.0.71-localbolt-core-c2` | `aa9e40e` |
+| C3 | Migrate localbolt-v3 consumer | DONE | localbolt-v3 | `v3.0.71-localbolt-core-c2` | `aa9e40e` |
 | C4 | Migrate localbolt consumer | NOT-STARTED | localbolt | — | — |
 | C5 | Migrate localbolt-app web consumer | NOT-STARTED | localbolt-app | — | — |
 | C6 | Drift guards + upgrade protocol | NOT-STARTED | localbolt-v3, localbolt, localbolt-app | — | — |
@@ -119,13 +120,14 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 
 ### Ledger Notes
 
-- **C0** blocked on PM policy decision: does `unverified` peer status block file transfer? Until decided, extraction baseline policy is ambiguous.
-- **C1** blocked on C0 and ARCH-08 disposition gate. ARCHITECTURE.md invariant ARCH-08 prohibits new top-level folders under workspace root. C1 must resolve whether localbolt-core gets an ARCH-08 waiver, a non-violating location (inside an existing repo), or an external repo.
-- **C2** extraction baseline is localbolt-v3. See `docs/GOVERNANCE_WORKSTREAMS.md` Workstream C for verified file paths.
-- **C3, C4, C5** can execute in parallel after C2. C7 can run in parallel with C3–C6.
+- **C0** DONE — PM policy decision: `unverified` peer status blocks file transfer. Codified in `v3.0.70-session-hardening-cpre2`. Runtime, tests, and docs aligned. Q8 resolved.
+- **C1** DONE — ARCH-08 resolved via non-violating location: `localbolt-v3/packages/localbolt-core` (inside existing workspace). No waiver needed. Package: `@the9ines/localbolt-core@0.1.0`.
+- **C2** DONE — Extracted session state machine, verification state bus, transfer gating policy, and generation guards into `@the9ines/localbolt-core`. 41 core tests. Source: `v3.0.71-localbolt-core-c2` (`aa9e40e`).
+- **C3** DONE — localbolt-v3 consumer migrated in same commit as C2. Web imports from `@the9ines/localbolt-core` via workspace dependency. 59 web tests (unchanged). Session-hardening tests kept in web as consumer wiring integration test.
+- **C4, C5** can execute in parallel. C7 can run in parallel with C4–C6.
 - **C6** requires all three consumer migrations complete before guard enforcement.
-- **Session hardening (pre-C7):** `v3.0.70-session-hardening-cpre2` (`cac5e4a`) delivered session orchestration layer + race hardening in localbolt-v3. Transfer gating policy aligned (unverified blocks transfer). 33 new tests (59 total), 58.22% line coverage (up from 54.26%). Addresses Q7 scope (disconnect/reconnect stale callback races) directly in the localbolt-v3 product ahead of formal C7 extraction.
-- **localbolt-core tag discipline** deferred to C1 after ARCH-08 disposition and location decision. Consumer repos use existing conventions with `-C<N>` phase suffix.
+- **Session hardening (pre-C7):** `v3.0.70-session-hardening-cpre2` (`cac5e4a`) delivered session orchestration layer + race hardening. Now lives in `@the9ines/localbolt-core`. Transfer gating policy codified as `isTransferAllowed()`.
+- **localbolt-core** located at `localbolt-v3/packages/localbolt-core`. Tags follow localbolt-v3 convention (`v3.0.<N>-<slug>`). Published as `@the9ines/localbolt-core` (workspace-resolved, private).
 
 ---
 
@@ -282,16 +284,17 @@ protocol state machine, interop compatibility, memory/lifecycle).
 
 - **Total (Q-series extension):** 4
 - **MEDIUM:** 4
-- **OPEN:** 4 (Q7, Q8, Q9, Q10)
-- **DONE / DONE-VERIFIED (global):** 85
-- **OPEN (global):** 4
+- **OPEN:** 3 (Q7, Q9, Q10)
+- **DONE-VERIFIED:** 1 (Q8)
+- **DONE / DONE-VERIFIED (global):** 86
+- **OPEN (global):** 3
 - **Total findings (global):** 110
 
 App-layer convergence and session UX findings registered as part of Workstream C codification.
 
-- Q7: Disconnect/reconnect stale callback races → OPEN (C7 scope)
-- Q8: Verification policy mismatch (runtime vs tests/docs) → OPEN (C0 scope)
-- Q9: App-layer behavior drift across products → OPEN (C2–C5 scope)
+- Q7: Disconnect/reconnect stale callback races → OPEN (C7 scope; generation guards delivered in localbolt-core)
+- Q8: Verification policy mismatch (runtime vs tests/docs) → DONE-VERIFIED (C0 locked: unverified blocks transfer; `v3.0.70`)
+- Q9: App-layer behavior drift across products → OPEN (C2–C5 scope; v3 migrated, localbolt + localbolt-app pending C4/C5)
 - Q10: Missing app-layer drift guards → OPEN (C6 scope)
 
 > Full detail in `docs/AUDIT_TRACKER.md`. Q-series registered for Workstream C governance.
@@ -359,7 +362,7 @@ App-layer convergence and session UX findings registered as part of Workstream C
 | bolt-rendezvous | `rendezvous-v0.2.12-dp5-session-guard` | `aa8bed0` |
 | localbolt | `localbolt-v1.0.20-ac13-shadow-test-fix-1` | `b4d1a49` |
 | localbolt-app | `localbolt-app-v1.2.3-subtree-refresh-1` | `1d71e66` |
-| localbolt-v3 | `v3.0.70-session-hardening-cpre2` | `cac5e4a` |
+| localbolt-v3 | `v3.0.71-localbolt-core-c2` | `aa9e40e` |
 | bolt-protocol | `v0.1.5-spec-consistency-1` | `d795dd5` |
 | bytebolt-app | `bytebolt-v0.0.1` | — |
 | bytebolt-relay | `relay-v0.0.1` | — |
@@ -452,7 +455,8 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 | bolt-daemon (default) | 318 | main (includes B1B2, B5, B6-P1, B3-P1, B3-P2, B4, D-E2E-A, B3-P3) |
 | bolt-daemon (test-support) | 398 + 3 ignored | main (includes H3/H5/P1/SA1/B5/B6-P1/B3-P1/B3-P2/B4/B3-P3 + D-E2E-A + D-E2E-B) |
 | bolt-rendezvous | 49 | main (48 unit + 1 doc-test) |
-| localbolt-v3 (TS) | 59 | main (includes H5-v3 TOFU/SAS tests + session orchestration hardening) |
+| localbolt-v3 (TS, localbolt-core) | 41 | Session state machine, verification bus, transfer policy, race hardening |
+| localbolt-v3 (TS, localbolt-web) | 59 | H5-v3 TOFU/SAS tests + session orchestration consumer wiring |
 | localbolt-v3 (Rust signal) | 36 | main (S0 canonical bolt-rendezvous wrapper, up from 32) |
 
 > **Reconciliation:** Previous snapshot recorded 199 transport-web tests.

@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.56-c-stream-c2 — 2026-03-04
+
+- **C0 DONE:** Policy lock — `unverified` blocks file transfer. Codified in `v3.0.70-session-hardening-cpre2` (`cac5e4a`). Runtime, tests, and docs aligned. Q8 → DONE-VERIFIED.
+- **C1 DONE:** ARCH-08 resolved via non-violating location — `@the9ines/localbolt-core` placed at `localbolt-v3/packages/localbolt-core` (inside existing npm workspace). No waiver needed.
+- **C2 DONE:** `v3.0.71-localbolt-core-c2` (`aa9e40e`, docs `fea35bc`)
+  - Extracted session state machine, verification state bus, transfer gating policy (`isTransferAllowed`), and generation guards into `@the9ines/localbolt-core@0.1.0`
+  - New files: `src/session-state.ts`, `src/verification-state.ts`, `src/transfer-policy.ts`, `src/index.ts`
+  - 41 core tests (33 session-hardening + 8 transfer-policy)
+  - Build: tsc → `dist/` with declaration files
+- **C3 DONE:** localbolt-v3 consumer migrated in same commit as C2
+  - `peer-connection.ts`, `transfer.ts`, `h5-tofu-verification.test.ts` import from `@the9ines/localbolt-core`
+  - `session-hardening.test.ts` kept in web as consumer wiring integration test
+  - 59 web tests (unchanged), 51.37% line coverage (above 48% threshold)
+  - Deleted: `src/services/session-state.ts`, `src/services/verification-state.ts` (now in core)
+- Repo tag snapshot updated: localbolt-v3 → `v3.0.71-localbolt-core-c2` (`aa9e40e`)
+- localbolt-v3 TS test count updated: 59 → 100 (41 core + 59 web)
+- Q8 promoted: OPEN → DONE-VERIFIED (C0 scope resolved)
+- Audit counters: **110 total, 86 DONE, 3 OPEN** (was 85 DONE, 4 OPEN)
+- Updated: `docs/STATE.md`, `docs/CHANGELOG.md`, `docs/GOVERNANCE_WORKSTREAMS.md`
+
+---
+
 ## ecosystem-v0.1.55-audit-gov-50 — 2026-03-04
 
 - **localbolt-v3 session hardening:** `v3.0.70-session-hardening-cpre2` (`cac5e4a`, docs `ebdf503`)
