@@ -880,8 +880,8 @@ The following files constituted the extraction baseline for C2 (pre-extraction l
 |---------|------|----------|--------|---------|
 | Disconnect/reconnect stale callback races | Q7 | MEDIUM | OPEN | C7 |
 | Verification policy mismatch (runtime vs tests/docs) | Q8 | MEDIUM | DONE-VERIFIED | C0 (locked in `v3.0.70`) |
-| App-layer behavior drift across products | Q9 | MEDIUM | OPEN | C2–C5 (v3 done; localbolt, localbolt-app pending C4/C5) |
-| Missing app-layer drift guards | Q10 | MEDIUM | OPEN | C6 |
+| App-layer behavior drift across products | Q9 | MEDIUM | DONE-VERIFIED | C2–C5 (all three consumers migrated to `@the9ines/localbolt-core@0.1.0`) |
+| Missing app-layer drift guards | Q10 | MEDIUM | PARTIAL | C6 (guards added; upgrade tooling deferred) |
 
 ---
 
@@ -1013,49 +1013,56 @@ ARCH-08 invariant ("No new top-level folders under workspace root") resolved by 
 
 ### C4 — Migrate localbolt Consumer
 
-**Status:** NOT-STARTED
+**Status:** DONE
+**Tags:** `localbolt-v1.0.21-c4-localbolt-core`, `localbolt-v1.0.22-c6-core-guards` (`ed2d671`)
 **Prerequisites:** C2 (extraction)
 
 **Goal:** localbolt (lite self-hosted app) consumes localbolt-core for shared app-layer behavior. Remove duplicated behavior modules.
 
 **Acceptance Criteria:**
-- [ ] localbolt `package.json` depends on localbolt-core with exact version pin
-- [ ] Duplicated behavior modules removed from localbolt
-- [ ] All localbolt tests pass (272 tests, no regression)
-- [ ] Self-hosted deployment verified
+- [x] localbolt `package.json` depends on `@the9ines/localbolt-core@0.1.0` with exact version pin
+- [x] Duplicated behavior modules removed from localbolt
+- [x] All localbolt tests pass (no regression)
+- [x] Self-hosted deployment verified
 
 ---
 
 ### C5 — Migrate localbolt-app Web Consumer
 
-**Status:** NOT-STARTED
+**Status:** DONE
+**Tags:** `localbolt-app-v1.2.4-c5-localbolt-core`, `localbolt-app-v1.2.5-c6-core-guards` (`d1761e9`)
 **Prerequisites:** C2 (extraction)
 
 **Goal:** localbolt-app web layer consumes localbolt-core for shared app-layer behavior. `src-tauri/` native layer and Tauri-specific adapters remain local.
 
 **Acceptance Criteria:**
-- [ ] localbolt-app web layer `package.json` depends on localbolt-core with exact version pin
-- [ ] Duplicated behavior modules removed from web layer
-- [ ] `src-tauri/` native ownership preserved (IPC, system tray, file system access)
-- [ ] Tauri build succeeds
-- [ ] localbolt-app tests pass (no regression)
+- [x] localbolt-app web layer `package.json` depends on `@the9ines/localbolt-core@0.1.0` with exact version pin
+- [x] Duplicated behavior modules removed from web layer
+- [x] `src-tauri/` native ownership preserved (IPC, system tray, file system access)
+- [x] Tauri build succeeds
+- [x] localbolt-app tests pass (no regression)
 
 ---
 
 ### C6 — Drift Guards + Upgrade Protocol
 
-**Status:** NOT-STARTED
-**Prerequisites:** C3, C4, C5 (all consumers migrated)
+**Status:** PARTIAL
+**Prerequisites:** C3, C4, C5 (all consumers migrated — DONE)
 
 **Goal:** Prevent app-layer drift by establishing CI-enforceable guards and a deterministic upgrade protocol for localbolt-core across all consumers.
 
-**Required scripts/guards:**
+**Delivered (Batch 3):**
+- Enforcement guards added to localbolt (`localbolt-v1.0.22-c6-core-guards`) and localbolt-app (`localbolt-app-v1.2.5-c6-core-guards`)
+- Guards verify localbolt-core version pin and import consistency
+
+**Deferred:**
 - `check-localbolt-core-version-pin.sh` — verify all consumers pin the same localbolt-core version
 - `check-localbolt-core-single-install.sh` — verify no duplicate localbolt-core installations in node_modules
 - `check-localbolt-core-drift.sh` — verify no local overrides or monkey-patches of localbolt-core exports
 - `upgrade-localbolt-core.sh` — deterministic upgrade: bump pin in all consumers, run tests, report pass/fail
 
 **Acceptance Criteria:**
+- [x] Enforcement guards added to localbolt and localbolt-app consumers
 - [ ] All four scripts implemented and tested
 - [ ] CI gates added to all three consumer repos
 - [ ] Upgrade protocol documented
@@ -1176,9 +1183,9 @@ ARCH-08 invariant ("No new top-level folders under workspace root") resolved by 
   - C0: blocked on PM policy decision (verification UX). Must complete before C2.
   - C1: blocked on C0. ARCH-08 disposition blocks all physical placement (C2–C7).
   - C2: blocked on C1. Extraction from localbolt-v3.
-  - C3, C4, C5: all blocked on C2, but can run in parallel with each other.
-  - C6: blocked on C3+C4+C5 (all consumers must be migrated before drift guards apply).
-  - C7: blocked on C2 (needs shared session controller). Can run in parallel with C3–C6.
+  - C3, C4, C5: DONE. All three consumers migrated to `@the9ines/localbolt-core@0.1.0`.
+  - C6: PARTIAL. Guards added to localbolt and localbolt-app. Upgrade tooling deferred.
+  - C7: blocked on C2 (needs shared session controller). Can run in parallel with remaining C6 work.
 - **Cross-stream dependency:** C-stream is independent of A-stream and B-stream. C-stream operates at app-layer; A/B operate at SDK/daemon protocol layers. No shared code changes.
 
 ---

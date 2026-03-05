@@ -5,6 +5,25 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## Batch 3 — C4+C5+C6: localbolt-core publish + consumer migration — 2026-03-05
+
+- **localbolt-core published:** `@the9ines/localbolt-core@0.1.0` published to GitHub Packages from localbolt-v3
+  - Tag: `v3.0.72-localbolt-core-publish` (`7cb8d8d`)
+- **C4 DONE:** localbolt consumer migrated to `@the9ines/localbolt-core@0.1.0`
+  - Tag: `localbolt-v1.0.21-c4-localbolt-core` (migration)
+  - Tag: `localbolt-v1.0.22-c6-core-guards` (`ed2d671`) (C6 enforcement guards)
+- **C5 DONE:** localbolt-app web consumer migrated to `@the9ines/localbolt-core@0.1.0`
+  - Tag: `localbolt-app-v1.2.4-c5-localbolt-core` (migration)
+  - Tag: `localbolt-app-v1.2.5-c6-core-guards` (`d1761e9`) (C6 enforcement guards)
+- **C6 PARTIAL:** Enforcement guards added to localbolt and localbolt-app. Upgrade tooling (scripts) deferred.
+- Q9 promoted: OPEN → DONE-VERIFIED (all three consumers now on shared localbolt-core)
+- Q10 updated: OPEN → PARTIAL (guards added, upgrade tooling deferred)
+- Repo tag snapshot updated: localbolt-v3, localbolt, localbolt-app
+- Audit counters: **110 total, 87 DONE, 2 OPEN** (was 86 DONE, 3 OPEN)
+- Updated: `docs/STATE.md`, `docs/CHANGELOG.md`, `docs/GOVERNANCE_WORKSTREAMS.md`
+
+---
+
 ## ecosystem-v0.1.56-c-stream-c2 — 2026-03-04
 
 - **C0 DONE:** Policy lock — `unverified` blocks file transfer. Codified in `v3.0.70-session-hardening-cpre2` (`cac5e4a`). Runtime, tests, and docs aligned. Q8 → DONE-VERIFIED.

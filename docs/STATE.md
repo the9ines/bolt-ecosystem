@@ -2,13 +2,15 @@
 Snapshot Derived From:
 - sdk-v0.5.27-dp9-backpressure-fix (1be76c1)
 - daemon-v0.2.30-d-e2e-b-cross-impl (a8cf108)
-- v3.0.71-localbolt-core-c2 (aa9e40e)
-Last Refreshed By: C-STREAM-C2
+- v3.0.72-localbolt-core-publish (7cb8d8d)
+- localbolt-v1.0.22-c6-core-guards (ed2d671)
+- localbolt-app-v1.2.5-c6-core-guards (d1761e9)
+Last Refreshed By: Batch 3 — C4+C5+C6
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-04 (C-STREAM-C2)
+> **Last Updated:** 2026-03-05 (Batch 3 — C4+C5+C6)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -113,9 +115,9 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 | C1 | localbolt-core scaffold + ARCH-08 disposition | DONE | localbolt-v3 | `v3.0.71-localbolt-core-c2` | `aa9e40e` |
 | C2 | Extract canonical runtime from v3 baseline | DONE | localbolt-v3 (`@the9ines/localbolt-core`) | `v3.0.71-localbolt-core-c2` | `aa9e40e` |
 | C3 | Migrate localbolt-v3 consumer | DONE | localbolt-v3 | `v3.0.71-localbolt-core-c2` | `aa9e40e` |
-| C4 | Migrate localbolt consumer | NOT-STARTED | localbolt | — | — |
-| C5 | Migrate localbolt-app web consumer | NOT-STARTED | localbolt-app | — | — |
-| C6 | Drift guards + upgrade protocol | NOT-STARTED | localbolt-v3, localbolt, localbolt-app | — | — |
+| C4 | Migrate localbolt consumer | DONE | localbolt | `localbolt-v1.0.21-c4-localbolt-core`, `localbolt-v1.0.22-c6-core-guards` | `ed2d671` |
+| C5 | Migrate localbolt-app web consumer | DONE | localbolt-app | `localbolt-app-v1.2.4-c5-localbolt-core`, `localbolt-app-v1.2.5-c6-core-guards` | `d1761e9` |
+| C6 | Drift guards + upgrade protocol | PARTIAL | localbolt-v3, localbolt, localbolt-app | See C4/C5 tags + `v3.0.72-localbolt-core-publish` | C6 guards added; upgrade tooling deferred |
 | C7 | Session UX race-hardening | NOT-STARTED | TBD (localbolt-core) | — | — |
 
 ### Ledger Notes
@@ -124,10 +126,11 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 - **C1** DONE — ARCH-08 resolved via non-violating location: `localbolt-v3/packages/localbolt-core` (inside existing workspace). No waiver needed. Package: `@the9ines/localbolt-core@0.1.0`.
 - **C2** DONE — Extracted session state machine, verification state bus, transfer gating policy, and generation guards into `@the9ines/localbolt-core`. 41 core tests. Source: `v3.0.71-localbolt-core-c2` (`aa9e40e`).
 - **C3** DONE — localbolt-v3 consumer migrated in same commit as C2. Web imports from `@the9ines/localbolt-core` via workspace dependency. 59 web tests (unchanged). Session-hardening tests kept in web as consumer wiring integration test.
-- **C4, C5** can execute in parallel. C7 can run in parallel with C4–C6.
-- **C6** requires all three consumer migrations complete before guard enforcement.
+- **C4** DONE — localbolt consumer migrated to `@the9ines/localbolt-core@0.1.0`. Tags: `localbolt-v1.0.21-c4-localbolt-core`, `localbolt-v1.0.22-c6-core-guards` (`ed2d671`).
+- **C5** DONE — localbolt-app web consumer migrated to `@the9ines/localbolt-core@0.1.0`. Tags: `localbolt-app-v1.2.4-c5-localbolt-core`, `localbolt-app-v1.2.5-c6-core-guards` (`d1761e9`).
+- **C6** PARTIAL — Enforcement guards added to localbolt (C4) and localbolt-app (C5) via C6 tags. Upgrade tooling (scripts) deferred.
 - **Session hardening (pre-C7):** `v3.0.70-session-hardening-cpre2` (`cac5e4a`) delivered session orchestration layer + race hardening. Now lives in `@the9ines/localbolt-core`. Transfer gating policy codified as `isTransferAllowed()`.
-- **localbolt-core** located at `localbolt-v3/packages/localbolt-core`. Tags follow localbolt-v3 convention (`v3.0.<N>-<slug>`). Published as `@the9ines/localbolt-core` (workspace-resolved, private).
+- **localbolt-core** located at `localbolt-v3/packages/localbolt-core`. Tags follow localbolt-v3 convention (`v3.0.<N>-<slug>`). Published as `@the9ines/localbolt-core@0.1.0` to GitHub Packages (`v3.0.72-localbolt-core-publish`, `7cb8d8d`). All three consumers now resolve via npm registry (not workspace-only).
 
 ---
 
@@ -284,18 +287,19 @@ protocol state machine, interop compatibility, memory/lifecycle).
 
 - **Total (Q-series extension):** 4
 - **MEDIUM:** 4
-- **OPEN:** 3 (Q7, Q9, Q10)
-- **DONE-VERIFIED:** 1 (Q8)
-- **DONE / DONE-VERIFIED (global):** 86
-- **OPEN (global):** 3
+- **OPEN:** 1 (Q7)
+- **PARTIAL:** 1 (Q10)
+- **DONE-VERIFIED:** 2 (Q8, Q9)
+- **DONE / DONE-VERIFIED (global):** 87
+- **OPEN (global):** 2
 - **Total findings (global):** 110
 
 App-layer convergence and session UX findings registered as part of Workstream C codification.
 
 - Q7: Disconnect/reconnect stale callback races → OPEN (C7 scope; generation guards delivered in localbolt-core)
 - Q8: Verification policy mismatch (runtime vs tests/docs) → DONE-VERIFIED (C0 locked: unverified blocks transfer; `v3.0.70`)
-- Q9: App-layer behavior drift across products → OPEN (C2–C5 scope; v3 migrated, localbolt + localbolt-app pending C4/C5)
-- Q10: Missing app-layer drift guards → OPEN (C6 scope)
+- Q9: App-layer behavior drift across products → DONE-VERIFIED (C2–C5 scope; all three consumers migrated to `@the9ines/localbolt-core@0.1.0`)
+- Q10: Missing app-layer drift guards → PARTIAL (C6 scope; enforcement guards added, upgrade tooling deferred)
 
 > Full detail in `docs/AUDIT_TRACKER.md`. Q-series registered for Workstream C governance.
 
@@ -360,9 +364,9 @@ App-layer convergence and session UX findings registered as part of Workstream C
 | bolt-core-sdk | `sdk-v0.5.27-dp9-backpressure-fix` | `1be76c1` |
 | bolt-daemon | `daemon-v0.2.30-d-e2e-b-cross-impl` | `a8cf108` |
 | bolt-rendezvous | `rendezvous-v0.2.12-dp5-session-guard` | `aa8bed0` |
-| localbolt | `localbolt-v1.0.20-ac13-shadow-test-fix-1` | `b4d1a49` |
-| localbolt-app | `localbolt-app-v1.2.3-subtree-refresh-1` | `1d71e66` |
-| localbolt-v3 | `v3.0.71-localbolt-core-c2` | `aa9e40e` |
+| localbolt | `localbolt-v1.0.22-c6-core-guards` | `ed2d671` |
+| localbolt-app | `localbolt-app-v1.2.5-c6-core-guards` | `d1761e9` |
+| localbolt-v3 | `v3.0.72-localbolt-core-publish` | `7cb8d8d` |
 | bolt-protocol | `v0.1.5-spec-consistency-1` | `d795dd5` |
 | bytebolt-app | `bytebolt-v0.0.1` | — |
 | bytebolt-relay | `relay-v0.0.1` | — |
