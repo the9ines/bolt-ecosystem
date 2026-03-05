@@ -2,19 +2,20 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Tag:** ecosystem-v0.1.54-audit-gov-48
+> **Tag:** ecosystem-v0.1.55-audit-gov-49
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
 
 ## Purpose
 
-This document codifies two improvement workstreams into governance so that future implementation work is phase-gated, tagged, and non-drifting:
+This document codifies improvement workstreams into governance so that future implementation work is phase-gated, tagged, and non-drifting:
 
 - **Workstream A (A-stream):** WebRTCService decomposition in bolt-core-sdk
 - **Workstream B (B-stream):** Daemon file transfer convergence in bolt-daemon
+- **Workstream C (C-stream):** LocalBolt application convergence + session UX hardening
 
-These are improvement initiatives — not audit findings, not protocol changes. They decompose existing monolithic code into well-bounded modules (A-stream) and extend the daemon toward file transfer capability (B-stream).
+These are improvement initiatives — not audit findings, not protocol changes. They decompose existing monolithic code into well-bounded modules (A-stream), extend the daemon toward file transfer capability (B-stream), and converge app-layer behavior across LocalBolt products into a shared `localbolt-core` package (C-stream).
 
 ---
 
@@ -25,6 +26,10 @@ These are improvement initiatives — not audit findings, not protocol changes. 
 3. **No cryptographic changes** unless a future phase explicitly authorizes it.
 4. **A-stream MUST keep the WebRTCService public API identical.** No breaking changes for localbolt, localbolt-app, or localbolt-v3.
 5. **B-stream phases B1–B3 do NOT include** file-hash capability, TOFU persistence activation, or long-lived event loop. Those are deferred phases.
+6. **C-stream MUST NOT change protocol semantics, wire format, or cryptographic operations.**
+7. **C-stream MUST NOT modify rendezvous subtree policy.** `signal/` subtree in localbolt and localbolt-app remains unchanged.
+8. **C-stream MUST NOT use subtree for localbolt-core.** Distribution is package-based with exact version pins.
+9. **C-stream MUST NOT change native packaging policy** except adapter wiring in localbolt-app's `src-tauri/` layer.
 
 ---
 
@@ -834,6 +839,229 @@ D-E2E-B delivers true cross-implementation bidirectional file transfer between a
 
 ---
 
+## Workstream C — LocalBolt Application Convergence + Session UX Hardening
+
+**Repos:** localbolt-v3 (extraction baseline), localbolt, localbolt-app, TBD (localbolt-core — location pending C1 ARCH-08 disposition)
+**Goal:** Converge app-layer behavior across all three LocalBolt products into a single shared `localbolt-core` package, then harden session UX against disconnect/reconnect race conditions.
+
+### Background
+
+localbolt-v3 has the most advanced app-layer verification and session wiring (H5-v3 TOFU/SAS, DP-3b peer persistence, DP-4 verification gate removal). localbolt and localbolt-app independently implement overlapping app-layer behavior with divergent and lagging implementations. This creates:
+
+- **Behavior drift** — three codebases evolving independently without conformance contracts (Q9)
+- **Verification policy ambiguity** — runtime, tests, and docs disagree on whether `unverified` blocks transfer (Q8)
+- **Stale callback races** — disconnect/reconnect cycles leave stale verification state and transfer UI callbacks (Q7)
+- **Missing drift guards** — transport layer has subtree drift prevention; app layer has none (Q10)
+
+### Extraction Baseline Evidence (localbolt-v3)
+
+The following files in localbolt-v3 constitute the extraction baseline for C2:
+
+- `packages/localbolt-web/src/components/peer-connection.ts` — peer session controller, connection lifecycle
+- `packages/localbolt-web/src/services/verification-state.ts` — verification state bus (verified/unverified/legacy)
+- `packages/localbolt-web/src/services/identity.ts` — identity bootstrap, keypair persistence
+- `packages/localbolt-web/src/sections/transfer.ts` — transfer visibility and gating behavior
+- `packages/localbolt-web/src/__tests__/h5-tofu-verification.test.ts` — TOFU/SAS verification tests (22 tests)
+
+### Scope Guardrails
+
+1. **No protocol semantic changes.**
+2. **No wire-format changes.**
+3. **No cryptographic changes.**
+4. **No rendezvous subtree policy changes.** `signal/` subtree in localbolt and localbolt-app remains unchanged.
+5. **No native packaging policy changes** except adapter wiring in localbolt-app's `src-tauri/` layer.
+6. **No subtree for localbolt-core.** Distribution is package-based with exact version pins.
+7. **localbolt-core consumption model:** Published package (npm or equivalent) with exact-pinned versions in consumer `package.json`. NOT a git subtree.
+
+### C-Stream Audit Findings
+
+| Finding | ID | Severity | Status | C-Phase |
+|---------|------|----------|--------|---------|
+| Disconnect/reconnect stale callback races | Q7 | MEDIUM | OPEN | C7 |
+| Verification policy mismatch (runtime vs tests/docs) | Q8 | MEDIUM | OPEN | C0 |
+| App-layer behavior drift across products | Q9 | MEDIUM | OPEN | C2–C5 |
+| Missing app-layer drift guards | Q10 | MEDIUM | OPEN | C6 |
+
+---
+
+### C0 — Policy Lock (Verification UX)
+
+**Status:** NOT-STARTED
+**Prerequisites:** PM policy decision required
+
+**Goal:** Establish a single authoritative policy for verification-gated transfer behavior. Before extraction can proceed, runtime behavior, test expectations, and documentation must be consistent.
+
+**Required PM decision:** Does `unverified` peer status block file transfer or not?
+
+- **Option A (block):** Transfer UI hidden/disabled until SAS verification completes. Reverts DP-4 direction.
+- **Option B (allow):** Transfer permitted for all TOFU states (verified, unverified, legacy). DP-4 stands. SAS verification is an optional MITM confirmation, not a transfer prerequisite.
+
+Until this decision is made and codified, C2 extraction cannot proceed because the extracted module would encode an ambiguous policy.
+
+**Acceptance Criteria:**
+- [ ] PM policy decision recorded
+- [ ] Runtime behavior matches policy decision
+- [ ] Tests match policy decision
+- [ ] Documentation matches policy decision
+- [ ] Consistency verified across localbolt-v3 extraction baseline
+
+---
+
+### C1 — localbolt-core Scaffold + ARCH-08 Disposition
+
+**Status:** NOT-STARTED
+**Prerequisites:** C0 (policy lock)
+
+**Goal:** Establish the localbolt-core package structure, governance ownership model, and resolve the ARCH-08 disposition gate.
+
+**ARCH-08 Disposition Gate (MANDATORY):**
+
+ARCHITECTURE.md invariant ARCH-08 states: "No new top-level folders under workspace root." C1 MUST include an explicit decision record resolving one of:
+
+1. **ARCH-08 waiver** — approved exception for `localbolt-core/` at workspace root, with rationale.
+2. **Non-violating location** — localbolt-core placed inside an existing repo/package structure (e.g., as a package within bolt-core-sdk or localbolt-v3 workspace).
+3. **External repo** — localbolt-core as an independent repository outside this workspace root (same as bolt-daemon, bolt-rendezvous model).
+
+Until this is resolved, all implementation phases that require physical file placement (C2–C7) are blocked.
+
+**Package distribution model:**
+- Published package with exact-pinned versions in consumer `package.json`.
+- NOT a git subtree.
+- Version updates require explicit consumer-side pin bump + test pass.
+
+**Tag discipline:** localbolt-core tag prefix is deferred to C1 after ARCH-08 disposition and location decision. Consumer repos continue existing tag conventions with `-C<N>` phase suffix guidance when tagging C-stream work.
+
+**Acceptance Criteria:**
+- [ ] ARCH-08 disposition decision recorded with rationale
+- [ ] localbolt-core scaffold created at resolved location
+- [ ] Package.json / Cargo.toml with version 0.0.1
+- [ ] Governance ownership model documented (who owns localbolt-core)
+- [ ] Tag prefix for localbolt-core defined
+- [ ] CI pipeline defined (at minimum: lint, type-check, test)
+
+---
+
+### C2 — Extract Canonical Runtime from v3 Baseline
+
+**Status:** NOT-STARTED
+**Prerequisites:** C1 (scaffold + location)
+
+**Goal:** Extract shared app-layer behavior from localbolt-v3 into localbolt-core. This is the canonical extraction — localbolt-v3 is the source of truth.
+
+**Extraction targets:**
+- Verification state bus (verified/unverified/legacy state machine, event emission)
+- Identity bootstrap and pin wiring (keypair generation, persistence adapter interface, pin store CRUD)
+- Peer session controller behavior (connect/disconnect lifecycle, peer tracking, session generation)
+- Transfer visibility and gating behavior (policy-consistent transfer UX, progress state)
+
+**Constraints:**
+- Extract behavior, not UI. localbolt-core provides state machines, event buses, and adapters — not DOM elements or rendering.
+- Extracted modules must be testable in isolation (no browser globals required).
+- Persistence adapters use an interface pattern (IndexedDB in v3, localStorage in localbolt, etc.).
+
+**Acceptance Criteria:**
+- [ ] Verification state bus extracted and tested
+- [ ] Identity bootstrap extracted and tested
+- [ ] Peer session controller extracted and tested
+- [ ] Transfer gating behavior extracted and tested
+- [ ] All extracted modules pass unit tests in localbolt-core
+- [ ] localbolt-v3 extraction baseline tests still pass (no regression)
+
+---
+
+### C3 — Migrate localbolt-v3 Consumer
+
+**Status:** NOT-STARTED
+**Prerequisites:** C2 (extraction)
+
+**Goal:** localbolt-v3 consumes localbolt-core for shared app-layer behavior. localbolt-v3 retains ownership of SEO/content/shell only.
+
+**Acceptance Criteria:**
+- [ ] localbolt-v3 `package.json` depends on localbolt-core with exact version pin
+- [ ] Duplicated behavior modules removed from localbolt-v3
+- [ ] localbolt-v3 retains SEO, content, layout, and shell ownership
+- [ ] All localbolt-v3 tests pass (no regression)
+- [ ] Netlify build succeeds
+
+---
+
+### C4 — Migrate localbolt Consumer
+
+**Status:** NOT-STARTED
+**Prerequisites:** C2 (extraction)
+
+**Goal:** localbolt (lite self-hosted app) consumes localbolt-core for shared app-layer behavior. Remove duplicated behavior modules.
+
+**Acceptance Criteria:**
+- [ ] localbolt `package.json` depends on localbolt-core with exact version pin
+- [ ] Duplicated behavior modules removed from localbolt
+- [ ] All localbolt tests pass (272 tests, no regression)
+- [ ] Self-hosted deployment verified
+
+---
+
+### C5 — Migrate localbolt-app Web Consumer
+
+**Status:** NOT-STARTED
+**Prerequisites:** C2 (extraction)
+
+**Goal:** localbolt-app web layer consumes localbolt-core for shared app-layer behavior. `src-tauri/` native layer and Tauri-specific adapters remain local.
+
+**Acceptance Criteria:**
+- [ ] localbolt-app web layer `package.json` depends on localbolt-core with exact version pin
+- [ ] Duplicated behavior modules removed from web layer
+- [ ] `src-tauri/` native ownership preserved (IPC, system tray, file system access)
+- [ ] Tauri build succeeds
+- [ ] localbolt-app tests pass (no regression)
+
+---
+
+### C6 — Drift Guards + Upgrade Protocol
+
+**Status:** NOT-STARTED
+**Prerequisites:** C3, C4, C5 (all consumers migrated)
+
+**Goal:** Prevent app-layer drift by establishing CI-enforceable guards and a deterministic upgrade protocol for localbolt-core across all consumers.
+
+**Required scripts/guards:**
+- `check-localbolt-core-version-pin.sh` — verify all consumers pin the same localbolt-core version
+- `check-localbolt-core-single-install.sh` — verify no duplicate localbolt-core installations in node_modules
+- `check-localbolt-core-drift.sh` — verify no local overrides or monkey-patches of localbolt-core exports
+- `upgrade-localbolt-core.sh` — deterministic upgrade: bump pin in all consumers, run tests, report pass/fail
+
+**Acceptance Criteria:**
+- [ ] All four scripts implemented and tested
+- [ ] CI gates added to all three consumer repos
+- [ ] Upgrade protocol documented
+- [ ] Manual drift scenario verified (introduced drift detected by guard)
+
+---
+
+### C7 — Session UX Race-Hardening
+
+**Status:** NOT-STARTED
+**Prerequisites:** C2 (shared session controller in localbolt-core)
+
+**Goal:** Harden the shared session controller against disconnect/reconnect race conditions that cause incorrect UI and session state.
+
+**Required deliverables:**
+- **Canonical session state machine** — explicit states (disconnected, connecting, connected, handshaking, verified, error) with validated transitions. Invalid transitions are fail-closed.
+- **Stale callback / session generation guard pattern** — all async callbacks (verification, transfer progress, peer list) check session generation counter before state mutation. Stale callbacks from previous sessions are discarded.
+- **Race-focused integration tests** — disconnect during handshake, reconnect during transfer, rapid connect/disconnect cycling, concurrent verification callbacks from different sessions.
+
+**Derived From:**
+- SA14 (helloTimeout stale callback — SDK-level fix exists but app-layer callbacks remain unguarded)
+- Q7 (disconnect/reconnect stale callback races)
+
+**Acceptance Criteria:**
+- [ ] Session state machine formalized in localbolt-core with validated transitions
+- [ ] Session generation counter guards all async callbacks
+- [ ] Integration tests cover: disconnect during handshake, reconnect during transfer, rapid cycling
+- [ ] No stale state leaks across session boundaries
+- [ ] All consumer tests pass (no regression)
+
+---
+
 ## SA15 Supersession Note
 
 **Context:** SA15 was closed as DONE-BY-DESIGN with the rationale: "daemon does not implement file transfer." This was accurate at the time of assessment.
@@ -895,6 +1123,8 @@ D-E2E-B delivers true cross-implementation bidirectional file transfer between a
 | B-stream (B5) | bolt-daemon | `daemon-vX.Y.Z-tofu-persist-B5` | `daemon-v0.2.23-tofu-persist-B5` |
 | B-stream (B6) | bolt-daemon | `daemon-vX.Y.Z-event-loop-B6` | `daemon-v0.2.24-event-loop-B6` |
 | D-E2E | bolt-daemon | `daemon-vX.Y.Z-e2e-1` | `daemon-v0.2.25-e2e-1` |
+| C-stream (consumers) | localbolt-v3, localbolt, localbolt-app | `<repo-prefix>-C<N>-<slug>` | `v3.0.70-C3-core-migration` |
+| C-stream (localbolt-core) | TBD (pending C1) | Deferred to C1 ARCH-08 disposition | — |
 | Governance | bolt-ecosystem | `ecosystem-v0.1.X-workstreams-N` | `ecosystem-v0.1.30-workstreams-1` |
 
 **Rules:**
@@ -916,7 +1146,14 @@ D-E2E-B delivers true cross-implementation bidirectional file transfer between a
   - B5: **DONE** (`daemon-v0.2.23-b5-tofu-persist`). Independent.
   - D-E2E-A: **DONE** (`daemon-v0.2.28-d-e2e-a-live-transfer`). Live Rust↔Rust E2E.
   - D-E2E-B: **DONE** (`daemon-v0.2.30-d-e2e-b-cross-impl`). Cross-implementation TS↔Rust bidirectional E2E.
-- **Cross-stream dependency:** None. D-E2E complete.
+- **Within C-stream:**
+  - C0: blocked on PM policy decision (verification UX). Must complete before C2.
+  - C1: blocked on C0. ARCH-08 disposition blocks all physical placement (C2–C7).
+  - C2: blocked on C1. Extraction from localbolt-v3.
+  - C3, C4, C5: all blocked on C2, but can run in parallel with each other.
+  - C6: blocked on C3+C4+C5 (all consumers must be migrated before drift guards apply).
+  - C7: blocked on C2 (needs shared session controller). Can run in parallel with C3–C6.
+- **Cross-stream dependency:** C-stream is independent of A-stream and B-stream. C-stream operates at app-layer; A/B operate at SDK/daemon protocol layers. No shared code changes.
 
 ---
 

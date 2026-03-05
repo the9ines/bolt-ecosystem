@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-04 (AUDIT-GOV-47)
+**Last updated:** 2026-03-04 (AUDIT-GOV-49)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -47,6 +47,10 @@
 | Q4 | localbolt-app test coverage | LOW | **DEFERRED** | No test suite. Build-only gate. Will be addressed when app matures past scaffold. |
 | Q5 | localbolt-v3 test pipeline | MEDIUM | **DONE** | 4 smoke tests (FAQ + app render). Phase TP: `v3.0.53-test-pipeline`. CI step before build. |
 | Q6 | localbolt-v3 coverage thresholds | MEDIUM | **DONE** | `@vitest/coverage-v8`, thresholds 45/5/31/48%. Phase Q6: `v3.0.55-coverage-thresholds`. |
+| Q7 | Disconnect/reconnect stale callback races causing incorrect UI/session state | MEDIUM | **OPEN** | Extraction baseline: `localbolt-v3/packages/localbolt-web/src/components/peer-connection.ts`, `localbolt-v3/packages/localbolt-web/src/services/verification-state.ts`. SA14 fixed `helloTimeout` stale callback in SDK; app-layer callbacks (verification state, transfer UI, peer list) remain unguarded across disconnect/reconnect cycles. Workstream C (C7) scope. |
+| Q8 | Verification policy mismatch between runtime behavior and tests/docs | MEDIUM | **OPEN** | DP-4 removed the verification gate blocking unverified peer uploads but the verification state bus still distinguishes `verified`/`unverified`/`legacy` states. Runtime behavior, test expectations, and documentation are inconsistent on whether `unverified` blocks transfer. Extraction baseline: `localbolt-v3/packages/localbolt-web/src/services/verification-state.ts`, `localbolt-v3/packages/localbolt-web/src/__tests__/h5-tofu-verification.test.ts`. Workstream C (C0) scope — requires PM policy decision. |
+| Q9 | App-layer behavior drift across localbolt-v3, localbolt, localbolt-app | MEDIUM | **OPEN** | Three products independently implement app-layer session management, verification UX, identity bootstrap, and transfer gating. No shared module or conformance contract exists. localbolt-v3 has the most advanced wiring (H5-v3 TOFU/SAS, DP-3b peer persistence, DP-4 verification gate removal). localbolt and localbolt-app lag behind with duplicated and divergent behavior. Workstream C (C2–C5) scope. |
+| Q10 | Missing app-layer drift guards (transport guarded, app layer not guarded) | MEDIUM | **OPEN** | Transport layer has subtree drift guard (AC-14, `localbolt-v1.0.19-drift-guard-1`) and CI-enforced conformance tests. App-layer behavior (verification state, identity bootstrap, session controller, transfer visibility) has no equivalent drift prevention mechanism across the three product repos. Workstream C (C6) scope. |
 
 ---
 
@@ -84,14 +88,14 @@ Product repos on main are pinned to published SDK releases.
 
 ## SUMMARY
 
-- **Total findings:** 106 (41 prior + 19 SA-series + 11 N-series + 25 AC-series + 9 DP-series + 1 NF-series)
+- **Total findings:** 110 (41 prior + 19 SA-series + 11 N-series + 25 AC-series + 9 DP-series + 1 NF-series + 4 Q-series)
 - **DONE / DONE-VERIFIED:** 85
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 6 (SA11, SA15, N9, AC-23, AC-24, AC-25)
 - **IN-PROGRESS:** 0
 - **DEFERRED:** 2 (I4, Q4)
-- **OPEN:** 0
+- **OPEN:** 4 (Q7, Q8, Q9, Q10)
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md`.
 
 > **OPEN (global)** = all findings across all series with Status = OPEN.
@@ -463,3 +467,7 @@ DONE/DONE-VERIFIED = 84. OPEN = 1. Total = 106.
 Arithmetic reconciled in ecosystem-v0.1.53-audit-gov-47 —
 Closed: DP-9 (backpressure fix, SDK 0.6.2 published, localbolt-v3 adopted + deployed).
 DONE/DONE-VERIFIED = 85. OPEN = 0. Total = 106.
+
+Arithmetic reconciled in ecosystem-v0.1.55-audit-gov-49 —
+Registered: Q7, Q8, Q9, Q10 (app-layer convergence + session UX findings, Workstream C scope).
+DONE/DONE-VERIFIED = 85. OPEN = 4. Total = 110.

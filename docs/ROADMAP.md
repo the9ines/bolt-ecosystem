@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative
-> **Last Updated:** 2026-02-25 (post-merge-train)
+> **Last Updated:** 2026-03-04 (Workstream C codification)
 > **Authority:** PM-approved execution plan.
 
 ---
@@ -272,6 +272,60 @@ Handshake gating, downgrade resistance, HELLO exactly-once, and 11 of 14 Appendi
 
 ---
 
+## Workstream C — LocalBolt Application Convergence + Session UX Hardening
+
+**Status:** Codified (NOT-STARTED). Blocked on PM policy decision (C0) and ARCH-08 disposition (C1).
+
+Converges app-layer behavior across localbolt-v3, localbolt, and localbolt-app into a shared `localbolt-core` package. Hardens session UX against disconnect/reconnect race conditions. Package-based distribution with exact version pins (not subtree).
+
+**Extraction baseline:** localbolt-v3 (most advanced app-layer verification/session wiring).
+
+### Execution Queue
+
+| Phase | Description | Status | Blockers |
+|-------|-------------|--------|----------|
+| C0 | Policy lock — verification UX decision | NOT-STARTED | PM policy decision: does `unverified` block transfer? |
+| C1 | localbolt-core scaffold + ARCH-08 disposition | NOT-STARTED | C0; ARCH-08 disposition gate (waiver, non-violating location, or external repo) |
+| C2 | Extract canonical runtime from v3 baseline | NOT-STARTED | C1 (physical location resolved) |
+| C3 | Migrate localbolt-v3 consumer | NOT-STARTED | C2 |
+| C4 | Migrate localbolt consumer | NOT-STARTED | C2 |
+| C5 | Migrate localbolt-app web consumer | NOT-STARTED | C2 |
+| C6 | Drift guards + upgrade protocol | NOT-STARTED | C3 + C4 + C5 (all consumers migrated) |
+| C7 | Session UX race-hardening | NOT-STARTED | C2 (shared session controller) |
+
+### Dependency Map
+
+```
+C0 (PM policy decision) ← BLOCKER
+ │
+ └── C1 (scaffold + ARCH-08 gate) ← BLOCKER
+      │
+      └── C2 (extract from v3)
+           │
+           ├── C3 (migrate v3) ──────┐
+           ├── C4 (migrate localbolt) ├── C6 (drift guards)
+           ├── C5 (migrate app) ─────┘
+           │
+           └── C7 (session race-hardening)  [parallel with C3–C6]
+```
+
+### Parallelization
+
+- C3, C4, C5 can execute in parallel after C2.
+- C7 can execute in parallel with C3–C6 (requires C2 only).
+- C6 requires all three consumer migrations (C3+C4+C5) before guard enforcement.
+
+### Audit Findings (Q-series)
+
+| Finding | ID | Severity | C-Phase |
+|---------|------|----------|---------|
+| Disconnect/reconnect stale callback races | Q7 | MEDIUM | C7 |
+| Verification policy mismatch | Q8 | MEDIUM | C0 |
+| App-layer behavior drift | Q9 | MEDIUM | C2–C5 |
+| Missing app-layer drift guards | Q10 | MEDIUM | C6 |
+
+---
+
 ## Risk Register
 
 | ID | Risk | Severity | Status | Closes When |
@@ -285,6 +339,8 @@ Handshake gating, downgrade resistance, HELLO exactly-once, and 11 of 14 Appendi
 | R7 | Daemon H3 test hermeticity — sibling repo path dependency | High | **Closed** | H3.1 merged to main (`daemon-v0.2.10-h3-h6-mainline`) |
 | R8 | H2/H3 feature branch stacking — merge conflict risk | Low | **Closed** | Merge train steps 2–3 completed cleanly |
 | R9 | No TOFU/SAS wiring in localbolt-v3 product UI | Medium | **Closed** | H5-v3 merged (`v3.0.61-h5v3-tofu-sas-pinning`) |
+| R10 | App-layer behavior drift across 3 LocalBolt products | Medium | Open | C-stream convergence (C2–C5) |
+| R11 | ARCH-08 disposition unresolved for localbolt-core placement | Medium | Open | C1 ARCH-08 gate decision |
 
 ---
 
@@ -347,4 +403,9 @@ Merge Train: COMPLETE ✓
   H6 (CI enforcement): merged ✓
 
 Post-merge-train: S0 → S1 → S2 → S3 → S4 (optional)
+
+Workstream C (independent of A/B/S):
+  C0 (policy lock) → C1 (scaffold + ARCH-08) → C2 (extract)
+    → C3/C4/C5 (parallel migrations) → C6 (drift guards)
+    → C7 (session hardening, parallel with C3–C6)
 ```

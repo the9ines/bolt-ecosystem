@@ -5,6 +5,46 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## ecosystem-v0.1.55-audit-gov-50 — 2026-03-04
+
+- **localbolt-v3 session hardening:** `v3.0.70-session-hardening-cpre2` (`cac5e4a`, docs `ebdf503`)
+  - Session orchestration layer + race hardening for localbolt-v3
+  - Transfer gating policy aligned (unverified peer status blocks file transfer)
+  - 33 new tests (59 total), 58.22% line coverage (up from 54.26%)
+  - Addresses Q7 scope (disconnect/reconnect stale callback races) ahead of formal C7
+- Repo tag snapshot updated: localbolt-v3 → `v3.0.70-session-hardening-cpre2` (`cac5e4a`)
+- localbolt-v3 TS test count updated: 26 → 59
+- Audit counters unchanged: **110 total, 85 DONE, 4 OPEN**
+- Updated: `docs/STATE.md`, `docs/CHANGELOG.md`
+
+---
+
+## ecosystem-v0.1.55-audit-gov-49 — 2026-03-04
+
+- **Workstream C codified:** LocalBolt Application Convergence + Session UX Hardening
+  - C0: Policy lock — verification UX decision (NOT-STARTED, blocked on PM)
+  - C1: localbolt-core scaffold + ARCH-08 disposition gate (NOT-STARTED)
+  - C2: Extract canonical runtime from v3 baseline (NOT-STARTED)
+  - C3: Migrate localbolt-v3 consumer (NOT-STARTED)
+  - C4: Migrate localbolt consumer (NOT-STARTED)
+  - C5: Migrate localbolt-app web consumer (NOT-STARTED)
+  - C6: Drift guards + upgrade protocol (NOT-STARTED)
+  - C7: Session UX race-hardening (NOT-STARTED)
+- **Q7–Q10 registered (OPEN):** 4 new MEDIUM-severity Quality findings for C-stream scope
+  - Q7: Disconnect/reconnect stale callback races (C7)
+  - Q8: Verification policy mismatch between runtime/tests/docs (C0)
+  - Q9: App-layer behavior drift across localbolt-v3, localbolt, localbolt-app (C2–C5)
+  - Q10: Missing app-layer drift guards (C6)
+- Audit counters reconciled: **110 total, 85 DONE, 4 OPEN** (was 106/85/0)
+- Extraction baseline: localbolt-v3 (5 factual anchor paths verified present)
+- ARCH-08 disposition gate codified in C1 (waiver vs location vs external repo)
+- localbolt-core tag discipline deferred to C1 outcome
+- localbolt-core distribution: package-based with exact pins (NOT subtree)
+- Docs-only governance codification; no runtime code changes
+- Updated: `docs/GOVERNANCE_WORKSTREAMS.md`, `docs/ROADMAP.md`, `docs/STATE.md`, `docs/CHANGELOG.md`, `docs/AUDIT_TRACKER.md`
+
+---
+
 ## ecosystem-v0.1.54-audit-gov-48 — 2026-03-04
 
 - **D-E2E-B DONE:** `daemon-v0.2.30-d-e2e-b-cross-impl` (`a8cf108`)
