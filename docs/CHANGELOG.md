@@ -5,6 +5,24 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## D1 Failure Baseline + D4 Netlify Unblock (Phase Cut) — 2026-03-05
+
+- **D1 DONE:** Failure baseline and taxonomy produced across localbolt-v3, localbolt, localbolt-app
+  - 5 failure signatures classified: GHPKG-AUTH-FAIL, DEPLOY-STALE, SDK-PUBLISH-LAG, BUILD-PATH-MISMATCH, DRIFT-REGRESSION
+  - Top Netlify blocker: **GHPKG-AUTH-FAIL** — GitHub Packages requires PAT for all installs (even public packages)
+  - No flaky test signatures observed; all failures were deterministic
+- **D4 STOP:** Cannot proceed without D3 (package publication/migration)
+  - All 3 deploy-critical packages (`bolt-core`, `bolt-transport-web`, `localbolt-core`) are exclusively on GitHub Packages
+  - GitHub Packages has no PAT-free public install path — this is a platform limitation
+  - Minimum D3 substeps documented: D0.5 scope verification + 5 publish/config steps
+- **localbolt-v3 Netlify status:** Currently operational via DP-8 workaround (NPM_TOKEN PAT in Netlify dashboard)
+  - NOT PAT-independent — personal GitHub PAT required
+- Audit counters unchanged: **110 total, 90 DONE, 0 OPEN, 0 IN-PROGRESS**
+- Tag: `ecosystem-v0.1.61-d1-d4-netlify-unblock`
+- Updated: `docs/GOVERNANCE_WORKSTREAMS.md`, `docs/STATE.md`, `docs/CHANGELOG.md`
+
+---
+
 ## D-STREAM-1 Codification — 2026-03-05
 
 - **D-STREAM-1 codified:** CI stabilization + package auth migration workstream

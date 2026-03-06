@@ -1195,8 +1195,8 @@ Verify completeness in D1:
 
 | Phase | Description | Status | Dependencies | Acceptance Criteria |
 |-------|-------------|--------|-------------|---------------------|
-| D0 | Policy lock | IN-PROGRESS | None | Policy decisions 1–4 recorded as decided; D0.5 scope verification gate passed |
-| D1 | Failure triage + classification | NOT-STARTED | None | Ranked failure matrix with frequency, repos, first/last seen, owner; Netlify blocker(s) identified |
+| D0 | Policy lock | IN-PROGRESS | None | Policy decisions 1–4 recorded (DONE); D0.5 scope verification completed (PENDING) |
+| D1 | Failure triage + classification | **DONE** | None | Ranked failure matrix with frequency, repos, first/last seen, owner; Netlify blocker(s) identified |
 | D2 | CI stabilization (evidence-driven) | NOT-STARTED | D1 | Per-repo stabilization checklist mapped to D1 signatures; no speculative hardening |
 | D3 | Package auth/registry migration | NOT-STARTED | **BLOCKED-BY D0.5** | Deploy-critical packages on npmjs.org; PAT not required for public install; rollback plan documented |
 | D4 | Netlify hardening (critical path) | NOT-STARTED | D3 | Clean-environment Netlify install/build passes; lockfile + registry deterministic; rollback tested |
@@ -1227,7 +1227,7 @@ Verify completeness in D1:
 
 ### D1 — Failure Triage + Classification
 
-**Status:** NOT-STARTED
+**Status:** DONE (2026-03-05)
 
 **Collection window:** Last 20 failed CI runs OR last 14 days (whichever yields more evidence) per in-scope repo. Recent failed Netlify deploys for localbolt-v3 in same window.
 
@@ -1239,6 +1239,50 @@ Verify completeness in D1:
 - infra/transient
 
 **Deliverable:** Ranked failure matrix (frequency, impacted repos, first/last seen, likely owner). Top blocker signatures, explicitly identifying Netlify blocker(s).
+
+#### D1 Failure Matrix (ranked by Netlify impact)
+
+| Rank | Signature | ID | Count | Repos | First Seen | Last Seen | Owner |
+|:----:|-----------|------|:-----:|-------|-----------|----------|-------|
+| 1 | auth/registry — GitHub Packages requires PAT for all installs (even public) | GHPKG-AUTH-FAIL | 1 formal (DP-8) + structural | localbolt-v3 (Netlify) | 2026-03-04 | ongoing | D-STREAM-1 |
+| 2 | infra/transient — Netlify serves stale code on silent install failure | DEPLOY-STALE | 1 | localbolt-v3 (Netlify) | 2026-03-04 | 2026-03-04 | D-STREAM-1 |
+| 3 | dependency/toolchain — SDK package not yet published when consumer needs it | SDK-PUBLISH-LAG | 3 (DP-6, DP-7, DP-9) | localbolt-v3, bolt-core-sdk | 2026-03-04 | 2026-03-04 | SDK maintainer |
+| 4 | workflow/config — Tauri build path mismatch + missing icons + ungated release | BUILD-PATH-MISMATCH | 3 | localbolt-app | 2026-02-19 | 2026-02-23 | localbolt-app maintainer |
+| 5 | deterministic regression — App-layer code reimplementing core logic | DRIFT-REGRESSION | 4 pattern classes | localbolt-v3, localbolt, localbolt-app | pre-C6 | mitigated (C6 guards) | C-stream |
+
+**No flaky test signatures observed.** All test failures across the collection window were deterministic (missing exports, missing dependencies, or configuration errors).
+
+#### Top Netlify Blocker (explicit)
+
+**GHPKG-AUTH-FAIL** — GitHub Packages (npm.pkg.github.com) requires authentication even for public packages. This is a fundamental GitHub platform limitation, not a configuration error.
+
+- **Current state:** localbolt-v3 Netlify builds depend on `NPM_TOKEN` environment variable containing a GitHub PAT with `packages:read` scope. This PAT is a personal access token, creating a single-person dependency and token rotation risk.
+- **Root cause:** All three deploy-critical `@the9ines` packages (`bolt-core`, `bolt-transport-web`, `localbolt-core`) are published exclusively to GitHub Packages. No config-only workaround exists to make GitHub Packages public installs PAT-free.
+- **DP-8 workaround (in production):** `.npmrc` files at workspace root and `packages/localbolt-web/` reference `${NPM_TOKEN}`. Token must be set in Netlify dashboard.
+- **Resolution path:** D3 (publish to npmjs.org) + D4 (update `.npmrc` to resolve from npmjs.org for public packages).
+
+#### D4 STOP Report (D3 dependency)
+
+D4 **cannot** be completed with existing published artifacts and config changes only.
+
+**Blocked packages:**
+
+| Package | Version | Current Registry | Why PAT-Free Is Impossible |
+|---------|---------|-----------------|---------------------------|
+| `@the9ines/bolt-core` | 0.5.0 | npm.pkg.github.com | GitHub Packages requires auth for all installs |
+| `@the9ines/bolt-transport-web` | 0.6.2 | npm.pkg.github.com | GitHub Packages requires auth for all installs |
+| `@the9ines/localbolt-core` | 0.1.0 | npm.pkg.github.com (+ workspace) | Workspace-resolved in localbolt-v3, but consumed from registry by localbolt/localbolt-app |
+
+**Minimum D3 substeps required to unblock D4:**
+
+1. **D0.5** (prerequisite): Verify `@the9ines` scope ownership/availability on npmjs.org
+2. **D3.1**: Configure npmjs.org publish credentials (org-level, not personal PAT)
+3. **D3.2**: Publish `@the9ines/bolt-core@0.5.0` to npmjs.org
+4. **D3.3**: Publish `@the9ines/bolt-transport-web@0.6.2` to npmjs.org
+5. **D3.4**: Publish `@the9ines/localbolt-core@0.1.0` to npmjs.org (for non-workspace consumers)
+6. **D3.5**: Update `.npmrc` in localbolt-v3 to resolve `@the9ines` from npmjs.org (PAT-free path)
+
+**Note on localbolt-core workspace resolution:** In localbolt-v3, `@the9ines/localbolt-core` resolves via npm workspace link (not registry) during `npm install`. This means D3.4 is only strictly required for localbolt and localbolt-app consumers. However, the `.npmrc` registry mapping applies to all `@the9ines/*` packages uniformly, so D3.2 and D3.3 are hard blockers for any PAT-free install path.
 
 ---
 
@@ -1368,7 +1412,7 @@ Verify completeness in D1:
 - **Within C-stream:** COMPLETE (C0–C7 all DONE).
 - **Within D-stream:**
   - D0: IN-PROGRESS (policy locked; D0.5 scope verification NOT-STARTED).
-  - D1: NOT-STARTED. Independent of D0 (can start in parallel).
+  - D1: DONE (2026-03-05). Failure matrix produced. Top blocker: GHPKG-AUTH-FAIL. D4 STOP: blocked by D3.
   - D2: BLOCKED on D1 (evidence-driven).
   - D3: BLOCKED on D0.5 (scope ownership gate).
   - D4: BLOCKED on D3. Critical path — Netlify hardening.

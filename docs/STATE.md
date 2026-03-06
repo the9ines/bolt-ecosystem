@@ -132,7 +132,7 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 |-------|-------------|--------|---------|--------|-----------|
 | D0 | Policy lock | IN-PROGRESS | bolt-ecosystem | — | — |
 | D0.5 | @the9ines npmjs scope verification | NOT-STARTED | — | — | — |
-| D1 | Failure triage + classification | NOT-STARTED | localbolt-v3, bolt-core-sdk, localbolt, localbolt-app | — | — |
+| D1 | Failure triage + classification | **DONE** | localbolt-v3, bolt-core-sdk, localbolt, localbolt-app | ecosystem-v0.1.61-d1-d4-netlify-unblock | — |
 | D2 | CI stabilization (evidence-driven) | NOT-STARTED | per D1 evidence | — | — |
 | D3 | Package auth/registry migration | NOT-STARTED (BLOCKED-BY D0.5) | localbolt-v3, bolt-core-sdk, localbolt, localbolt-app | — | — |
 | D4 | Netlify hardening (critical path) | NOT-STARTED | localbolt-v3 | — | — |
