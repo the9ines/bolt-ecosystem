@@ -1,16 +1,16 @@
 ---
 Snapshot Derived From:
-- sdk-v0.5.27-dp9-backpressure-fix (1be76c1)
+- sdk-v0.5.28-d3-registry-migration (66aaa3a)
 - daemon-v0.2.30-d-e2e-b-cross-impl (a8cf108)
-- v3.0.74-c7-closure (b867426)
-- localbolt-v1.0.24-c6-hardening (c88ec5b)
-- localbolt-app-v1.2.7-c6-hardening (3ff4625)
-Last Refreshed By: D0.5 + D3 registry migration
+- v3.0.77-d4-netlify-build-fix (0746275)
+- localbolt-v1.0.25-d4-npmjs-cutover (9bb3c38)
+- localbolt-app-v1.2.8-d4-npmjs-cutover (55c3e17)
+Last Refreshed By: D4 Netlify hardening DONE
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-05 (D0.5 + D3 registry migration)
+> **Last Updated:** 2026-03-06 (D4 Netlify hardening DONE)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -135,8 +135,8 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 | D1 | Failure triage + classification | **DONE** | localbolt-v3, bolt-core-sdk, localbolt, localbolt-app | ecosystem-v0.1.61-d1-d4-netlify-unblock | — |
 | D2 | CI stabilization (evidence-driven) | NOT-STARTED | per D1 evidence | — | — |
 | D3 | Package auth/registry migration | **DONE** | bolt-core-sdk, localbolt-v3 | ecosystem-v0.1.62-d05-d3-registry-migration | See below |
-| D4 | Netlify hardening (critical path) | NOT-STARTED (UNBLOCKED) | localbolt-v3 | — | — |
-| D5 | Drift guards + enforcement | NOT-STARTED | localbolt-v3, localbolt, localbolt-app | — | — |
+| D4 | Netlify hardening (critical path) | **DONE** | localbolt-v3, localbolt, localbolt-app | `v3.0.76-d4-npmjs-cutover`, `v3.0.77-d4-netlify-build-fix`, `localbolt-v1.0.25-d4-npmjs-cutover`, `localbolt-app-v1.2.8-d4-npmjs-cutover` | `ef0543e`, `0746275`, `9bb3c38`, `55c3e17` |
+| D5 | Drift guards + enforcement | NOT-STARTED (UNBLOCKED) | localbolt-v3, localbolt, localbolt-app | — | — |
 | D6 | Burn-in + closure | NOT-STARTED | all affected | — | — |
 
 ### D-Stream Policy Decisions (D0, locked at codification)
@@ -399,12 +399,12 @@ App-layer convergence and session UX findings registered as part of Workstream C
 
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
-| bolt-core-sdk | `sdk-v0.5.27-dp9-backpressure-fix` | `1be76c1` |
+| bolt-core-sdk | `sdk-v0.5.28-d3-registry-migration` | `66aaa3a` |
 | bolt-daemon | `daemon-v0.2.30-d-e2e-b-cross-impl` | `a8cf108` |
 | bolt-rendezvous | `rendezvous-v0.2.12-dp5-session-guard` | `aa8bed0` |
-| localbolt | `localbolt-v1.0.24-c6-hardening` | `c88ec5b` |
-| localbolt-app | `localbolt-app-v1.2.7-c6-hardening` | `3ff4625` |
-| localbolt-v3 | `v3.0.74-c7-closure` | `b867426` |
+| localbolt | `localbolt-v1.0.25-d4-npmjs-cutover` | `9bb3c38` |
+| localbolt-app | `localbolt-app-v1.2.8-d4-npmjs-cutover` | `55c3e17` |
+| localbolt-v3 | `v3.0.77-d4-netlify-build-fix` | `0746275` |
 | bolt-protocol | `v0.1.5-spec-consistency-1` | `d795dd5` |
 | bytebolt-app | `bytebolt-v0.0.1` | — |
 | bytebolt-relay | `relay-v0.0.1` | — |

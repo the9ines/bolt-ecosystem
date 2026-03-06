@@ -5,6 +5,26 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## D4 Netlify Hardening — DONE — 2026-03-06
+
+- **D4 DONE:** Consumer `.npmrc` cutover + Netlify deploy verified PAT-free
+  - All 3 consumer repos switched from GitHub Packages to npmjs.org registry
+  - Dependencies bumped: bolt-core 0.5.1, transport-web 0.6.4, localbolt-core 0.1.2
+  - Lockfiles regenerated from registry.npmjs.org
+  - Tests: localbolt-v3 102, localbolt 300, localbolt-app 11 — all pass
+  - Netlify deploy: `state=ready`, `commit=0746275`, HTTP 200 at localbolt.app
+  - Build fix: `netlify.toml` updated to build localbolt-core before localbolt-web (workspace symlink dist/ required on clean clone)
+  - `NPM_TOKEN` env var retained (inert) through D6 burn-in for rollback safety
+- **D5 UNBLOCKED:** Drift guards + enforcement can proceed
+- Tags:
+  - `v3.0.76-d4-npmjs-cutover` (`ef0543e`), `v3.0.77-d4-netlify-build-fix` (`0746275`)
+  - `localbolt-v1.0.25-d4-npmjs-cutover` (`9bb3c38`)
+  - `localbolt-app-v1.2.8-d4-npmjs-cutover` (`55c3e17`)
+- Audit counters unchanged: **110 total, 90 DONE, 0 OPEN, 0 IN-PROGRESS**
+- Updated: `docs/GOVERNANCE_WORKSTREAMS.md`, `docs/STATE.md`, `docs/CHANGELOG.md`
+
+---
+
 ## D0.5 Scope Verification + D3 Registry Migration — 2026-03-05
 
 - **D0.5 DONE:** `@the9ines` npmjs.org scope verification passed

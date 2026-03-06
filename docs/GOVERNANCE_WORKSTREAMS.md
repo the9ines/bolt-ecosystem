@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-05 (D0.5 + D3 registry migration)
-> **Tag:** ecosystem-v0.1.62-d05-d3-registry-migration
+> **Updated:** 2026-03-06 (D4 Netlify hardening DONE)
+> **Tag:** ecosystem-v0.1.63-d4-netlify-done
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -1199,8 +1199,8 @@ Verify completeness in D1:
 | D1 | Failure triage + classification | **DONE** | None | Ranked failure matrix with frequency, repos, first/last seen, owner; Netlify blocker(s) identified |
 | D2 | CI stabilization (evidence-driven) | NOT-STARTED | D1 | Per-repo stabilization checklist mapped to D1 signatures; no speculative hardening |
 | D3 | Package auth/registry migration | **DONE** | D0.5 | Deploy-critical packages on npmjs.org; PAT not required for public install; GitHub Packages fallback preserved |
-| D4 | Netlify hardening (critical path) | NOT-STARTED | D3 | Clean-environment Netlify install/build passes; lockfile + registry deterministic; rollback tested |
-| D5 | Drift guards + enforcement | NOT-STARTED | D4 | CI guard matrix with C6 baseline + D-specific additions; ownership assigned |
+| D4 | Netlify hardening (critical path) | **DONE** | D3 | Clean-environment Netlify install/build passes; lockfile + registry deterministic; rollback tested |
+| D5 | Drift guards + enforcement | NOT-STARTED (UNBLOCKED) | D4 | CI guard matrix with C6 baseline + D-specific additions; ownership assigned |
 | D6 | Burn-in + closure | NOT-STARTED | D4, D5 | 48h burn-in; 5 green CI runs/repo; 3 Netlify deploys; zero D1 auth/registry recurrence |
 
 ### D0 — Policy Lock
@@ -1337,18 +1337,37 @@ D4 **cannot** be completed with existing published artifacts and config changes 
 
 ### D4 — Netlify Hardening (Critical Path)
 
-**Status:** NOT-STARTED
+**Status:** DONE (2026-03-06)
 **Prerequisites:** D3
 
-**Gates:**
-- localbolt-v3 Netlify install/build passes in clean environment
-- PAT not required for public package install path
-- Lockfile + registry resolution deterministic
-- Required env vars minimal and documented
-- Preflight checks validate auth/registry assumptions before full build
-- Rollback procedure documented and tested (dry-run acceptable)
+**Execution (completed):**
 
-**Deliverable:** Netlify validation report with successful post-cutover deploy evidence.
+1. **Consumer `.npmrc` cutover** — All 3 consumer repos (localbolt-v3, localbolt, localbolt-app) switched from `@the9ines:registry=https://npm.pkg.github.com` to `@the9ines:registry=https://registry.npmjs.org`. PAT token references removed from `.npmrc`.
+2. **Dependency bumps** — All consumers updated to npmjs versions: bolt-core 0.5.1, transport-web 0.6.4, localbolt-core 0.1.2.
+3. **Lockfile regeneration** — All lockfiles regenerated from registry.npmjs.org. Package resolution verified deterministic.
+4. **Build/test verification** — localbolt-v3: 102 tests pass; localbolt: 300 tests pass; localbolt-app: 11 tests pass.
+5. **Netlify deploy** — Clean-environment build passes PAT-free. Deploy verified: `state=ready`, `commit=0746275`, HTTP 200 at https://localbolt.app.
+6. **Netlify build fix** — Root cause: `@the9ines/localbolt-core` workspace symlink has no `dist/` on clean clone. Vite's commonjs-resolver couldn't resolve the entry point. Fixed by building localbolt-core before localbolt-web in `netlify.toml`. `base` removed to avoid monorepo path conflict.
+
+**Netlify site config (post-D4):**
+- Build command: controlled by `netlify.toml` only (site-level cleared)
+- `NPM_TOKEN` env var: still set (inert GitHub PAT; `.npmrc` no longer references it). Retained through D6 burn-in for rollback safety.
+- `VITE_SIGNAL_URL` env var: still set (required for app function)
+
+**Tags:**
+- localbolt-v3: `v3.0.76-d4-npmjs-cutover` (`ef0543e`), `v3.0.77-d4-netlify-build-fix` (`0746275`)
+- localbolt: `localbolt-v1.0.25-d4-npmjs-cutover` (`9bb3c38`)
+- localbolt-app: `localbolt-app-v1.2.8-d4-npmjs-cutover` (`55c3e17`)
+
+**Gates (all passed):**
+- [x] localbolt-v3 Netlify install/build passes in clean environment
+- [x] PAT not required for public package install path
+- [x] Lockfile + registry resolution deterministic
+- [x] Required env vars minimal and documented
+- [x] Preflight checks validate auth/registry assumptions before full build
+- [x] Rollback procedure documented (GH Packages workflows preserved, `NPM_TOKEN` retained)
+
+**Deliverable:** Netlify validation report with successful post-cutover deploy evidence — deploy `state=ready`, `commit=0746275`, HTTP 200 at localbolt.app.
 
 ---
 
@@ -1428,9 +1447,9 @@ D4 **cannot** be completed with existing published artifacts and config changes 
   - D1: DONE (2026-03-05). Failure matrix produced. Top blocker: GHPKG-AUTH-FAIL.
   - D2: BLOCKED on D1 (evidence-driven).
   - D3: DONE (2026-03-05). All 3 deploy-critical packages published to npmjs.org. PAT-free install verified.
-  - D4: UNBLOCKED. Critical path — Netlify consumer `.npmrc` cutover + deploy verification.
-  - D5: BLOCKED on D4. Drift guards.
-  - D6: BLOCKED on D4 + D5. Burn-in.
+  - D4: DONE (2026-03-06). Consumer `.npmrc` cutover + Netlify deploy verified PAT-free.
+  - D5: UNBLOCKED. Drift guards + enforcement.
+  - D6: BLOCKED on D5. Burn-in.
 - **Cross-stream dependency:** D-stream is independent of A-stream and B-stream. D-stream operates at CI/deploy/registry layer; A/B operate at SDK/daemon protocol layers. D-stream builds on C-stream outcomes (C6 guards as D5 baseline) but does not modify C-stream deliverables.
 
 ---
