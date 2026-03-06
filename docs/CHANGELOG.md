@@ -5,6 +5,22 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## D5 Drift Guards + Enforcement — DONE — 2026-03-06
+
+- **D5 DONE:** Registry/auth regression guards added to all 3 consumer repos
+  - `check-registry-mapping.sh`: ensures `.npmrc` maps `@the9ines` to `registry.npmjs.org`; rejects GitHub Packages refs and PAT dependencies
+  - `check-lockfile-registry.sh`: ensures `package-lock.json` resolves `@the9ines` from `registry.npmjs.org`
+  - CI cleanup: removed stale GitHub Packages auth (registry-url, NODE_AUTH_TOKEN, packages:read)
+  - All 6 guards pass locally across all 3 repos
+- **D6 UNBLOCKED:** 48h burn-in window starts now
+- Tags:
+  - `v3.0.78-d5-registry-guards` (`fec153b`)
+  - `localbolt-v1.0.26-d5-registry-guards` (`76ae224`)
+  - `localbolt-app-v1.2.9-d5-registry-guards` (`93afc2c`)
+- Audit counters unchanged: **110 total, 90 DONE, 0 OPEN, 0 IN-PROGRESS**
+
+---
+
 ## D4 Netlify Hardening — DONE — 2026-03-06
 
 - **D4 DONE:** Consumer `.npmrc` cutover + Netlify deploy verified PAT-free

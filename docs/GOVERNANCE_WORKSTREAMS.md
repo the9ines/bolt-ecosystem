@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-06 (D4 Netlify hardening DONE)
-> **Tag:** ecosystem-v0.1.63-d4-netlify-done
+> **Updated:** 2026-03-06 (D5 drift guards DONE)
+> **Tag:** ecosystem-v0.1.64-d5-registry-guards
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -1200,7 +1200,7 @@ Verify completeness in D1:
 | D2 | CI stabilization (evidence-driven) | NOT-STARTED | D1 | Per-repo stabilization checklist mapped to D1 signatures; no speculative hardening |
 | D3 | Package auth/registry migration | **DONE** | D0.5 | Deploy-critical packages on npmjs.org; PAT not required for public install; GitHub Packages fallback preserved |
 | D4 | Netlify hardening (critical path) | **DONE** | D3 | Clean-environment Netlify install/build passes; lockfile + registry deterministic; rollback tested |
-| D5 | Drift guards + enforcement | NOT-STARTED (UNBLOCKED) | D4 | CI guard matrix with C6 baseline + D-specific additions; ownership assigned |
+| D5 | Drift guards + enforcement | **DONE** | D4 | CI guard matrix with C6 baseline + D-specific additions; ownership assigned |
 | D6 | Burn-in + closure | NOT-STARTED | D4, D5 | 48h burn-in; 5 green CI runs/repo; 3 Netlify deploys; zero D1 auth/registry recurrence |
 
 ### D0 — Policy Lock
@@ -1373,19 +1373,31 @@ D4 **cannot** be completed with existing published artifacts and config changes 
 
 ### D5 — Drift Guards + Enforcement
 
-**Status:** NOT-STARTED
+**Status:** DONE (2026-03-06)
 **Prerequisites:** D4
 
-**Baseline:** Use C6 guards as baseline (no duplication).
+**Baseline:** C6 guards (version pin, single-install, drift) preserved unchanged.
 
-**D-specific guards (additive):**
-- Reintroduction of PAT-required public install paths
-- Incorrect registry mapping for public scope
-- Deploy-path auth dependency regressions
+**D5-specific guards (additive):**
 
-**Ownership:** Guard maintenance ownership assigned per guard.
+| Guard | Script | Checks | Placement |
+|-------|--------|--------|-----------|
+| Registry mapping | `check-registry-mapping.sh` | `.npmrc` maps `@the9ines` to `registry.npmjs.org`; rejects `npm.pkg.github.com` and `_authToken` references | Before `npm ci` |
+| Lockfile registry | `check-lockfile-registry.sh` | `package-lock.json` resolves `@the9ines` packages from `registry.npmjs.org`; rejects `npm.pkg.github.com` resolved URLs | After `npm ci` |
 
-**Deliverable:** CI guard matrix with C6 baseline + D-specific additions.
+**CI cleanup (all 3 repos):**
+- Removed `registry-url: https://npm.pkg.github.com` from `setup-node` (stale after D4)
+- Removed `NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}` from `npm ci` (npmjs.org is PAT-free)
+- Removed `packages: read` permission (no GitHub Packages access needed)
+
+**Tags:**
+- localbolt-v3: `v3.0.78-d5-registry-guards` (`fec153b`)
+- localbolt: `localbolt-v1.0.26-d5-registry-guards` (`76ae224`)
+- localbolt-app: `localbolt-app-v1.2.9-d5-registry-guards` (`93afc2c`)
+
+**Guard ownership:** D-stream maintainer (ecosystem-level CI governance).
+
+**Deliverable:** CI guard matrix with C6 baseline + D5 registry/auth additions. All guards pass locally.
 
 ---
 
@@ -1448,8 +1460,8 @@ D4 **cannot** be completed with existing published artifacts and config changes 
   - D2: BLOCKED on D1 (evidence-driven).
   - D3: DONE (2026-03-05). All 3 deploy-critical packages published to npmjs.org. PAT-free install verified.
   - D4: DONE (2026-03-06). Consumer `.npmrc` cutover + Netlify deploy verified PAT-free.
-  - D5: UNBLOCKED. Drift guards + enforcement.
-  - D6: BLOCKED on D5. Burn-in.
+  - D5: DONE (2026-03-06). Registry/auth regression guards + CI cleanup.
+  - D6: UNBLOCKED. Burn-in window starts now (48h minimum).
 - **Cross-stream dependency:** D-stream is independent of A-stream and B-stream. D-stream operates at CI/deploy/registry layer; A/B operate at SDK/daemon protocol layers. D-stream builds on C-stream outcomes (C6 guards as D5 baseline) but does not modify C-stream deliverables.
 
 ---
