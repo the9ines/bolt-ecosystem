@@ -181,7 +181,7 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 | Phase | Description | Status | Repo(s) | Tag(s) | Commit(s) |
 |-------|-------------|--------|---------|--------|-----------|
 | R1-0 | Baseline evidence + risk classification | **DONE** | bolt-daemon, localbolt-v3, localbolt, localbolt-app, bolt-core-sdk | `ecosystem-v0.1.66-s-stream-r1-r1.0-baseline` | `1feddff` |
-| R1-1 | Architecture decision (evidence-informed) | **DONE** | bolt-ecosystem | `ecosystem-v0.1.67-s-stream-r1-r1.1-disposition` | (this commit) |
+| R1-1 | Architecture decision (evidence-informed) | **DONE** | bolt-ecosystem | `ecosystem-v0.1.67-s-stream-r1-r1.1-disposition` | `c49d86f` |
 | R1-2 | Daemon remediation + security tests | **DONE-NO-ACTION** | — | — | — |
 | R1-3 | Product crypto-path convergence | **DONE-NO-ACTION** | — | — | — |
 | R1-4 | Security-focused product test lift | NOT-STARTED | localbolt, localbolt-app, localbolt-v3 (verify) | — | — |
