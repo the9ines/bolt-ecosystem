@@ -2,15 +2,15 @@
 Snapshot Derived From:
 - sdk-v0.5.28-d3-registry-migration (66aaa3a)
 - daemon-v0.2.30-d-e2e-b-cross-impl (a8cf108)
-- v3.0.78-d5-registry-guards (fec153b)
-- localbolt-v1.0.26-d5-registry-guards (76ae224)
-- localbolt-app-v1.2.9-d5-registry-guards (93afc2c)
-Last Refreshed By: S-STREAM-R1 R1-1 disposition
+- v3.0.79-s-stream-r1-r1.4-security-test-lift (31046ac)
+- localbolt-v1.0.27-s-stream-r1-r1.4-security-test-lift (fc360c5)
+- localbolt-app-v1.2.10-s-stream-r1-r1.4-security-test-lift (71c3181)
+Last Refreshed By: S-STREAM-R1 R1-4 execution
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-06 (S-STREAM-R1 R1-1 disposition)
+> **Last Updated:** 2026-03-06 (S-STREAM-R1 R1-4 execution)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -176,7 +176,7 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 > **Codified:** ecosystem-v0.1.65-s-stream-r1-codify (2026-03-06)
 > **R1-0:** ecosystem-v0.1.66-s-stream-r1-r1.0-baseline (2026-03-06)
 > **R1-1:** ecosystem-v0.1.67-s-stream-r1-r1.1-disposition (2026-03-06)
-> **Status:** IN-PROGRESS (R1-1 DONE — R1-4 is primary remaining scope)
+> **Status:** IN-PROGRESS (R1-4 DONE — R1-5 validation gates next)
 
 | Phase | Description | Status | Repo(s) | Tag(s) | Commit(s) |
 |-------|-------------|--------|---------|--------|-----------|
@@ -184,7 +184,7 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 | R1-1 | Architecture decision (evidence-informed) | **DONE** | bolt-ecosystem | `ecosystem-v0.1.67-s-stream-r1-r1.1-disposition` | `c49d86f` |
 | R1-2 | Daemon remediation + security tests | **DONE-NO-ACTION** | — | — | — |
 | R1-3 | Product crypto-path convergence | **DONE-NO-ACTION** | — | — | — |
-| R1-4 | Security-focused product test lift | NOT-STARTED | localbolt, localbolt-app, localbolt-v3 (verify) | — | — |
+| R1-4 | Security-focused product test lift | **DONE** | localbolt, localbolt-app, localbolt-v3 | See R1-4 evidence below | `fc360c5`, `71c3181`, `31046ac` |
 | R1-5 | Validation gates | NOT-STARTED | all touched repos | — | — |
 | R1-6 | Governance reconciliation + closure | NOT-STARTED | bolt-ecosystem | — | — |
 
@@ -192,6 +192,7 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 
 - **R1-0 DONE** (2026-03-06): Baseline evidence + risk classification complete.
 - **R1-1 DONE** (2026-03-06): Dispositions locked. SA1 Path C (closure stands). R1-2 DONE-NO-ACTION (no daemon architecture risk). R1-3 DONE-NO-ACTION (products already SDK-mediated). R1-4 confirmed as primary remaining scope.
+- **R1-4 DONE** (2026-03-06): Security-focused product test lift complete. All R1-0 gaps covered. See R1-4 evidence section below.
 - Full specification in `docs/GOVERNANCE_WORKSTREAMS.md` (S-STREAM-R1 section).
 
 ### R1-0 Baseline Metrics (command-backed, 2026-03-06)
@@ -240,6 +241,64 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 | No product-layer crypto-path integration tests (D-category) | MEDIUM | localbolt-v3, localbolt, localbolt-app | D |
 | No cross-session key isolation integration tests at product layer | MEDIUM | all products | C+D |
 | Rust SDK: no reconnect/race tests | LOW | bolt-core-sdk (Rust) | C |
+
+### R1-4 Execution Evidence (2026-03-06)
+
+**All R1-0 HIGH and MEDIUM security test gaps covered. No runtime changes required.**
+
+#### Test Deltas
+
+| Repo | Package | Baseline | Final | Delta | New File |
+|------|---------|----------|-------|-------|----------|
+| localbolt | web | 300 | 319 | +19 | `web/src/components/__tests__/security-session-integrity.test.ts` |
+| localbolt-app | web | 11 | 32 | +21 | `web/src/components/__tests__/security-session-integrity.test.ts` |
+| localbolt-v3 | localbolt-core | 43 | 50 | +7 | `packages/localbolt-core/src/__tests__/security-reconnect-integrity.test.ts` |
+| localbolt-v3 | localbolt-web | 59 | 59 | 0 | (no change needed — existing coverage adequate) |
+
+#### Tags
+
+| Repo | Tag | Commit |
+|------|-----|--------|
+| localbolt | `localbolt-v1.0.27-s-stream-r1-r1.4-security-test-lift` | `fc360c5` |
+| localbolt-app | `localbolt-app-v1.2.10-s-stream-r1-r1.4-security-test-lift` | `71c3181` |
+| localbolt-v3 | `v3.0.79-s-stream-r1-r1.4-security-test-lift` | `31046ac` |
+
+#### Scenario-to-Test Matrix
+
+**localbolt (19 tests covering 4 R1-0 gap scenarios):**
+- Stale callback cannot mutate trust/session state after reset/reconnect (4 tests)
+- Trust transitions correct across reconnect/session boundary (5 tests)
+- Transfer gating integrity under reconnect/security edges (5 tests)
+- No unintended downgrade/legacy fallback when verification state is known (5 tests)
+
+**localbolt-app (21 tests covering 4 R1-0 gap scenarios):**
+- Identity/trust wiring in realistic connect/reconnect paths (4 tests)
+- Stale generation callbacks rejected across distinct timing patterns (7 tests)
+- Gating/security behavior under unverified/verified/mismatch transitions (4 tests)
+- Reconnect does not leak prior session trust/verification state (6 tests)
+
+**localbolt-v3 (7 tests covering 2 R1-0 medium-gap scenarios):**
+- Crypto-path integrity around reconnect boundary (3 tests)
+- Trust/verification state isolation between consecutive peers/sessions (4 tests)
+
+#### Validation Matrix
+
+| Repo | Tests | Build (tsc) | Coverage Non-Regression | Guards |
+|------|:-----:|:-----------:|:----------------------:|:------:|
+| localbolt | PASS (319) | PASS | PASS (thresholds: 80/80/70/80) | N/A |
+| localbolt-app | PASS (32) | PASS | PASS (thresholds: 90/90/80/90) | N/A |
+| localbolt-v3 core | PASS (50) | PASS | N/A (no thresholds) | N/A |
+| localbolt-v3 web | PASS (59) | PASS | PASS (thresholds: 45/5/31/48) | N/A |
+
+#### Runtime Changes
+
+None. Tests-only. No failing→passing proof needed.
+
+#### Residual Uncovered Scenarios
+
+| Scenario | Status | Rationale |
+|----------|--------|-----------|
+| Rust SDK reconnect/race tests | LOW — deferred | Out of R1-4 scope (R1-4 targets product repos only). Tracked in R1-0 gap summary. |
 
 ---
 

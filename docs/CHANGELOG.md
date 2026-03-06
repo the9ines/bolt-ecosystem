@@ -5,6 +5,23 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## S-STREAM-R1 R1-4 Security Test Lift — Execution — 2026-03-06
+
+- **R1-4 DONE:** Security-focused product test lift complete across all three target repos
+- **localbolt:** +19 security-session-integrity tests (300 → 319). Covers stale callback rejection, trust transition isolation, transfer gating under reconnect edges, no-downgrade guarantees.
+  - Tag: `localbolt-v1.0.27-s-stream-r1-r1.4-security-test-lift` (`fc360c5`)
+- **localbolt-app:** +21 security-session-integrity tests (11 → 32). Covers identity/trust wiring in connect/reconnect, stale generation patterns, transfer gating transitions, session isolation.
+  - Tag: `localbolt-app-v1.2.10-s-stream-r1-r1.4-security-test-lift` (`71c3181`)
+- **localbolt-v3:** +7 security-reconnect-integrity tests in localbolt-core (43 → 50). Covers crypto-path integrity at reconnect boundary, trust isolation between sessions. Web tests unchanged (59).
+  - Tag: `v3.0.79-s-stream-r1-r1.4-security-test-lift` (`31046ac`)
+- **Runtime changes:** None (tests-only)
+- **Residual:** Rust SDK reconnect/race tests (LOW) deferred — out of R1-4 product scope
+- All R1-0 HIGH and MEDIUM security test gaps now covered
+- R1-5 (validation gates) unblocked
+- Audit counters unchanged: **110 total, 90 DONE, 0 OPEN, 0 IN-PROGRESS**
+
+---
+
 ## S-STREAM-R1 R1-1 Architecture Disposition — Decision — 2026-03-06
 
 - **R1-1 DONE:** Formal dispositions locked based on R1-0 evidence

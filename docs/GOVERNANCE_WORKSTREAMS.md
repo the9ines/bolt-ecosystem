@@ -1520,7 +1520,7 @@ R1-4 scope boundary: security/crypto path verification only (per S-STREAM-R1 ove
 | R1-1 | Architecture decision (evidence-informed) | **DONE** | R1-0 | SA1 Path C confirmed (closure stands). R1-2 DONE-NO-ACTION. R1-3 DONE-NO-ACTION. R1-4 locked as primary remaining scope. |
 | R1-2 | Daemon remediation + security tests | **DONE-NO-ACTION** | R1-1 | No unresolved daemon architecture risk. SA1 separation verified complete by R1-0 evidence. No remediation needed. |
 | R1-3 | Product crypto-path convergence | **DONE-NO-ACTION** | R1-1 | All 3 products already use SDK-mediated crypto exclusively. Zero direct tweetnacl calls. No migrations needed. |
-| R1-4 | Security-focused product test lift | NOT-STARTED | R1-1 (R1-3 DONE-NO-ACTION) | Key/identity handling correctness tests, handshake security transition tests, crypto-path integrity under reconnect/race/security edges, per-repo test deltas recorded |
+| R1-4 | Security-focused product test lift | **DONE** | R1-1 (R1-3 DONE-NO-ACTION) | All R1-0 HIGH/MEDIUM gaps covered: localbolt 300→319, localbolt-app 11→32, v3-core 43→50. Tests-only, no runtime changes. Tags: `localbolt-v1.0.27-...`, `localbolt-app-v1.2.10-...`, `v3.0.79-...`. Full evidence in STATE.md R1-4 section. |
 | R1-5 | Validation gates | NOT-STARTED | R1-4 | Product tests/build pass, security gates pass, no D-stream infra/auth/deploy regressions |
 | R1-6 | Governance reconciliation + closure | NOT-STARTED | R1-5 | Findings transitioned with evidence, counters/arithmetic/timestamps reconciled, S-STREAM-R1 closed only when all acceptance criteria met |
 
