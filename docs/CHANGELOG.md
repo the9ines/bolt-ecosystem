@@ -5,6 +5,31 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## D0.5 Scope Verification + D3 Registry Migration — 2026-03-05
+
+- **D0.5 DONE:** `@the9ines` npmjs.org scope verification passed
+  - Scope owned by `the9ines` user; automation token configured
+  - D3 unblocked
+- **D3 DONE:** All 3 deploy-critical packages published to npmjs.org (PAT-free)
+  - `@the9ines/bolt-core@0.5.1` — verified on npmjs
+  - `@the9ines/bolt-transport-web@0.6.4` — verified on npmjs
+  - `@the9ines/localbolt-core@0.1.2` — verified on npmjs
+  - `publishConfig` changed from hardcoded GitHub Packages registry to `{"access": "public"}`
+  - Existing GitHub Packages publish workflows preserved with explicit `--registry` flag
+  - New `workflow_dispatch` npmjs publish workflows created for all 3 packages
+  - PAT-free clean-environment install verified for all 3 packages
+- **D0 DONE:** Policy lock complete (D0.5 was final gate)
+- **D4 UNBLOCKED:** Netlify consumer `.npmrc` cutover can now proceed
+- Version bumps required due to npmjs version immutability (previously published versions locked):
+  - bolt-core: 0.5.0 → 0.5.1
+  - bolt-transport-web: 0.6.2 → 0.6.4 (0.6.3 also locked)
+  - localbolt-core: 0.1.0 → 0.1.2 (0.1.1 also locked)
+- Audit counters unchanged: **110 total, 90 DONE, 0 OPEN, 0 IN-PROGRESS**
+- Tag: `ecosystem-v0.1.62-d05-d3-registry-migration`
+- Updated: `docs/GOVERNANCE_WORKSTREAMS.md`, `docs/STATE.md`, `docs/CHANGELOG.md`
+
+---
+
 ## D1 Failure Baseline + D4 Netlify Unblock (Phase Cut) — 2026-03-05
 
 - **D1 DONE:** Failure baseline and taxonomy produced across localbolt-v3, localbolt, localbolt-app

@@ -5,12 +5,12 @@ Snapshot Derived From:
 - v3.0.74-c7-closure (b867426)
 - localbolt-v1.0.24-c6-hardening (c88ec5b)
 - localbolt-app-v1.2.7-c6-hardening (3ff4625)
-Last Refreshed By: D-STREAM-1 codification
+Last Refreshed By: D0.5 + D3 registry migration
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-05 (D-STREAM-1 codification)
+> **Last Updated:** 2026-03-05 (D0.5 + D3 registry migration)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -130,12 +130,12 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 
 | Phase | Description | Status | Repo(s) | Tag(s) | Commit(s) |
 |-------|-------------|--------|---------|--------|-----------|
-| D0 | Policy lock | IN-PROGRESS | bolt-ecosystem | — | — |
-| D0.5 | @the9ines npmjs scope verification | NOT-STARTED | — | — | — |
+| D0 | Policy lock | **DONE** | bolt-ecosystem | ecosystem-v0.1.62-d05-d3-registry-migration | — |
+| D0.5 | @the9ines npmjs scope verification | **DONE** | bolt-ecosystem | ecosystem-v0.1.62-d05-d3-registry-migration | — |
 | D1 | Failure triage + classification | **DONE** | localbolt-v3, bolt-core-sdk, localbolt, localbolt-app | ecosystem-v0.1.61-d1-d4-netlify-unblock | — |
 | D2 | CI stabilization (evidence-driven) | NOT-STARTED | per D1 evidence | — | — |
-| D3 | Package auth/registry migration | NOT-STARTED (BLOCKED-BY D0.5) | localbolt-v3, bolt-core-sdk, localbolt, localbolt-app | — | — |
-| D4 | Netlify hardening (critical path) | NOT-STARTED | localbolt-v3 | — | — |
+| D3 | Package auth/registry migration | **DONE** | bolt-core-sdk, localbolt-v3 | ecosystem-v0.1.62-d05-d3-registry-migration | See below |
+| D4 | Netlify hardening (critical path) | NOT-STARTED (UNBLOCKED) | localbolt-v3 | — | — |
 | D5 | Drift guards + enforcement | NOT-STARTED | localbolt-v3, localbolt, localbolt-app | — | — |
 | D6 | Burn-in + closure | NOT-STARTED | all affected | — | — |
 

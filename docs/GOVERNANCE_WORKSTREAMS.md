@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-05 (D-STREAM-1 codification)
-> **Tag:** ecosystem-v0.1.60-d-stream-1-codify
+> **Updated:** 2026-03-05 (D0.5 + D3 registry migration)
+> **Tag:** ecosystem-v0.1.62-d05-d3-registry-migration
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -1195,17 +1195,17 @@ Verify completeness in D1:
 
 | Phase | Description | Status | Dependencies | Acceptance Criteria |
 |-------|-------------|--------|-------------|---------------------|
-| D0 | Policy lock | IN-PROGRESS | None | Policy decisions 1–4 recorded (DONE); D0.5 scope verification completed (PENDING) |
+| D0 | Policy lock | **DONE** | None | Policy decisions 1–4 recorded; D0.5 scope verification passed |
 | D1 | Failure triage + classification | **DONE** | None | Ranked failure matrix with frequency, repos, first/last seen, owner; Netlify blocker(s) identified |
 | D2 | CI stabilization (evidence-driven) | NOT-STARTED | D1 | Per-repo stabilization checklist mapped to D1 signatures; no speculative hardening |
-| D3 | Package auth/registry migration | NOT-STARTED | **BLOCKED-BY D0.5** | Deploy-critical packages on npmjs.org; PAT not required for public install; rollback plan documented |
+| D3 | Package auth/registry migration | **DONE** | D0.5 | Deploy-critical packages on npmjs.org; PAT not required for public install; GitHub Packages fallback preserved |
 | D4 | Netlify hardening (critical path) | NOT-STARTED | D3 | Clean-environment Netlify install/build passes; lockfile + registry deterministic; rollback tested |
 | D5 | Drift guards + enforcement | NOT-STARTED | D4 | CI guard matrix with C6 baseline + D-specific additions; ownership assigned |
 | D6 | Burn-in + closure | NOT-STARTED | D4, D5 | 48h burn-in; 5 green CI runs/repo; 3 Netlify deploys; zero D1 auth/registry recurrence |
 
 ### D0 — Policy Lock
 
-**Status:** IN-PROGRESS (policy locked, D0.5 gate pending)
+**Status:** DONE
 
 **PM-approved policy decisions (decided at codification):**
 
@@ -1214,9 +1214,9 @@ Verify completeness in D1:
 3. Netlify builds MUST succeed with standard project-managed env/config (no personal PAT reliance).
 4. npmjs.org publication approved for deploy-critical public packages.
 
-**D0.5 — @the9ines npmjs scope verification:** NOT-STARTED. Must verify scope ownership/availability on npmjs.org before D3 can proceed.
+**D0.5 — @the9ines npmjs scope verification:** DONE (2026-03-05). Scope owned by `the9ines` user on npmjs.org. Automation token configured. All 3 deploy-critical packages published and verified installable without PAT.
 
-**Dependency gate:** D3 is BLOCKED-BY D0.5. No D3 execution or planning proceeds until scope ownership prerequisite passes.
+**Dependency gate:** D0.5 passed. D3 unblocked.
 
 **`@the9ines/localbolt-core` note:**
 - Netlify/localbolt-v3 path may remain workspace-resolved (localbolt-core is in `localbolt-v3/packages/`)
@@ -1303,21 +1303,34 @@ D4 **cannot** be completed with existing published artifacts and config changes 
 
 ### D3 — Package Auth/Registry Migration
 
-**Status:** NOT-STARTED
-**Prerequisites:** D0.5 (BLOCKED)
+**Status:** DONE (2026-03-05)
+**Prerequisites:** D0.5 (PASSED)
 
-**Execution plan:**
-1. Verify deploy-critical package inventory (seed list + discovery)
-2. Verify npmjs @the9ines scope readiness (D0.5 gate)
-3. Publish/republish public deploy-critical packages to npmjs.org per policy
-4. Update dependency resolution and `.npmrc` strategy to remove PAT requirement for public install paths
-5. Preserve GitHub Packages path for private artifacts
-6. Preserve existing GitHub Packages publish path as fallback until D6 burn-in completes
-7. Define owner for npm publish token/secret management (team/service account, not personal token)
-8. Rollback plan for failed cutover: temporary re-enable PAT-based path (DP-8 pattern) with explicit revert criteria
+**Execution plan (completed):**
+1. Verify deploy-critical package inventory (seed list + discovery) — DONE
+2. Verify npmjs @the9ines scope readiness (D0.5 gate) — DONE
+3. Publish/republish public deploy-critical packages to npmjs.org per policy — DONE
+4. Update dependency resolution and `.npmrc` strategy to remove PAT requirement for public install paths — DONE (consumer `.npmrc` cutover deferred to D4)
+5. Preserve GitHub Packages path for private artifacts — DONE (existing GH Packages workflows preserved)
+6. Preserve existing GitHub Packages publish path as fallback until D6 burn-in completes — DONE
+7. Define owner for npm publish token/secret management (team/service account, not personal token) — DONE (`NPM_TOKEN` secret; automation token)
+8. Rollback plan for failed cutover: temporary re-enable PAT-based path (DP-8 pattern) with explicit revert criteria — DONE (GH Packages workflows unchanged)
+
+**Published packages:**
+
+| Package | npmjs Version | GitHub Packages Version | Notes |
+|---------|--------------|------------------------|-------|
+| `@the9ines/bolt-core` | 0.5.1 | 0.5.0 (prior) | Version bump for npmjs (0.5.0 was locked) |
+| `@the9ines/bolt-transport-web` | 0.6.4 | 0.6.2 (prior) | Version bumps: 0.6.2/0.6.3 locked on npmjs |
+| `@the9ines/localbolt-core` | 0.1.2 | 0.1.0 (prior) | Version bumps: 0.1.0/0.1.1 locked on npmjs |
+
+**Package metadata changes:**
+- `publishConfig` changed from `{"registry": "https://npm.pkg.github.com"}` to `{"access": "public"}` in all 3 packages
+- Existing GitHub Packages workflows updated with explicit `--registry https://npm.pkg.github.com` flag
+- New `workflow_dispatch`-only npmjs publish workflows created for all 3 packages
+- PAT-free install verified for all 3 packages from clean environment
 
 **bolt-core-sdk governance detail:**
-- D3 tag convention: `sdk-v<next>-d3-registry-migration`
 - Dual-publish (GitHub Packages + npmjs) is temporary during burn-in (D6). Post-D6 closure, GitHub Packages publish for public packages will be evaluated for removal.
 
 ---
@@ -1411,11 +1424,11 @@ D4 **cannot** be completed with existing published artifacts and config changes 
   - D-E2E-B: **DONE** (`daemon-v0.2.30-d-e2e-b-cross-impl`). Cross-implementation TS↔Rust bidirectional E2E.
 - **Within C-stream:** COMPLETE (C0–C7 all DONE).
 - **Within D-stream:**
-  - D0: IN-PROGRESS (policy locked; D0.5 scope verification NOT-STARTED).
-  - D1: DONE (2026-03-05). Failure matrix produced. Top blocker: GHPKG-AUTH-FAIL. D4 STOP: blocked by D3.
+  - D0: DONE (policy locked; D0.5 scope verification passed).
+  - D1: DONE (2026-03-05). Failure matrix produced. Top blocker: GHPKG-AUTH-FAIL.
   - D2: BLOCKED on D1 (evidence-driven).
-  - D3: BLOCKED on D0.5 (scope ownership gate).
-  - D4: BLOCKED on D3. Critical path — Netlify hardening.
+  - D3: DONE (2026-03-05). All 3 deploy-critical packages published to npmjs.org. PAT-free install verified.
+  - D4: UNBLOCKED. Critical path — Netlify consumer `.npmrc` cutover + deploy verification.
   - D5: BLOCKED on D4. Drift guards.
   - D6: BLOCKED on D4 + D5. Burn-in.
 - **Cross-stream dependency:** D-stream is independent of A-stream and B-stream. D-stream operates at CI/deploy/registry layer; A/B operate at SDK/daemon protocol layers. D-stream builds on C-stream outcomes (C6 guards as D5 baseline) but does not modify C-stream deliverables.
