@@ -5,6 +5,22 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## S-STREAM-R1 R1-0 Baseline Evidence — Execution — 2026-03-06
+
+- **R1-0 DONE:** Baseline evidence + risk classification complete across all in-scope repos
+- **Daemon key-role inventory:** SA1 separation confirmed complete — identity (persistent, TOFU-only) vs ephemeral (per-session, crypto-only). 22 SA1 tests. No ambiguous usage found. SA1 closure holds.
+- **Product crypto-path inventory:** All 3 products use SDK-mediated crypto exclusively. Zero direct tweetnacl calls in product code. No R1-3 migrations needed.
+- **Security test gaps identified:**
+  - localbolt (v2): 300 tests but 0 handshake / 0 crypto-path / 0 session state security tests (HIGH)
+  - localbolt-app: 11 tests, smoketest + TOFU integration only — no broad security coverage (HIGH)
+  - All products: no product-layer crypto-path integration tests (MEDIUM)
+- **Baseline metrics (all green):** daemon 318/398, bolt-core TS 120, transport-web 253, Rust 97/127, localbolt 300, localbolt-app 11, v3-core 43, v3-web 59
+- **R1-1 agenda:** Evaluate whether gaps warrant new findings or are accepted risk. SA1 Path A likely not needed.
+- Tag: `ecosystem-v0.1.66-s-stream-r1-r1.0-baseline`
+- Audit counters unchanged: **110 total, 90 DONE, 0 OPEN, 0 IN-PROGRESS**
+
+---
+
 ## S-STREAM-R1 Codification — Governance — 2026-03-06
 
 - **S-STREAM-R1 codified:** Security/foundation recovery workstream — 7 phases (R1-0 through R1-6)

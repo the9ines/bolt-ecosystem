@@ -451,7 +451,7 @@ S-STREAM-R1 (security/foundation recovery, independent of D-stream):
 
 | Phase | Description | Status | Dependencies |
 |-------|-------------|--------|-------------|
-| R1-0 | Baseline evidence + risk classification | NOT-STARTED | None |
+| R1-0 | Baseline evidence + risk classification | **DONE** | None |
 | R1-1 | Architecture decision (evidence-informed) | NOT-STARTED | R1-0 |
 | R1-2 | Daemon remediation + security tests | NOT-STARTED | R1-1 |
 | R1-3 | Product crypto-path convergence | NOT-STARTED | R1-1 |

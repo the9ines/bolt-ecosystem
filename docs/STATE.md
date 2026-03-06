@@ -5,12 +5,12 @@ Snapshot Derived From:
 - v3.0.78-d5-registry-guards (fec153b)
 - localbolt-v1.0.26-d5-registry-guards (76ae224)
 - localbolt-app-v1.2.9-d5-registry-guards (93afc2c)
-Last Refreshed By: S-STREAM-R1 codification
+Last Refreshed By: S-STREAM-R1 R1-0 baseline
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-06 (S-STREAM-R1 codification)
+> **Last Updated:** 2026-03-06 (S-STREAM-R1 R1-0 baseline)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -174,11 +174,12 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 ## S-STREAM-R1 Ledger (Security/Foundation Recovery)
 
 > **Codified:** ecosystem-v0.1.65-s-stream-r1-codify (2026-03-06)
-> **Status:** CODIFIED (NOT-STARTED)
+> **R1-0:** ecosystem-v0.1.66-s-stream-r1-r1.0-baseline (2026-03-06)
+> **Status:** IN-PROGRESS (R1-0 DONE)
 
 | Phase | Description | Status | Repo(s) | Tag(s) | Commit(s) |
 |-------|-------------|--------|---------|--------|-----------|
-| R1-0 | Baseline evidence + risk classification | NOT-STARTED | bolt-daemon, localbolt-v3, localbolt, localbolt-app, bolt-core-sdk | — | — |
+| R1-0 | Baseline evidence + risk classification | **DONE** | bolt-daemon, localbolt-v3, localbolt, localbolt-app, bolt-core-sdk | `ecosystem-v0.1.66-s-stream-r1-r1.0-baseline` | TBD |
 | R1-1 | Architecture decision (evidence-informed) | NOT-STARTED | bolt-daemon, bolt-ecosystem | — | — |
 | R1-2 | Daemon remediation + security tests | NOT-STARTED | bolt-daemon | — | — |
 | R1-3 | Product crypto-path convergence | NOT-STARTED | localbolt-v3, localbolt, localbolt-app, bolt-core-sdk (if needed) | — | — |
@@ -188,11 +189,56 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 
 ### Ledger Notes
 
-- Codification only. No execution deliverables in this commit.
+- **R1-0 DONE** (2026-03-06): Baseline evidence + risk classification complete.
 - SA1 handling rule documented: Path A (new finding) or Path B (explicit reopen), decided in R1-1.
-- Daemon test baselines: 318 default / 398 test-support (anchored from current STATE.md snapshot).
-- Product test baselines to be recorded per-repo in R1-0 execution.
 - Full specification in `docs/GOVERNANCE_WORKSTREAMS.md` (S-STREAM-R1 section).
+
+### R1-0 Baseline Metrics (command-backed, 2026-03-06)
+
+| Repo | Package/Feature | Tests | Build | Notes |
+|------|----------------|------:|:-----:|-------|
+| bolt-daemon | default (`cargo test`) | 318 | PASS | 0 failed, 0 ignored |
+| bolt-daemon | test-support (`cargo test --features test-support`) | 398 | PASS | 3 ignored (E2E) |
+| bolt-core-sdk | TS bolt-core (`npm test`) | 120 | PASS | 12 test files |
+| bolt-core-sdk | TS transport-web (`npm test`) | 253 | PASS | 25 test files |
+| bolt-core-sdk | Rust default (`cargo test`) | 97 | PASS | |
+| bolt-core-sdk | Rust vectors (`cargo test --features vectors`) | 127 | PASS | |
+| localbolt | web (`npm test`) | 300 | PASS | 14 test files |
+| localbolt-app | web (`npm test`) | 11 | PASS | 2 test files |
+| localbolt-v3 | localbolt-core (`npm test`) | 43 | PASS | 2 test files |
+| localbolt-v3 | localbolt-web (`npm test`) | 59 | PASS | 4 test files |
+
+### R1-0 Daemon Key-Role Finding
+
+**SA1 separation is complete and well-tested.** No ambiguous or mixed-role key usage found:
+- Identity keypair: persistent (`~/.bolt/identity.key`), used only for TOFU trust binding (HELLO inner `identityPublicKey` field)
+- Ephemeral session keypair: per-connection, used only for NaCl box sealing/opening (HELLO + post-HELLO envelopes)
+- 12 separation tests in `tests/sa1_identity_separation.rs` + 10 identity store tests in `tests/sa1_identity_store.rs`
+- `.take()` ownership pattern prevents ephemeral key cloning
+- `[SA1]` log markers confirm separation at runtime
+- **R1-1 preliminary signal:** SA1 Path A (new finding) likely not needed for daemon key-role. Evidence supports SA1 closure holding.
+
+### R1-0 Product Crypto-Path Finding
+
+**All three product repos use SDK-mediated crypto exclusively.** Zero direct tweetnacl/nacl calls in product-layer code:
+- Identity: `getOrCreateIdentity()` from `@the9ines/bolt-transport-web`
+- Peer codes: `generateSecurePeerCode()` from `@the9ines/bolt-core`
+- Encryption: `sealBoxPayload()`/`openBoxPayload()` via WebRTCService (SDK-internal)
+- TOFU: `IndexedDBPinStore`, `VerificationInfo` from `@the9ines/bolt-transport-web`
+- Session: `@the9ines/localbolt-core` for state machine + verification bus
+- **R1-3 signal:** No product crypto-path migrations needed. Convergence is already complete.
+
+### R1-0 Security Test Gap Summary
+
+**Strong at SDK level (755 tests in transport-web). Critical gaps in v2 products:**
+
+| Gap | Severity | Repos Affected | Category |
+|-----|----------|---------------|----------|
+| localbolt (v2): no handshake, crypto-path, or session state tests | HIGH | localbolt | B, C, D |
+| localbolt-app: smoketest only, no security-critical tests | HIGH | localbolt-app | All |
+| No product-layer crypto-path integration tests (D-category) | MEDIUM | localbolt-v3, localbolt, localbolt-app | D |
+| No cross-session key isolation integration tests at product layer | MEDIUM | all products | C+D |
+| Rust SDK: no reconnect/race tests | LOW | bolt-core-sdk (Rust) | C |
 
 ---
 

@@ -1471,7 +1471,7 @@ During S-STREAM-R1 execution, if new evidence confirms a daemon key-architecture
 
 | Phase | Description | Status | Dependencies | Acceptance Criteria |
 |-------|-------------|--------|-------------|---------------------|
-| R1-0 | Baseline evidence + risk classification | NOT-STARTED | None | Daemon key-role inventory, product crypto call path inventory, security test coverage gap inventory, risk-ranked baseline matrix with per-repo test baselines recorded |
+| R1-0 | Baseline evidence + risk classification | **DONE** | None | Daemon key-role inventory, product crypto call path inventory, security test coverage gap inventory, risk-ranked baseline matrix with per-repo test baselines recorded |
 | R1-1 | Architecture decision (evidence-informed) | NOT-STARTED | R1-0 | Candidate daemon key-role architectures evaluated, SA1 handling path (A or B) decided with evidence, compatibility/rollout strategy locked, rollback criteria defined, final architecture decision with rationale |
 | R1-2 | Daemon remediation + security tests | NOT-STARTED | R1-1 | Approved R1-1 architecture implemented in daemon, adversarial tests for key confusion/replay/downgrade/mismatch edges, no regressions against daemon baseline (318/398), interop constraints preserved |
 | R1-3 | Product crypto-path convergence | NOT-STARTED | R1-1 (architecture decision informs scope) | Applicable product crypto call paths migrated to SDK-exposed APIs, blocked paths recorded with rationale and follow-up plan |
