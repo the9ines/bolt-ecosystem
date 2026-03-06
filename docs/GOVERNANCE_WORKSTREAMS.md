@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-06 (D5 drift guards DONE)
-> **Tag:** ecosystem-v0.1.64-d5-registry-guards
+> **Updated:** 2026-03-06 (S-STREAM-R1 codification)
+> **Tag:** ecosystem-v0.1.65-s-stream-r1-codify
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -16,8 +16,9 @@ This document codifies improvement workstreams into governance so that future im
 - **Workstream B (B-stream):** Daemon file transfer convergence in bolt-daemon
 - **Workstream C (C-stream):** LocalBolt application convergence + session UX hardening
 - **Workstream D (D-stream):** CI stabilization + package auth migration
+- **S-STREAM-R1:** Security/foundation recovery (daemon key architecture, product crypto-path convergence, security test lift)
 
-These are improvement initiatives — not audit findings, not protocol changes. They decompose existing monolithic code into well-bounded modules (A-stream), extend the daemon toward file transfer capability (B-stream), converge app-layer behavior across LocalBolt products into a shared `localbolt-core` package (C-stream), and stabilize CI/deploy reliability with PAT-independent public package installs (D-stream).
+These are improvement initiatives — not audit findings, not protocol changes. They decompose existing monolithic code into well-bounded modules (A-stream), extend the daemon toward file transfer capability (B-stream), converge app-layer behavior across LocalBolt products into a shared `localbolt-core` package (C-stream), stabilize CI/deploy reliability with PAT-independent public package installs (D-stream), and resolve foundational security/runtime risks before further UX work (S-STREAM-R1).
 
 ---
 
@@ -1418,6 +1419,106 @@ D4 **cannot** be completed with existing published artifacts and config changes 
 
 ---
 
+## S-STREAM-R1 — Security/Foundation Recovery
+
+**Repos:** bolt-daemon (primary), localbolt-v3, localbolt, localbolt-app (product crypto-path convergence + security test lift), bolt-core-sdk (coordinated interface/doc updates only if required), bolt-ecosystem (governance)
+**Goal:** Resolve foundational security and runtime risks before further UX work. Priority: daemon identity/ephemeral key architecture, product crypto-path convergence, and security-critical integration coverage.
+**Status:** CODIFIED (NOT-STARTED)
+**Codified:** ecosystem-v0.1.65-s-stream-r1-codify (2026-03-06)
+**Authority:** PM-approved. Phase execution requires separate phase prompts.
+
+### Background
+
+A revised deep assessment highlights higher-priority foundation risks that must be resolved before further UX work:
+
+1. **Daemon identity/ephemeral key architecture risk** — new evidence to be assessed during R1-0. SA1 (DONE-VERIFIED) addressed identity/ephemeral separation with 12 tests, but revised assessment suggests deeper architecture review may be warranted.
+2. **Incomplete product crypto-path convergence** — product repos may contain direct tweetnacl operations in product-layer orchestration code rather than calling SDK-exposed crypto/session APIs.
+3. **Product integration coverage gaps** — security-critical flows (key/identity handling, handshake transitions, crypto-path integrity under reconnect/race/security edges) lack targeted test coverage across product repos.
+
+### SA1 Handling Rule
+
+**SA1** (`Daemon conflates identity and ephemeral into single per-connection keypair`) is currently **DONE-VERIFIED** with evidence (Phase A: `daemon-v0.2.14`, Phase B: `daemon-v0.2.15`, 12 separation tests).
+
+During S-STREAM-R1 execution, if new evidence confirms a daemon key-architecture risk beyond SA1's original scope:
+
+- **Path A (new finding):** Register a new finding ID (R1-series, e.g. `R1-F1`) with its own severity, evidence, and resolution. SA1 status remains DONE-VERIFIED. This is the preferred path if the new evidence describes a distinct risk not covered by SA1's original scope.
+- **Path B (explicit reopen):** Reopen SA1 with documented new evidence and a status transition rationale entry (e.g. `DONE-VERIFIED → REOPENED: <rationale with evidence hash>`). This path is appropriate only if the new evidence directly contradicts SA1's closure evidence.
+
+**Rule:** The choice between Path A and Path B MUST be made during R1-1 (architecture decision) with explicit evidence. Codification does not pre-decide the path. Whichever path is chosen, it MUST be recorded in `docs/AUDIT_TRACKER.md` with the decision rationale before any R1-2 implementation begins.
+
+### Non-Negotiable Guardrails
+
+1. Preserve protocol compatibility unless explicitly gated by governance.
+2. Do NOT modify subtree-managed paths directly (`signal/` in localbolt, localbolt-app).
+3. Security changes must be fail-closed and adversarially tested.
+4. No `Co-Authored-By` trailers in commits.
+5. No protocol semantic, wire-format, or cryptographic changes unless a phase explicitly authorizes it with PM approval.
+
+### Execution Baseline Anchors (to be recorded in R1-0)
+
+| Repo | Metric | Baseline |
+|------|--------|----------|
+| bolt-daemon | `cargo test` (default) | 318 |
+| bolt-daemon | `cargo test --features test-support` | 398 + 3 ignored |
+| localbolt | npm test | TBD (record in R1-0) |
+| localbolt-app | npm test | TBD (record in R1-0) |
+| localbolt-v3 (core) | npm test | TBD (record in R1-0) |
+| localbolt-v3 (web) | npm test | TBD (record in R1-0) |
+| bolt-core-sdk (TS) | npm test | TBD (record in R1-0) |
+| bolt-core-sdk (Rust) | cargo test | TBD (record in R1-0) |
+
+### S-STREAM-R1 Phase Table
+
+| Phase | Description | Status | Dependencies | Acceptance Criteria |
+|-------|-------------|--------|-------------|---------------------|
+| R1-0 | Baseline evidence + risk classification | NOT-STARTED | None | Daemon key-role inventory, product crypto call path inventory, security test coverage gap inventory, risk-ranked baseline matrix with per-repo test baselines recorded |
+| R1-1 | Architecture decision (evidence-informed) | NOT-STARTED | R1-0 | Candidate daemon key-role architectures evaluated, SA1 handling path (A or B) decided with evidence, compatibility/rollout strategy locked, rollback criteria defined, final architecture decision with rationale |
+| R1-2 | Daemon remediation + security tests | NOT-STARTED | R1-1 | Approved R1-1 architecture implemented in daemon, adversarial tests for key confusion/replay/downgrade/mismatch edges, no regressions against daemon baseline (318/398), interop constraints preserved |
+| R1-3 | Product crypto-path convergence | NOT-STARTED | R1-1 (architecture decision informs scope) | Applicable product crypto call paths migrated to SDK-exposed APIs, blocked paths recorded with rationale and follow-up plan |
+| R1-4 | Security-focused product test lift | NOT-STARTED | R1-3 | Key/identity handling correctness tests, handshake security transition tests, crypto-path integrity under reconnect/race/security edges, per-repo test deltas recorded |
+| R1-5 | Validation gates | NOT-STARTED | R1-2, R1-3, R1-4 | Daemon tests/build/clippy pass, touched product tests/build pass, interop/security gates pass, no D-stream infra/auth/deploy regressions |
+| R1-6 | Governance reconciliation + closure | NOT-STARTED | R1-5 | Findings transitioned with evidence, counters/arithmetic/timestamps reconciled, S-STREAM-R1 closed only when all acceptance criteria met |
+
+### Dependency Map
+
+```
+R1-0 (baseline evidence + risk classification)
+ |
+ └── R1-1 (architecture decision + SA1 path)
+      |
+      ├── R1-2 (daemon remediation + security tests)
+      |
+      └── R1-3 (product crypto-path convergence)
+           |
+           └── R1-4 (security-focused product test lift)
+                |
+                └── R1-5 (validation gates)
+                     |
+                     └── R1-6 (governance reconciliation + closure)
+```
+
+### Parallelization
+
+- R1-2 and R1-3 CAN run in parallel after R1-1 (different repos).
+- R1-4 depends on R1-3 (product paths must be identified before testing).
+- R1-5 depends on R1-2 + R1-3 + R1-4 (all implementation complete).
+- R1-6 is strictly sequential after R1-5.
+
+### Overlap Boundary with C-STREAM
+
+- S-STREAM-R1 R1-4 scope is **security/crypto path verification only**: key/identity handling, handshake security transitions, crypto-path integrity under reconnect/race/security edges.
+- General UX/state scenario expansion and session regression tests belong to C-STREAM (if/when a C-STREAM-R1 is executed).
+- R1-4 MUST NOT duplicate C7 session race-hardening tests. If overlap is discovered, R1-4 defers to C7 evidence.
+
+### Finding Registration Rule
+
+- Findings may be registered during R1-0 (inventory), R1-2 (daemon implementation), R1-3 (product convergence), or R1-4 (test lift) when evidence is confirmed.
+- Each finding receives a unique ID in the R1-F series (e.g. `R1-F1`, `R1-F2`, ...).
+- SA1 handling follows the SA1 Handling Rule above (Path A or Path B, decided in R1-1).
+- Final arithmetic reconciliation occurs once in R1-6.
+
+---
+
 ## Tag Naming Rules
 
 | Workstream | Repo | Format | Example |
@@ -1432,6 +1533,8 @@ D4 **cannot** be completed with existing published artifacts and config changes 
 | D-stream (SDK) | bolt-core-sdk | `sdk-v<next>-d3-registry-migration` | `sdk-v0.5.28-d3-registry-migration` |
 | D-stream (v3) | localbolt-v3 | `v3.0.<N>-d<phase>-<slug>` | `v3.0.75-d4-netlify-hardening` |
 | D-stream (consumers) | localbolt, localbolt-app | `<repo-prefix>-d<phase>-<slug>` | `localbolt-v1.0.25-d3-registry-migration` |
+| S-STREAM-R1 (daemon) | bolt-daemon | `daemon-vX.Y.Z-r1-<phase>-<slug>` | `daemon-v0.2.31-r1-2-key-arch` |
+| S-STREAM-R1 (products) | localbolt-v3, localbolt, localbolt-app | `<repo-prefix>-r1-<phase>-<slug>` | `localbolt-v1.0.27-r1-3-crypto-converge` |
 | Governance | bolt-ecosystem | `ecosystem-v0.1.X-workstreams-N` | `ecosystem-v0.1.30-workstreams-1` |
 
 **Rules:**

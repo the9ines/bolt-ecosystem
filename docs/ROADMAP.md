@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative
-> **Last Updated:** 2026-03-05 (D-STREAM-1 codification)
+> **Last Updated:** 2026-03-06 (S-STREAM-R1 codification)
 > **Authority:** PM-approved execution plan.
 
 ---
@@ -433,4 +433,30 @@ Workstream D (independent of A/B/S, builds on C6 guards):
   D0 (policy lock, IN-PROGRESS) ──┐
   D0.5 (npmjs scope gate) ────────┼── D3 (registry migration) → D4 (Netlify) → D5 (guards) → D6 (burn-in)
   D1 (failure triage) → D2 (CI stabilization)
+
+S-STREAM-R1 (security/foundation recovery, independent of D-stream):
+  R1-0 (baseline evidence) → R1-1 (architecture decision + SA1 path)
+    ├── R1-2 (daemon remediation) ─────┐
+    └── R1-3 (product crypto converge) ─┼── R1-5 (validation gates)
+         └── R1-4 (security test lift) ─┘         └── R1-6 (closure)
 ```
+
+---
+
+## S-STREAM-R1 — Security/Foundation Recovery
+
+**Status:** CODIFIED (NOT-STARTED)
+**Codified:** ecosystem-v0.1.65-s-stream-r1-codify (2026-03-06)
+**Priority:** Resolve foundational security/runtime risks before further UX work.
+
+| Phase | Description | Status | Dependencies |
+|-------|-------------|--------|-------------|
+| R1-0 | Baseline evidence + risk classification | NOT-STARTED | None |
+| R1-1 | Architecture decision (evidence-informed) | NOT-STARTED | R1-0 |
+| R1-2 | Daemon remediation + security tests | NOT-STARTED | R1-1 |
+| R1-3 | Product crypto-path convergence | NOT-STARTED | R1-1 |
+| R1-4 | Security-focused product test lift | NOT-STARTED | R1-3 |
+| R1-5 | Validation gates | NOT-STARTED | R1-2, R1-3, R1-4 |
+| R1-6 | Governance reconciliation + closure | NOT-STARTED | R1-5 |
+
+Full specification in `docs/GOVERNANCE_WORKSTREAMS.md` (S-STREAM-R1 section).

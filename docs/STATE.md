@@ -5,12 +5,12 @@ Snapshot Derived From:
 - v3.0.78-d5-registry-guards (fec153b)
 - localbolt-v1.0.26-d5-registry-guards (76ae224)
 - localbolt-app-v1.2.9-d5-registry-guards (93afc2c)
-Last Refreshed By: D5 drift guards DONE
+Last Refreshed By: S-STREAM-R1 codification
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-06 (D5 drift guards DONE)
+> **Last Updated:** 2026-03-06 (S-STREAM-R1 codification)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -168,6 +168,31 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 - **C7** DONE — Session UX race-hardening closed. Canonical evidence in `@the9ines/localbolt-core` (`v3.0.74-c7-closure`, `b867426`): rapid 7-cycle connect/reset monotonicity + late verification callback rejection. Combined with prior: session state machine (5-phase), generation guards, A→B→C isolation, stale signal rejection, phase guards, transfer/verification cleanup. Consumer wiring: localbolt 300 tests (`localbolt-v1.0.23-c7-tofu-wiring`, `1bcb7b8`), localbolt-app 11 tests (`localbolt-app-v1.2.6-c7-tofu-wiring`, `e902186`). No runtime changes needed — existing code already handles all C7 scenarios.
 - **Session hardening (pre-C7):** `v3.0.70-session-hardening-cpre2` (`cac5e4a`) delivered session orchestration layer + race hardening. Now lives in `@the9ines/localbolt-core`. Transfer gating policy codified as `isTransferAllowed()`.
 - **localbolt-core** located at `localbolt-v3/packages/localbolt-core`. Tags follow localbolt-v3 convention (`v3.0.<N>-<slug>`). Published as `@the9ines/localbolt-core@0.1.0` to GitHub Packages (`v3.0.72-localbolt-core-publish`, `7cb8d8d`). All three consumers now resolve via npm registry (not workspace-only).
+
+---
+
+## S-STREAM-R1 Ledger (Security/Foundation Recovery)
+
+> **Codified:** ecosystem-v0.1.65-s-stream-r1-codify (2026-03-06)
+> **Status:** CODIFIED (NOT-STARTED)
+
+| Phase | Description | Status | Repo(s) | Tag(s) | Commit(s) |
+|-------|-------------|--------|---------|--------|-----------|
+| R1-0 | Baseline evidence + risk classification | NOT-STARTED | bolt-daemon, localbolt-v3, localbolt, localbolt-app, bolt-core-sdk | — | — |
+| R1-1 | Architecture decision (evidence-informed) | NOT-STARTED | bolt-daemon, bolt-ecosystem | — | — |
+| R1-2 | Daemon remediation + security tests | NOT-STARTED | bolt-daemon | — | — |
+| R1-3 | Product crypto-path convergence | NOT-STARTED | localbolt-v3, localbolt, localbolt-app, bolt-core-sdk (if needed) | — | — |
+| R1-4 | Security-focused product test lift | NOT-STARTED | localbolt-v3, localbolt, localbolt-app | — | — |
+| R1-5 | Validation gates | NOT-STARTED | all touched repos | — | — |
+| R1-6 | Governance reconciliation + closure | NOT-STARTED | bolt-ecosystem | — | — |
+
+### Ledger Notes
+
+- Codification only. No execution deliverables in this commit.
+- SA1 handling rule documented: Path A (new finding) or Path B (explicit reopen), decided in R1-1.
+- Daemon test baselines: 318 default / 398 test-support (anchored from current STATE.md snapshot).
+- Product test baselines to be recorded per-repo in R1-0 execution.
+- Full specification in `docs/GOVERNANCE_WORKSTREAMS.md` (S-STREAM-R1 section).
 
 ---
 

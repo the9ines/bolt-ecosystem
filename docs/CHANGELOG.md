@@ -5,6 +5,25 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## S-STREAM-R1 Codification — Governance — 2026-03-06
+
+- **S-STREAM-R1 codified:** Security/foundation recovery workstream — 7 phases (R1-0 through R1-6)
+  - R1-0: Baseline evidence + risk classification
+  - R1-1: Architecture decision (evidence-informed) + SA1 handling path
+  - R1-2: Daemon remediation + security tests
+  - R1-3: Product crypto-path convergence
+  - R1-4: Security-focused product test lift
+  - R1-5: Validation gates
+  - R1-6: Governance reconciliation + closure
+- **SA1 handling rule documented:** Path A (new R1-F finding) or Path B (explicit reopen), decided in R1-1 with evidence
+- **Scope:** bolt-daemon (primary), localbolt-v3, localbolt, localbolt-app, bolt-core-sdk (if needed)
+- **Priority:** Foundational security/runtime risks before further UX work
+- Governance codification only — no execution deliverables
+- Tag: `ecosystem-v0.1.65-s-stream-r1-codify`
+- Audit counters unchanged: **110 total, 90 DONE, 0 OPEN, 0 IN-PROGRESS**
+
+---
+
 ## D5 Drift Guards + Enforcement — DONE — 2026-03-06
 
 - **D5 DONE:** Registry/auth regression guards added to all 3 consumer repos
