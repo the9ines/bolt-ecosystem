@@ -5,12 +5,12 @@ Snapshot Derived From:
 - v3.0.79-s-stream-r1-r1.4-security-test-lift (31046ac)
 - localbolt-v1.0.27-s-stream-r1-r1.4-security-test-lift (fc360c5)
 - localbolt-app-v1.2.10-s-stream-r1-r1.4-security-test-lift (71c3181)
-Last Refreshed By: S-STREAM-R1 R1-4 execution
+Last Refreshed By: S-STREAM-R1 R1-5/R1-6 closeout
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-06 (S-STREAM-R1 R1-4 execution)
+> **Last Updated:** 2026-03-06 (S-STREAM-R1 R1-5/R1-6 closeout)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -176,7 +176,7 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 > **Codified:** ecosystem-v0.1.65-s-stream-r1-codify (2026-03-06)
 > **R1-0:** ecosystem-v0.1.66-s-stream-r1-r1.0-baseline (2026-03-06)
 > **R1-1:** ecosystem-v0.1.67-s-stream-r1-r1.1-disposition (2026-03-06)
-> **Status:** IN-PROGRESS (R1-4 DONE — R1-5 validation gates next)
+> **Status:** **DONE** (S-STREAM-R1 CLOSED)
 
 | Phase | Description | Status | Repo(s) | Tag(s) | Commit(s) |
 |-------|-------------|--------|---------|--------|-----------|
@@ -185,8 +185,48 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 | R1-2 | Daemon remediation + security tests | **DONE-NO-ACTION** | — | — | — |
 | R1-3 | Product crypto-path convergence | **DONE-NO-ACTION** | — | — | — |
 | R1-4 | Security-focused product test lift | **DONE** | localbolt, localbolt-app, localbolt-v3 | See R1-4 evidence below | `fc360c5`, `71c3181`, `31046ac` |
-| R1-5 | Validation gates | NOT-STARTED | all touched repos | — | — |
-| R1-6 | Governance reconciliation + closure | NOT-STARTED | bolt-ecosystem | — | — |
+| R1-5 | Validation gates | **DONE** | localbolt, localbolt-app, localbolt-v3 | `ecosystem-v0.1.69-s-stream-r1-closeout` | See R1-5 evidence below |
+| R1-6 | Governance reconciliation + closure | **DONE** | bolt-ecosystem | `ecosystem-v0.1.69-s-stream-r1-closeout` | See this commit |
+
+### R1-5 Validation Evidence
+
+| Repo / Package | Gate | Result | Detail |
+|----------------|------|--------|--------|
+| localbolt | Tests | **PASS** | 319/319 (Vitest), 15 files |
+| localbolt | Build | **PASS** | vite build, 501ms |
+| localbolt-app | Tests | **PASS** | 32/32 (Vitest), 3 files |
+| localbolt-app | Build | **PASS** | vite build, 466ms |
+| localbolt-app | Coverage | **PASS** | 100% all metrics (thresholds: 90/90/80/90) |
+| localbolt-v3 (core) | Tests | **PASS** | 50/50 (Vitest), 3 files |
+| localbolt-v3 (core) | Build | **PASS** | tsc, 0 errors |
+| localbolt-v3 (web) | Tests | **PASS** | 59/59 (Vitest), 4 files |
+| localbolt-v3 (web) | Build | **PASS** | vite build, 518ms |
+| **Total** | | **9/9 PASS** | 460 tests, 0 failures |
+
+### R1-5 Tests-Only Verification (R1-4 commits)
+
+| Repo | Commit | Files Changed | Runtime Modified? |
+|------|--------|---------------|:-:|
+| localbolt | `fc360c5` | `__tests__/security-session-integrity.test.ts` (+378) | NO |
+| localbolt-app | `71c3181` | `__tests__/security-session-integrity.test.ts` (+416) | NO |
+| localbolt-v3 | `31046ac` | `__tests__/security-reconnect-integrity.test.ts` (+199) | NO |
+
+Conclusion: All R1-4 commits are strictly tests-only. No D-stream regression. No runtime drift vs R1-1 dispositions.
+
+### R1-5 Tag Integrity (all verified on origin)
+
+| Repo | Code Tag | Commit | Docs Tag | Commit |
+|------|----------|--------|----------|--------|
+| localbolt | `localbolt-v1.0.27-s-stream-r1-r1.4-security-test-lift` | `fc360c5` | `localbolt-v1.0.27-s-stream-r1-r1.4-security-test-lift-docs` | `490f0cd` |
+| localbolt-app | `localbolt-app-v1.2.10-s-stream-r1-r1.4-security-test-lift` | `71c3181` | `localbolt-app-v1.2.10-s-stream-r1-r1.4-security-test-lift-docs` | `bc0ee2a` |
+| localbolt-v3 | `v3.0.79-s-stream-r1-r1.4-security-test-lift` | `31046ac` | `v3.0.79-s-stream-r1-r1.4-security-test-lift-docs` | `1871089` |
+| bolt-ecosystem | `ecosystem-v0.1.68-s-stream-r1-r1.4-security-test-lift` | `a6bf7a0` | — | — |
+
+All 7 tags confirmed present on origin.
+
+### S-STREAM-R1 Residual
+
+- **Rust SDK reconnect/race tests (LOW):** Deferred — out of R1-4 product scope, not a critical/high risk.
 
 ### Ledger Notes
 
@@ -533,9 +573,9 @@ App-layer convergence and session UX findings registered as part of Workstream C
 | bolt-core-sdk | `sdk-v0.5.28-d3-registry-migration` | `66aaa3a` |
 | bolt-daemon | `daemon-v0.2.30-d-e2e-b-cross-impl` | `a8cf108` |
 | bolt-rendezvous | `rendezvous-v0.2.12-dp5-session-guard` | `aa8bed0` |
-| localbolt | `localbolt-v1.0.26-d5-registry-guards` | `76ae224` |
-| localbolt-app | `localbolt-app-v1.2.9-d5-registry-guards` | `93afc2c` |
-| localbolt-v3 | `v3.0.78-d5-registry-guards` | `fec153b` |
+| localbolt | `localbolt-v1.0.27-s-stream-r1-r1.4-security-test-lift` | `fc360c5` (code), `490f0cd` (docs HEAD) |
+| localbolt-app | `localbolt-app-v1.2.10-s-stream-r1-r1.4-security-test-lift` | `71c3181` (code), `bc0ee2a` (docs HEAD) |
+| localbolt-v3 | `v3.0.79-s-stream-r1-r1.4-security-test-lift` | `31046ac` (code), `1871089` (docs HEAD) |
 | bolt-protocol | `v0.1.5-spec-consistency-1` | `d795dd5` |
 | bytebolt-app | `bytebolt-v0.0.1` | — |
 | bytebolt-relay | `relay-v0.0.1` | — |
@@ -628,9 +668,9 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 | bolt-daemon (default) | 318 | main (includes B1B2, B5, B6-P1, B3-P1, B3-P2, B4, D-E2E-A, B3-P3) |
 | bolt-daemon (test-support) | 398 + 3 ignored | main (includes H3/H5/P1/SA1/B5/B6-P1/B3-P1/B3-P2/B4/B3-P3 + D-E2E-A + D-E2E-B) |
 | bolt-rendezvous | 49 | main (48 unit + 1 doc-test) |
-| localbolt (TS) | 300 | 14 test files, 80/70/80% coverage thresholds, includes 27 TOFU tests |
-| localbolt-app (TS) | 11 | 2 test files (1 smoke + 10 TOFU integration), coverage thresholds 90/90/80/90 |
-| localbolt-v3 (TS, localbolt-core) | 43 | Session state machine, verification bus, transfer policy, race hardening, C7 closure tests |
+| localbolt (TS) | 319 | 15 test files, 80/70/80% coverage thresholds, includes 27 TOFU + 19 security-session-integrity tests |
+| localbolt-app (TS) | 32 | 3 test files (1 smoke + 10 TOFU integration + 21 security-session-integrity), coverage thresholds 90/90/80/90 |
+| localbolt-v3 (TS, localbolt-core) | 50 | Session state machine, verification bus, transfer policy, race hardening, C7 closure + 7 security-reconnect-integrity tests |
 | localbolt-v3 (TS, localbolt-web) | 59 | H5-v3 TOFU/SAS tests + session orchestration consumer wiring |
 | localbolt-v3 (Rust signal) | 36 | main (S0 canonical bolt-rendezvous wrapper, up from 32) |
 

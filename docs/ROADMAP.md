@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative
-> **Last Updated:** 2026-03-06 (S-STREAM-R1 R1-4 execution)
+> **Last Updated:** 2026-03-06 (S-STREAM-R1 closeout)
 > **Authority:** PM-approved execution plan.
 
 ---
@@ -439,14 +439,14 @@ S-STREAM-R1 (security/foundation recovery, independent of D-stream):
     ├── R1-2 (daemon remediation) ✓ DONE-NO-ACTION
     ├── R1-3 (product crypto converge) ✓ DONE-NO-ACTION
     └── R1-4 (security test lift) ✓ DONE
-         └── R1-5 (validation) ← NEXT → R1-6 (closure)
+         └── R1-5 (validation) ✓ DONE → R1-6 (closure) ✓ DONE
 ```
 
 ---
 
 ## S-STREAM-R1 — Security/Foundation Recovery
 
-**Status:** IN-PROGRESS (R1-4 DONE — R1-5 validation gates next)
+**Status:** **CLOSED/DONE** (ecosystem-v0.1.69-s-stream-r1-closeout)
 **Codified:** ecosystem-v0.1.65-s-stream-r1-codify (2026-03-06)
 **R1-1:** ecosystem-v0.1.67-s-stream-r1-r1.1-disposition (2026-03-06)
 **Priority:** Resolve foundational security/runtime risks before further UX work.
@@ -458,7 +458,9 @@ S-STREAM-R1 (security/foundation recovery, independent of D-stream):
 | R1-2 | Daemon remediation + security tests | **DONE-NO-ACTION** | R1-1 |
 | R1-3 | Product crypto-path convergence | **DONE-NO-ACTION** | R1-1 |
 | R1-4 | Security-focused product test lift | **DONE** | R1-1 |
-| R1-5 | Validation gates | NOT-STARTED | R1-4 |
-| R1-6 | Governance reconciliation + closure | NOT-STARTED | R1-5 |
+| R1-5 | Validation gates | **DONE** | R1-4 |
+| R1-6 | Governance reconciliation + closure | **DONE** | R1-5 |
+
+**Sole residual:** Rust SDK reconnect/race tests (LOW) — deferred, not a critical/high risk.
 
 Full specification in `docs/GOVERNANCE_WORKSTREAMS.md` (S-STREAM-R1 section).

@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-06 (S-STREAM-R1 R1-1 disposition)
+> **Updated:** 2026-03-06 (S-STREAM-R1 closeout)
 > **Tag:** ecosystem-v0.1.67-s-stream-r1-r1.1-disposition
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
@@ -1423,7 +1423,7 @@ D4 **cannot** be completed with existing published artifacts and config changes 
 
 **Repos:** bolt-daemon (primary), localbolt-v3, localbolt, localbolt-app (product crypto-path convergence + security test lift), bolt-core-sdk (coordinated interface/doc updates only if required), bolt-ecosystem (governance)
 **Goal:** Resolve foundational security and runtime risks before further UX work. Priority: daemon identity/ephemeral key architecture, product crypto-path convergence, and security-critical integration coverage.
-**Status:** IN-PROGRESS (R1-1 DONE — dispositions locked)
+**Status:** **DONE** (S-STREAM-R1 CLOSED — ecosystem-v0.1.69-s-stream-r1-closeout)
 **Codified:** ecosystem-v0.1.65-s-stream-r1-codify (2026-03-06)
 **R1-1:** ecosystem-v0.1.67-s-stream-r1-r1.1-disposition (2026-03-06)
 **Authority:** PM-approved. Phase execution requires separate phase prompts.
@@ -1521,8 +1521,8 @@ R1-4 scope boundary: security/crypto path verification only (per S-STREAM-R1 ove
 | R1-2 | Daemon remediation + security tests | **DONE-NO-ACTION** | R1-1 | No unresolved daemon architecture risk. SA1 separation verified complete by R1-0 evidence. No remediation needed. |
 | R1-3 | Product crypto-path convergence | **DONE-NO-ACTION** | R1-1 | All 3 products already use SDK-mediated crypto exclusively. Zero direct tweetnacl calls. No migrations needed. |
 | R1-4 | Security-focused product test lift | **DONE** | R1-1 (R1-3 DONE-NO-ACTION) | All R1-0 HIGH/MEDIUM gaps covered: localbolt 300→319, localbolt-app 11→32, v3-core 43→50. Tests-only, no runtime changes. Tags: `localbolt-v1.0.27-...`, `localbolt-app-v1.2.10-...`, `v3.0.79-...`. Full evidence in STATE.md R1-4 section. |
-| R1-5 | Validation gates | NOT-STARTED | R1-4 | Product tests/build pass, security gates pass, no D-stream infra/auth/deploy regressions |
-| R1-6 | Governance reconciliation + closure | NOT-STARTED | R1-5 | Findings transitioned with evidence, counters/arithmetic/timestamps reconciled, S-STREAM-R1 closed only when all acceptance criteria met |
+| R1-5 | Validation gates | **DONE** | R1-4 | All 9 gates PASS: 460 tests, 0 failures. Tests-only verification confirmed. All 7 tags on origin. No D-stream regression. |
+| R1-6 | Governance reconciliation + closure | **DONE** | R1-5 | Counters unchanged (110/90/0/0). STATE.md, GOVERNANCE_WORKSTREAMS.md, ROADMAP.md, CHANGELOG.md updated. S-STREAM-R1 CLOSED. |
 
 ### Dependency Map
 
@@ -1534,11 +1534,11 @@ R1-0 (baseline evidence) ✓ DONE
       ├── R1-2 (daemon remediation) ✓ DONE-NO-ACTION
       ├── R1-3 (product crypto converge) ✓ DONE-NO-ACTION
       |
-      └── R1-4 (security-focused product test lift) ← PRIMARY REMAINING SCOPE
+      └── R1-4 (security-focused product test lift) ✓ DONE
            |
-           └── R1-5 (validation gates)
+           └── R1-5 (validation gates) ✓ DONE
                 |
-                └── R1-6 (governance reconciliation + closure)
+                └── R1-6 (governance reconciliation + closure) ✓ DONE
 ```
 
 ### Parallelization

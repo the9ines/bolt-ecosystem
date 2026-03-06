@@ -5,6 +5,29 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## S-STREAM-R1 Closeout (R1-5 + R1-6) — Governance — 2026-03-06
+
+- **R1-5 DONE:** Final validation gates passed across all product repos
+  - localbolt: 319 tests PASS, build PASS
+  - localbolt-app: 32 tests PASS, build PASS, coverage PASS (100%)
+  - localbolt-v3 core: 50 tests PASS, build PASS
+  - localbolt-v3 web: 59 tests PASS, build PASS
+  - Total: 460 tests, 9/9 gates PASS, 0 failures
+  - Tests-only verification: all 3 R1-4 commits confirmed tests-only (no runtime changes)
+  - Tag integrity: all 7 R1-4 tags confirmed on origin (3 code + 3 docs + 1 ecosystem)
+  - No D-stream infra/auth/deploy regressions
+- **R1-6 DONE:** Governance reconciliation complete
+  - STATE.md: R1-5/R1-6 DONE, S-STREAM-R1 CLOSED, repo tag snapshot updated, test counts updated
+  - GOVERNANCE_WORKSTREAMS.md: all phases final, dependency map complete
+  - ROADMAP.md: S-STREAM-R1 CLOSED/DONE
+  - AUDIT_TRACKER.md: no finding status transitions warranted (R1-F series empty, no new findings)
+  - Counters unchanged: **110 total, 90 DONE, 0 OPEN, 0 IN-PROGRESS**
+- **S-STREAM-R1 CLOSED:** All 7 phases complete (R1-0 through R1-6)
+- **Sole residual:** Rust SDK reconnect/race tests (LOW) — deferred
+- Tag: `ecosystem-v0.1.69-s-stream-r1-closeout`
+
+---
+
 ## S-STREAM-R1 R1-4 Security Test Lift — Execution — 2026-03-06
 
 - **R1-4 DONE:** Security-focused product test lift complete across all three target repos
