@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative
-> **Last Updated:** 2026-03-04 (Workstream C codification)
+> **Last Updated:** 2026-03-05 (D-STREAM-1 codification)
 > **Authority:** PM-approved execution plan.
 
 ---
@@ -203,10 +203,12 @@ localbolt-v3 currently maintains its own signal server (`packages/localbolt-sign
 5. localbolt-v3 signal server code removed or reduced to thin config wrapper
 
 **Acceptance Criteria:**
-- [ ] localbolt-v3 consumes bolt-rendezvous as a dependency
-- [ ] `packages/localbolt-signal/` removed or reduced to thin wrapper
-- [ ] bolt-rendezvous owns all trust-boundary enforcement, rate limiting, room lifecycle
-- [ ] All signal server tests live in bolt-rendezvous
+- [x] localbolt-v3 consumes bolt-rendezvous as a dependency
+- [x] `packages/localbolt-signal/` reduced to thin wrapper (canonical bolt-rendezvous via cargo git dep)
+- [x] bolt-rendezvous owns all trust-boundary enforcement, rate limiting, room lifecycle
+- [x] All signal server tests live in bolt-rendezvous (49 tests)
+
+**Status:** DONE-MERGED (`rendezvous-v0.2.2-s0-canonical-lib-verified`, `v3.0.63-s0-canonical-rendezvous`)
 
 ### S1 — Core Protocol Conformance Harness (SDK)
 
@@ -274,7 +276,7 @@ Handshake gating, downgrade resistance, HELLO exactly-once, and 11 of 14 Appendi
 
 ## Workstream C — LocalBolt Application Convergence + Session UX Hardening
 
-**Status:** Codified (NOT-STARTED). Blocked on PM policy decision (C0) and ARCH-08 disposition (C1).
+**Status:** COMPLETE (all phases C0–C7 DONE).
 
 Converges app-layer behavior across localbolt-v3, localbolt, and localbolt-app into a shared `localbolt-core` package. Hardens session UX against disconnect/reconnect race conditions. Package-based distribution with exact version pins (not subtree).
 
@@ -284,14 +286,14 @@ Converges app-layer behavior across localbolt-v3, localbolt, and localbolt-app i
 
 | Phase | Description | Status | Blockers |
 |-------|-------------|--------|----------|
-| C0 | Policy lock — verification UX decision | NOT-STARTED | PM policy decision: does `unverified` block transfer? |
-| C1 | localbolt-core scaffold + ARCH-08 disposition | NOT-STARTED | C0; ARCH-08 disposition gate (waiver, non-violating location, or external repo) |
-| C2 | Extract canonical runtime from v3 baseline | NOT-STARTED | C1 (physical location resolved) |
-| C3 | Migrate localbolt-v3 consumer | NOT-STARTED | C2 |
-| C4 | Migrate localbolt consumer | NOT-STARTED | C2 |
-| C5 | Migrate localbolt-app web consumer | NOT-STARTED | C2 |
-| C6 | Drift guards + upgrade protocol | NOT-STARTED | C3 + C4 + C5 (all consumers migrated) |
-| C7 | Session UX race-hardening | NOT-STARTED | C2 (shared session controller) |
+| C0 | Policy lock — verification UX decision | DONE | `v3.0.70-session-hardening-cpre2` |
+| C1 | localbolt-core scaffold + ARCH-08 disposition | DONE | `v3.0.71-localbolt-core-c2` |
+| C2 | Extract canonical runtime from v3 baseline | DONE | `v3.0.71-localbolt-core-c2` |
+| C3 | Migrate localbolt-v3 consumer | DONE | `v3.0.71-localbolt-core-c2` |
+| C4 | Migrate localbolt consumer | DONE | `localbolt-v1.0.21-c4-localbolt-core` |
+| C5 | Migrate localbolt-app web consumer | DONE | `localbolt-app-v1.2.4-c5-localbolt-core` |
+| C6 | Drift guards + upgrade protocol | DONE | `localbolt-v1.0.24-c6-hardening`, `localbolt-app-v1.2.7-c6-hardening`, `v3.0.73-c6-hardening` |
+| C7 | Session UX race-hardening | DONE | `v3.0.74-c7-closure` |
 
 ### Dependency Map
 
@@ -326,6 +328,26 @@ C0 (PM policy decision) ← BLOCKER
 
 ---
 
+## Workstream D — CI Stabilization + Package Auth Migration (D-STREAM-1)
+
+**Status:** Codified (IN-PROGRESS — D0 policy locked, D0.5 NOT-STARTED)
+**Codified:** ecosystem-v0.1.60-d-stream-1-codify (2026-03-05)
+**Primary success gate:** Netlify deploy reliability (PAT-independent)
+
+| Phase | Description | Status | Dependencies |
+|-------|-------------|--------|-------------|
+| D0 | Policy lock | IN-PROGRESS | None (policy 1–4 decided; D0.5 pending) |
+| D1 | Failure triage + classification | NOT-STARTED | None |
+| D2 | CI stabilization (evidence-driven) | NOT-STARTED | D1 |
+| D3 | Package auth/registry migration | NOT-STARTED | BLOCKED-BY D0.5 |
+| D4 | Netlify hardening (critical path) | NOT-STARTED | D3 |
+| D5 | Drift guards + enforcement | NOT-STARTED | D4 |
+| D6 | Burn-in + closure | NOT-STARTED | D4, D5 |
+
+**Full specification:** `docs/GOVERNANCE_WORKSTREAMS.md` (Workstream D section)
+
+---
+
 ## Risk Register
 
 | ID | Risk | Severity | Status | Closes When |
@@ -339,8 +361,8 @@ C0 (PM policy decision) ← BLOCKER
 | R7 | Daemon H3 test hermeticity — sibling repo path dependency | High | **Closed** | H3.1 merged to main (`daemon-v0.2.10-h3-h6-mainline`) |
 | R8 | H2/H3 feature branch stacking — merge conflict risk | Low | **Closed** | Merge train steps 2–3 completed cleanly |
 | R9 | No TOFU/SAS wiring in localbolt-v3 product UI | Medium | **Closed** | H5-v3 merged (`v3.0.61-h5v3-tofu-sas-pinning`) |
-| R10 | App-layer behavior drift across 3 LocalBolt products | Medium | Open | C-stream convergence (C2–C5) |
-| R11 | ARCH-08 disposition unresolved for localbolt-core placement | Medium | Open | C1 ARCH-08 gate decision |
+| R10 | App-layer behavior drift across 3 LocalBolt products | Medium | **Closed** | C-stream convergence (C2–C5 DONE, all consumers on `@the9ines/localbolt-core@0.1.0`) |
+| R11 | ARCH-08 disposition unresolved for localbolt-core placement | Medium | **Closed** | C1 ARCH-08 gate: Option 2 non-violating location (`localbolt-v3/packages/localbolt-core`) |
 
 ---
 
@@ -404,8 +426,11 @@ Merge Train: COMPLETE ✓
 
 Post-merge-train: S0 → S1 → S2 → S3 → S4 (optional)
 
-Workstream C (independent of A/B/S):
-  C0 (policy lock) → C1 (scaffold + ARCH-08) → C2 (extract)
-    → C3/C4/C5 (parallel migrations) → C6 (drift guards)
-    → C7 (session hardening, parallel with C3–C6)
+Workstream C (COMPLETE):
+  C0→C1→C2→C3/C4/C5→C6→C7 — all DONE
+
+Workstream D (independent of A/B/S, builds on C6 guards):
+  D0 (policy lock, IN-PROGRESS) ──┐
+  D0.5 (npmjs scope gate) ────────┼── D3 (registry migration) → D4 (Netlify) → D5 (guards) → D6 (burn-in)
+  D1 (failure triage) → D2 (CI stabilization)
 ```

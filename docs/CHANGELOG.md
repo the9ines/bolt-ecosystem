@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## D-STREAM-1 Codification — 2026-03-05
+
+- **D-STREAM-1 codified:** CI stabilization + package auth migration workstream
+  - Primary success gate: Netlify deploy reliability (PAT-independent public package installs)
+  - 7 phases: D0 (policy lock) → D1 (failure triage) → D2 (CI stabilization) → D3 (registry migration) → D4 (Netlify hardening) → D5 (drift guards) → D6 (burn-in)
+  - D0 policy decisions 1–4 locked at codification (PM-approved)
+  - D0.5 (npmjs @the9ines scope verification) NOT-STARTED — blocks D3
+  - D3 explicit dependency: BLOCKED-BY D0.5
+  - Deploy-critical package seed set: `@the9ines/bolt-core`, `@the9ines/bolt-transport-web`, `@the9ines/localbolt-core`
+  - Repo scope: localbolt-v3 (primary), bolt-core-sdk (D3 only), localbolt, localbolt-app
+  - bolt-core-sdk D3 tag convention: `sdk-v<next>-d3-registry-migration`
+  - Dual-publish (GitHub Packages + npmjs) temporary during burn-in
+- **C-stream status refresh:** C0–C7 all DONE (ROADMAP.md aligned with STATE.md/tag history)
+- **Risk register:** R10 (app-layer drift) → Closed. R11 (ARCH-08 disposition) → Closed.
+- **S0 acceptance criteria:** Marked complete (DONE-MERGED per STATE history)
+- Audit counters unchanged: **110 total, 90 DONE, 0 OPEN, 0 IN-PROGRESS**
+- D-stream placeholder in AUDIT_TRACKER.md does NOT increment total
+- Tag: `ecosystem-v0.1.60-d-stream-1-codify`
+- Updated: `docs/GOVERNANCE_WORKSTREAMS.md`, `docs/ROADMAP.md`, `docs/STATE.md`, `docs/AUDIT_TRACKER.md`, `docs/CHANGELOG.md`
+
+---
+
 ## Batch 6 — C7 Closure (Gap-Driven Audit + Targeted Test Fill) — 2026-03-05
 
 - **C7 DONE:** Session UX race-hardening fully closed (Q7 → DONE-VERIFIED)

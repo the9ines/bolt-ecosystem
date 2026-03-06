@@ -5,12 +5,12 @@ Snapshot Derived From:
 - v3.0.74-c7-closure (b867426)
 - localbolt-v1.0.24-c6-hardening (c88ec5b)
 - localbolt-app-v1.2.7-c6-hardening (3ff4625)
-Last Refreshed By: Batch 6 — C7 closure
+Last Refreshed By: D-STREAM-1 codification
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-05 (Batch 6 — C7 closure)
+> **Last Updated:** 2026-03-05 (D-STREAM-1 codification)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -119,6 +119,42 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 | C5 | Migrate localbolt-app web consumer | DONE | localbolt-app | `localbolt-app-v1.2.4-c5-localbolt-core`, `localbolt-app-v1.2.5-c6-core-guards` | `d1761e9` |
 | C6 | Drift guards + upgrade protocol | DONE | localbolt-v3, localbolt, localbolt-app | `localbolt-v1.0.24-c6-hardening`, `localbolt-app-v1.2.7-c6-hardening`, `v3.0.73-c6-hardening` | Batch 5: upgrade tooling, v3 drift CI, runbook |
 | C7 | Session UX race-hardening | DONE | localbolt-v3 (localbolt-core), localbolt, localbolt-app | `v3.0.74-c7-closure`, `localbolt-v1.0.23-c7-tofu-wiring`, `localbolt-app-v1.2.6-c7-tofu-wiring` | `b867426`, `1bcb7b8`, `e902186` |
+
+---
+
+## D-Stream Ledger (CI Stabilization + Package Auth Migration)
+
+> **Codified:** ecosystem-v0.1.60-d-stream-1-codify (2026-03-05)
+> **Primary success gate:** Netlify deploy reliability (PAT-independent public package installs)
+> **Canonical spec:** `docs/GOVERNANCE_WORKSTREAMS.md` (Workstream D section)
+
+| Phase | Description | Status | Repo(s) | Tag(s) | Commit(s) |
+|-------|-------------|--------|---------|--------|-----------|
+| D0 | Policy lock | IN-PROGRESS | bolt-ecosystem | — | — |
+| D0.5 | @the9ines npmjs scope verification | NOT-STARTED | — | — | — |
+| D1 | Failure triage + classification | NOT-STARTED | localbolt-v3, bolt-core-sdk, localbolt, localbolt-app | — | — |
+| D2 | CI stabilization (evidence-driven) | NOT-STARTED | per D1 evidence | — | — |
+| D3 | Package auth/registry migration | NOT-STARTED (BLOCKED-BY D0.5) | localbolt-v3, bolt-core-sdk, localbolt, localbolt-app | — | — |
+| D4 | Netlify hardening (critical path) | NOT-STARTED | localbolt-v3 | — | — |
+| D5 | Drift guards + enforcement | NOT-STARTED | localbolt-v3, localbolt, localbolt-app | — | — |
+| D6 | Burn-in + closure | NOT-STARTED | all affected | — | — |
+
+### D-Stream Policy Decisions (D0, locked at codification)
+
+1. Public deploy-critical `@the9ines` packages MUST install without GitHub PAT.
+2. GitHub Packages MAY remain for private artifacts only.
+3. Netlify builds MUST succeed with standard project-managed env/config (no personal PAT reliance).
+4. npmjs.org publication approved for deploy-critical public packages.
+
+### D-Stream Deploy-Critical Packages (seed set, verify in D1)
+
+| Package | Owner Repo |
+|---------|-----------|
+| `@the9ines/bolt-core` | bolt-core-sdk |
+| `@the9ines/bolt-transport-web` | bolt-core-sdk |
+| `@the9ines/localbolt-core` | localbolt-v3 |
+
+---
 
 ### Ledger Notes
 

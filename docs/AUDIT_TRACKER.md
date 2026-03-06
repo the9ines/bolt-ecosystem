@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-05 (AUDIT-GOV-51 — Batch 5 C6 hardening)
+**Last updated:** 2026-03-05 (D-STREAM-1 codification)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -83,6 +83,20 @@ Product repos on main are pinned to published SDK releases.
 | localbolt | 0.5.0 | 0.6.2 | 0.6.2 | 300 | pass |
 | localbolt-app | 0.5.0 | 0.6.2 | 0.6.2 | 11 | pass |
 | localbolt-v3 | 0.5.0 | 0.6.2 | 0.6.2 | 59 | pass |
+
+---
+
+## D-STREAM (CI Stabilization + Package Auth Migration)
+
+> **Codified:** 2026-03-05 (D-STREAM-1 codification)
+> **Status:** Placeholder section — no concrete findings until D1 triage completes.
+> **Rule:** D-stream placeholder entries do NOT increment total findings. Total remains 110 until D1 produces concrete new findings.
+
+| ID | Finding | Severity | Status | Evidence |
+|----|---------|----------|--------|----------|
+| D1 | CI failure triage (placeholder — awaiting D1 execution) | TBD | NOT-STARTED | Collection window: last 20 failed CI runs or 14 days per in-scope repo |
+
+> **Note:** D1 is a triage/discovery phase. Concrete findings will be registered with severity and evidence after D1 completes. Each concrete finding will increment the total at that time.
 
 ---
 

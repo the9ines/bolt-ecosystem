@@ -2,7 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Tag:** ecosystem-v0.1.55-audit-gov-49
+> **Updated:** 2026-03-05 (D-STREAM-1 codification)
+> **Tag:** ecosystem-v0.1.60-d-stream-1-codify
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -14,8 +15,9 @@ This document codifies improvement workstreams into governance so that future im
 - **Workstream A (A-stream):** WebRTCService decomposition in bolt-core-sdk
 - **Workstream B (B-stream):** Daemon file transfer convergence in bolt-daemon
 - **Workstream C (C-stream):** LocalBolt application convergence + session UX hardening
+- **Workstream D (D-stream):** CI stabilization + package auth migration
 
-These are improvement initiatives — not audit findings, not protocol changes. They decompose existing monolithic code into well-bounded modules (A-stream), extend the daemon toward file transfer capability (B-stream), and converge app-layer behavior across LocalBolt products into a shared `localbolt-core` package (C-stream).
+These are improvement initiatives — not audit findings, not protocol changes. They decompose existing monolithic code into well-bounded modules (A-stream), extend the daemon toward file transfer capability (B-stream), converge app-layer behavior across LocalBolt products into a shared `localbolt-core` package (C-stream), and stabilize CI/deploy reliability with PAT-independent public package installs (D-stream).
 
 ---
 
@@ -30,6 +32,9 @@ These are improvement initiatives — not audit findings, not protocol changes. 
 7. **C-stream MUST NOT modify rendezvous subtree policy.** `signal/` subtree in localbolt and localbolt-app remains unchanged.
 8. **C-stream MUST NOT use subtree for localbolt-core.** Distribution is package-based with exact version pins.
 9. **C-stream MUST NOT change native packaging policy** except adapter wiring in localbolt-app's `src-tauri/` layer.
+10. **D-stream MUST NOT modify protocol/runtime behavior in bolt-core-sdk.** Only package metadata and publish workflow changes are in-scope (D3).
+11. **D-stream MUST NOT modify subtree-managed paths directly.**
+12. **D-stream D2 changes MUST be evidence-driven from D1.** No speculative broad hardening.
 
 ---
 
@@ -878,7 +883,7 @@ The following files constituted the extraction baseline for C2 (pre-extraction l
 
 | Finding | ID | Severity | Status | C-Phase |
 |---------|------|----------|--------|---------|
-| Disconnect/reconnect stale callback races | Q7 | MEDIUM | OPEN | C7 |
+| Disconnect/reconnect stale callback races | Q7 | MEDIUM | DONE-VERIFIED | C7 |
 | Verification policy mismatch (runtime vs tests/docs) | Q8 | MEDIUM | DONE-VERIFIED | C0 (locked in `v3.0.70`) |
 | App-layer behavior drift across products | Q9 | MEDIUM | DONE-VERIFIED | C2–C5 (all three consumers migrated to `@the9ines/localbolt-core@0.1.0`) |
 | Missing app-layer drift guards | Q10 | MEDIUM | DONE-VERIFIED | C6 (guards + upgrade tooling + v3 drift check + runbook; Batch 5) |
@@ -1148,6 +1153,183 @@ ARCH-08 invariant ("No new top-level folders under workspace root") resolved by 
 
 ---
 
+## Workstream D — CI Stabilization + Package Auth Migration (D-STREAM-1)
+
+**Repos:** localbolt-v3 (primary), bolt-core-sdk (D3 only), localbolt, localbolt-app, bolt-ecosystem
+**Goal:** Stabilize CI failure noise, migrate deploy-critical public packages to PAT-independent install paths, and harden Netlify deployment reliability.
+**Priority:** Netlify deploy reliability is the primary success gate.
+
+### Background
+
+Workstream C is fully closed (C0–C7 DONE). Current operational issues:
+1. Recurring CI alert noise across repos
+2. PAT-dependent package installs causing deploy fragility (especially Netlify)
+
+**Prior art:** DP-8 (DONE-VERIFIED) mitigated Netlify auth failure via PAT-based `.npmrc` (`${NPM_TOKEN}`) in localbolt-web. D-STREAM addresses root cause: PAT dependency for public install paths.
+
+### Non-Negotiable Priority
+
+**Netlify deploy must be stable and PAT-independent for public package installs.**
+
+### Deploy-Critical Package Seed Set
+
+Verify completeness in D1:
+
+| Package | Owner Repo | Notes |
+|---------|-----------|-------|
+| `@the9ines/bolt-core` | bolt-core-sdk | Protocol SDK |
+| `@the9ines/bolt-transport-web` | bolt-core-sdk | Transport layer |
+| `@the9ines/localbolt-core` | localbolt-v3 | App-layer convergence package |
+
+### Repo Scope
+
+| Repo | Phases | Scope |
+|------|--------|-------|
+| localbolt-v3 | D1, D2, D3, D4, D5, D6 | Primary Netlify path |
+| bolt-core-sdk | D3 only | Package metadata/publish workflow updates; no protocol/runtime logic |
+| localbolt | D1 (if top recurring CI signature), D3, D5 | Consumer dependency/auth/guard posture |
+| localbolt-app | D1 (if top recurring CI signature), D3, D5 | Consumer dependency/auth/guard posture |
+| bolt-ecosystem | all | Governance codification |
+
+### D-STREAM-1 Phase Table
+
+| Phase | Description | Status | Dependencies | Acceptance Criteria |
+|-------|-------------|--------|-------------|---------------------|
+| D0 | Policy lock | IN-PROGRESS | None | Policy decisions 1–4 recorded as decided; D0.5 scope verification gate passed |
+| D1 | Failure triage + classification | NOT-STARTED | None | Ranked failure matrix with frequency, repos, first/last seen, owner; Netlify blocker(s) identified |
+| D2 | CI stabilization (evidence-driven) | NOT-STARTED | D1 | Per-repo stabilization checklist mapped to D1 signatures; no speculative hardening |
+| D3 | Package auth/registry migration | NOT-STARTED | **BLOCKED-BY D0.5** | Deploy-critical packages on npmjs.org; PAT not required for public install; rollback plan documented |
+| D4 | Netlify hardening (critical path) | NOT-STARTED | D3 | Clean-environment Netlify install/build passes; lockfile + registry deterministic; rollback tested |
+| D5 | Drift guards + enforcement | NOT-STARTED | D4 | CI guard matrix with C6 baseline + D-specific additions; ownership assigned |
+| D6 | Burn-in + closure | NOT-STARTED | D4, D5 | 48h burn-in; 5 green CI runs/repo; 3 Netlify deploys; zero D1 auth/registry recurrence |
+
+### D0 — Policy Lock
+
+**Status:** IN-PROGRESS (policy locked, D0.5 gate pending)
+
+**PM-approved policy decisions (decided at codification):**
+
+1. Public deploy-critical `@the9ines` packages MUST install without GitHub PAT.
+2. GitHub Packages MAY remain for private artifacts only.
+3. Netlify builds MUST succeed with standard project-managed env/config (no personal PAT reliance).
+4. npmjs.org publication approved for deploy-critical public packages.
+
+**D0.5 — @the9ines npmjs scope verification:** NOT-STARTED. Must verify scope ownership/availability on npmjs.org before D3 can proceed.
+
+**Dependency gate:** D3 is BLOCKED-BY D0.5. No D3 execution or planning proceeds until scope ownership prerequisite passes.
+
+**`@the9ines/localbolt-core` note:**
+- Netlify/localbolt-v3 path may remain workspace-resolved (localbolt-core is in `localbolt-v3/packages/`)
+- Registry migration for localbolt-core mainly affects non-workspace consumers (localbolt/localbolt-app CI/install)
+- Decision and rationale recorded here; implementation details in D3
+
+---
+
+### D1 — Failure Triage + Classification
+
+**Status:** NOT-STARTED
+
+**Collection window:** Last 20 failed CI runs OR last 14 days (whichever yields more evidence) per in-scope repo. Recent failed Netlify deploys for localbolt-v3 in same window.
+
+**Classification signatures:**
+- workflow/config error
+- dependency/auth/registry failure
+- flaky test
+- deterministic regression
+- infra/transient
+
+**Deliverable:** Ranked failure matrix (frequency, impacted repos, first/last seen, likely owner). Top blocker signatures, explicitly identifying Netlify blocker(s).
+
+---
+
+### D2 — CI Stabilization (Evidence-Driven)
+
+**Status:** NOT-STARTED
+**Prerequisites:** D1
+
+**Scope:** Execute fixes only for D1-proven signatures:
+- Deterministic workflow/config fixes first
+- Toolchain pinning only where D1 proves version drift caused failures
+- Cache/preflight hardening only where tied to observed failures
+- Retries only for known transient classes
+
+**Deliverable:** Per-repo stabilization checklist mapped to D1 signatures. No speculative hardening outside proven failure classes.
+
+---
+
+### D3 — Package Auth/Registry Migration
+
+**Status:** NOT-STARTED
+**Prerequisites:** D0.5 (BLOCKED)
+
+**Execution plan:**
+1. Verify deploy-critical package inventory (seed list + discovery)
+2. Verify npmjs @the9ines scope readiness (D0.5 gate)
+3. Publish/republish public deploy-critical packages to npmjs.org per policy
+4. Update dependency resolution and `.npmrc` strategy to remove PAT requirement for public install paths
+5. Preserve GitHub Packages path for private artifacts
+6. Preserve existing GitHub Packages publish path as fallback until D6 burn-in completes
+7. Define owner for npm publish token/secret management (team/service account, not personal token)
+8. Rollback plan for failed cutover: temporary re-enable PAT-based path (DP-8 pattern) with explicit revert criteria
+
+**bolt-core-sdk governance detail:**
+- D3 tag convention: `sdk-v<next>-d3-registry-migration`
+- Dual-publish (GitHub Packages + npmjs) is temporary during burn-in (D6). Post-D6 closure, GitHub Packages publish for public packages will be evaluated for removal.
+
+---
+
+### D4 — Netlify Hardening (Critical Path)
+
+**Status:** NOT-STARTED
+**Prerequisites:** D3
+
+**Gates:**
+- localbolt-v3 Netlify install/build passes in clean environment
+- PAT not required for public package install path
+- Lockfile + registry resolution deterministic
+- Required env vars minimal and documented
+- Preflight checks validate auth/registry assumptions before full build
+- Rollback procedure documented and tested (dry-run acceptable)
+
+**Deliverable:** Netlify validation report with successful post-cutover deploy evidence.
+
+---
+
+### D5 — Drift Guards + Enforcement
+
+**Status:** NOT-STARTED
+**Prerequisites:** D4
+
+**Baseline:** Use C6 guards as baseline (no duplication).
+
+**D-specific guards (additive):**
+- Reintroduction of PAT-required public install paths
+- Incorrect registry mapping for public scope
+- Deploy-path auth dependency regressions
+
+**Ownership:** Guard maintenance ownership assigned per guard.
+
+**Deliverable:** CI guard matrix with C6 baseline + D-specific additions.
+
+---
+
+### D6 — Burn-in + Closure
+
+**Status:** NOT-STARTED
+**Prerequisites:** D4, D5
+
+**Burn-in window:** Minimum 48 hours after final D4/D5 changes land.
+
+**Thresholds:**
+- Minimum 5 consecutive green CI runs per affected repo
+- Minimum 3 consecutive successful Netlify deploys (target app(s))
+- Zero recurrence of top D1 auth/registry signatures during burn-in
+- Governance counters/status reconciled
+
+**Closure:** D-STREAM-1 moves to DONE only when Netlify reliability gate is satisfied.
+
+---
+
 ## Tag Naming Rules
 
 | Workstream | Repo | Format | Example |
@@ -1159,6 +1341,9 @@ ARCH-08 invariant ("No new top-level folders under workspace root") resolved by 
 | D-E2E | bolt-daemon | `daemon-vX.Y.Z-e2e-1` | `daemon-v0.2.25-e2e-1` |
 | C-stream (consumers) | localbolt-v3, localbolt, localbolt-app | `<repo-prefix>-C<N>-<slug>` | `v3.0.70-C3-core-migration` |
 | C-stream (localbolt-core) | TBD (pending C1) | Deferred to C1 ARCH-08 disposition | — |
+| D-stream (SDK) | bolt-core-sdk | `sdk-v<next>-d3-registry-migration` | `sdk-v0.5.28-d3-registry-migration` |
+| D-stream (v3) | localbolt-v3 | `v3.0.<N>-d<phase>-<slug>` | `v3.0.75-d4-netlify-hardening` |
+| D-stream (consumers) | localbolt, localbolt-app | `<repo-prefix>-d<phase>-<slug>` | `localbolt-v1.0.25-d3-registry-migration` |
 | Governance | bolt-ecosystem | `ecosystem-v0.1.X-workstreams-N` | `ecosystem-v0.1.30-workstreams-1` |
 
 **Rules:**
@@ -1180,14 +1365,16 @@ ARCH-08 invariant ("No new top-level folders under workspace root") resolved by 
   - B5: **DONE** (`daemon-v0.2.23-b5-tofu-persist`). Independent.
   - D-E2E-A: **DONE** (`daemon-v0.2.28-d-e2e-a-live-transfer`). Live Rust↔Rust E2E.
   - D-E2E-B: **DONE** (`daemon-v0.2.30-d-e2e-b-cross-impl`). Cross-implementation TS↔Rust bidirectional E2E.
-- **Within C-stream:**
-  - C0: blocked on PM policy decision (verification UX). Must complete before C2.
-  - C1: blocked on C0. ARCH-08 disposition blocks all physical placement (C2–C7).
-  - C2: blocked on C1. Extraction from localbolt-v3.
-  - C3, C4, C5: DONE. All three consumers migrated to `@the9ines/localbolt-core@0.1.0`.
-  - C6: DONE. Guards + upgrade tooling + v3 drift check + runbook. Batch 5.
-  - C7: IN-PROGRESS. Generation guard race hardening landed in localbolt and localbolt-app. Remaining: formalized session state machine, rapid cycling integration tests.
-- **Cross-stream dependency:** C-stream is independent of A-stream and B-stream. C-stream operates at app-layer; A/B operate at SDK/daemon protocol layers. No shared code changes.
+- **Within C-stream:** COMPLETE (C0–C7 all DONE).
+- **Within D-stream:**
+  - D0: IN-PROGRESS (policy locked; D0.5 scope verification NOT-STARTED).
+  - D1: NOT-STARTED. Independent of D0 (can start in parallel).
+  - D2: BLOCKED on D1 (evidence-driven).
+  - D3: BLOCKED on D0.5 (scope ownership gate).
+  - D4: BLOCKED on D3. Critical path — Netlify hardening.
+  - D5: BLOCKED on D4. Drift guards.
+  - D6: BLOCKED on D4 + D5. Burn-in.
+- **Cross-stream dependency:** D-stream is independent of A-stream and B-stream. D-stream operates at CI/deploy/registry layer; A/B operate at SDK/daemon protocol layers. D-stream builds on C-stream outcomes (C6 guards as D5 baseline) but does not modify C-stream deliverables.
 
 ---
 
