@@ -47,7 +47,7 @@
 | Q4 | localbolt-app test coverage | LOW | **DONE-VERIFIED** | 11 tests (2 test files), coverage thresholds enforced (90/90/80/90 lines/functions/branches/statements). `@vitest/coverage-v8` installed, `test:coverage` script added, CI wired to `npm run test:coverage`. Coverage baseline: 100% on tested files (identity.ts). Ratchet prevents regression. |
 | Q5 | localbolt-v3 test pipeline | MEDIUM | **DONE** | 4 smoke tests (FAQ + app render). Phase TP: `v3.0.53-test-pipeline`. CI step before build. |
 | Q6 | localbolt-v3 coverage thresholds | MEDIUM | **DONE** | `@vitest/coverage-v8`, thresholds 45/5/31/48%. Phase Q6: `v3.0.55-coverage-thresholds`. |
-| Q7 | Disconnect/reconnect stale callback races causing incorrect UI/session state | MEDIUM | **IN-PROGRESS** | Generation-guarded stale callback rejection now wired in localbolt (`localbolt-v1.0.23-c7-tofu-wiring`, `1bcb7b8`) and localbolt-app (`localbolt-app-v1.2.6-c7-tofu-wiring`, `e902186`). All async callbacks check session generation counter before state mutation. Tests cover generation guard race hardening. Remaining: formalized session state machine with validated transitions, integration tests for rapid connect/disconnect cycling and concurrent verification callbacks. Workstream C (C7) scope. |
+| Q7 | Disconnect/reconnect stale callback races causing incorrect UI/session state | MEDIUM | **DONE-VERIFIED** | C7 closed. Generation-guarded stale callback rejection wired in all three consumers. Canonical session state machine (5-phase, `@the9ines/localbolt-core`) with generation counter incremented on every `resetSession()`. Evidence: (1) rapid 7-cycle connect/reset proving generation monotonicity + state cleanliness (`session-hardening.test.ts`, `v3.0.74-c7-closure`), (2) late verification callback from session A rejected after reset into session B, (3) A→B→C session isolation with no state leakage, (4) stale accepted signal after cancel, (5) phase guards rejecting invalid transitions (5 tests), (6) transfer progress + verification state cleared on reset. Consumer wiring: localbolt 300 tests (generation guard race hardening suite), localbolt-app 11 tests (`tofu-integration.test.ts:161` stale callback guard). |
 | Q8 | Verification policy mismatch between runtime behavior and tests/docs | MEDIUM | **DONE-VERIFIED** | C0 resolved: PM policy decision locked — `unverified` blocks file transfer. Codified in `v3.0.70-session-hardening-cpre2` (`cac5e4a`). Runtime behavior, test expectations, and documentation now consistent. |
 | Q9 | App-layer behavior drift across localbolt-v3, localbolt, localbolt-app | MEDIUM | **DONE-VERIFIED** | C2–C5 resolved: all three consumers now depend on `@the9ines/localbolt-core@0.1.0`. Canonical extraction baseline: session state machine, verification state bus, transfer gating policy. Tags: `v3.0.71-localbolt-core-c2`, `localbolt-v1.0.21-c4-localbolt-core`, `localbolt-app-v1.2.4-c5-localbolt-core`. |
 | Q10 | Missing app-layer drift guards (transport guarded, app layer not guarded) | MEDIUM | **DONE-VERIFIED** | C6 complete: CI-enforced core guard scripts (version-pin, single-install, drift) active in localbolt and localbolt-app. `upgrade-localbolt-core.sh` (check + write modes) added to both consumers. localbolt-v3 core drift guard added to CI (`packages/localbolt-web/src`). Workspace exemption documented (v3 is origin workspace — pin/single-install not applicable). Manual drift validation runbook in `docs/LOCALBOLT_CORE_DRIFT_RUNBOOK.md`. |
@@ -89,11 +89,11 @@ Product repos on main are pinned to published SDK releases.
 ## SUMMARY
 
 - **Total findings:** 110 (41 prior + 19 SA-series + 11 N-series + 25 AC-series + 9 DP-series + 1 NF-series + 4 Q-series)
-- **DONE / DONE-VERIFIED:** 89 (+Q4, +Q10 in Batch 5)
+- **DONE / DONE-VERIFIED:** 90 (+Q7 in Batch 6)
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 6 (SA11, SA15, N9, AC-23, AC-24, AC-25)
-- **IN-PROGRESS:** 1 (Q7)
+- **IN-PROGRESS:** 0
 - **DEFERRED:** 1 (I4)
 - **OPEN:** 0
 - **Residual risk:** See `bolt-core-sdk/docs/SECURITY_POSTURE.md`.

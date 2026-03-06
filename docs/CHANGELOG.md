@@ -5,6 +5,23 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## Batch 6 — C7 Closure (Gap-Driven Audit + Targeted Test Fill) — 2026-03-05
+
+- **C7 DONE:** Session UX race-hardening fully closed (Q7 → DONE-VERIFIED)
+  - Gap-driven audit identified 2 missing evidence scenarios in `@the9ines/localbolt-core`
+  - Added: rapid 7-cycle connect/reset monotonicity test (generation counter, state cleanliness, stale rejection)
+  - Added: late verification callback from previous peer rejected after session switch
+  - Prior evidence confirmed: session state machine (5-phase), A→B→C isolation, stale signal rejection, phase guards, transfer/verification cleanup
+  - No runtime changes needed — existing code already handles all C7 scenarios
+  - localbolt (300 tests) and localbolt-app (11 tests) unchanged — existing coverage sufficient
+  - Tag: `v3.0.74-c7-closure` (`b867426`)
+- **Q7 DONE-VERIFIED:** All disconnect/reconnect stale callback race scenarios covered
+- Audit counters: **110 total, 90 DONE, 0 OPEN, 0 IN-PROGRESS**
+- C-Stream: all phases C0–C7 DONE
+- Updated: `docs/AUDIT_TRACKER.md`, `docs/CHANGELOG.md`, `docs/STATE.md`
+
+---
+
 ## Batch 5 — C6 Hardening Completion + Q4 Closure — 2026-03-05
 
 - **C6 DONE:** localbolt-core drift/upgrade hardening completed
