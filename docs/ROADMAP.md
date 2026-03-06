@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative
-> **Last Updated:** 2026-03-06 (S-STREAM-R1 codification)
+> **Last Updated:** 2026-03-06 (S-STREAM-R1 R1-1 disposition)
 > **Authority:** PM-approved execution plan.
 
 ---
@@ -435,28 +435,30 @@ Workstream D (independent of A/B/S, builds on C6 guards):
   D1 (failure triage) → D2 (CI stabilization)
 
 S-STREAM-R1 (security/foundation recovery, independent of D-stream):
-  R1-0 (baseline evidence) → R1-1 (architecture decision + SA1 path)
-    ├── R1-2 (daemon remediation) ─────┐
-    └── R1-3 (product crypto converge) ─┼── R1-5 (validation gates)
-         └── R1-4 (security test lift) ─┘         └── R1-6 (closure)
+  R1-0 (baseline evidence) ✓ → R1-1 (dispositions locked) ✓
+    ├── R1-2 (daemon remediation) ✓ DONE-NO-ACTION
+    ├── R1-3 (product crypto converge) ✓ DONE-NO-ACTION
+    └── R1-4 (security test lift) ← PRIMARY REMAINING SCOPE
+         └── R1-5 (validation) → R1-6 (closure)
 ```
 
 ---
 
 ## S-STREAM-R1 — Security/Foundation Recovery
 
-**Status:** CODIFIED (NOT-STARTED)
+**Status:** IN-PROGRESS (R1-1 DONE — R1-4 is primary remaining scope)
 **Codified:** ecosystem-v0.1.65-s-stream-r1-codify (2026-03-06)
+**R1-1:** ecosystem-v0.1.67-s-stream-r1-r1.1-disposition (2026-03-06)
 **Priority:** Resolve foundational security/runtime risks before further UX work.
 
 | Phase | Description | Status | Dependencies |
 |-------|-------------|--------|-------------|
 | R1-0 | Baseline evidence + risk classification | **DONE** | None |
-| R1-1 | Architecture decision (evidence-informed) | NOT-STARTED | R1-0 |
-| R1-2 | Daemon remediation + security tests | NOT-STARTED | R1-1 |
-| R1-3 | Product crypto-path convergence | NOT-STARTED | R1-1 |
-| R1-4 | Security-focused product test lift | NOT-STARTED | R1-3 |
-| R1-5 | Validation gates | NOT-STARTED | R1-2, R1-3, R1-4 |
+| R1-1 | Architecture decision (evidence-informed) | **DONE** | R1-0 |
+| R1-2 | Daemon remediation + security tests | **DONE-NO-ACTION** | R1-1 |
+| R1-3 | Product crypto-path convergence | **DONE-NO-ACTION** | R1-1 |
+| R1-4 | Security-focused product test lift | NOT-STARTED | R1-1 |
+| R1-5 | Validation gates | NOT-STARTED | R1-4 |
 | R1-6 | Governance reconciliation + closure | NOT-STARTED | R1-5 |
 
 Full specification in `docs/GOVERNANCE_WORKSTREAMS.md` (S-STREAM-R1 section).

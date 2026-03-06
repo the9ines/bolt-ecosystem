@@ -5,6 +5,23 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## S-STREAM-R1 R1-1 Architecture Disposition — Decision — 2026-03-06
+
+- **R1-1 DONE:** Formal dispositions locked based on R1-0 evidence
+- **D1 — SA1 Disposition: Path C** — SA1 closure confirmed. No new finding registered, no SA1 reopen.
+  - Evidence: R1-0 daemon key-role inventory — identity persistent/TOFU-only, ephemeral per-session/crypto-only, 22 tests, zero ambiguous usage
+- **D2 — R1-2: DONE-NO-ACTION** — No unresolved daemon architecture risk. SA1 separation verified complete.
+- **D3 — R1-3: DONE-NO-ACTION** — All 3 products already use SDK-mediated crypto exclusively. Zero direct tweetnacl calls.
+- **D4 — R1-4: Scope locked** as primary remaining S-STREAM-R1 execution scope:
+  - localbolt: HIGH — 300 tests, 0 security (handshake/crypto-path/session state)
+  - localbolt-app: HIGH — 11 tests, smoketest only
+  - localbolt-v3: MEDIUM — verify if C7/H5-v3 coverage is adequate
+- No runtime code changes made
+- Tag: `ecosystem-v0.1.67-s-stream-r1-r1.1-disposition`
+- Audit counters unchanged: **110 total, 90 DONE, 0 OPEN, 0 IN-PROGRESS**
+
+---
+
 ## S-STREAM-R1 R1-0 Baseline Evidence — Execution — 2026-03-06
 
 - **R1-0 DONE:** Baseline evidence + risk classification complete across all in-scope repos

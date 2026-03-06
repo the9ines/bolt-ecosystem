@@ -5,12 +5,12 @@ Snapshot Derived From:
 - v3.0.78-d5-registry-guards (fec153b)
 - localbolt-v1.0.26-d5-registry-guards (76ae224)
 - localbolt-app-v1.2.9-d5-registry-guards (93afc2c)
-Last Refreshed By: S-STREAM-R1 R1-0 baseline
+Last Refreshed By: S-STREAM-R1 R1-1 disposition
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-06 (S-STREAM-R1 R1-0 baseline)
+> **Last Updated:** 2026-03-06 (S-STREAM-R1 R1-1 disposition)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -175,22 +175,23 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 
 > **Codified:** ecosystem-v0.1.65-s-stream-r1-codify (2026-03-06)
 > **R1-0:** ecosystem-v0.1.66-s-stream-r1-r1.0-baseline (2026-03-06)
-> **Status:** IN-PROGRESS (R1-0 DONE)
+> **R1-1:** ecosystem-v0.1.67-s-stream-r1-r1.1-disposition (2026-03-06)
+> **Status:** IN-PROGRESS (R1-1 DONE — R1-4 is primary remaining scope)
 
 | Phase | Description | Status | Repo(s) | Tag(s) | Commit(s) |
 |-------|-------------|--------|---------|--------|-----------|
 | R1-0 | Baseline evidence + risk classification | **DONE** | bolt-daemon, localbolt-v3, localbolt, localbolt-app, bolt-core-sdk | `ecosystem-v0.1.66-s-stream-r1-r1.0-baseline` | `1feddff` |
-| R1-1 | Architecture decision (evidence-informed) | NOT-STARTED | bolt-daemon, bolt-ecosystem | — | — |
-| R1-2 | Daemon remediation + security tests | NOT-STARTED | bolt-daemon | — | — |
-| R1-3 | Product crypto-path convergence | NOT-STARTED | localbolt-v3, localbolt, localbolt-app, bolt-core-sdk (if needed) | — | — |
-| R1-4 | Security-focused product test lift | NOT-STARTED | localbolt-v3, localbolt, localbolt-app | — | — |
+| R1-1 | Architecture decision (evidence-informed) | **DONE** | bolt-ecosystem | `ecosystem-v0.1.67-s-stream-r1-r1.1-disposition` | (this commit) |
+| R1-2 | Daemon remediation + security tests | **DONE-NO-ACTION** | — | — | — |
+| R1-3 | Product crypto-path convergence | **DONE-NO-ACTION** | — | — | — |
+| R1-4 | Security-focused product test lift | NOT-STARTED | localbolt, localbolt-app, localbolt-v3 (verify) | — | — |
 | R1-5 | Validation gates | NOT-STARTED | all touched repos | — | — |
 | R1-6 | Governance reconciliation + closure | NOT-STARTED | bolt-ecosystem | — | — |
 
 ### Ledger Notes
 
 - **R1-0 DONE** (2026-03-06): Baseline evidence + risk classification complete.
-- SA1 handling rule documented: Path A (new finding) or Path B (explicit reopen), decided in R1-1.
+- **R1-1 DONE** (2026-03-06): Dispositions locked. SA1 Path C (closure stands). R1-2 DONE-NO-ACTION (no daemon architecture risk). R1-3 DONE-NO-ACTION (products already SDK-mediated). R1-4 confirmed as primary remaining scope.
 - Full specification in `docs/GOVERNANCE_WORKSTREAMS.md` (S-STREAM-R1 section).
 
 ### R1-0 Baseline Metrics (command-backed, 2026-03-06)

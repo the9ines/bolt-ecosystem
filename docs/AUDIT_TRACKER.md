@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-06 (S-STREAM-R1 codification)
+**Last updated:** 2026-03-06 (S-STREAM-R1 R1-1 disposition)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -100,21 +100,18 @@ Product repos on main are pinned to published SDK releases.
 
 ---
 
-## S-STREAM-R1 (Security/Foundation Recovery) — Codified
+## S-STREAM-R1 (Security/Foundation Recovery) — R1-1 Dispositions Locked
 
 > **Codified:** ecosystem-v0.1.65-s-stream-r1-codify (2026-03-06)
-> **Status:** Placeholder section — no concrete findings until R1-0 execution produces evidence.
-> **Rule:** S-STREAM-R1 placeholder does NOT increment total findings. Total remains 110 until R1-0/R1-2/R1-3/R1-4 produce concrete new findings.
+> **R1-1:** ecosystem-v0.1.67-s-stream-r1-r1.1-disposition (2026-03-06)
+> **Status:** No new findings registered. SA1 Path C confirmed (closure stands). R1-2/R1-3 DONE-NO-ACTION.
+> **Rule:** S-STREAM-R1 placeholder does NOT increment total findings. Total remains 110. R1-4 may register findings if evidence warrants.
 
 | ID | Finding | Severity | Status | Evidence |
 |----|---------|----------|--------|----------|
-| (reserved) | R1-F series — findings registered during execution | TBD | NOT-STARTED | Awaiting R1-0 baseline evidence |
+| (reserved) | R1-F series — available for R1-4 if needed | TBD | NOT-STARTED | No findings registered in R1-0/R1-1. R1-4 may register if evidence warrants. |
 
-> **SA1 handling rule:** SA1 is currently DONE-VERIFIED. If R1-0/R1-1 confirms a daemon key-architecture risk:
-> - **Path A (preferred):** Register new R1-F series finding. SA1 unchanged.
-> - **Path B:** Explicitly reopen SA1 with new evidence and status transition rationale.
-> - Decision MUST be made in R1-1 with evidence, before R1-2 implementation.
-> - This codification does NOT pre-decide the path.
+> **SA1 disposition (R1-1, Path C):** SA1 DONE-VERIFIED status confirmed. R1-0 evidence shows daemon key-role separation is complete (identity persistent/TOFU-only, ephemeral per-session/crypto-only, 22 tests, zero ambiguous usage). No new finding registered (Path A not needed). No SA1 reopen (Path B not needed). Decision recorded in `GOVERNANCE_WORKSTREAMS.md` §R1-1 Disposition Decisions.
 
 ---
 
