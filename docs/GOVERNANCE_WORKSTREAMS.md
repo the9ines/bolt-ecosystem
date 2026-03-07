@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-07 (N-STREAM-1 N1+N2 lock)
+> **Updated:** 2026-03-07 (N-STREAM-1 N3 supervision spec lock)
 > **Tag:** ecosystem-v0.1.74-n-stream-1-n1-n2-lock
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
@@ -1598,9 +1598,11 @@ R1-0 (baseline evidence) ✓ DONE
 
 **Repos:** localbolt-app (primary), bolt-ecosystem (governance). Future: bytebolt-app (as approved).
 **Goal:** Define how native apps bundle and lifecycle-manage bolt-daemon so they operate as one product safely and predictably.
-**Status:** N0 DONE, N1–N7 NOT-STARTED
+**Status:** N0/N1/N2/N3 DONE, N4–N7 NOT-STARTED
 **Codified:** ecosystem-v0.1.72-n-stream-1-codify (2026-03-07)
 **N0 locked:** ecosystem-v0.1.73-n-stream-1-n0-policy-lock (2026-03-07)
+**N1+N2 locked:** ecosystem-v0.1.74-n-stream-1-n1-n2-lock (2026-03-07)
+**N3 locked:** ecosystem-v0.1.75-n-stream-1-n3-supervision (2026-03-07)
 **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ### Ownership Boundary: N-STREAM-1 vs B-STREAM
@@ -1636,8 +1638,8 @@ Any N-stream phase requiring new top-level folders under workspace root MUST res
 |-------|-------------|--------|-------------|---------------------|
 | N0 | Policy lock | **DONE** | None | All 8 policy decisions locked (D0.1–D0.8). See N0 Decision Record below. |
 | N1 | Packaging + security matrix | **DONE** | N0 | Per-platform matrix locked (macOS/Windows/Linux). See N1 Specification below. |
-| N2 | IPC contract stabilization | **DONE** (spec locked, implementation dependencies open) | N0 | IPC contract baseline locked (5 stable + 2 provisional messages). B-DEP-N2-1/2/3 block N3/N6, not this spec lock. See N2 Specification below. |
-| N3 | Process supervision + diagnostics | NOT-STARTED | N2 | Watchdog strategy; readiness checks; backoff/retry behavior; stale socket/process cleanup; diagnostics/logging surface |
+| N2 | IPC contract stabilization | **DONE** (spec locked, implementation dependencies open) | N0 | IPC contract baseline locked (5 stable + 2 provisional messages). B-DEP-N2-1/2 block N6 impl (N3 spec locked); B-DEP-N2-3 blocks N6 Windows. See N2 Specification below. |
+| N3 | Process supervision + diagnostics | **DONE** (spec locked; B-DEP-N2-1/N2-2 block N6 impl) | N2 | Watchdog state machine (5 states), retry/backoff (1s/3s/10s, 3 max), stale cleanup algorithm, stderr capture + support bundle, user-visible status transitions. See N3 Specification below. |
 | N4 | Rollout + migration | NOT-STARTED | N1, N2 | Staged rollout plan (dev/beta/prod); rollback strategy; app/daemon version-skew compatibility matrix |
 | N5 | Acceptance harness | NOT-STARTED | N2, N3 | E2E bundling/lifecycle validation plan; platform-specific acceptance gates; failure-injection tests (crash/restart/update) |
 | N6 | Execution + hardening | NOT-STARTED | N4, N5 | Implementation sequencing tied to dependencies; hardening checkpoints against observed failures. Execution acceptance criteria are structure-only at codification; detailed gates defined in N-stream execution prompts |
@@ -2102,6 +2104,339 @@ These gaps require daemon-side changes. Recorded here; implementation is B-STREA
 | B-DEP-N2-1 | `daemon.status` event must be emitted in default mode on client connect (currently simulate-mode only) | N3 (supervision readiness check) | High |
 | B-DEP-N2-2 | `version.handshake` (app->daemon) and `version.status` (daemon->app) messages must be implemented | N3 (version-gated supervision) | High |
 | B-DEP-N2-3 | Windows named pipe support (daemon currently Unix socket only) | N6 (Windows platform) | Medium |
+
+---
+
+### N3 — Process Supervision + Diagnostics (Specification)
+
+**Status:** DONE (spec locked; B-DEP-N2-1/N2-2 block N6 implementation, not this spec lock)
+**Tag:** `ecosystem-v0.1.75-n-stream-1-n3-supervision`
+**Date:** 2026-03-07
+**Scope:** localbolt-app supervision of bolt-daemon process. Spec-only — no runtime code.
+**Dependencies consumed:** N0 (D0.1–D0.8), N1 (N1-T2 spawn model, N1-T4 filesystem locations), N2 (readiness contract, version handshake, error contract)
+
+#### N3-W1: Watchdog State Machine
+
+The app watchdog manages daemon lifecycle through five states:
+
+| State | Entry Condition | User-Visible Label | Transfer UI |
+|-------|----------------|-------------------|-------------|
+| `starting` | App launch OR manual restart | "Starting connection service..." | Disabled |
+| `ready` | `daemon.status` received via IPC (N2-S2) | "Ready" (or hidden) | Enabled |
+| `restarting` | Daemon process exits unexpectedly, retries remaining | "Reconnecting... (N/3)" | Disabled |
+| `degraded` | 3 restart attempts exhausted (N0 D0.4) | "Connection service stopped — restart required" | Disabled |
+| `incompatible` | `version.status` returns `compatible: false` (N2-S3) | "Daemon version incompatible — update required" | Disabled |
+
+**Transitions:**
+
+```
+                    ┌──────────────────────────────────────────┐
+                    │                                          ▼
+[app launch] → starting ──(daemon.status)──→ ready ──(crash)──→ restarting
+                  │                            │                    │
+                  │                            │               (retries < 3)
+                  │                            │                    │
+                  │                            │              restarting ──(daemon.status)──→ ready
+                  │                            │                    │
+                  │                            │               (retries = 3)
+                  │                            │                    │
+                  │                            │                    ▼
+                  │                            │               degraded ──(manual restart)──→ starting
+                  │                            │
+                  │                            └──(app exit)──→ [shutdown]
+                  │
+                  └──(version mismatch)──→ incompatible ──(app update)──→ [restart app]
+                  └──(10s timeout)──→ degraded
+```
+
+**State invariants:**
+
+| ID | Invariant | Normative |
+|----|-----------|-----------|
+| W-01 | Transfer UI MUST be disabled in all states except `ready` | REQUIRED |
+| W-02 | State transitions MUST be logged with `[WATCHDOG]` token | REQUIRED |
+| W-03 | `incompatible` is terminal for the session — no auto-retry | REQUIRED |
+| W-04 | `degraded` is recoverable only via explicit user action (manual restart button) | REQUIRED |
+| W-05 | Watchdog MUST NOT spawn daemon if already in `ready` state | REQUIRED |
+| W-06 | Watchdog MUST track retry count and reset after 60s of continuous `ready` | REQUIRED (N0 D0.4) |
+
+**Implementation note (B-DEP-N2-1):** Transition from `starting` to `ready` requires `daemon.status` event. Daemon currently emits this only in simulate mode (`src/main.rs:1085-1098`). N6 implementation of this transition is BLOCKED until B-STREAM delivers `daemon.status` in default mode.
+
+**Implementation note (B-DEP-N2-2):** Transition from `starting` to `incompatible` requires `version.status` response. `version.handshake` and `version.status` messages do not exist in current daemon. N6 implementation of version-gated supervision is BLOCKED until B-STREAM delivers these messages.
+
+#### N3-W2: Retry and Backoff Semantics
+
+Operationalizes N0 D0.4 policy into concrete algorithm:
+
+| Parameter | Value | Source |
+|-----------|-------|--------|
+| Max retries | 3 | N0 D0.4 |
+| Backoff schedule | 1s, 3s, 10s | N0 D0.4 |
+| Success reset window | 60s of continuous `ready` state | N0 D0.4 |
+| Retry counter scope | Per app session (reset on app restart) | N0 D0.4 |
+
+**Algorithm:**
+
+```
+retry_count = 0
+last_ready_time = null
+
+on daemon_exit(exit_code):
+    if retry_count >= 3:
+        transition(degraded)
+        return
+
+    delay = [1s, 3s, 10s][retry_count]
+    retry_count += 1
+    transition(restarting)
+    log("[WATCHDOG] daemon exited (code={exit_code}), retry {retry_count}/3 in {delay}s")
+    sleep(delay)
+    run_cleanup()       # N3-W3
+    spawn_daemon()
+
+on transition_to_ready:
+    last_ready_time = now()
+
+on heartbeat_tick (every 10s while ready):
+    if now() - last_ready_time >= 60s:
+        retry_count = 0
+        log("[WATCHDOG] success window reached, retry counter reset")
+```
+
+**Edge cases:**
+
+| Scenario | Behavior |
+|----------|----------|
+| Daemon exits with code 0 during shutdown | NOT a crash — do not retry |
+| Daemon exits while app is shutting down | Ignore — app is exiting |
+| Rapid crash loop (daemon exits < 1s after spawn) | Normal backoff applies; 3 retries then degraded |
+| Manual restart from degraded | Reset retry_count to 0, transition to `starting` |
+
+#### N3-W3: Stale Socket/Process Cleanup Algorithm
+
+**Existing daemon behavior (audited):**
+- `IpcServer::start()` (`src/ipc/server.rs:112-116`): removes existing socket file before bind (unconditional `remove_file`)
+- `IpcServer::drop()` (`src/ipc/server.rs:344-351`): removes socket file on server drop
+- No PID file management exists in daemon code (confirmed: zero PID file references in production source)
+
+**App-side cleanup algorithm (pre-spawn):**
+
+```
+function run_cleanup():
+    socket_path = platform_socket_path()    # N1-T4
+    pid_path = platform_pid_path()          # N1-T4
+
+    # Step 1: Check PID file
+    if pid_path.exists():
+        pid = read_pid(pid_path)
+        if process_alive(pid):
+            # Daemon already running — probe socket
+            if socket_path.exists() and socket_probe_ok(socket_path):
+                log("[WATCHDOG] existing daemon alive (pid={pid}), connecting")
+                return CONNECT_EXISTING
+            else:
+                # Process alive but socket missing — kill and respawn
+                log("[WATCHDOG] daemon alive (pid={pid}) but socket missing, killing")
+                kill(pid, SIGTERM)
+                wait_or_sigkill(pid, 5s)
+        # Process dead — clean up PID file
+        remove(pid_path)
+        log("[WATCHDOG] cleaned stale PID file")
+
+    # Step 2: Check stale socket
+    if socket_path.exists():
+        if socket_probe_ok(socket_path):
+            log("[WATCHDOG] responsive daemon found via socket probe, connecting")
+            return CONNECT_EXISTING
+        else:
+            remove(socket_path)
+            log("[WATCHDOG] removed stale socket: {socket_path}")
+
+    return SPAWN_NEW
+```
+
+**Socket probe:** Non-blocking connect attempt to Unix socket. If connection succeeds, daemon is alive — return probe success. If connection refused or timeout (500ms), socket is stale.
+
+**PID file contract:**
+- Written by app after successful daemon spawn: `write(pid_path, daemon_pid)`
+- App-owned (not daemon-owned) — daemon does not write or read PID files
+- Permissions: `0600` (owner-only, consistent with N1-T5)
+- Removed by cleanup algorithm on stale detection or by app on clean shutdown
+
+**Platform paths (from N1-T4):**
+
+| Platform | Socket | PID File |
+|----------|--------|----------|
+| macOS | `$TMPDIR/bolt-daemon.sock` | `$TMPDIR/bolt-daemon.pid` |
+| Windows | `\\.\pipe\bolt-daemon` | `%LOCALAPPDATA%\bolt-daemon\bolt-daemon.pid` |
+| Linux | `$XDG_RUNTIME_DIR/bolt-daemon.sock` | `$XDG_RUNTIME_DIR/bolt-daemon.pid` |
+
+#### N3-W4: Shutdown Lifecycle Contract
+
+Operationalizes N0 D0.3:
+
+```
+function shutdown_daemon():
+    if active_transfer():
+        prompt_user("Transfer in progress — stop anyway?")
+        if user_cancels: return    # abort shutdown
+
+    log("[WATCHDOG] initiating daemon shutdown")
+    send_signal(daemon_pid, SIGTERM)
+
+    if wait_exit(daemon_pid, 5s):
+        log("[WATCHDOG] daemon exited cleanly")
+    else:
+        log("[WATCHDOG] daemon did not exit in 5s, sending SIGKILL")
+        send_signal(daemon_pid, SIGKILL)
+        wait_exit(daemon_pid, 1s)  # SIGKILL is guaranteed on Unix
+
+    run_cleanup()  # Remove socket + PID file
+```
+
+**App exit integration:** Tauri `on_exit` hook triggers `shutdown_daemon()`. Watchdog suppresses restart attempts during shutdown (shutdown flag).
+
+#### N3-W5: stderr/Log Capture Contract
+
+**Daemon output model:** Daemon writes all diagnostic output to stderr via `eprintln!()`. No structured logging framework. Log tokens (e.g., `[IPC]`, `[dc]`, `[simulate]`) provide grep-friendly categorization.
+
+**App capture contract:**
+
+| Aspect | Specification | Normative |
+|--------|--------------|-----------|
+| Capture method | Pipe daemon subprocess stderr to app-side ring buffer | REQUIRED |
+| Buffer size | Last 1000 lines (configurable, minimum 500) | REQUIRED |
+| Persistence | In-memory only; written to disk on crash or support bundle export | REQUIRED |
+| Crash snapshot | On daemon crash: write last 200 lines to `{log_dir}/daemon-crash-{timestamp}.log` | REQUIRED |
+| Crash token | App logs `[DAEMON_CRASH] exit_code={code} pid={pid} retry={N}/3` | REQUIRED |
+| Crash count | Per-session counter, no telemetry transmission | REQUIRED (N0 D0.6) |
+
+**Log directory (from N1-T4):**
+
+| Platform | Log Directory |
+|----------|--------------|
+| macOS | `~/Library/Logs/LocalBolt/` |
+| Windows | `%LOCALAPPDATA%\LocalBolt\logs\` |
+| Linux | `$XDG_STATE_HOME/localbolt/log/` (fallback: `~/.local/state/localbolt/log/`) |
+
+**Support bundle minimums:**
+
+A support bundle export MUST include:
+1. Last 1000 lines of daemon stderr (or all captured if < 1000)
+2. All crash snapshots from current app session
+3. Watchdog state transition log (with timestamps)
+4. App version + daemon version (if obtained via version handshake)
+5. Platform identifier (OS, arch)
+6. Daemon spawn count and current retry state
+
+Support bundle MUST NOT include:
+- Identity keys or TOFU pins
+- Transfer content or filenames
+- Peer codes or IP addresses
+
+#### N3-W6: User-Visible Status Transitions and Action Affordances
+
+| State | Status Indicator | Primary Action | Secondary Action |
+|-------|-----------------|---------------|-----------------|
+| `starting` | Spinner + "Starting connection service..." | None (auto) | — |
+| `ready` | Green dot (or hidden) | Transfer UI enabled | — |
+| `restarting` | Spinner + "Reconnecting... (N/3)" | None (auto) | — |
+| `degraded` | Red indicator + "Connection service stopped — restart required" | "Restart" button | "Export logs" button |
+| `incompatible` | Warning icon + "Daemon version incompatible — update required" with version details | "Check for updates" or app store link | "Export logs" button |
+
+**Transition notifications:**
+- `ready → restarting`: Non-blocking toast/banner: "Connection interrupted — reconnecting..."
+- `restarting → ready`: Toast auto-dismiss, transfer UI re-enables
+- `restarting → degraded`: Persistent banner (does not auto-dismiss)
+- `starting → degraded` (10s timeout): Same as above
+
+**Accessibility:** Status text MUST be screen-reader accessible. State changes MUST update ARIA live region.
+
+#### N3 Readiness Matrix (P1 Result)
+
+| N3 Sub-item | Spec Status | N6 Implementation Status | Blocker |
+|-------------|------------|------------------------|---------|
+| N3-W1: Watchdog state machine | **LOCKED** | Partially blocked | B-DEP-N2-1 (readiness transition), B-DEP-N2-2 (incompatible transition) |
+| N3-W2: Retry/backoff | **LOCKED** | Unblocked | — |
+| N3-W3: Stale cleanup | **LOCKED** | Unblocked | — |
+| N3-W4: Shutdown lifecycle | **LOCKED** | Unblocked | — |
+| N3-W5: stderr/log capture | **LOCKED** | Unblocked | — |
+| N3-W6: User-visible status | **LOCKED** | Partially blocked | B-DEP-N2-1 (ready indicator), B-DEP-N2-2 (incompatible indicator) |
+
+**Conclusion:** All 6 N3 sub-items are spec-locked. N6 implementation of readiness detection (`starting → ready`) and version-gated supervision (`starting → incompatible`) is blocked by B-DEP-N2-1 and B-DEP-N2-2 respectively. Remaining N3 sub-items (retry, cleanup, shutdown, stderr capture, degraded UX) are fully unblocked for N6 implementation.
+
+#### N3 Acceptance Checklist (for N5 harness)
+
+- [ ] AC-N3-1: Watchdog transitions through all 5 states correctly
+- [ ] AC-N3-2: `starting → ready` transition on `daemon.status` receipt (BLOCKED: B-DEP-N2-1)
+- [ ] AC-N3-3: `starting → incompatible` on version mismatch (BLOCKED: B-DEP-N2-2)
+- [ ] AC-N3-4: Crash triggers retry with correct backoff (1s, 3s, 10s)
+- [ ] AC-N3-5: 3 consecutive crashes → `degraded` state
+- [ ] AC-N3-6: Retry counter resets after 60s continuous `ready`
+- [ ] AC-N3-7: Manual restart from `degraded` resets counter and transitions to `starting`
+- [ ] AC-N3-8: Stale socket detected and removed before respawn
+- [ ] AC-N3-9: PID file written after spawn, cleaned on shutdown/stale detection
+- [ ] AC-N3-10: Daemon stderr captured in ring buffer (minimum 500 lines)
+- [ ] AC-N3-11: Crash snapshot written to log directory with `[DAEMON_CRASH]` token
+- [ ] AC-N3-12: Support bundle export includes all required items, excludes sensitive data
+- [ ] AC-N3-13: SIGTERM + 5s grace + SIGKILL shutdown sequence
+- [ ] AC-N3-14: Transfer UI disabled in all non-ready states
+- [ ] AC-N3-15: Status transitions logged with `[WATCHDOG]` token
+
+#### N3 → N6 Implementation Readiness Plan
+
+**Implementation sequence (N6, by component/repo):**
+
+1. **localbolt-app (Rust/Tauri side):**
+   a. Add `bolt-daemon` as Tauri sidecar in `tauri.conf.json` (N1-T1)
+   b. Implement `DaemonWatchdog` struct with state machine (N3-W1)
+   c. Implement `run_cleanup()` pre-spawn logic (N3-W3)
+   d. Implement subprocess spawn + stderr pipe capture (N3-W5)
+   e. Implement PID file write/cleanup
+   f. Implement shutdown hook via Tauri `on_exit` (N3-W4)
+   g. Implement retry/backoff timer (N3-W2)
+   h. Wire `daemon.status` IPC parsing for readiness (BLOCKED: B-DEP-N2-1)
+   i. Wire `version.handshake`/`version.status` flow (BLOCKED: B-DEP-N2-2)
+
+2. **localbolt-app (TypeScript/UI side):**
+   a. Add watchdog status component (N3-W6)
+   b. Wire Tauri event bridge for state transitions
+   c. Implement degraded mode UI (restart button, log export)
+   d. Implement incompatible mode UI (update prompt)
+   e. Transfer UI gating based on watchdog state (W-01)
+
+3. **bolt-daemon (B-STREAM — handoff items):**
+   a. B-DEP-N2-1: Emit `daemon.status` on client connect in default mode
+   b. B-DEP-N2-2: Implement `version.handshake` (inbound) and `version.status` (outbound) messages
+
+**Test/validation hooks needed for N5 harness:**
+- Watchdog state machine unit tests (all transitions, edge cases)
+- Retry/backoff timing tests (mock clock)
+- Stale socket cleanup tests (mock filesystem)
+- stderr capture + crash snapshot tests
+- Support bundle content validation
+- Shutdown sequence tests (mock process signals)
+- Integration test: spawn real daemon binary, verify readiness flow (requires B-DEP-N2-1)
+- Integration test: version mismatch → incompatible state (requires B-DEP-N2-2)
+
+**Dependency handoff list to B-STREAM:**
+
+| Handoff | B-DEP ID | Priority | N6 Impact |
+|---------|----------|----------|-----------|
+| Emit `daemon.status` in default mode on client connect | B-DEP-N2-1 | **High** | Blocks readiness detection — core supervision flow |
+| Implement `version.handshake` + `version.status` | B-DEP-N2-2 | **High** | Blocks version-gated supervision — incompatible state |
+
+**Rollback requirements:**
+- App MUST function without daemon (degraded mode) if daemon binary is missing or fails to start
+- If watchdog implementation regresses app stability, revert to pre-N6 state (no daemon bundling) via standard Tauri sidecar removal
+- No daemon-side rollback needed — N6 does not modify daemon runtime
+
+**Observability requirements:**
+- `[WATCHDOG]` log token for all state transitions
+- `[DAEMON_CRASH]` log token for crash events
+- `[DAEMON_SPAWN]` log token for spawn events
+- `[DAEMON_SHUTDOWN]` log token for clean shutdown
+- Crash count metric (in-memory, per session)
 
 ---
 

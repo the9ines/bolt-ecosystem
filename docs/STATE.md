@@ -10,7 +10,7 @@ Last Refreshed By: S-STREAM-R1 R1-5/R1-6 closeout
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-07 (N-STREAM-1 N1+N2 lock)
+> **Last Updated:** 2026-03-07 (N-STREAM-1 N3 supervision spec lock)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -670,26 +670,28 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 
 **Scope guardrails:** No protocol, wire-format, or cryptographic changes. A-stream preserves WebRTCService public API.
 
-### N-STREAM-1 — Native App + Daemon Bundling (localbolt-app): N0/N1/N2 DONE
+### N-STREAM-1 — Native App + Daemon Bundling (localbolt-app): N0/N1/N2/N3 DONE
 
 | ID | Goal | Status | Tag |
 |----|------|--------|-----|
 | N0 | Policy lock (D0.1–D0.8) | **DONE** | `ecosystem-v0.1.73-n-stream-1-n0-policy-lock` |
 | N1 | Packaging + security matrix (macOS/Windows/Linux) | **DONE** | `ecosystem-v0.1.74-n-stream-1-n1-n2-lock` |
 | N2 | IPC contract stabilization | **DONE** (spec locked, impl deps open) | `ecosystem-v0.1.74-n-stream-1-n1-n2-lock` |
-| N3 | Process supervision + diagnostics | NOT-STARTED | -- |
+| N3 | Process supervision + diagnostics | **DONE** (spec locked; B-DEP-N2-1/N2-2 block N6 impl) | `ecosystem-v0.1.75-n-stream-1-n3-supervision` |
 | N4 | Rollout + migration | NOT-STARTED | -- |
 | N5 | Acceptance harness | NOT-STARTED | -- |
 | N6 | Execution + hardening | NOT-STARTED | -- |
 | N7 | Closure | NOT-STARTED | -- |
 
-Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem-v0.1.73-n-stream-1-n0-policy-lock (2026-03-07). N1+N2 locked: ecosystem-v0.1.74-n-stream-1-n1-n2-lock (2026-03-07). N-STREAM-1 governs app bundling, process lifecycle, packaging, supervision, and operator UX for daemon integration. B-STREAM governs daemon protocol/runtime. N-STREAM-1 consumes daemon API surface; does not redefine it. Primary target: localbolt-app. Finding series `N1-F*` reserved.
+Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem-v0.1.73-n-stream-1-n0-policy-lock (2026-03-07). N1+N2 locked: ecosystem-v0.1.74-n-stream-1-n1-n2-lock (2026-03-07). N3 locked: ecosystem-v0.1.75-n-stream-1-n3-supervision (2026-03-07). N-STREAM-1 governs app bundling, process lifecycle, packaging, supervision, and operator UX for daemon integration. B-STREAM governs daemon protocol/runtime. N-STREAM-1 consumes daemon API surface; does not redefine it. Primary target: localbolt-app. Finding series `N1-F*` reserved.
 
 **N0 decisions (summary):** App-managed lifecycle (D0.1). Daemon spawned on app launch with 10s readiness timeout (D0.2). SIGTERM+5s grace+SIGKILL on app exit (D0.3). Exponential backoff restart 1s/3s/10s, 3 max, degraded mode (D0.4). Per-user single instance via socket lockfile (D0.5). Persistent state survives crashes, transient state resets (D0.6). Strict major.minor version match, fail-closed (D0.7). B-STREAM boundary reaffirmed (D0.8). N1 and N2 unblocked.
 
 **N1 (summary):** Per-platform packaging matrix locked: macOS (`.app`+`.dmg`, sidecar in `Contents/Resources/bin/`), Windows (NSIS/WiX, sidecar in `{install_dir}/bin/`), Linux (`.deb`/`.rpm`, sidecar in `/usr/lib/localbolt/bin/`). Platform-appropriate socket/PID/identity/pin paths defined. Signing SHOULD (pre-release), REQUIRED (GA). Least-privilege: no elevation, `0600` socket, data-dir-only writes. Co-versioned bundle, whole-bundle update/rollback. 11 acceptance checks for N5 harness. B-DEP-N1-1 (platform path CLI flags) recorded for N6 GA.
 
 **N2 (summary):** IPC contract baseline locked: 5 stable messages (daemon.status, pairing.request, transfer.incoming.request, pairing.decision, transfer.incoming.decision) + 2 provisional (version.handshake, version.status). NDJSON wire format, single-client kick-on-reconnect, 1 MiB max line, 30s decision timeout (fail-closed). Version handshake required as first exchange, strict major.minor match. Compatibility policy: breaking = major bump, non-breaking = minor bump, unknown types silently dropped. 5 degraded mode transitions defined. 11 acceptance checks for N5 harness. B-DEP-N2-1 (daemon.status in default mode), B-DEP-N2-2 (version messages), B-DEP-N2-3 (Windows named pipe) recorded — block N3/N6, not spec lock.
+
+**N3 (summary):** Supervision + diagnostics spec locked. Watchdog state machine: 5 states (starting/ready/restarting/degraded/incompatible), 6 invariants (W-01–W-06). Retry/backoff: 1s/3s/10s, 3 max, 60s success reset (operationalizes N0 D0.4). Stale socket/process cleanup: PID file + socket probe algorithm, app-owned PID file. Shutdown: SIGTERM+5s grace+SIGKILL (operationalizes N0 D0.3). stderr capture: 1000-line ring buffer, crash snapshots to log dir, `[DAEMON_CRASH]`/`[WATCHDOG]` tokens. Support bundle: 6 required items, sensitive data exclusion list. User-visible status: 5 state indicators with action affordances, ARIA accessibility. 15 acceptance checks for N5 harness. N6 implementation plan: 9-step Rust/Tauri sequence + 7-step UI sequence. B-DEP-N2-1 (readiness transition) and B-DEP-N2-2 (version-gate transition) block N6 implementation, not this spec lock.
 
 ---
 

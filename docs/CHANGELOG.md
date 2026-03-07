@@ -5,6 +5,31 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## N-STREAM-1 N3 Supervision Spec Lock — Process Supervision + Diagnostics — 2026-03-07
+
+- **N3 DONE (spec locked; B-DEP-N2-1/N2-2 block N6 implementation):** Supervision + diagnostics requirements locked
+  - N3-W1: Watchdog state machine — 5 states (starting/ready/restarting/degraded/incompatible), 6 invariants
+  - N3-W2: Retry/backoff — 1s/3s/10s exponential, 3 max retries, 60s success reset (operationalizes N0 D0.4)
+  - N3-W3: Stale socket/process cleanup — PID file + socket probe algorithm, app-owned PID file management
+  - N3-W4: Shutdown lifecycle — SIGTERM+5s grace+SIGKILL, active transfer warning (operationalizes N0 D0.3)
+  - N3-W5: stderr/log capture — 1000-line ring buffer, crash snapshots, `[DAEMON_CRASH]`/`[WATCHDOG]` tokens, support bundle spec (6 required items)
+  - N3-W6: User-visible status — 5 state indicators with action affordances, ARIA accessibility
+  - 15 acceptance checks defined for N5 harness (AC-N3-1 through AC-N3-15)
+  - N6 implementation readiness plan: 9-step Rust/Tauri sequence + 7-step UI sequence
+- **P1 dependency re-validation:**
+  - B-DEP-N2-1 STILL OPEN: `daemon.status` only in simulate mode (`main.rs:1085-1098`)
+  - B-DEP-N2-2 STILL OPEN: `version.handshake`/`version.status` messages not implemented (zero source matches)
+  - N1-T4 path assumptions validated consistent with N3 cleanup semantics
+  - PID file management confirmed absent from daemon — app-owned PID file specified
+  - Existing daemon stale socket cleanup audited (`server.rs:112-116`, `Drop` impl at `344-351`)
+- **N3 readiness matrix:** All 6 sub-items spec-locked (READY). N6 impl partially blocked: readiness transition (B-DEP-N2-1) and version-gate transition (B-DEP-N2-2)
+- R15 updated: N3 spec locked, R15 now tracks N6 implementation block only
+- N4 (rollout) now unblocked (depends on N1+N2, both DONE)
+- N5 (acceptance harness) now unblocked (depends on N2+N3, both DONE)
+- Tag: `ecosystem-v0.1.75-n-stream-1-n3-supervision`
+
+---
+
 ## N-STREAM-1 N1+N2 Lock — Packaging Matrix + IPC Contract — 2026-03-07
 
 - **N1 DONE:** Per-platform packaging + security matrix locked (macOS/Windows/Linux)
