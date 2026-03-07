@@ -10,7 +10,7 @@ Last Refreshed By: S-STREAM-R1 R1-5/R1-6 closeout
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-06 (S-STREAM-R1 R1-5/R1-6 closeout)
+> **Last Updated:** 2026-03-07 (N-STREAM-1 codification)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -669,6 +669,21 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 **B3-P3 completion (AUDIT-GOV-43):** B3-P3 delivered sender-side SendSession (Idle→OfferSent→Sending→Completed/Cancelled) with cursor-driven chunk streaming (DEFAULT_CHUNK_SIZE = 16,384 bytes). `begin_send()` computes metadata and optional SHA-256 hash. `on_accept()` transitions to Sending. `next_chunk()` yields one chunk at a time. `finish()` validates all chunks yielded. FileAccept and Cancel carved out from `route_inner_message` to Ok(None) for loop-level interception. Loop drives send-side SM on FileAccept (stream chunks + finish); absorbs gracefully when no outbound transfer active. Cancel absorbed similarly. Pause/Resume remain INVALID_STATE. No new DcMessage variants, no new EnvelopeError variants, no new canonical error codes. dc_messages.rs unchanged. +16 tests (10 unit, 3 loop integration, 3 net envelope).
 
 **Scope guardrails:** No protocol, wire-format, or cryptographic changes. A-stream preserves WebRTCService public API.
+
+### N-STREAM-1 — Native App + Daemon Bundling (localbolt-app): NOT-STARTED
+
+| ID | Goal | Status | Tag |
+|----|------|--------|-----|
+| N0 | Policy lock (lifecycle, restart, single-instance, crash recovery) | NOT-STARTED | -- |
+| N1 | Packaging + security matrix (macOS/Windows/Linux) | NOT-STARTED | -- |
+| N2 | IPC contract stabilization | NOT-STARTED | -- |
+| N3 | Process supervision + diagnostics | NOT-STARTED | -- |
+| N4 | Rollout + migration | NOT-STARTED | -- |
+| N5 | Acceptance harness | NOT-STARTED | -- |
+| N6 | Execution + hardening | NOT-STARTED | -- |
+| N7 | Closure | NOT-STARTED | -- |
+
+Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N-STREAM-1 governs app bundling, process lifecycle, packaging, supervision, and operator UX for daemon integration. B-STREAM governs daemon protocol/runtime. N-STREAM-1 consumes daemon API surface; does not redefine it. Primary target: localbolt-app. Finding series `N1-F*` reserved.
 
 ---
 

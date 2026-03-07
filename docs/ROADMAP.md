@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative
-> **Last Updated:** 2026-03-06 (S-STREAM-R1 closeout)
+> **Last Updated:** 2026-03-07 (N-STREAM-1 codification)
 > **Authority:** PM-approved execution plan.
 
 ---
@@ -348,6 +348,29 @@ C0 (PM policy decision) ← BLOCKER
 
 ---
 
+## Workstream N — Native App + Daemon Bundling (N-STREAM-1)
+
+**Status:** Codified (all phases NOT-STARTED)
+**Codified:** ecosystem-v0.1.72-n-stream-1-codify (2026-03-07)
+**Primary success gate:** localbolt-app ships with bundled bolt-daemon as a single supervised product.
+
+| Phase | Description | Status | Dependencies |
+|-------|-------------|--------|-------------|
+| N0 | Policy lock (lifecycle, restart, single-instance, crash recovery) | NOT-STARTED | None |
+| N1 | Packaging + security matrix (macOS/Windows/Linux) | NOT-STARTED | N0 |
+| N2 | IPC contract stabilization | NOT-STARTED | N0 |
+| N3 | Process supervision + diagnostics | NOT-STARTED | N2 |
+| N4 | Rollout + migration | NOT-STARTED | N1, N2 |
+| N5 | Acceptance harness | NOT-STARTED | N2, N3 |
+| N6 | Execution + hardening | NOT-STARTED | N4, N5 |
+| N7 | Closure | NOT-STARTED | N6 |
+
+**Ownership boundary:** N-STREAM-1 governs bundling/lifecycle/packaging/supervision. B-STREAM governs daemon protocol/runtime. N-STREAM-1 consumes daemon API surface, does not redefine it.
+
+**Full specification:** `docs/GOVERNANCE_WORKSTREAMS.md` (Workstream N section)
+
+---
+
 ## Risk Register
 
 | ID | Risk | Severity | Status | Closes When |
@@ -363,6 +386,9 @@ C0 (PM policy decision) ← BLOCKER
 | R9 | No TOFU/SAS wiring in localbolt-v3 product UI | Medium | **Closed** | H5-v3 merged (`v3.0.61-h5v3-tofu-sas-pinning`) |
 | R10 | App-layer behavior drift across 3 LocalBolt products | Medium | **Closed** | C-stream convergence (C2–C5 DONE, all consumers on `@the9ines/localbolt-core@0.1.0`) |
 | R11 | ARCH-08 disposition unresolved for localbolt-core placement | Medium | **Closed** | C1 ARCH-08 gate: Option 2 non-violating location (`localbolt-v3/packages/localbolt-core`) |
+| R12 | Daemon IPC surface unstable — N2 depends on B-stream maturity | Medium | Open | N2 IPC contract stabilized against current daemon API baseline |
+| R13 | Cross-platform packaging complexity — macOS/Windows/Linux signing and notarization | Medium | Open | N1 packaging matrix validated per platform |
+| R14 | Daemon crash recovery undefined — single-instance and lifecycle policy not yet decided | Medium | Open | N0 policy lock completed |
 
 ---
 
@@ -443,6 +469,13 @@ S-STREAM-R1 (security/foundation recovery, independent of D-stream):
 
 C-STREAM-R1 (UI/state regression recovery, independent of D-stream):
   Single phase: generation guards + snapshot fix + trust truth table → DONE (v3.0.80-c-stream-r1-ui-state-fix)
+
+N-STREAM-1 (native app + daemon bundling, consumes B-stream API surface):
+  N0 (policy lock) ──┬── N1 (packaging) ──┐
+                     │                    ├── N4 (rollout) ──┐
+                     └── N2 (IPC contract)┤                  ├── N6 (execution) → N7 (closure)
+                          │               └── N5 (harness) ──┘
+                          └── N3 (supervision) ──┘
 ```
 
 ---

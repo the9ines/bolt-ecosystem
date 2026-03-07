@@ -5,6 +5,22 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## N-STREAM-1 Codification — Native App + Daemon Bundling — 2026-03-07
+
+- **N-STREAM-1 codified:** Governance workstream for native app + daemon bundling
+  - Defines how native apps (localbolt-app first) bundle and lifecycle-manage bolt-daemon
+  - 8 phases: N0 (policy lock) through N7 (closure)
+  - Ownership boundary: N-STREAM-1 owns bundling/lifecycle/packaging/supervision; B-STREAM owns daemon protocol/runtime
+  - N-STREAM-1 consumes daemon API surface, does not redefine it
+  - Finding series `N1-F*` reserved in AUDIT_TRACKER.md
+  - Risk register entries R12-R14 added (IPC stability, cross-platform packaging, lifecycle policy)
+  - Product scope: localbolt-app primary; localbolt-v3 and localbolt web excluded
+  - Daemon maturity dependency: N2 stabilizes current API surface only
+  - ARCH-08 gate applies to any phase needing new top-level folders
+- Tag: `ecosystem-v0.1.72-n-stream-1-codify`
+
+---
+
 ## C-STREAM-R1 — UI/State Regression Recovery — 2026-03-06
 
 - **C-STREAM-R1 DONE:** localbolt-v3 UX/state regression fixes

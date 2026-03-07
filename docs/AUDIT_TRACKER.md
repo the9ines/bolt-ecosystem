@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-06 (S-STREAM-R1 R1-1 disposition)
+**Last updated:** 2026-03-07 (N-STREAM-1 codification — finding series reservation)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -500,3 +500,13 @@ DONE/DONE-VERIFIED = 85. OPEN = 0. Total = 106.
 Arithmetic reconciled in ecosystem-v0.1.55-audit-gov-49 —
 Registered: Q7, Q8, Q9, Q10 (app-layer convergence + session UX findings, Workstream C scope).
 DONE/DONE-VERIFIED = 85. OPEN = 4. Total = 110.
+
+---
+
+## N-STREAM-1 — Native App + Daemon Bundling
+
+> **Finding series reservation:** `N1-F*`
+> **Codified:** ecosystem-v0.1.72-n-stream-1-codify (2026-03-07)
+> **Status:** No findings registered. Series reserved for findings discovered during N-STREAM-1 phase execution.
+
+No execution findings in this pass. Findings will be registered here with `N1-F<N>` IDs when evidence is confirmed during phase execution.

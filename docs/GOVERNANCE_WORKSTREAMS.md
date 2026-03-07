@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-06 (S-STREAM-R1 closeout)
-> **Tag:** ecosystem-v0.1.67-s-stream-r1-r1.1-disposition
+> **Updated:** 2026-03-07 (N-STREAM-1 codification)
+> **Tag:** ecosystem-v0.1.72-n-stream-1-codify
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -17,8 +17,9 @@ This document codifies improvement workstreams into governance so that future im
 - **Workstream C (C-stream):** LocalBolt application convergence + session UX hardening
 - **Workstream D (D-stream):** CI stabilization + package auth migration
 - **S-STREAM-R1:** Security/foundation recovery (daemon key architecture, product crypto-path convergence, security test lift)
+- **N-STREAM-1:** Native app + daemon bundling (app packaging, process lifecycle, IPC contract, supervision)
 
-These are improvement initiatives — not audit findings, not protocol changes. They decompose existing monolithic code into well-bounded modules (A-stream), extend the daemon toward file transfer capability (B-stream), converge app-layer behavior across LocalBolt products into a shared `localbolt-core` package (C-stream), stabilize CI/deploy reliability with PAT-independent public package installs (D-stream), and resolve foundational security/runtime risks before further UX work (S-STREAM-R1).
+These are improvement initiatives — not audit findings, not protocol changes. They decompose existing monolithic code into well-bounded modules (A-stream), extend the daemon toward file transfer capability (B-stream), converge app-layer behavior across LocalBolt products into a shared `localbolt-core` package (C-stream), stabilize CI/deploy reliability with PAT-independent public package installs (D-stream), resolve foundational security/runtime risks before further UX work (S-STREAM-R1), and define how native apps bundle and lifecycle-manage bolt-daemon (N-stream).
 
 ---
 
@@ -36,6 +37,13 @@ These are improvement initiatives — not audit findings, not protocol changes. 
 10. **D-stream MUST NOT modify protocol/runtime behavior in bolt-core-sdk.** Only package metadata and publish workflow changes are in-scope (D3).
 11. **D-stream MUST NOT modify subtree-managed paths directly.**
 12. **D-stream D2 changes MUST be evidence-driven from D1.** No speculative broad hardening.
+13. **N-STREAM-1 MUST NOT redefine daemon protocol behavior.** Daemon protocol/runtime is B-stream ownership.
+14. **N-STREAM-1 MUST NOT modify bolt-daemon runtime logic** unless explicitly gated by a phase prompt with PM approval.
+15. **N-STREAM-1 scope is localbolt-app first.** Future native consumers (e.g., bytebolt-app) require separate approval.
+16. **N-STREAM-1 excludes localbolt (web app)** — daemon bundling in web apps requires separate architecture governance approval.
+17. **N-STREAM-1 excludes localbolt-v3** — architecture explicitly prohibits bundling native binaries/daemons in web app path (ARCHITECTURE.md §6).
+18. **N-STREAM-1 N2 stabilizes only currently available daemon API surface.** Extension clauses for future B-stream phases are permitted but MUST NOT assume unfinished daemon features are complete.
+19. **Any N-stream phase requiring new top-level folders MUST resolve ARCH-08 disposition first.**
 
 ---
 
@@ -1586,6 +1594,93 @@ R1-0 (baseline evidence) ✓ DONE
 
 ---
 
+## Workstream N — Native App + Daemon Bundling (N-STREAM-1)
+
+**Repos:** localbolt-app (primary), bolt-ecosystem (governance). Future: bytebolt-app (as approved).
+**Goal:** Define how native apps bundle and lifecycle-manage bolt-daemon so they operate as one product safely and predictably.
+**Status:** Codified (all phases NOT-STARTED)
+**Codified:** ecosystem-v0.1.72-n-stream-1-codify (2026-03-07)
+**Authority:** PM-approved. Phase execution requires separate phase prompts.
+
+### Ownership Boundary: N-STREAM-1 vs B-STREAM
+
+**N-STREAM-1 owns:** App bundling, process lifecycle, packaging, supervision, operator UX for daemon integration, IPC contract stabilization (consumer side), rollout/migration strategy, acceptance harness for bundling/lifecycle.
+
+**B-STREAM owns:** Daemon protocol/runtime implementation, transfer state machine, event loop, wire format, capability negotiation, cryptographic operations, IPC API definition (provider side). B-STREAM is the logical label for daemon protocol/runtime implementation work encompassing H4 (panic elimination), H5 (downgrade resistance), B1-B6 (transfer convergence), and D-E2E (cross-stack integration). B-STREAM is not separately codified as a full stream in this pass — its phases are governed under the existing B-stream sections of this document and the H-phase ledger.
+
+**Boundary rule:** N-STREAM-1 consumes the daemon API/runtime surface as defined by B-STREAM. N-STREAM-1 MUST NOT redefine daemon protocol behavior. If N-STREAM-1 requires daemon-side changes (e.g., new IPC endpoints, health check surface), those changes MUST be proposed to B-STREAM governance and executed under B-STREAM phase discipline.
+
+### Product Scope
+
+- **In scope:** `localbolt-app` (native Tauri v2 app — primary daemon bundling target)
+- **Future in scope (requires approval):** `bytebolt-app` (commercial native app)
+- **Out of scope:** `localbolt` (web app — daemon bundling requires separate architecture governance approval)
+- **Out of scope:** `localbolt-v3` (architecture explicitly prohibits bundling native binaries/daemons per ARCHITECTURE.md §6)
+
+### Daemon Maturity Dependency
+
+N-STREAM-1 depends on B-STREAM maturity for its IPC and lifecycle surface:
+
+- N2 (IPC contract) MUST stabilize only the currently available daemon API surface. The daemon IPC API (`src/ipc/`) and runtime surface as of B-STREAM-1 completion (B1-B6, D-E2E) constitute the baseline.
+- Extension clauses for future B-STREAM phases are permitted: N2 MAY define forward-compatible IPC versioning that accommodates future daemon capabilities without breaking existing contracts.
+- N-STREAM-1 MUST NOT assume unfinished daemon features (e.g., remaining B3 pause/resume, disk writes, concurrent transfers) are complete. Phases that depend on not-yet-delivered daemon features MUST declare explicit B-STREAM blockers.
+
+### ARCH-08 Gate
+
+Any N-stream phase requiring new top-level folders under workspace root MUST resolve ARCH-08 disposition first (per ARCH-08 invariant: "No new top-level folders under workspace root"). This follows the C1 precedent (Option 2: non-violating location).
+
+### N-STREAM-1 Phase Table
+
+| Phase | Description | Status | Dependencies | Acceptance Criteria |
+|-------|-------------|--------|-------------|---------------------|
+| N0 | Policy lock | NOT-STARTED | None | Daemon lifecycle owner decided (app-managed vs service-managed); startup/shutdown/restart policy; single-instance policy; crash recovery policy |
+| N1 | Packaging + security matrix | NOT-STARTED | N0 | Per-platform packaging model (macOS/Windows/Linux); bundle location + binary naming; signing/notarization implications; permissions model + data-dir boundaries |
+| N2 | IPC contract stabilization | NOT-STARTED | N0 | App-daemon IPC boundary defined; version negotiation/compatibility contract; fail-closed on incompatible versions; health/status surface for native shell |
+| N3 | Process supervision + diagnostics | NOT-STARTED | N2 | Watchdog strategy; readiness checks; backoff/retry behavior; stale socket/process cleanup; diagnostics/logging surface |
+| N4 | Rollout + migration | NOT-STARTED | N1, N2 | Staged rollout plan (dev/beta/prod); rollback strategy; app/daemon version-skew compatibility matrix |
+| N5 | Acceptance harness | NOT-STARTED | N2, N3 | E2E bundling/lifecycle validation plan; platform-specific acceptance gates; failure-injection tests (crash/restart/update) |
+| N6 | Execution + hardening | NOT-STARTED | N4, N5 | Implementation sequencing tied to dependencies; hardening checkpoints against observed failures. Execution acceptance criteria are structure-only at codification; detailed gates defined in N-stream execution prompts |
+| N7 | Closure | NOT-STARTED | N6 | Final evidence criteria met; closure gate definition satisfied; residual risk handling documented |
+
+### Dependency Map
+
+```
+N0 (policy lock) ← gates all
+ |
+ ├── N1 (packaging + security matrix)
+ |    |
+ |    └──────────┐
+ |               |
+ ├── N2 (IPC contract stabilization)
+ |    |          |
+ |    ├── N3 (process supervision + diagnostics)
+ |    |    |    |
+ |    |    └────┤
+ |    |         |
+ |    └─── N4 (rollout + migration)
+ |               |
+ N5 (acceptance harness) ← depends on N2 + N3
+      |
+      └── N6 (execution + hardening) ← depends on N4 + N5
+           |
+           └── N7 (closure)
+```
+
+### Parallelization
+
+- N1 and N2 can begin in parallel after N0.
+- N3 depends on N2 (needs finalized IPC health/status semantics).
+- N4 depends on N1 + N2 (needs packaging model + IPC contract).
+- N5 depends on N2 + N3 (needs IPC contract + supervision surface).
+- N6 depends on N4 + N5 (needs rollout plan + acceptance harness).
+- N7 is strictly sequential after N6.
+
+### AUDIT Finding Reservation
+
+Finding series `N1-F*` is reserved for findings discovered during N-STREAM-1 execution. No speculative findings are registered at codification time. Findings will be registered in `docs/AUDIT_TRACKER.md` when evidence is confirmed during phase execution.
+
+---
+
 ## Tag Naming Rules
 
 | Workstream | Repo | Format | Example |
@@ -1602,6 +1697,8 @@ R1-0 (baseline evidence) ✓ DONE
 | D-stream (consumers) | localbolt, localbolt-app | `<repo-prefix>-d<phase>-<slug>` | `localbolt-v1.0.25-d3-registry-migration` |
 | S-STREAM-R1 (daemon) | bolt-daemon | `daemon-vX.Y.Z-r1-<phase>-<slug>` | `daemon-v0.2.31-r1-2-key-arch` |
 | S-STREAM-R1 (products) | localbolt-v3, localbolt, localbolt-app | `<repo-prefix>-r1-<phase>-<slug>` | `localbolt-v1.0.27-r1-3-crypto-converge` |
+| N-stream | localbolt-app | `localbolt-app-vX.Y.Z-n<phase>-<slug>` | `localbolt-app-v1.3.0-n0-policy-lock` |
+| N-stream (governance) | bolt-ecosystem | `ecosystem-v0.1.X-n-stream-1-<slug>` | `ecosystem-v0.1.72-n-stream-1-codify` |
 | Governance | bolt-ecosystem | `ecosystem-v0.1.X-workstreams-N` | `ecosystem-v0.1.30-workstreams-1` |
 
 **Rules:**
@@ -1633,6 +1730,8 @@ R1-0 (baseline evidence) ✓ DONE
   - D5: DONE (2026-03-06). Registry/auth regression guards + CI cleanup.
   - D6: UNBLOCKED. Burn-in window starts now (48h minimum).
 - **Cross-stream dependency:** D-stream is independent of A-stream and B-stream. D-stream operates at CI/deploy/registry layer; A/B operate at SDK/daemon protocol layers. D-stream builds on C-stream outcomes (C6 guards as D5 baseline) but does not modify C-stream deliverables.
+- **N-STREAM-1** is independent of A-stream, C-stream, D-stream, and S-STREAM-R1. N-STREAM-1 consumes B-STREAM API surface but does not modify B-STREAM deliverables. N-STREAM-1 N2 (IPC contract) has an implicit dependency on B-STREAM maturity — it stabilizes only the currently available daemon API surface.
+- **Within N-stream:** N0 gates all. N1 ∥ N2 after N0. N3 after N2. N4 after N1+N2. N5 after N2+N3. N6 after N4+N5. N7 after N6.
 
 ---
 
