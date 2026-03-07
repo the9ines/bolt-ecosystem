@@ -5,6 +5,23 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## N-STREAM-1 N6-A1 — Sidecar Lifecycle + Watchdog Core — 2026-03-07
+
+- **N6 IN-PROGRESS (N6-A1 completed):** Daemon sidecar lifecycle and watchdog core implemented in localbolt-app
+- Watchdog state machine: 5 states (starting/ready/restarting/degraded/incompatible), 1s/3s/10s backoff, 3 max retries, 60s reset
+- Daemon manager: process spawn, stale socket/PID cleanup, SIGTERM+5s+SIGKILL shutdown
+- IPC readiness probe: version.handshake + version.status + daemon.status per N2 contract
+- stderr ring buffer (1000 lines) with crash snapshot persistence
+- Tauri commands: get_watchdog_state, restart_daemon, export_support_bundle (stub)
+- App lifecycle: daemon start on launch, shutdown on window close
+- 37 new Rust tests (watchdog 17, daemon_log 5, ipc_client 5, ipc_types 4, daemon 4, commands 2)
+- Existing 32 web tests unchanged
+- Uses std::process::Command (not Tauri sidecar API) due to Unix socket IPC + PID-level signal requirements
+- localbolt-app tag: `localbolt-app-v1.2.11-n6a-sidecar-lifecycle` (`0c218bb`)
+- Tag: `ecosystem-v0.1.78-n-stream-1-n6a-progress`
+
+---
+
 ## B-DEP-N2 Unblock — daemon.status + Version Handshake Implemented — 2026-03-07
 
 - **B-DEP-N2-1 RESOLVED:** `daemon.status` event now emitted in all daemon modes (default, smoke, simulate) after successful IPC version handshake. Previously simulate-mode only.

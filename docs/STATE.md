@@ -4,13 +4,13 @@ Snapshot Derived From:
 - daemon-v0.2.31-bdep-n2-ipc-unblock (1ad2db8)
 - v3.0.79-s-stream-r1-r1.4-security-test-lift (31046ac)
 - localbolt-v1.0.27-s-stream-r1-r1.4-security-test-lift (fc360c5)
-- localbolt-app-v1.2.10-s-stream-r1-r1.4-security-test-lift (71c3181)
-Last Refreshed By: B-DEP-N2 unblock (daemon-v0.2.31)
+- localbolt-app-v1.2.11-n6a-sidecar-lifecycle (0c218bb)
+Last Refreshed By: N6-A1 sidecar lifecycle (localbolt-app-v1.2.11)
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-07 (B-DEP-N2 unblock — daemon.status + version handshake implemented)
+> **Last Updated:** 2026-03-07 (N6-A1 sidecar lifecycle — watchdog + IPC readiness + stderr capture)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -680,7 +680,7 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 | N3 | Process supervision + diagnostics | **DONE** (spec locked; B-DEP-N2-1/N2-2 **RESOLVED**) | `ecosystem-v0.1.75-n-stream-1-n3-supervision` |
 | N4 | Rollout + migration | **DONE** (spec locked) | `ecosystem-v0.1.76-n-stream-1-n4-n5-lock` |
 | N5 | Acceptance harness | **DONE** (spec locked) | `ecosystem-v0.1.76-n-stream-1-n4-n5-lock` |
-| N6 | Execution + hardening | NOT-STARTED | -- |
+| N6 | Execution + hardening | **IN-PROGRESS** (N6-A1 done) | `localbolt-app-v1.2.11-n6a-sidecar-lifecycle` |
 | N7 | Closure | NOT-STARTED | -- |
 
 Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem-v0.1.73-n-stream-1-n0-policy-lock (2026-03-07). N1+N2 locked: ecosystem-v0.1.74-n-stream-1-n1-n2-lock (2026-03-07). N3 locked: ecosystem-v0.1.75-n-stream-1-n3-supervision (2026-03-07). N4+N5 locked: ecosystem-v0.1.76-n-stream-1-n4-n5-lock (2026-03-07). N-STREAM-1 governs app bundling, process lifecycle, packaging, supervision, and operator UX for daemon integration. B-STREAM governs daemon protocol/runtime. N-STREAM-1 consumes daemon API surface; does not redefine it. Primary target: localbolt-app. Finding series `N1-F*` reserved.
@@ -712,6 +712,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | bolt-rendezvous | 49 | main (48 unit + 1 doc-test) |
 | localbolt (TS) | 319 | 15 test files, 80/70/80% coverage thresholds, includes 27 TOFU + 19 security-session-integrity tests |
 | localbolt-app (TS) | 32 | 3 test files (1 smoke + 10 TOFU integration + 21 security-session-integrity), coverage thresholds 90/90/80/90 |
+| localbolt-app (Rust) | 37 | 6 modules (watchdog 17, daemon_log 5, ipc_client 5, ipc_types 4, daemon 4, commands 2) |
 | localbolt-v3 (TS, localbolt-core) | 50 | Session state machine, verification bus, transfer policy, race hardening, C7 closure + 7 security-reconnect-integrity tests |
 | localbolt-v3 (TS, localbolt-web) | 59 | H5-v3 TOFU/SAS tests + session orchestration consumer wiring |
 | localbolt-v3 (Rust signal) | 36 | main (S0 canonical bolt-rendezvous wrapper, up from 32) |
