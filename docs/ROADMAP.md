@@ -442,7 +442,7 @@ S-STREAM-R1 (security/foundation recovery, independent of D-stream):
          └── R1-5 (validation) ✓ DONE → R1-6 (closure) ✓ DONE
 
 C-STREAM-R1 (UI/state regression recovery, independent of D-stream):
-  Single phase: generation guards + snapshot fix + trust truth table → IN-PROGRESS
+  Single phase: generation guards + snapshot fix + trust truth table → DONE (v3.0.80-c-stream-r1-ui-state-fix)
 ```
 
 ---

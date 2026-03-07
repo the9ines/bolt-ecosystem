@@ -173,12 +173,12 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 
 ## C-STREAM-R1 Ledger (UI/State Regression Recovery)
 
-> **Status:** IN-PROGRESS
+> **Status:** DONE
 > **Scope:** localbolt-v3 app-layer UX/state reliability (pause/stop, disconnect/reconnect, trust UI)
 
 | Phase | Description | Status | Repo(s) | Tag(s) | Commit(s) |
 |-------|-------------|--------|---------|--------|-----------|
-| C-STREAM-R1 | UI/state regression recovery (generation guards, snapshot fix, trust truth table) | **IN-PROGRESS** | localbolt-v3 | — | — |
+| C-STREAM-R1 | UI/state regression recovery (generation guards, snapshot fix, trust truth table) | **DONE** | localbolt-v3 | `v3.0.80-c-stream-r1-ui-state-fix` | `9f3546e` |
 
 ---
 

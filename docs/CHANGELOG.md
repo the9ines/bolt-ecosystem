@@ -7,7 +7,7 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ## C-STREAM-R1 — UI/State Regression Recovery — 2026-03-06
 
-- **C-STREAM-R1 IN-PROGRESS:** localbolt-v3 UX/state regression fixes
+- **C-STREAM-R1 DONE:** localbolt-v3 UX/state regression fixes
   - Generation guards on `handleConnectionStateChange`, `handleReceiveProgress`, `handleVerificationState`
   - Terminal-state-only reset (ignore intermediate WebRTC states)
   - Transfer terminal flag prevents late progress callbacks after cancel

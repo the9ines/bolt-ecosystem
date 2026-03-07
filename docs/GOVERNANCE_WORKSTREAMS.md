@@ -1566,7 +1566,7 @@ R1-0 (baseline evidence) ✓ DONE
 ## C-STREAM-R1 — UI/State Regression Recovery
 
 **Repo:** localbolt-v3 (localbolt-core + localbolt-web)
-**Status:** IN-PROGRESS
+**Status:** DONE (`v3.0.80-c-stream-r1-ui-state-fix`, `9f3546e`)
 **Scope:** Fix UX/state regressions — pause/stop transfer controls, disconnect/reconnect stale state, trust/verification UI consistency.
 **Boundary:** No D-stream infra/auth/deploy paths touched.
 
