@@ -5,6 +5,32 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## N-STREAM-1 N4+N5 Spec Lock — Rollout + Migration + Acceptance Harness — 2026-03-07
+
+- **N4 DONE (spec locked):** Rollout + migration strategy locked
+  - N4-R1: 4-stage rollout (Local/Dev, Alpha, Beta, GA) with entry/exit criteria and cannot-progress gates
+  - N4-R2: Version-skew policy — strict major.minor match, fail-closed, 5 accidental skew scenarios handled
+  - N4-R3: Whole-bundle update/rollback model — data preservation (identity/TOFU), transient state reset, rollback triggers
+  - N4-R4: Migration strategy — purely additive (no existing daemon config), transparent, 5 invariants (M-01–M-05)
+  - N4-R5: Blocker-aware gating — decision tree mapping B-DEP-N2-1/N2-2/N1-1/N2-3 to stage gates
+  - 7 acceptance checks defined (AC-N4-1 through AC-N4-7)
+- **N5 DONE (spec locked):** Acceptance harness specification locked
+  - N5-H1: 8 test domains (packaging, lifecycle, IPC readiness, IPC messages, degraded UX, update/rollback, diagnostics, data safety)
+  - N5-H2: 4 tiers — Smoke (8 checks), Integration (26 checks), Failure Injection (8 checks), Pre-Release (2 checks, GA-only)
+  - N5-H3: Pass/fail criteria — hard fail blocks progression, soft fail tracked, tier progression rule enforced
+  - N5-H4: Blocker-aware execution — 9 blocked checks report SKIP(B-DEP-ID), re-execute on B-DEP resolution
+  - N5-H5: Evidence contract — 9 artifact types, CI vs human-review classification, retention until N7
+  - N5-I1: Incorporation table — all 44 checks (37 from N1–N3 + 7 from N4) mapped to tiers, verified by arithmetic
+- **P1 dependency re-validation:**
+  - B-DEP-N2-1 STILL OPEN: `daemon.status` only in simulate mode
+  - B-DEP-N2-2 STILL OPEN: `version.handshake`/`version.status` not implemented
+  - B-DEP-N1-1 STILL OPEN: platform path CLI flags not implemented
+  - B-DEP-N2-3 STILL OPEN: Windows named pipe not supported
+- N6 (execution) now unblocked (depends on N4+N5, both DONE; runtime execution blocked by B-DEPs per N4-R5)
+- Tag: `ecosystem-v0.1.76-n-stream-1-n4-n5-lock`
+
+---
+
 ## N-STREAM-1 N3 Supervision Spec Lock — Process Supervision + Diagnostics — 2026-03-07
 
 - **N3 DONE (spec locked; B-DEP-N2-1/N2-2 block N6 implementation):** Supervision + diagnostics requirements locked

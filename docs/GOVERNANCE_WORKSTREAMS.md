@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-07 (N-STREAM-1 N3 supervision spec lock)
-> **Tag:** ecosystem-v0.1.74-n-stream-1-n1-n2-lock
+> **Updated:** 2026-03-07 (N-STREAM-1 N4+N5 rollout + acceptance harness spec lock)
+> **Tag:** ecosystem-v0.1.76-n-stream-1-n4-n5-lock
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -1598,7 +1598,7 @@ R1-0 (baseline evidence) ✓ DONE
 
 **Repos:** localbolt-app (primary), bolt-ecosystem (governance). Future: bytebolt-app (as approved).
 **Goal:** Define how native apps bundle and lifecycle-manage bolt-daemon so they operate as one product safely and predictably.
-**Status:** N0/N1/N2/N3 DONE, N4–N7 NOT-STARTED
+**Status:** N0/N1/N2/N3/N4/N5 DONE, N6–N7 NOT-STARTED
 **Codified:** ecosystem-v0.1.72-n-stream-1-codify (2026-03-07)
 **N0 locked:** ecosystem-v0.1.73-n-stream-1-n0-policy-lock (2026-03-07)
 **N1+N2 locked:** ecosystem-v0.1.74-n-stream-1-n1-n2-lock (2026-03-07)
@@ -1640,8 +1640,8 @@ Any N-stream phase requiring new top-level folders under workspace root MUST res
 | N1 | Packaging + security matrix | **DONE** | N0 | Per-platform matrix locked (macOS/Windows/Linux). See N1 Specification below. |
 | N2 | IPC contract stabilization | **DONE** (spec locked, implementation dependencies open) | N0 | IPC contract baseline locked (5 stable + 2 provisional messages). B-DEP-N2-1/2 block N6 impl (N3 spec locked); B-DEP-N2-3 blocks N6 Windows. See N2 Specification below. |
 | N3 | Process supervision + diagnostics | **DONE** (spec locked; B-DEP-N2-1/N2-2 block N6 impl) | N2 | Watchdog state machine (5 states), retry/backoff (1s/3s/10s, 3 max), stale cleanup algorithm, stderr capture + support bundle, user-visible status transitions. See N3 Specification below. |
-| N4 | Rollout + migration | NOT-STARTED | N1, N2 | Staged rollout plan (dev/beta/prod); rollback strategy; app/daemon version-skew compatibility matrix |
-| N5 | Acceptance harness | NOT-STARTED | N2, N3 | E2E bundling/lifecycle validation plan; platform-specific acceptance gates; failure-injection tests (crash/restart/update) |
+| N4 | Rollout + migration | **DONE** | N1, N2 | Stage-gate spec locked (local/dev, alpha, beta, GA). Version-skew policy, update/rollback model, migration strategy, blocker-aware gating. 7 acceptance checks. See N4 Specification below. |
+| N5 | Acceptance harness | **DONE** | N2, N3 | Acceptance harness spec locked. 8 test domains, 4 tiers (smoke/integration/failure-injection/pre-release), 44 checks (37 from N1–N3 + 7 new N4), blocker-aware execution rules, evidence contract. See N5 Specification below. |
 | N6 | Execution + hardening | NOT-STARTED | N4, N5 | Implementation sequencing tied to dependencies; hardening checkpoints against observed failures. Execution acceptance criteria are structure-only at codification; detailed gates defined in N-stream execution prompts |
 | N7 | Closure | NOT-STARTED | N6 | Final evidence criteria met; closure gate definition satisfied; residual risk handling documented |
 
@@ -2437,6 +2437,437 @@ Support bundle MUST NOT include:
 - `[DAEMON_SPAWN]` log token for spawn events
 - `[DAEMON_SHUTDOWN]` log token for clean shutdown
 - Crash count metric (in-memory, per session)
+
+---
+
+### N4 — Rollout + Migration (Specification)
+
+**Status:** DONE (spec locked)
+**Tag:** `ecosystem-v0.1.76-n-stream-1-n4-n5-lock`
+**Date:** 2026-03-07
+**Scope:** Staged rollout strategy, version-skew policy, update/rollback model, migration path from current localbolt-app (no daemon) to bundled daemon lifecycle. Spec-only — no runtime code.
+**Dependencies consumed:** N0 (D0.1–D0.8), N1 (packaging matrix, co-versioning, N1-T6), N2 (IPC contract, version handshake N2-S3, compatibility policy N2-S6)
+
+#### N4-R1: Rollout Stage-Gate Table
+
+| Stage | Entry Criteria | Required Artifacts | Blocker Policy | Exit Criteria |
+|-------|---------------|-------------------|---------------|--------------|
+| **Local/Dev** | N0–N3 spec locked; daemon binary builds (`cargo build --release`); app builds with sidecar config in `tauri.conf.json` | Built app+daemon bundle on dev machine (unsigned); N5 Tier 1 (smoke) green | B-DEP-N2-1/N2-2 do NOT block (degraded mode acceptable); B-DEP-N1-1 does NOT block (default paths acceptable) | App launches, spawns daemon, captures stderr, handles crash/restart cycle in degraded mode; Tier 1 smoke tests pass |
+| **Internal Alpha** | Local/Dev exit met; **B-DEP-N2-1 RESOLVED** | Dev-signed builds for macOS and Linux; N5 Tier 1 + Tier 2 (unblocked checks) green | B-DEP-N2-1 MUST be resolved (readiness detection required); B-DEP-N2-2 does NOT block (version gating not required for internal team); B-DEP-N1-1 does NOT block | Full watchdog state machine functional (except `incompatible` state); IPC message flow for all 5 stable messages verified; retry/backoff demonstrated |
+| **Beta** | Alpha exit met; **B-DEP-N2-2 RESOLVED** | Pre-release builds for all 3 platforms; N5 Tier 1 + Tier 2 + Tier 3 green | B-DEP-N2-1 AND B-DEP-N2-2 MUST be resolved; B-DEP-N1-1 SHOULD be resolved (defaults acceptable for beta); B-DEP-N2-3 does NOT block (Windows beta may use Unix socket via WSL or defer Windows) | All N5 tiers except Tier 4 pass; no P0/P1 regressions from non-daemon baseline; version handshake + mismatch handling verified; 48h burn-in with no degraded-state entries during normal operation |
+| **GA** | Beta exit met; **B-DEP-N1-1 RESOLVED**; code signing complete per N1-T3 (REQUIRED) | Signed, notarized production builds for all platforms; N5 Tier 4 (pre-release gate) green; release notes | ALL B-DEPs RESOLVED (B-DEP-N2-3 for Windows GA); N1-T3 signing requirements met at REQUIRED level; all N5 tiers pass including Tier 4 | Published release on all platforms; rollback tested and documented; support bundle export verified |
+
+**Cannot-progress gates (hard blocks):**
+
+| Gate | Blocked Until | Reason |
+|------|-------------|--------|
+| Alpha entry | B-DEP-N2-1 resolved | Cannot validate readiness detection without `daemon.status` in default mode |
+| Beta entry | B-DEP-N2-2 resolved | Cannot validate version safety without `version.handshake`/`version.status` |
+| GA entry | B-DEP-N1-1 resolved | Cannot ship production builds with hardcoded `/tmp/` paths |
+| Windows GA | B-DEP-N2-3 resolved | Cannot ship Windows release without named pipe support |
+
+**What can proceed while blockers remain open:**
+
+- Local/Dev stage is fully unblocked — degraded mode acceptable for development
+- N5 smoke tests and unblocked integration tests can be authored and executed
+- Packaging infrastructure, CI pipeline setup, signing certificate procurement (N6 pre-work)
+- Migration UX design and implementation (additive, no daemon dependency)
+- Failure injection tests for crash/restart (no B-DEP dependency)
+
+#### N4-R2: Version-Skew Policy
+
+Derived from N0 D0.7 and N2-S3/S6.
+
+| Aspect | Rule | Normative |
+|--------|------|-----------|
+| Co-versioning | App and daemon MUST ship in the same bundle with identical `major.minor.patch` versions | REQUIRED (N0 D0.7) |
+| Match rule | `major.minor` of app MUST equal `major.minor` of daemon | REQUIRED (N2-S3) |
+| Detection mechanism | IPC version handshake (N2-S3): app sends `version.handshake`, daemon responds with `version.status` | REQUIRED |
+| Mismatch behavior | Daemon sends `version.status` with `compatible: false`, then closes connection | REQUIRED (N2-S3) |
+| App UX on mismatch | "Daemon version incompatible — update required" with both version numbers displayed | REQUIRED (N2-S3) |
+| Watchdog state on mismatch | Transition to `incompatible` (terminal for session, no auto-retry) | REQUIRED (N3-W1, W-03) |
+
+**Accidental skew scenarios and handling:**
+
+| Scenario | How It Occurs | Detection | Resolution |
+|----------|--------------|-----------|------------|
+| Partial update (daemon only) | Manual file replacement or failed installer | Version handshake mismatch → `incompatible` state | Re-install full bundle |
+| Partial update (app only) | Manual file replacement or failed installer | Version handshake mismatch → `incompatible` state | Re-install full bundle |
+| Stale daemon from previous version | Previous daemon instance not terminated before update | Version handshake mismatch after IPC connect | Watchdog enters `incompatible`; user restarts app (triggers clean daemon respawn with new binary) |
+| Corrupted daemon binary | Disk error or incomplete download | Daemon fails to start; no IPC connection within 10s | Watchdog enters `degraded` after 3 retries; re-install required |
+| Intentional rollback | Explicit user action via re-install | Clean — rollback replaces both app and daemon atomically | No skew; version handshake matches |
+
+**Fail-closed guarantee:** Version skew ALWAYS results in a user-visible error state (`incompatible` or `degraded`). Transfer UI MUST remain disabled until a matching app+daemon pair is running (W-01).
+
+#### N4-R3: Update/Rollback Model
+
+Derived from N0 D0.7 and N1-T6.
+
+**Update semantics:**
+
+| Aspect | Specification | Normative |
+|--------|--------------|-----------|
+| Update unit | Whole bundle (app + daemon binary together) | REQUIRED (N0 D0.7) |
+| Update mechanism | Platform-native installer replaces full bundle | REQUIRED |
+| Pre-update check | If daemon is running: initiate shutdown (N3-W4) before update proceeds | REQUIRED |
+| Active transfer guard | Warn user if transfer is in progress before allowing update | REQUIRED (N3-W4) |
+| Post-update | App restarts, spawns new daemon from updated bundle, watchdog enters `starting` | REQUIRED |
+
+**Rollback semantics:**
+
+| Aspect | Specification | Normative |
+|--------|--------------|-----------|
+| Rollback unit | Whole bundle (app + daemon binary together) | REQUIRED |
+| Rollback mechanism | Re-install previous version bundle via platform-native installer | REQUIRED |
+| Data preservation | Identity keys, TOFU pins, and user preferences MUST survive rollback | REQUIRED (N0 D0.6) |
+| Transient state | Active transfers, sessions, and daemon runtime state are lost on rollback | EXPECTED (N0 D0.6) |
+| Socket/PID cleanup | Stale socket and PID file cleaned by watchdog on next launch (N3-W3) | REQUIRED |
+
+**Rollback triggers (when to recommend rollback):**
+
+| Trigger | Severity | Action |
+|---------|----------|--------|
+| Daemon crash loop on new version (3 retries exhausted → `degraded`) | High | Rollback to previous bundle |
+| Version mismatch after whole-bundle update (should not occur) | High | Re-install; if persists, rollback |
+| Transfer regression (transfers fail that worked in previous version) | Medium | Verify with clean re-install first; rollback if regression confirmed |
+| UI regression (non-transfer functionality broken) | Low | Report bug; rollback optional |
+
+**Rollback verification checklist:**
+
+- [ ] Previous version bundle installs cleanly over current version
+- [ ] App launches and spawns daemon from rolled-back binary
+- [ ] Watchdog reaches `ready` state (requires B-DEP-N2-1 resolved)
+- [ ] Identity key and TOFU pins still present and valid at N1-T4 paths
+- [ ] File transfer completes successfully
+- [ ] No stale socket/PID artifacts from failed version
+
+#### N4-R4: Migration Strategy
+
+**Context:** Current localbolt-app has no daemon integration. Migration is purely additive — adding daemon bundling to an app that previously had none. There is no existing daemon configuration, data, or state to migrate.
+
+**Migration path:**
+
+| Step | Description | User Impact | Data Safety |
+|------|------------|-------------|-------------|
+| 1. Bundle update | User installs new localbolt-app version containing bundled daemon | Standard app update flow; no additional user action required | No data loss — existing app-only data (if any) preserved |
+| 2. First launch | App detects no existing daemon socket/PID; spawns daemon for first time | Brief "Starting connection service..." status during daemon initialization | No data risk — fresh daemon state |
+| 3. Directory creation | App creates platform-appropriate directories per N1-T4 (identity, pins, logs, config) | Invisible to user | New directories only; no existing data touched |
+| 4. Identity generation | Daemon generates fresh identity keypair on first run | User may need to re-pair with previously known peers (if any existed via app-level pairing) | Identity key stored at N1-T4 path; TOFU pins directory created empty |
+| 5. Operational | App enters normal daemon-supervised mode | "Ready" status; transfer UI enabled | — |
+
+**Migration invariants:**
+
+| ID | Invariant | Normative |
+|----|-----------|-----------|
+| M-01 | Migration MUST NOT delete or modify any pre-existing user data | REQUIRED |
+| M-02 | Migration MUST be transparent to the user (no migration wizard or manual steps) | REQUIRED |
+| M-03 | App MUST function in degraded mode if daemon fails to start on first migration launch | REQUIRED |
+| M-04 | Created directories MUST follow N1-T4 platform-appropriate paths | REQUIRED |
+| M-05 | Created directories MUST have N1-T5 permissions (owner-only) | REQUIRED |
+
+**Future migration note (not in N4 scope):** If localbolt-app later stores identity keys at app level, migration from app-level to daemon-level key store would require a one-time key migration step. This is NOT part of current N4 scope because current localbolt-app does not persist identity keys at the daemon level. Multi-version config format migration is B-STREAM ownership.
+
+#### N4-R5: Blocker-Aware Gating
+
+**Dependency integration matrix:**
+
+| B-DEP | Description | Blocks Stage(s) | What Can Proceed | Unblock Owner |
+|-------|-------------|-----------------|-----------------|---------------|
+| B-DEP-N2-1 | `daemon.status` in default mode | Alpha, Beta, GA | Local/Dev (degraded mode); packaging infra; migration UX; failure-injection tests | B-STREAM |
+| B-DEP-N2-2 | `version.handshake` + `version.status` messages | Beta, GA | Local/Dev; Alpha (without version gating) | B-STREAM |
+| B-DEP-N1-1 | `--socket-path` / `--data-dir` CLI flags | GA | Local/Dev; Alpha; Beta (default paths acceptable) | B-STREAM |
+| B-DEP-N2-3 | Windows named pipe support | Windows GA only | All stages for macOS/Linux; Windows Local/Dev + Alpha + Beta via WSL or deferred | B-STREAM |
+
+**Rollout cannot-progress decision tree:**
+
+```
+Can we enter Local/Dev?
+  → YES (no B-DEP blocks Local/Dev)
+
+Can we enter Alpha?
+  → Is B-DEP-N2-1 resolved? → YES → proceed
+                              → NO  → STOP: cannot validate readiness detection
+
+Can we enter Beta?
+  → Is B-DEP-N2-1 resolved? → NO → STOP (Alpha gate)
+  → Is B-DEP-N2-2 resolved? → YES → proceed
+                              → NO  → STOP: cannot validate version safety
+
+Can we enter GA?
+  → Is B-DEP-N2-1 resolved? → NO → STOP (Alpha gate)
+  → Is B-DEP-N2-2 resolved? → NO → STOP (Beta gate)
+  → Is B-DEP-N1-1 resolved? → NO → STOP: cannot ship production paths
+  → Is B-DEP-N2-3 resolved? → NO → Windows GA blocked (macOS/Linux GA can proceed)
+  → All resolved → proceed to GA
+```
+
+#### N4 Acceptance Checklist (for N5 harness)
+
+- [ ] AC-N4-1: App functions in degraded mode when daemon binary is missing from bundle
+- [ ] AC-N4-2: App functions in degraded mode when daemon fails to start (e.g., permission denied)
+- [ ] AC-N4-3: Whole-bundle update replaces both app and daemon atomically
+- [ ] AC-N4-4: Whole-bundle rollback restores previous app+daemon version with data preserved
+- [ ] AC-N4-5: Version skew between app and daemon detected via IPC handshake and reported to user (BLOCKED: B-DEP-N2-2)
+- [ ] AC-N4-6: First-time migration from non-daemon app creates correct data directories with correct permissions
+- [ ] AC-N4-7: Existing app user data (if any) preserved during migration to daemon-bundled version
+
+---
+
+### N5 — Acceptance Harness (Specification)
+
+**Status:** DONE (spec locked)
+**Tag:** `ecosystem-v0.1.76-n-stream-1-n4-n5-lock`
+**Date:** 2026-03-07
+**Scope:** Complete acceptance harness for N-STREAM-1 execution (N6) and closure (N7). Incorporates all AC-N1/AC-N2/AC-N3/AC-N4 checks into tiered, blocker-aware test matrix. Spec-only — no test implementation code.
+**Dependencies consumed:** N1 (AC-N1-1 through AC-N1-11), N2 (AC-N2-1 through AC-N2-11), N3 (AC-N3-1 through AC-N3-15), N4 (AC-N4-1 through AC-N4-7, rollout stage gates)
+
+#### N5-H1: Test Domains
+
+| Domain | Description | Acceptance Checks | Primary Phase Source |
+|--------|------------|-------------------|---------------------|
+| D1: Packaging integrity | Daemon binary presence, executability, platform-correct paths, code signing | AC-N1-1, AC-N1-2, AC-N1-8, AC-N1-10, AC-N1-11 | N1 |
+| D2: Process lifecycle/supervision | Watchdog state machine, spawn, shutdown, retry/backoff, stale cleanup | AC-N3-1, AC-N3-4, AC-N3-5, AC-N3-6, AC-N3-7, AC-N3-8, AC-N3-9, AC-N3-13, AC-N3-15 | N3 |
+| D3: IPC readiness + compatibility | Socket creation, version handshake, readiness signal, permissions | AC-N1-3, AC-N1-4, AC-N2-1, AC-N2-2, AC-N2-3, AC-N2-4, AC-N3-2, AC-N3-3 | N1, N2, N3 |
+| D4: IPC message contract | Stable message delivery, decision correlation, timeouts, forward compatibility | AC-N2-5, AC-N2-6, AC-N2-7, AC-N2-8, AC-N2-9, AC-N2-10, AC-N2-11 | N2 |
+| D5: Degraded/incompatible UX | Degraded mode entry, transfer UI gating, version mismatch UX | AC-N3-14, AC-N4-1, AC-N4-2, AC-N4-5 | N3, N4 |
+| D6: Update/rollback | Whole-bundle update, rollback with data preservation | AC-N4-3, AC-N4-4 | N4 |
+| D7: Logging/diagnostics/support | stderr capture, crash snapshots, support bundle, log tokens | AC-N3-10, AC-N3-11, AC-N3-12, AC-N3-15 | N3 |
+| D8: Data safety + migration | Identity key persistence, data directory creation, migration safety, permission model | AC-N1-5, AC-N1-6, AC-N1-7, AC-N1-9, AC-N4-6, AC-N4-7 | N1, N4 |
+
+Note: AC-N3-15 appears in both D2 and D7 (lifecycle logging is cross-cutting). Each check has exactly one canonical tier assignment below.
+
+#### N5-H2: Test Tiers
+
+**Tier 1 — Smoke** (quick, <30s total, run on every build)
+
+Validates basic packaging and spawn functionality. Failure in any smoke test blocks all higher tiers.
+
+| ID | Check | Domain | Blocked By |
+|----|-------|--------|------------|
+| AC-N1-1 | Daemon binary present in app bundle at platform-correct path | D1 | — |
+| AC-N1-2 | Daemon binary executable and runs (exits 1 with usage line) | D1 | — |
+| AC-N1-3 | Socket created at platform-correct path after daemon spawn | D3 | — |
+| AC-N1-5 | PID file created at platform-correct path | D8 | — |
+| AC-N1-8 | Daemon runs without elevated privileges | D1 | — |
+| AC-N2-1 | App connects to daemon socket within 10s of spawn | D3 | — |
+| AC-N3-14 | Transfer UI disabled in all non-ready states | D5 | — |
+| AC-N4-1 | App functions in degraded mode when daemon binary is missing | D5 | — |
+
+**Count:** 8 checks. **Blocked:** 0.
+
+**Tier 2 — Integration** (IPC flow + lifecycle, <5min total)
+
+Validates full IPC contract and watchdog lifecycle. Requires daemon binary and IPC connectivity.
+
+| ID | Check | Domain | Blocked By |
+|----|-------|--------|------------|
+| AC-N1-4 | Socket has `0600` permissions (Unix) or equivalent (Windows) | D3 | — |
+| AC-N1-6 | Identity key persists at platform-correct path across app restart | D8 | — |
+| AC-N1-7 | App and daemon report identical version in IPC handshake | D8 | B-DEP-N2-2 |
+| AC-N1-9 | No writes outside data-dir and runtime-dir | D8 | — |
+| AC-N2-2 | Version handshake completes as first message exchange | D3 | B-DEP-N2-2 |
+| AC-N2-3 | Version mismatch produces fail-closed error (connection terminated) | D3 | B-DEP-N2-2 |
+| AC-N2-4 | `daemon.status` received after successful version handshake | D3 | B-DEP-N2-1 |
+| AC-N2-5 | `pairing.request` event delivered to app with all required fields | D4 | — |
+| AC-N2-6 | `pairing.decision` accepted by daemon with correct request_id correlation | D4 | — |
+| AC-N2-7 | `transfer.incoming.request` event delivered with all required fields | D4 | — |
+| AC-N2-8 | `transfer.incoming.decision` accepted by daemon | D4 | — |
+| AC-N2-9 | Decision timeout (30s) results in fail-closed deny | D4 | — |
+| AC-N2-10 | Unknown message types silently dropped (forward-compatible) | D4 | — |
+| AC-N2-11 | Extra payload fields preserved through roundtrip | D4 | — |
+| AC-N3-1 | Watchdog transitions through all 5 states correctly | D2 | B-DEP-N2-1 + B-DEP-N2-2 (partial: 3/5 states testable) |
+| AC-N3-2 | `starting → ready` transition on `daemon.status` receipt | D3 | B-DEP-N2-1 |
+| AC-N3-3 | `starting → incompatible` on version mismatch | D3 | B-DEP-N2-2 |
+| AC-N3-8 | Stale socket detected and removed before respawn | D2 | — |
+| AC-N3-9 | PID file written after spawn, cleaned on shutdown/stale detection | D2 | — |
+| AC-N3-10 | Daemon stderr captured in ring buffer (minimum 500 lines) | D7 | — |
+| AC-N3-13 | SIGTERM + 5s grace + SIGKILL shutdown sequence | D2 | — |
+| AC-N3-15 | Status transitions logged with `[WATCHDOG]` token | D2 | — |
+| AC-N4-2 | App functions in degraded mode when daemon fails to start | D5 | — |
+| AC-N4-5 | Version skew detected via IPC handshake and reported to user | D5 | B-DEP-N2-2 |
+| AC-N4-6 | First-time migration creates correct data directories with permissions | D8 | — |
+| AC-N4-7 | Existing app user data preserved during migration | D8 | — |
+
+**Count:** 26 checks. **Blocked:** 7 (AC-N1-7, AC-N2-2, AC-N2-3, AC-N2-4, AC-N3-1 partial, AC-N3-2, AC-N3-3, AC-N4-5).
+
+**Tier 3 — Failure Injection** (<10min total)
+
+Validates crash recovery, degraded mode transitions, and rollback. Requires ability to kill daemon process and inject failures.
+
+| ID | Check | Domain | Blocked By |
+|----|-------|--------|------------|
+| AC-N3-4 | Crash triggers retry with correct backoff (1s, 3s, 10s) | D2 | — |
+| AC-N3-5 | 3 consecutive crashes → `degraded` state | D2 | — |
+| AC-N3-6 | Retry counter resets after 60s continuous `ready` | D2 | B-DEP-N2-1 |
+| AC-N3-7 | Manual restart from `degraded` resets counter and transitions to `starting` | D2 | — |
+| AC-N3-11 | Crash snapshot written to log directory with `[DAEMON_CRASH]` token | D7 | — |
+| AC-N3-12 | Support bundle export includes all required items, excludes sensitive data | D7 | — |
+| AC-N4-3 | Whole-bundle update replaces both app and daemon atomically | D6 | — |
+| AC-N4-4 | Whole-bundle rollback restores previous version with data preserved | D6 | — |
+
+**Count:** 8 checks. **Blocked:** 1 (AC-N3-6).
+
+**Tier 4 — Pre-Release Gate** (GA-only, requires signed builds)
+
+Validates code signing, notarization, and platform-specific GA requirements. Run only before GA release.
+
+| ID | Check | Domain | Blocked By |
+|----|-------|--------|------------|
+| AC-N1-10 | macOS `.app` contains signed daemon binary | D1 | — |
+| AC-N1-11 | Windows installer contains signed daemon `.exe` | D1 | — |
+
+**Count:** 2 checks. **Blocked:** 0.
+
+**Tier summary:** 44 total checks (T1: 8, T2: 26, T3: 8, T4: 2). 9 currently blocked by B-DEPs (8 full + 1 partial).
+
+#### N5-H3: Pass/Fail Criteria
+
+**Hard fail (blocks progression to next rollout stage):**
+
+| Condition | Effect | Evidence Required |
+|-----------|--------|-------------------|
+| Any Tier 1 (smoke) check fails | Blocks all higher tiers and all rollout stages | Test output showing failure + error message |
+| Any unblocked Tier 2 check fails | Blocks Alpha+ entry | Test output + relevant log excerpts |
+| Any unblocked Tier 3 check fails | Blocks Beta+ entry | Test output + crash logs + watchdog state trace |
+| Any Tier 4 check fails | Blocks GA entry | Signing tool output + build artifact manifest |
+| Previously-blocked check fails AFTER its B-DEP is resolved | Same as unblocked failure for that tier | Test output + B-DEP resolution evidence |
+
+**Soft fail (does not block progression, requires tracking):**
+
+| Condition | Effect | Evidence Required |
+|-----------|--------|-------------------|
+| Blocked check fails while its B-DEP is STILL OPEN | Expected — not a regression | Log that check was skipped with B-DEP ID reference |
+| Performance degradation (daemon startup > 5s but < 10s timeout) | Track but do not block | Timing measurements across 10 runs |
+| Non-functional cosmetic issue (UX text, icon rendering) | Track as bug, do not block | Screenshot |
+
+**Tier progression rule:** Tier N+1 MUST NOT execute if any hard-fail exists in Tier N. Tiers execute sequentially: Smoke → Integration → Failure Injection → Pre-Release.
+
+#### N5-H4: Blocker-Aware Execution Rules
+
+**Currently blocked checks (by B-DEP):**
+
+| Check ID | Description | Blocked By | Temporary Status | Unblock Condition | Owner |
+|----------|------------|------------|-----------------|-------------------|-------|
+| AC-N1-7 | Version match in IPC handshake | B-DEP-N2-2 | SKIP | `version.handshake` + `version.status` implemented in daemon | B-STREAM |
+| AC-N2-2 | Version handshake completes first | B-DEP-N2-2 | SKIP | `version.handshake` + `version.status` implemented | B-STREAM |
+| AC-N2-3 | Version mismatch fail-closed | B-DEP-N2-2 | SKIP | `version.status` with `compatible: false` implemented | B-STREAM |
+| AC-N2-4 | `daemon.status` after handshake | B-DEP-N2-1 | SKIP | `daemon.status` emitted in default mode on client connect | B-STREAM |
+| AC-N3-1 | All 5 watchdog states | B-DEP-N2-1 + N2-2 | PARTIAL (3/5 states testable: starting, restarting, degraded) | Both B-DEPs resolved for full 5/5 | B-STREAM |
+| AC-N3-2 | `starting → ready` transition | B-DEP-N2-1 | SKIP | `daemon.status` in default mode | B-STREAM |
+| AC-N3-3 | `starting → incompatible` | B-DEP-N2-2 | SKIP | `version.status` with mismatch handling | B-STREAM |
+| AC-N3-6 | Retry reset after 60s ready | B-DEP-N2-1 | SKIP | Cannot reach `ready` without readiness signal | B-STREAM |
+| AC-N4-5 | Version skew detection | B-DEP-N2-2 | SKIP | Version handshake messages implemented | B-STREAM |
+
+**Execution rules:**
+
+1. Blocked checks MUST be attempted during test runs but MUST report `SKIP(B-DEP-<ID>)` status, not `FAIL`.
+2. When a B-DEP is resolved, ALL checks blocked by that B-DEP MUST be re-executed in the next test run.
+3. A check transitions from `SKIP` to `PASS`/`FAIL` only after its blocking B-DEP is resolved.
+4. If a check fails AFTER its blocker is resolved, it is treated as a hard fail for its tier.
+5. Test runner MUST log: `[HARNESS] SKIP AC-<ID>: blocked by <B-DEP-ID> (still open)`
+
+**B-DEP unblock → check cascade:**
+
+| B-DEP Resolved | Resolution Evidence | Checks Unblocked |
+|----------------|-------------------|-----------------|
+| B-DEP-N2-1 | Daemon emits `daemon.status` on client connect in default mode; verified by AC-N2-4 passing | AC-N2-4, AC-N3-1 (full 5/5), AC-N3-2, AC-N3-6 |
+| B-DEP-N2-2 | Daemon accepts `version.handshake` and responds with `version.status`; verified by AC-N2-2 passing | AC-N1-7, AC-N2-2, AC-N2-3, AC-N3-1 (full 5/5), AC-N3-3, AC-N4-5 |
+
+#### N5-H5: Evidence Contract
+
+**Required evidence artifacts per check:**
+
+| Artifact Type | Required For | Format | Retention |
+|--------------|-------------|--------|-----------|
+| Test runner output (stdout/stderr) | All checks | Plain text with per-check PASS/FAIL/SKIP status | Until N7 closure |
+| Watchdog state trace log | D2 checks (lifecycle) | `[WATCHDOG]` token grep from app logs | Until N7 closure |
+| Daemon stderr capture | D7 checks (diagnostics) | Plain text from ring buffer dump | Until N7 closure |
+| Crash snapshot file | AC-N3-11, AC-N3-12 | File at `{log_dir}/daemon-crash-{timestamp}.log` | Until N7 closure |
+| Support bundle archive | AC-N3-12 | Archive containing 6 required items per N3-W5 | Until N7 closure |
+| Platform/OS/arch identifier | All checks | Reported in test runner header | Until N7 closure |
+| Build artifact manifest | Tier 4 (pre-release) | List of files in bundle with sizes and SHA-256 hashes | Until N7 closure |
+| Signing verification output | AC-N1-10, AC-N1-11 | `codesign -v` (macOS), `signtool verify` (Windows) output | Until N7 closure |
+| Screenshot | UX-related soft fails only | PNG with annotation | Until N7 closure |
+
+**CI-automatable vs human-review-required:**
+
+| Category | Checks | Method |
+|----------|--------|--------|
+| CI-automatable (no human judgment) | AC-N1-1, AC-N1-2, AC-N1-3, AC-N1-4, AC-N1-5, AC-N1-8, AC-N1-9, AC-N2-1, AC-N2-4, AC-N2-5, AC-N2-6, AC-N2-7, AC-N2-8, AC-N2-9, AC-N2-10, AC-N2-11, AC-N3-4, AC-N3-5, AC-N3-8, AC-N3-9, AC-N3-10, AC-N3-13, AC-N3-15, AC-N4-1, AC-N4-2, AC-N4-6 | Script / CI pipeline |
+| CI-automatable after B-DEP resolution | AC-N1-7, AC-N2-2, AC-N2-3, AC-N3-1, AC-N3-2, AC-N3-3, AC-N3-6, AC-N3-7, AC-N4-5 | Script / CI pipeline (after B-DEP resolution) |
+| Human-review-required | AC-N1-6, AC-N1-10, AC-N1-11, AC-N3-11, AC-N3-12, AC-N3-14, AC-N4-3, AC-N4-4, AC-N4-7 | Manual with evidence capture |
+
+**Artifact retention policy:**
+- All evidence artifacts MUST be retained until N7 (closure) is marked DONE.
+- After N7 closure, artifacts MAY be archived or deleted per project retention policy.
+- Evidence MUST be traceable: each artifact references the check ID, run timestamp, platform, and app+daemon version.
+
+**Traceability requirements:**
+- Each test run MUST produce a summary report: run ID (timestamp-based), platform, app version, daemon version, per-check status (PASS/FAIL/SKIP with reason), and artifact paths.
+- Summary reports MUST be committed to `localbolt-app` repo under `tests/acceptance/runs/` (or equivalent, determined during N6).
+
+#### N5-I1: AC-N1/AC-N2/AC-N3/AC-N4 Incorporation Table
+
+All 44 acceptance checks from N1–N4 are incorporated into N5 tiers. No contradiction or duplication.
+
+| Source Check | N5 Tier | N5 Domain | Blocked By | Notes |
+|-------------|---------|-----------|------------|-------|
+| AC-N1-1 | T1 (Smoke) | D1 | — | |
+| AC-N1-2 | T1 (Smoke) | D1 | — | |
+| AC-N1-3 | T1 (Smoke) | D3 | — | |
+| AC-N1-4 | T2 (Integration) | D3 | — | |
+| AC-N1-5 | T1 (Smoke) | D8 | — | |
+| AC-N1-6 | T2 (Integration) | D8 | — | Human-review |
+| AC-N1-7 | T2 (Integration) | D8 | B-DEP-N2-2 | |
+| AC-N1-8 | T1 (Smoke) | D1 | — | |
+| AC-N1-9 | T2 (Integration) | D8 | — | |
+| AC-N1-10 | T4 (Pre-Release) | D1 | — | GA-only |
+| AC-N1-11 | T4 (Pre-Release) | D1 | — | GA-only |
+| AC-N2-1 | T1 (Smoke) | D3 | — | |
+| AC-N2-2 | T2 (Integration) | D3 | B-DEP-N2-2 | |
+| AC-N2-3 | T2 (Integration) | D3 | B-DEP-N2-2 | |
+| AC-N2-4 | T2 (Integration) | D3 | B-DEP-N2-1 | |
+| AC-N2-5 | T2 (Integration) | D4 | — | |
+| AC-N2-6 | T2 (Integration) | D4 | — | |
+| AC-N2-7 | T2 (Integration) | D4 | — | |
+| AC-N2-8 | T2 (Integration) | D4 | — | |
+| AC-N2-9 | T2 (Integration) | D4 | — | |
+| AC-N2-10 | T2 (Integration) | D4 | — | |
+| AC-N2-11 | T2 (Integration) | D4 | — | |
+| AC-N3-1 | T2 (Integration) | D2 | B-DEP-N2-1 + N2-2 (partial) | 3/5 states testable without B-DEPs |
+| AC-N3-2 | T2 (Integration) | D3 | B-DEP-N2-1 | |
+| AC-N3-3 | T2 (Integration) | D3 | B-DEP-N2-2 | |
+| AC-N3-4 | T3 (Failure Inj.) | D2 | — | |
+| AC-N3-5 | T3 (Failure Inj.) | D2 | — | |
+| AC-N3-6 | T3 (Failure Inj.) | D2 | B-DEP-N2-1 | Cannot reach `ready` |
+| AC-N3-7 | T3 (Failure Inj.) | D2 | — | |
+| AC-N3-8 | T2 (Integration) | D2 | — | |
+| AC-N3-9 | T2 (Integration) | D2 | — | |
+| AC-N3-10 | T2 (Integration) | D7 | — | |
+| AC-N3-11 | T3 (Failure Inj.) | D7 | — | Human-review |
+| AC-N3-12 | T3 (Failure Inj.) | D7 | — | Human-review |
+| AC-N3-13 | T2 (Integration) | D2 | — | |
+| AC-N3-14 | T1 (Smoke) | D5 | — | |
+| AC-N3-15 | T2 (Integration) | D2 | — | |
+| AC-N4-1 | T1 (Smoke) | D5 | — | |
+| AC-N4-2 | T2 (Integration) | D5 | — | |
+| AC-N4-3 | T3 (Failure Inj.) | D6 | — | Human-review |
+| AC-N4-4 | T3 (Failure Inj.) | D6 | — | Human-review |
+| AC-N4-5 | T2 (Integration) | D5 | B-DEP-N2-2 | |
+| AC-N4-6 | T2 (Integration) | D8 | — | |
+| AC-N4-7 | T2 (Integration) | D8 | — | Human-review |
+
+**Incorporation verification:**
+
+| Source | Total | T1 | T2 | T3 | T4 | Verified |
+|--------|------:|---:|---:|---:|---:|---------|
+| AC-N1-* | 11 | 5 | 4 | 0 | 2 | 11 = 11 |
+| AC-N2-* | 11 | 1 | 10 | 0 | 0 | 11 = 11 |
+| AC-N3-* | 15 | 1 | 8 | 6 | 0 | 15 = 15 |
+| AC-N4-* | 7 | 1 | 4 | 2 | 0 | 7 = 7 |
+| **Total** | **44** | **8** | **26** | **8** | **2** | **44 = 44** |
+
+No check is duplicated across tiers. No check contradicts its source phase definition. All 37 pre-existing checks (N1–N3) plus 7 new N4 checks are accounted for.
 
 ---
 

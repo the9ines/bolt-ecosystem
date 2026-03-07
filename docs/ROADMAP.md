@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative
-> **Last Updated:** 2026-03-07 (N-STREAM-1 N3 supervision spec lock)
+> **Last Updated:** 2026-03-07 (N-STREAM-1 N4+N5 rollout + acceptance harness spec lock)
 > **Authority:** PM-approved execution plan.
 
 ---
@@ -350,11 +350,12 @@ C0 (PM policy decision) ← BLOCKER
 
 ## Workstream N — Native App + Daemon Bundling (N-STREAM-1)
 
-**Status:** N0/N1/N2/N3 DONE, N4–N7 NOT-STARTED
+**Status:** N0/N1/N2/N3/N4/N5 DONE, N6–N7 NOT-STARTED
 **Codified:** ecosystem-v0.1.72-n-stream-1-codify (2026-03-07)
 **N0 locked:** ecosystem-v0.1.73-n-stream-1-n0-policy-lock (2026-03-07)
 **N1+N2 locked:** ecosystem-v0.1.74-n-stream-1-n1-n2-lock (2026-03-07)
 **N3 locked:** ecosystem-v0.1.75-n-stream-1-n3-supervision (2026-03-07)
+**N4+N5 locked:** ecosystem-v0.1.76-n-stream-1-n4-n5-lock (2026-03-07)
 **Primary success gate:** localbolt-app ships with bundled bolt-daemon as a single supervised product.
 
 | Phase | Description | Status | Dependencies |
@@ -363,8 +364,8 @@ C0 (PM policy decision) ← BLOCKER
 | N1 | Packaging + security matrix (macOS/Windows/Linux) | **DONE** | N0 |
 | N2 | IPC contract stabilization | **DONE** (spec locked, impl deps open) | N0 |
 | N3 | Process supervision + diagnostics | **DONE** (spec locked; B-DEP-N2-1/N2-2 block N6 impl) | N2 |
-| N4 | Rollout + migration | NOT-STARTED | N1, N2 |
-| N5 | Acceptance harness | NOT-STARTED | N2, N3 |
+| N4 | Rollout + migration | **DONE** (spec locked) | N1, N2 |
+| N5 | Acceptance harness | **DONE** (spec locked) | N2, N3 |
 | N6 | Execution + hardening | NOT-STARTED | N4, N5 |
 | N7 | Closure | NOT-STARTED | N6 |
 
@@ -477,9 +478,9 @@ C-STREAM-R1 (UI/state regression recovery, independent of D-stream):
 
 N-STREAM-1 (native app + daemon bundling, consumes B-stream API surface):
   N0 (policy lock) ✓ ──┬── N1 (packaging) ✓ ──┐
-                       │                      ├── N4 (rollout) ──┐
-                       └── N2 (IPC contract) ✓┤                  ├── N6 (execution) → N7 (closure)
-                            │                 └── N5 (harness) ──┘
+                       │                      ├── N4 (rollout) ✓ ──┐
+                       └── N2 (IPC contract) ✓┤                    ├── N6 (execution) → N7 (closure)
+                            │                 └── N5 (harness) ✓ ──┘
                             └── N3 (supervision) ✓ ──┘
   B-STREAM deps: B-DEP-N2-1 (daemon.status in default mode) → N3 spec locked, blocks N6 readiness impl
                  B-DEP-N2-2 (version handshake messages) → N3 spec locked, blocks N6 version-gate impl
