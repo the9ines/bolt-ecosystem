@@ -440,6 +440,9 @@ S-STREAM-R1 (security/foundation recovery, independent of D-stream):
     ├── R1-3 (product crypto converge) ✓ DONE-NO-ACTION
     └── R1-4 (security test lift) ✓ DONE
          └── R1-5 (validation) ✓ DONE → R1-6 (closure) ✓ DONE
+
+C-STREAM-R1 (UI/state regression recovery, independent of D-stream):
+  Single phase: generation guards + snapshot fix + trust truth table → IN-PROGRESS
 ```
 
 ---

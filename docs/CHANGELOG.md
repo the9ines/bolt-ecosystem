@@ -5,6 +5,20 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## C-STREAM-R1 — UI/State Regression Recovery — 2026-03-06
+
+- **C-STREAM-R1 IN-PROGRESS:** localbolt-v3 UX/state regression fixes
+  - Generation guards on `handleConnectionStateChange`, `handleReceiveProgress`, `handleVerificationState`
+  - Terminal-state-only reset (ignore intermediate WebRTC states)
+  - Transfer terminal flag prevents late progress callbacks after cancel
+  - Idempotent `disconnect()`
+  - `snapshot()` returns live verification state (was hardcoded legacy)
+  - Full transfer gating truth table tests (8 scenarios)
+  - Stale verification callback guard tests
+- Tag: `v3.0.80-c-stream-r1-ui-state-fix` (localbolt-v3)
+
+---
+
 ## S-STREAM-R1 Closeout (R1-5 + R1-6) — Governance — 2026-03-06
 
 - **R1-5 DONE:** Final validation gates passed across all product repos

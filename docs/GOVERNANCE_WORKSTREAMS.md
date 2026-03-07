@@ -1563,6 +1563,29 @@ R1-0 (baseline evidence) ✓ DONE
 
 ---
 
+## C-STREAM-R1 — UI/State Regression Recovery
+
+**Repo:** localbolt-v3 (localbolt-core + localbolt-web)
+**Status:** IN-PROGRESS
+**Scope:** Fix UX/state regressions — pause/stop transfer controls, disconnect/reconnect stale state, trust/verification UI consistency.
+**Boundary:** No D-stream infra/auth/deploy paths touched.
+
+**Bugs addressed:**
+1. `handleReceiveProgress` / `handleConnectionStateChange` / `handleVerificationState` lack generation guards — late callbacks from previous sessions pollute current session state.
+2. `handleConnectionStateChange` resets on intermediate WebRTC states ('new', 'connecting'), not just terminal states.
+3. `snapshot()` hardcodes `verificationState: 'legacy'` instead of reading from verification bus.
+4. `disconnect()` not idempotent.
+5. No transfer terminal flag — late progress callbacks after cancel re-show stale UI.
+
+**Policy lock (explicit truth table):**
+- `verified + connected` → allowed
+- `legacy + connected` → allowed
+- `unverified + connected` → blocked
+- `mismatch + connected` → blocked (fail-closed)
+- `any + disconnected` → blocked
+
+---
+
 ## Tag Naming Rules
 
 | Workstream | Repo | Format | Example |
