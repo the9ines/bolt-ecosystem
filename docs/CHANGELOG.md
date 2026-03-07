@@ -16,6 +16,8 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
   - Full transfer gating truth table tests (8 scenarios)
   - Stale verification callback guard tests
 - Tag: `v3.0.80-c-stream-r1-ui-state-fix` (localbolt-v3)
+- **Runner-context note:** `faq.test.ts`/`app.test.ts` apparent failures are root-run config artifacts (missing workspace config); all 70 web tests pass in-package. Not a regression or residual.
+- **Tech debt (LOW):** `vitest.workspace.ts` at monorepo root would prevent root-run false failures.
 
 ---
 

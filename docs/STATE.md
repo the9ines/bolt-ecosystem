@@ -180,6 +180,10 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 |-------|-------------|--------|---------|--------|-----------|
 | C-STREAM-R1 | UI/state regression recovery (generation guards, snapshot fix, trust truth table) | **DONE** | localbolt-v3 | `v3.0.80-c-stream-r1-ui-state-fix` | `9f3546e` |
 
+> **Runner-context note:** `faq.test.ts` and `app.test.ts` appear to fail when `npx vitest run` is invoked from the monorepo root (missing workspace config → wrong env + unresolved aliases). When run in-package (`packages/localbolt-web`), all 70 tests pass. This is a runner-context/config artifact, not a product regression or residual.
+>
+> **Tech debt (LOW):** Consider adding `vitest.workspace.ts` at `localbolt-v3` root to prevent root-run false failures.
+
 ---
 
 ## S-STREAM-R1 Ledger (Security/Foundation Recovery)
