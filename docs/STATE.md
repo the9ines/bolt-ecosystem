@@ -10,7 +10,7 @@ Last Refreshed By: S-STREAM-R1 R1-5/R1-6 closeout
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-07 (N-STREAM-1 codification)
+> **Last Updated:** 2026-03-07 (N-STREAM-1 N0 policy lock)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -670,11 +670,11 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 
 **Scope guardrails:** No protocol, wire-format, or cryptographic changes. A-stream preserves WebRTCService public API.
 
-### N-STREAM-1 — Native App + Daemon Bundling (localbolt-app): NOT-STARTED
+### N-STREAM-1 — Native App + Daemon Bundling (localbolt-app): N0 DONE
 
 | ID | Goal | Status | Tag |
 |----|------|--------|-----|
-| N0 | Policy lock (lifecycle, restart, single-instance, crash recovery) | NOT-STARTED | -- |
+| N0 | Policy lock (D0.1–D0.8) | **DONE** | `ecosystem-v0.1.73-n-stream-1-n0-policy-lock` |
 | N1 | Packaging + security matrix (macOS/Windows/Linux) | NOT-STARTED | -- |
 | N2 | IPC contract stabilization | NOT-STARTED | -- |
 | N3 | Process supervision + diagnostics | NOT-STARTED | -- |
@@ -683,7 +683,9 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 | N6 | Execution + hardening | NOT-STARTED | -- |
 | N7 | Closure | NOT-STARTED | -- |
 
-Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N-STREAM-1 governs app bundling, process lifecycle, packaging, supervision, and operator UX for daemon integration. B-STREAM governs daemon protocol/runtime. N-STREAM-1 consumes daemon API surface; does not redefine it. Primary target: localbolt-app. Finding series `N1-F*` reserved.
+Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem-v0.1.73-n-stream-1-n0-policy-lock (2026-03-07). N-STREAM-1 governs app bundling, process lifecycle, packaging, supervision, and operator UX for daemon integration. B-STREAM governs daemon protocol/runtime. N-STREAM-1 consumes daemon API surface; does not redefine it. Primary target: localbolt-app. Finding series `N1-F*` reserved.
+
+**N0 decisions (summary):** App-managed lifecycle (D0.1). Daemon spawned on app launch with 10s readiness timeout (D0.2). SIGTERM+5s grace+SIGKILL on app exit (D0.3). Exponential backoff restart 1s/3s/10s, 3 max, degraded mode (D0.4). Per-user single instance via socket lockfile (D0.5). Persistent state survives crashes, transient state resets (D0.6). Strict major.minor version match, fail-closed (D0.7). B-STREAM boundary reaffirmed (D0.8). N1 and N2 unblocked.
 
 ---
 

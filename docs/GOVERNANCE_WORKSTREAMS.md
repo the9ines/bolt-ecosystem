@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-07 (N-STREAM-1 codification)
-> **Tag:** ecosystem-v0.1.72-n-stream-1-codify
+> **Updated:** 2026-03-07 (N-STREAM-1 N0 policy lock)
+> **Tag:** ecosystem-v0.1.73-n-stream-1-n0-policy-lock
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -1598,8 +1598,9 @@ R1-0 (baseline evidence) ✓ DONE
 
 **Repos:** localbolt-app (primary), bolt-ecosystem (governance). Future: bytebolt-app (as approved).
 **Goal:** Define how native apps bundle and lifecycle-manage bolt-daemon so they operate as one product safely and predictably.
-**Status:** Codified (all phases NOT-STARTED)
+**Status:** N0 DONE, N1–N7 NOT-STARTED
 **Codified:** ecosystem-v0.1.72-n-stream-1-codify (2026-03-07)
+**N0 locked:** ecosystem-v0.1.73-n-stream-1-n0-policy-lock (2026-03-07)
 **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ### Ownership Boundary: N-STREAM-1 vs B-STREAM
@@ -1633,7 +1634,7 @@ Any N-stream phase requiring new top-level folders under workspace root MUST res
 
 | Phase | Description | Status | Dependencies | Acceptance Criteria |
 |-------|-------------|--------|-------------|---------------------|
-| N0 | Policy lock | NOT-STARTED | None | Daemon lifecycle owner decided (app-managed vs service-managed); startup/shutdown/restart policy; single-instance policy; crash recovery policy |
+| N0 | Policy lock | **DONE** | None | All 8 policy decisions locked (D0.1–D0.8). See N0 Decision Record below. |
 | N1 | Packaging + security matrix | NOT-STARTED | N0 | Per-platform packaging model (macOS/Windows/Linux); bundle location + binary naming; signing/notarization implications; permissions model + data-dir boundaries |
 | N2 | IPC contract stabilization | NOT-STARTED | N0 | App-daemon IPC boundary defined; version negotiation/compatibility contract; fail-closed on incompatible versions; health/status surface for native shell |
 | N3 | Process supervision + diagnostics | NOT-STARTED | N2 | Watchdog strategy; readiness checks; backoff/retry behavior; stale socket/process cleanup; diagnostics/logging surface |
@@ -1678,6 +1679,116 @@ N0 (policy lock) ← gates all
 ### AUDIT Finding Reservation
 
 Finding series `N1-F*` is reserved for findings discovered during N-STREAM-1 execution. No speculative findings are registered at codification time. Findings will be registered in `docs/AUDIT_TRACKER.md` when evidence is confirmed during phase execution.
+
+### N0 — Policy Lock (Decision Record)
+
+**Status:** DONE
+**Tag:** `ecosystem-v0.1.73-n-stream-1-n0-policy-lock`
+**Date:** 2026-03-07
+**Approved by:** PM (explicit approval)
+
+#### D0.1 — Lifecycle Ownership
+
+**Decision:** App-managed daemon lifecycle.
+
+The daemon is a product-internal component, not a system service. Tauri v2 natively supports sidecar binaries with spawn/kill lifecycle tied to the app process. Users do not install or manage a system service. App-managed keeps the product self-contained.
+
+**Rejected:** Service-managed (launchd/systemd/Windows Service) — appropriate for headless/server deployments but not for a desktop file transfer app. Adds installation complexity and elevated permission requirements.
+
+**Platform implications:**
+- macOS: sidecar in `.app` bundle, no launchd plist.
+- Windows: sidecar in install directory, no Windows Service registration.
+- Linux: sidecar alongside AppImage/deb binary, no systemd unit.
+
+#### D0.2 — Startup Behavior
+
+**Decision:** On app launch, synchronous — daemon spawned during app initialization, before transfer UI is enabled.
+
+**Rejected:** Login-item auto-start (unnecessary system integration complexity for on-demand file transfer); on-demand/lazy start (adds latency to first transfer, complicates readiness state).
+
+**Readiness criteria:** Daemon emits `daemon.status` IPC event. App considers daemon ready when first `daemon.status` is received via IPC socket.
+
+**Timeout:** 10 seconds. If daemon does not emit `daemon.status` within 10s of spawn, app enters degraded mode: transfer UI disabled, status indicator shows "Daemon unavailable", retry button offered.
+
+**Failed-start UX:** Non-blocking status message ("Connection service unavailable"). Manual retry via UI button. No auto-retry on initial startup failure (avoids boot loops).
+
+#### D0.3 — Shutdown Behavior
+
+**Decision:** On app exit — daemon is terminated when the app process exits (SIGTERM, then SIGKILL after grace period).
+
+**Rejected:** Inactivity-based shutdown (unnecessary complexity; daemon is lightweight); never auto-stop (orphaned daemon processes on app crash).
+
+**Active transfer during shutdown:** App MUST warn user if a transfer is in progress before initiating shutdown. If user confirms, app sends SIGTERM to daemon. Daemon has 5-second grace period to complete or abort active transfer before SIGKILL. Transfer state is not preserved across shutdown — interrupted transfers are lost (consistent with current web app behavior).
+
+**Forced-stop:** SIGKILL after 5-second grace period following SIGTERM. No negotiation.
+
+#### D0.4 — Restart Strategy
+
+**Decision:** Automatic restart with exponential backoff, max 3 retries.
+
+**Rejected:** No automatic restart (poor UX for transient failures); unlimited retries (resource waste, masks persistent failures); fixed-interval restart (no backoff amplifies failure).
+
+**Backoff schedule:** 1s, 3s, 10s (3 attempts). Retry counter resets after 60 seconds of successful operation.
+
+**Degraded mode (after 3 failures):** Transfer UI disabled. Status shows "Connection service stopped — restart required". Manual restart button. App remains functional for non-transfer features.
+
+**User-visible status transitions:** `starting` -> `ready` -> (crash) -> `restarting (1/3)` -> `ready` OR `restarting (2/3)` -> ... -> `degraded`
+
+#### D0.5 — Single-Instance Policy
+
+**Decision:** Per-user, single daemon instance — enforced via lockfile at daemon socket path.
+
+**Rejected:** Per-machine (requires elevated permissions, conflicts across users); per-app-window (unnecessary complexity, IPC designed for single-client).
+
+**Lockfile model:** Socket file at platform-appropriate runtime directory: `$XDG_RUNTIME_DIR/bolt-daemon.sock` (Linux), `$TMPDIR/bolt-daemon.sock` (macOS), `%LOCALAPPDATA%\bolt-daemon\bolt-daemon.sock` (Windows). Stale socket detection via connect-probe before spawn.
+
+**Second app instance:** If a second app instance starts: probe existing socket. If daemon is responsive, second app connects as IPC client. Current daemon behavior is kick-on-reconnect (new client replaces old). This client-replacement behavior may be revised in N2 if multi-client IPC policy changes, but N0 locks single-daemon-per-user regardless. If socket exists but daemon is unresponsive, clean up stale socket and spawn new daemon.
+
+#### D0.6 — Crash Recovery
+
+**Decision:** Reset transient state, preserve persistent state.
+
+**Rejected:** Full state reset (loses identity key, TOFU pins — unacceptable); full state recovery (complex, transfer state is inherently transient and cannot be recovered).
+
+**Recovered (persistent):** Identity keypair (`~/.bolt/identity.key`), TOFU pin store, configuration.
+
+**Reset (transient):** Active transfers, WebRTC sessions, IPC client connections, in-memory buffers.
+
+**Stale cleanup:** On startup, daemon removes stale socket file if it exists (already implemented in `IpcServer::start`). App-side: if daemon process is dead but socket exists, remove socket before respawn. PID file at `$RUNTIME_DIR/bolt-daemon.pid` for reliable stale-process detection.
+
+**Logging:** Daemon stderr captured by app process. Crash events logged with `[DAEMON_CRASH]` token. Last N lines of daemon stderr preserved in app log for supportability. Crash count tracked per session for telemetry readiness (no telemetry sent — counter only).
+
+#### D0.7 — Version Compatibility Policy
+
+**Decision:** Strict version match for major.minor, fail-closed on mismatch.
+
+**Rejected:** No version check (silent incompatibility); semver-range compatibility (premature — IPC surface is not yet stable, pre-1.0).
+
+**Negotiation:** On IPC connect, app sends version handshake message. Daemon responds with its version. If `major.minor` does not match, daemon sends `version_mismatch` error and closes connection. App shows "Daemon version incompatible — update required" with version details.
+
+**Minimum compatibility:** None until N2 stabilizes IPC. Post-N2: backward compatibility within same major version.
+
+**Rollout implication:** App and daemon MUST be updated together (they ship in the same bundle). Version skew only occurs during development or manual daemon replacement.
+
+#### D0.8 — Boundary with Daemon Runtime Stream (Reaffirmed)
+
+N-STREAM-1 consumes daemon API/runtime surface as defined by B-STREAM. N-STREAM-1 MUST NOT redefine daemon protocol behavior.
+
+**N-STREAM may:** Define how to spawn/kill the daemon binary, define socket paths, define version handshake semantics, define readiness criteria based on existing `daemon.status` events.
+
+**N-STREAM may NOT:** Add new protocol message types, change transfer state machine behavior, modify envelope encryption, add new DcMessage variants.
+
+**Change routing:** If N-STREAM-1 requires new daemon IPC endpoints (e.g., health check, graceful shutdown command, version response), those changes MUST be proposed as B-STREAM work items and executed under B-STREAM governance.
+
+**Current daemon IPC baseline (N2 stabilization target):** Unix domain socket at `/tmp/bolt-daemon.sock`, NDJSON protocol, single-client with kick-on-reconnect. Message types: `daemon.status` (event), `pairing.request` (event), `transfer.incoming.request` (event), `pairing.decision` (decision), `transfer.incoming.decision` (decision).
+
+#### N0 Acceptance Criteria Summary for Downstream Phases
+
+| Phase | Criteria passed from N0 |
+|-------|------------------------|
+| N1 | Daemon binary placed inside app bundle per platform; socket path is platform-appropriate; app+daemon co-versioned in distribution |
+| N2 | IPC assumes co-located processes; `daemon.status` is readiness signal; version handshake required as first IPC message; IPC contract stabilizes current baseline (5 message types); fail-closed on version mismatch |
+| N3 | Watchdog implements: spawn on app launch, SIGTERM+5s grace+SIGKILL on exit, exponential backoff (1s/3s/10s, 3 retries, 60s reset), degraded mode after exhaustion, stale socket/PID cleanup, stderr capture |
 
 ---
 

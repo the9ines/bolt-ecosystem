@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative
-> **Last Updated:** 2026-03-07 (N-STREAM-1 codification)
+> **Last Updated:** 2026-03-07 (N-STREAM-1 N0 policy lock)
 > **Authority:** PM-approved execution plan.
 
 ---
@@ -350,13 +350,14 @@ C0 (PM policy decision) ← BLOCKER
 
 ## Workstream N — Native App + Daemon Bundling (N-STREAM-1)
 
-**Status:** Codified (all phases NOT-STARTED)
+**Status:** N0 DONE, N1–N7 NOT-STARTED
 **Codified:** ecosystem-v0.1.72-n-stream-1-codify (2026-03-07)
+**N0 locked:** ecosystem-v0.1.73-n-stream-1-n0-policy-lock (2026-03-07)
 **Primary success gate:** localbolt-app ships with bundled bolt-daemon as a single supervised product.
 
 | Phase | Description | Status | Dependencies |
 |-------|-------------|--------|-------------|
-| N0 | Policy lock (lifecycle, restart, single-instance, crash recovery) | NOT-STARTED | None |
+| N0 | Policy lock (lifecycle, restart, single-instance, crash recovery) | **DONE** | None |
 | N1 | Packaging + security matrix (macOS/Windows/Linux) | NOT-STARTED | N0 |
 | N2 | IPC contract stabilization | NOT-STARTED | N0 |
 | N3 | Process supervision + diagnostics | NOT-STARTED | N2 |
@@ -388,7 +389,7 @@ C0 (PM policy decision) ← BLOCKER
 | R11 | ARCH-08 disposition unresolved for localbolt-core placement | Medium | **Closed** | C1 ARCH-08 gate: Option 2 non-violating location (`localbolt-v3/packages/localbolt-core`) |
 | R12 | Daemon IPC surface unstable — N2 depends on B-stream maturity | Medium | Open | N2 IPC contract stabilized against current daemon API baseline |
 | R13 | Cross-platform packaging complexity — macOS/Windows/Linux signing and notarization | Medium | Open | N1 packaging matrix validated per platform |
-| R14 | Daemon crash recovery undefined — single-instance and lifecycle policy not yet decided | Medium | Open | N0 policy lock completed |
+| R14 | Daemon crash recovery undefined — single-instance and lifecycle policy not yet decided | Medium | **Closed** | N0 policy lock completed (`ecosystem-v0.1.73-n-stream-1-n0-policy-lock`) |
 
 ---
 
@@ -471,11 +472,11 @@ C-STREAM-R1 (UI/state regression recovery, independent of D-stream):
   Single phase: generation guards + snapshot fix + trust truth table → DONE (v3.0.80-c-stream-r1-ui-state-fix)
 
 N-STREAM-1 (native app + daemon bundling, consumes B-stream API surface):
-  N0 (policy lock) ──┬── N1 (packaging) ──┐
-                     │                    ├── N4 (rollout) ──┐
-                     └── N2 (IPC contract)┤                  ├── N6 (execution) → N7 (closure)
-                          │               └── N5 (harness) ──┘
-                          └── N3 (supervision) ──┘
+  N0 (policy lock) ✓ ──┬── N1 (packaging) ──┐
+                       │                    ├── N4 (rollout) ──┐
+                       └── N2 (IPC contract)┤                  ├── N6 (execution) → N7 (closure)
+                            │               └── N5 (harness) ──┘
+                            └── N3 (supervision) ──┘
 ```
 
 ---

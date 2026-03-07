@@ -5,6 +5,23 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## N-STREAM-1 N0 Policy Lock — Native App + Daemon Bundling — 2026-03-07
+
+- **N0 DONE:** All 8 policy decisions locked (D0.1–D0.8), PM-approved
+  - D0.1: App-managed daemon lifecycle (Tauri sidecar, no system service)
+  - D0.2: Synchronous startup on app launch, 10s readiness timeout, `daemon.status` as readiness signal
+  - D0.3: SIGTERM on app exit, 5s grace period, SIGKILL fallback; warn on active transfer
+  - D0.4: Exponential backoff restart (1s/3s/10s), 3 max retries, degraded mode after exhaustion, 60s success reset
+  - D0.5: Per-user single daemon instance via socket lockfile; kick-on-reconnect is current IPC behavior (may be revised in N2)
+  - D0.6: Persistent state (identity key, TOFU pins) survives crashes; transient state (transfers, sessions) resets; PID file for stale detection
+  - D0.7: Strict major.minor version match, fail-closed on mismatch; app+daemon co-versioned in bundle
+  - D0.8: B-STREAM boundary reaffirmed; N-STREAM consumes daemon API, does not redefine protocol
+- N1 (packaging) and N2 (IPC contract) unblocked
+- Risk R14 closed (lifecycle/crash policy decided)
+- Tag: `ecosystem-v0.1.73-n-stream-1-n0-policy-lock`
+
+---
+
 ## N-STREAM-1 Codification — Native App + Daemon Bundling — 2026-03-07
 
 - **N-STREAM-1 codified:** Governance workstream for native app + daemon bundling
