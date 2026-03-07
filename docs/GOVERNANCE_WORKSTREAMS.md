@@ -2101,15 +2101,15 @@ These gaps require daemon-side changes. Recorded here; implementation is B-STREA
 | ID | Description | Blocking Phase | Severity |
 |----|-------------|---------------|----------|
 | B-DEP-N1-1 | Daemon needs `--socket-path` and `--data-dir` CLI flags for platform-appropriate filesystem locations (currently hardcoded `/tmp/bolt-daemon.sock`, `~/.bolt/`) | N6 (execution) | Medium — defaults work for dev/beta, REQUIRED for GA |
-| B-DEP-N2-1 | `daemon.status` event must be emitted in default mode on client connect (currently simulate-mode only) | N3 (supervision readiness check) | High |
-| B-DEP-N2-2 | `version.handshake` (app->daemon) and `version.status` (daemon->app) messages must be implemented | N3 (version-gated supervision) | High |
+| B-DEP-N2-1 | `daemon.status` event must be emitted in default mode on client connect (currently simulate-mode only) | N3 (supervision readiness check) | High — **RESOLVED** (`daemon-v0.2.31-bdep-n2-ipc-unblock`, `1ad2db8`) |
+| B-DEP-N2-2 | `version.handshake` (app->daemon) and `version.status` (daemon->app) messages must be implemented | N3 (version-gated supervision) | High — **RESOLVED** (`daemon-v0.2.31-bdep-n2-ipc-unblock`, `1ad2db8`) |
 | B-DEP-N2-3 | Windows named pipe support (daemon currently Unix socket only) | N6 (Windows platform) | Medium |
 
 ---
 
 ### N3 — Process Supervision + Diagnostics (Specification)
 
-**Status:** DONE (spec locked; B-DEP-N2-1/N2-2 block N6 implementation, not this spec lock)
+**Status:** DONE (spec locked; B-DEP-N2-1/N2-2 **RESOLVED** — N6 readiness/version-gate unblocked)
 **Tag:** `ecosystem-v0.1.75-n-stream-1-n3-supervision`
 **Date:** 2026-03-07
 **Scope:** localbolt-app supervision of bolt-daemon process. Spec-only — no runtime code.

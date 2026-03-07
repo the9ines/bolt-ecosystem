@@ -5,6 +5,22 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## B-DEP-N2 Unblock — daemon.status + Version Handshake Implemented — 2026-03-07
+
+- **B-DEP-N2-1 RESOLVED:** `daemon.status` event now emitted in all daemon modes (default, smoke, simulate) after successful IPC version handshake. Previously simulate-mode only.
+- **B-DEP-N2-2 RESOLVED:** `version.handshake` (app→daemon) and `version.status` (daemon→app) messages implemented with strict `major.minor` match enforcement. Fail-closed on incompatible, malformed, missing, or late handshake. No grace mode.
+- **N6 unblocked (readiness + version-gate):** N3 readiness transition (`starting → ready`) and version-gated supervision (`starting → incompatible`) are no longer blocked by daemon dependencies.
+- **R15 CLOSED:** B-DEP-N2-1/N2-2 risk resolved.
+- **B-DEP-N1-1 STILL OPEN:** Platform path CLI flags not implemented (blocks N6 GA, not N6 start).
+- **B-DEP-N2-3 STILL OPEN:** Windows named pipe not supported (blocks N6 Windows).
+- IPC event ordering: `version.status` → `daemon.status` → normal events
+- 20 new tests in bolt-daemon (5 type, 8 version compat, 7 handshake integration)
+- Default: 338 (was 318). test-support: 418+3ign (was 398+3ign)
+- Daemon tag: `daemon-v0.2.31-bdep-n2-ipc-unblock` (`1ad2db8`)
+- Tag: `ecosystem-v0.1.77-n-stream-1-bdep-n2-unblock`
+
+---
+
 ## N-STREAM-1 N4+N5 Spec Lock — Rollout + Migration + Acceptance Harness — 2026-03-07
 
 - **N4 DONE (spec locked):** Rollout + migration strategy locked

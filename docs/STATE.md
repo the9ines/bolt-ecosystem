@@ -1,16 +1,16 @@
 ---
 Snapshot Derived From:
 - sdk-v0.5.28-d3-registry-migration (66aaa3a)
-- daemon-v0.2.30-d-e2e-b-cross-impl (a8cf108)
+- daemon-v0.2.31-bdep-n2-ipc-unblock (1ad2db8)
 - v3.0.79-s-stream-r1-r1.4-security-test-lift (31046ac)
 - localbolt-v1.0.27-s-stream-r1-r1.4-security-test-lift (fc360c5)
 - localbolt-app-v1.2.10-s-stream-r1-r1.4-security-test-lift (71c3181)
-Last Refreshed By: S-STREAM-R1 R1-5/R1-6 closeout
+Last Refreshed By: B-DEP-N2 unblock (daemon-v0.2.31)
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-07 (N-STREAM-1 N4+N5 rollout + acceptance harness spec lock)
+> **Last Updated:** 2026-03-07 (B-DEP-N2 unblock — daemon.status + version handshake implemented)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -677,7 +677,7 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 | N0 | Policy lock (D0.1–D0.8) | **DONE** | `ecosystem-v0.1.73-n-stream-1-n0-policy-lock` |
 | N1 | Packaging + security matrix (macOS/Windows/Linux) | **DONE** | `ecosystem-v0.1.74-n-stream-1-n1-n2-lock` |
 | N2 | IPC contract stabilization | **DONE** (spec locked, impl deps open) | `ecosystem-v0.1.74-n-stream-1-n1-n2-lock` |
-| N3 | Process supervision + diagnostics | **DONE** (spec locked; B-DEP-N2-1/N2-2 block N6 impl) | `ecosystem-v0.1.75-n-stream-1-n3-supervision` |
+| N3 | Process supervision + diagnostics | **DONE** (spec locked; B-DEP-N2-1/N2-2 **RESOLVED**) | `ecosystem-v0.1.75-n-stream-1-n3-supervision` |
 | N4 | Rollout + migration | **DONE** (spec locked) | `ecosystem-v0.1.76-n-stream-1-n4-n5-lock` |
 | N5 | Acceptance harness | **DONE** (spec locked) | `ecosystem-v0.1.76-n-stream-1-n4-n5-lock` |
 | N6 | Execution + hardening | NOT-STARTED | -- |
