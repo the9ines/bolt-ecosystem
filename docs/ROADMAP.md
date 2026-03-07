@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative
-> **Last Updated:** 2026-03-07 (N-STREAM-1 N0 policy lock)
+> **Last Updated:** 2026-03-07 (N-STREAM-1 N1+N2 lock)
 > **Authority:** PM-approved execution plan.
 
 ---
@@ -350,16 +350,17 @@ C0 (PM policy decision) ← BLOCKER
 
 ## Workstream N — Native App + Daemon Bundling (N-STREAM-1)
 
-**Status:** N0 DONE, N1–N7 NOT-STARTED
+**Status:** N0/N1/N2 DONE, N3–N7 NOT-STARTED
 **Codified:** ecosystem-v0.1.72-n-stream-1-codify (2026-03-07)
 **N0 locked:** ecosystem-v0.1.73-n-stream-1-n0-policy-lock (2026-03-07)
+**N1+N2 locked:** ecosystem-v0.1.74-n-stream-1-n1-n2-lock (2026-03-07)
 **Primary success gate:** localbolt-app ships with bundled bolt-daemon as a single supervised product.
 
 | Phase | Description | Status | Dependencies |
 |-------|-------------|--------|-------------|
 | N0 | Policy lock (lifecycle, restart, single-instance, crash recovery) | **DONE** | None |
-| N1 | Packaging + security matrix (macOS/Windows/Linux) | NOT-STARTED | N0 |
-| N2 | IPC contract stabilization | NOT-STARTED | N0 |
+| N1 | Packaging + security matrix (macOS/Windows/Linux) | **DONE** | N0 |
+| N2 | IPC contract stabilization | **DONE** (spec locked, impl deps open) | N0 |
 | N3 | Process supervision + diagnostics | NOT-STARTED | N2 |
 | N4 | Rollout + migration | NOT-STARTED | N1, N2 |
 | N5 | Acceptance harness | NOT-STARTED | N2, N3 |
@@ -387,9 +388,11 @@ C0 (PM policy decision) ← BLOCKER
 | R9 | No TOFU/SAS wiring in localbolt-v3 product UI | Medium | **Closed** | H5-v3 merged (`v3.0.61-h5v3-tofu-sas-pinning`) |
 | R10 | App-layer behavior drift across 3 LocalBolt products | Medium | **Closed** | C-stream convergence (C2–C5 DONE, all consumers on `@the9ines/localbolt-core@0.1.0`) |
 | R11 | ARCH-08 disposition unresolved for localbolt-core placement | Medium | **Closed** | C1 ARCH-08 gate: Option 2 non-violating location (`localbolt-v3/packages/localbolt-core`) |
-| R12 | Daemon IPC surface unstable — N2 depends on B-stream maturity | Medium | Open | N2 IPC contract stabilized against current daemon API baseline |
-| R13 | Cross-platform packaging complexity — macOS/Windows/Linux signing and notarization | Medium | Open | N1 packaging matrix validated per platform |
+| R12 | Daemon IPC surface unstable — N2 depends on B-stream maturity | Medium | **Closed** | N2 IPC contract locked against current daemon API baseline (`ecosystem-v0.1.74-n-stream-1-n1-n2-lock`) |
+| R13 | Cross-platform packaging complexity — macOS/Windows/Linux signing and notarization | Medium | **Closed** | N1 packaging matrix locked per platform (`ecosystem-v0.1.74-n-stream-1-n1-n2-lock`) |
 | R14 | Daemon crash recovery undefined — single-instance and lifecycle policy not yet decided | Medium | **Closed** | N0 policy lock completed (`ecosystem-v0.1.73-n-stream-1-n0-policy-lock`) |
+| R15 | B-DEP-N2-1/N2-2: daemon.status + version handshake not yet in default mode — blocks N3 supervision | High | Open | B-STREAM implements daemon.status in default mode + version.handshake/version.status messages |
+| R16 | B-DEP-N2-3: Windows named pipe not supported — blocks N6 Windows GA | Medium | Open | B-STREAM adds Windows named pipe IPC transport |
 
 ---
 
@@ -472,11 +475,15 @@ C-STREAM-R1 (UI/state regression recovery, independent of D-stream):
   Single phase: generation guards + snapshot fix + trust truth table → DONE (v3.0.80-c-stream-r1-ui-state-fix)
 
 N-STREAM-1 (native app + daemon bundling, consumes B-stream API surface):
-  N0 (policy lock) ✓ ──┬── N1 (packaging) ──┐
-                       │                    ├── N4 (rollout) ──┐
-                       └── N2 (IPC contract)┤                  ├── N6 (execution) → N7 (closure)
-                            │               └── N5 (harness) ──┘
+  N0 (policy lock) ✓ ──┬── N1 (packaging) ✓ ──┐
+                       │                      ├── N4 (rollout) ──┐
+                       └── N2 (IPC contract) ✓┤                  ├── N6 (execution) → N7 (closure)
+                            │                 └── N5 (harness) ──┘
                             └── N3 (supervision) ──┘
+  B-STREAM deps: B-DEP-N2-1 (daemon.status in default mode) → blocks N3
+                 B-DEP-N2-2 (version handshake messages) → blocks N3
+                 B-DEP-N1-1 (platform path CLI flags) → blocks N6 GA
+                 B-DEP-N2-3 (Windows named pipe) → blocks N6 Windows
 ```
 
 ---

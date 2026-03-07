@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-07 (N-STREAM-1 N0 policy lock)
-> **Tag:** ecosystem-v0.1.73-n-stream-1-n0-policy-lock
+> **Updated:** 2026-03-07 (N-STREAM-1 N1+N2 lock)
+> **Tag:** ecosystem-v0.1.74-n-stream-1-n1-n2-lock
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -1635,8 +1635,8 @@ Any N-stream phase requiring new top-level folders under workspace root MUST res
 | Phase | Description | Status | Dependencies | Acceptance Criteria |
 |-------|-------------|--------|-------------|---------------------|
 | N0 | Policy lock | **DONE** | None | All 8 policy decisions locked (D0.1–D0.8). See N0 Decision Record below. |
-| N1 | Packaging + security matrix | NOT-STARTED | N0 | Per-platform packaging model (macOS/Windows/Linux); bundle location + binary naming; signing/notarization implications; permissions model + data-dir boundaries |
-| N2 | IPC contract stabilization | NOT-STARTED | N0 | App-daemon IPC boundary defined; version negotiation/compatibility contract; fail-closed on incompatible versions; health/status surface for native shell |
+| N1 | Packaging + security matrix | **DONE** | N0 | Per-platform matrix locked (macOS/Windows/Linux). See N1 Specification below. |
+| N2 | IPC contract stabilization | **DONE** (spec locked, implementation dependencies open) | N0 | IPC contract baseline locked (5 stable + 2 provisional messages). B-DEP-N2-1/2/3 block N3/N6, not this spec lock. See N2 Specification below. |
 | N3 | Process supervision + diagnostics | NOT-STARTED | N2 | Watchdog strategy; readiness checks; backoff/retry behavior; stale socket/process cleanup; diagnostics/logging surface |
 | N4 | Rollout + migration | NOT-STARTED | N1, N2 | Staged rollout plan (dev/beta/prod); rollback strategy; app/daemon version-skew compatibility matrix |
 | N5 | Acceptance harness | NOT-STARTED | N2, N3 | E2E bundling/lifecycle validation plan; platform-specific acceptance gates; failure-injection tests (crash/restart/update) |
@@ -1789,6 +1789,319 @@ N-STREAM-1 consumes daemon API/runtime surface as defined by B-STREAM. N-STREAM-
 | N1 | Daemon binary placed inside app bundle per platform; socket path is platform-appropriate; app+daemon co-versioned in distribution |
 | N2 | IPC assumes co-located processes; `daemon.status` is readiness signal; version handshake required as first IPC message; IPC contract stabilizes current baseline (5 message types); fail-closed on version mismatch |
 | N3 | Watchdog implements: spawn on app launch, SIGTERM+5s grace+SIGKILL on exit, exponential backoff (1s/3s/10s, 3 retries, 60s reset), degraded mode after exhaustion, stale socket/PID cleanup, stderr capture |
+
+---
+
+### N1 — Packaging + Security Matrix (Specification)
+
+**Status:** DONE
+**Tag:** `ecosystem-v0.1.74-n-stream-1-n1-n2-lock`
+**Date:** 2026-03-07
+**Scope:** localbolt-app only (guardrail 15). Daemon binary = `bolt-daemon`.
+
+#### N1-T1: Bundle Location + Binary Naming
+
+| Platform | App Bundle Format | Daemon Binary Name | Daemon Location in Bundle | Normative |
+|----------|------------------|--------------------|--------------------------|-----------|
+| macOS | `.app` inside `.dmg` | `bolt-daemon` (no extension) | `LocalBolt.app/Contents/Resources/bin/bolt-daemon-{arch}` | REQUIRED |
+| Windows | `.exe` via NSIS/WiX installer | `bolt-daemon.exe` | `{install_dir}/bin/bolt-daemon-x86_64-pc-windows-msvc.exe` | REQUIRED |
+| Linux | `.deb` / `.rpm` | `bolt-daemon` (no extension) | `/usr/lib/localbolt/bin/bolt-daemon-{arch}` (.deb/.rpm) | REQUIRED |
+
+Tauri v2 sidecar convention: binary name includes target triple suffix (e.g., `bolt-daemon-aarch64-apple-darwin`). Tauri resolves the correct binary at runtime based on `std::env::consts`. `tauri.conf.json` MUST declare `bundle.externalBin: ["bin/bolt-daemon"]` — Tauri appends the target triple automatically.
+
+#### N1-T2: Spawn Model
+
+| Aspect | Specification | Normative |
+|--------|--------------|-----------|
+| Lifecycle owner | App process (Tauri sidecar API) | REQUIRED (N0 D0.1) |
+| Spawn timing | Synchronous at app initialization, before transfer UI enabled | REQUIRED (N0 D0.2) |
+| Spawn mechanism | `tauri::api::process::Command::new_sidecar("bolt-daemon")` | REQUIRED |
+| Daemon CLI args at spawn | `--role answerer --signal rendezvous --pairing-policy ask` (minimum; room/session/peer args per connection) | SHOULD |
+| Working directory | App data directory | SHOULD |
+| Stdout/stderr | Captured by Tauri sidecar API; stderr logged with `[DAEMON_STDERR]` token | REQUIRED |
+
+#### N1-T3: Signing + Notarization
+
+| Platform | Requirement | Current State | Normative |
+|----------|------------|---------------|-----------|
+| macOS | Apple Developer ID + notarization via `notarytool` | NOT configured — Gatekeeper bypass in release notes | SHOULD (pre-release); REQUIRED (GA) |
+| macOS | Daemon binary MUST be signed with same Developer ID as app (hardened runtime) | NOT configured | REQUIRED (GA) |
+| Windows | Authenticode EV code signing certificate | NOT configured — SmartScreen bypass in release notes | SHOULD (pre-release); REQUIRED (GA) |
+| Windows | Daemon `.exe` MUST be signed with same certificate as installer | NOT configured | REQUIRED (GA) |
+| Linux | No OS-level signing requirement | N/A | N/A |
+| Linux | GPG-signed `.deb`/`.rpm` packages | NOT configured | SHOULD |
+
+Out of scope: Certificate procurement, CI signing pipeline setup (deferred to N6 execution).
+
+#### N1-T4: Filesystem Locations
+
+| Resource | macOS | Windows | Linux | Normative |
+|----------|-------|---------|-------|-----------|
+| Runtime socket | `$TMPDIR/bolt-daemon.sock` | `\\.\pipe\bolt-daemon` (named pipe) | `$XDG_RUNTIME_DIR/bolt-daemon.sock` (fallback: `/tmp/bolt-daemon.sock`) | REQUIRED (N0 D0.5) |
+| PID file | `$TMPDIR/bolt-daemon.pid` | `%LOCALAPPDATA%\bolt-daemon\bolt-daemon.pid` | `$XDG_RUNTIME_DIR/bolt-daemon.pid` (fallback: `/tmp/bolt-daemon.pid`) | REQUIRED (N0 D0.6) |
+| Logs | `~/Library/Logs/LocalBolt/daemon.log` | `%LOCALAPPDATA%\LocalBolt\logs\daemon.log` | `$XDG_STATE_HOME/localbolt/daemon.log` (fallback: `~/.local/state/localbolt/daemon.log`) | SHOULD |
+| Identity key | `~/Library/Application Support/LocalBolt/identity.key` | `%APPDATA%\LocalBolt\identity.key` | `$XDG_DATA_HOME/localbolt/identity.key` (fallback: `~/.local/share/localbolt/identity.key`) | REQUIRED (N0 D0.6) |
+| TOFU pin store | `~/Library/Application Support/LocalBolt/pins/` | `%APPDATA%\LocalBolt\pins\` | `$XDG_DATA_HOME/localbolt/pins/` | REQUIRED (N0 D0.6) |
+| Config | `~/Library/Application Support/LocalBolt/config.toml` | `%APPDATA%\LocalBolt\config.toml` | `$XDG_CONFIG_HOME/localbolt/config.toml` (fallback: `~/.config/localbolt/config.toml`) | SHOULD |
+
+**B-STREAM dependency (B-DEP-N1-1):** Current daemon hardcodes `/tmp/bolt-daemon.sock` and `~/.bolt/`. Platform-appropriate paths require daemon CLI flags (`--socket-path`, `--data-dir`). Medium severity — defaults work for dev/beta, REQUIRED for GA.
+
+#### N1-T5: Permission Model (Least Privilege)
+
+| Aspect | Specification | Normative |
+|--------|--------------|-----------|
+| Daemon process privilege | Same user as app (no elevation) | REQUIRED |
+| Socket permissions | `0600` (owner-only; already implemented in daemon) | REQUIRED |
+| Identity key file | `0600` (owner-only read/write) | REQUIRED |
+| TOFU pin store | `0700` directory, `0600` files | REQUIRED |
+| Network access | Outbound only (WebSocket to rendezvous, WebRTC P2P) | REQUIRED |
+| Filesystem write scope | Data dir + runtime dir only; no writes outside | REQUIRED |
+| macOS sandbox | App sandbox enabled; daemon inherits app sandbox profile | SHOULD (GA) |
+| Windows | No UAC elevation; standard user permissions | REQUIRED |
+| Linux | No root; no capabilities; no setuid | REQUIRED |
+
+#### N1-T6: Update/Rollback + Version Skew
+
+| Aspect | Specification | Normative |
+|--------|--------------|-----------|
+| Co-versioning | App and daemon ship in same bundle; versions always match | REQUIRED (N0 D0.7) |
+| Update mechanism | Whole-bundle update (Tauri updater replaces app + daemon together) | REQUIRED |
+| Rollback | Whole-bundle rollback; no independent daemon rollback | REQUIRED |
+| Version skew detection | IPC version handshake (N2); fail-closed on mismatch | REQUIRED (N0 D0.7) |
+| Partial update | MUST NOT occur; no mechanism to update daemon independently of app | REQUIRED |
+
+#### N1-T7: Explicit Out-of-Scope
+
+| Item | Reason |
+|------|--------|
+| System service mode (launchd/systemd/Windows Service) | Rejected in N0 D0.1 |
+| Login-item auto-start | Rejected in N0 D0.2 |
+| Multi-user daemon sharing | Rejected in N0 D0.5 |
+| Independent daemon installation | N0 D0.7 requires co-bundling |
+| macOS App Store distribution | Separate governance gate |
+| Mobile platform packaging (iOS/Android) | localbolt-app v2.1.0 roadmap |
+| Certificate procurement / CI signing pipeline | Deferred to N6 |
+
+#### N1 Acceptance Checklist (for N5 harness)
+
+- [ ] AC-N1-1: Daemon binary present in app bundle at platform-correct path
+- [ ] AC-N1-2: Daemon binary executable and runs (exits 1 with usage line)
+- [ ] AC-N1-3: Socket created at platform-correct path after daemon spawn
+- [ ] AC-N1-4: Socket has `0600` permissions (Unix) or equivalent (Windows named pipe)
+- [ ] AC-N1-5: PID file created at platform-correct path
+- [ ] AC-N1-6: Identity key persists at platform-correct path across app restart
+- [ ] AC-N1-7: App and daemon report identical version in IPC handshake
+- [ ] AC-N1-8: Daemon runs without elevated privileges
+- [ ] AC-N1-9: No writes outside data-dir and runtime-dir
+- [ ] AC-N1-10: macOS `.app` contains signed daemon binary (GA gate only)
+- [ ] AC-N1-11: Windows installer contains signed daemon `.exe` (GA gate only)
+
+---
+
+### N2 — IPC Contract Stabilization (Specification)
+
+**Status:** DONE (spec locked, implementation dependencies open)
+**Tag:** `ecosystem-v0.1.74-n-stream-1-n1-n2-lock`
+**Date:** 2026-03-07
+**Scope:** Consumer-side contract lock against current daemon IPC baseline. B-DEP-N2-1/2/3 block downstream execution (N3/N6) but not this spec lock.
+
+#### N2-S1: Connection Model
+
+| Aspect | Specification | Evidence | Normative |
+|--------|--------------|----------|-----------|
+| Transport | Unix domain socket (macOS/Linux); Named pipe (Windows) | `src/ipc/server.rs:19` | REQUIRED |
+| Wire format | NDJSON (one JSON object per `\n`-terminated line) | `src/ipc/types.rs:1-4` | REQUIRED |
+| Max line size | 1,048,576 bytes (1 MiB) | `src/ipc/server.rs:22` | REQUIRED |
+| Client model | Single client; kick-on-reconnect | `src/ipc/server.rs:204-246` | REQUIRED (N0 D0.5) |
+| Connection lifecycle | App connects after daemon spawn; disconnection = client lost | `src/ipc/server.rs` | REQUIRED |
+
+#### N2-S2: Readiness Contract
+
+| Aspect | Specification | Evidence | Normative |
+|--------|--------------|----------|-----------|
+| Readiness signal | `daemon.status` event emitted on client connect | N0 D0.2, `src/main.rs:1098` | REQUIRED |
+| Startup timeout | 10 seconds from spawn to first `daemon.status` | N0 D0.2 | REQUIRED |
+| Timeout behavior | App enters degraded mode (transfer UI disabled, "Daemon unavailable") | N0 D0.2 | REQUIRED |
+| Retry on timeout | No auto-retry; manual retry button | N0 D0.2 | REQUIRED |
+
+**B-STREAM dependency (B-DEP-N2-1):** `daemon.status` is currently emitted only in simulate mode (`src/main.rs:1098`). Default mode MUST emit `daemon.status` on client connect. High severity — blocks N3 readiness check.
+
+#### N2-S3: Version Handshake
+
+| Aspect | Specification | Evidence | Normative |
+|--------|--------------|----------|-----------|
+| First message after connect | App MUST send `version.handshake` (`kind: "decision"`) | N0 D0.7 (new message) | REQUIRED |
+| Handshake payload | `{ "app_version": "<major.minor.patch>" }` | N0 D0.7 | REQUIRED |
+| Daemon response | `version.status` event with `{ "daemon_version": "<major.minor.patch>", "compatible": bool }` | N0 D0.7 (new message) | REQUIRED |
+| Match rule | `major.minor` of app == `major.minor` of daemon | N0 D0.7 | REQUIRED |
+| Mismatch behavior | Daemon sends `version.status` with `compatible: false`, then closes connection | N0 D0.7 | REQUIRED |
+| App mismatch UX | "Daemon version incompatible — update required" with version details | N0 D0.7 | REQUIRED |
+| Pre-handshake messages | Daemon MUST NOT emit events (except `version.status`) before handshake completes | N0 D0.7 | REQUIRED |
+
+**B-STREAM dependency (B-DEP-N2-2):** `version.handshake` and `version.status` messages do not exist in current daemon. High severity — blocks N3 version-gated supervision.
+
+#### N2-S4: Message Surface (Audited + Classified)
+
+Source code audit baseline: `bolt-daemon/src/ipc/types.rs`, `src/ipc/server.rs`, `src/ipc/trust.rs`, `src/main.rs`.
+
+**Daemon -> App (Events)**
+
+| Message Type | Classification | Lock Status |
+|-------------|---------------|-------------|
+| `daemon.status` | **STABLE** | Locked |
+| `pairing.request` | **STABLE** | Locked |
+| `transfer.incoming.request` | **STABLE** | Locked |
+| `version.status` | **PROVISIONAL** | Schema locked; B-DEP-N2-2 (implementation) |
+
+**App -> Daemon (Decisions)**
+
+| Message Type | Classification | Lock Status |
+|-------------|---------------|-------------|
+| `pairing.decision` | **STABLE** | Locked |
+| `transfer.incoming.decision` | **STABLE** | Locked |
+| `version.handshake` | **PROVISIONAL** | Schema locked; B-DEP-N2-2 (implementation) |
+
+**Internal (NOT app-facing)**
+
+| Aspect | Classification |
+|--------|---------------|
+| `IpcKind` enum (`event`/`decision` wire values) | INTERNAL (stable, not a message type) |
+| `id::generate_request_id()` (monotonic `evt-N`) | INTERNAL |
+| `IpcServer::is_ui_connected()` | INTERNAL |
+
+#### N2-S4a: Message Envelope Schema
+
+All messages use a common envelope. All 5 fields REQUIRED:
+
+```json
+{
+  "id": "evt-<u64>",
+  "kind": "event" | "decision",
+  "type": "<message_type>",
+  "ts_ms": <u64>,
+  "payload": { ... }
+}
+```
+
+Unknown `kind` values MUST cause deserialization failure. Extra fields in `payload` MUST be preserved (forward-compatible). Evidence: `src/ipc/types.rs:12-28`, test `extra_fields_in_payload_are_preserved`.
+
+#### N2-S4b: Payload Schemas (Locked)
+
+**`daemon.status` payload:**
+```json
+{ "connected_peers": <u32>, "ui_connected": <bool>, "version": "<string>" }
+```
+Source: `src/ipc/types.rs:65-70` (`DaemonStatusPayload`)
+
+**`pairing.request` payload:**
+```json
+{
+  "request_id": "<string>",
+  "remote_device_name": "<string>",
+  "remote_device_type": "<string>",
+  "remote_identity_pk_b64": "<string>",
+  "sas": "<string>",
+  "capabilities_requested": ["<string>", ...]
+}
+```
+Source: `src/ipc/types.rs:42-50` (`PairingRequestPayload`)
+
+**`transfer.incoming.request` payload:**
+```json
+{
+  "request_id": "<string>",
+  "from_device_name": "<string>",
+  "from_identity_pk_b64": "<string>",
+  "file_name": "<string>",
+  "file_size_bytes": <u64>,
+  "sha256_hex": "<string>" | null,
+  "mime": "<string>" | null
+}
+```
+Source: `src/ipc/types.rs:52-63` (`TransferIncomingRequestPayload`). Optional fields omitted when null (`skip_serializing_if`).
+
+**`pairing.decision` / `transfer.incoming.decision` payload:**
+```json
+{
+  "request_id": "<string>",
+  "decision": "allow_once" | "allow_always" | "deny_once" | "deny_always",
+  "note": "<string>" | null
+}
+```
+Source: `src/ipc/types.rs:74-80` (`DecisionPayload`), `src/ipc/types.rs:31-38` (`Decision` enum, `rename_all = "snake_case"`).
+
+**Decision timeout:** 30 seconds, fail-closed deny (`src/ipc/trust.rs:27`).
+
+**`version.handshake` payload (PROVISIONAL):**
+```json
+{ "app_version": "<major.minor.patch>" }
+```
+
+**`version.status` payload (PROVISIONAL):**
+```json
+{ "daemon_version": "<major.minor.patch>", "compatible": <bool> }
+```
+
+#### N2-S5: Error Contract
+
+| Error Condition | Daemon Behavior | App UX Requirement | Normative |
+|----------------|----------------|-------------------|-----------|
+| Invalid JSON received | `[IPC_INVALID_JSON]` log, client disconnected | Reconnect with backoff | REQUIRED |
+| Line exceeds 1 MiB | `[IPC_OVERSIZE]` log, client disconnected | Reconnect with backoff | REQUIRED |
+| Unknown message type | `[IPC_UNKNOWN_TYPE]` log, message silently dropped | None (forward-compatible) | REQUIRED |
+| Decision timeout (30s) | Fail-closed deny, `None` returned | App SHOULD warn user of timeout | SHOULD |
+| Client disconnect | Reader EOF detected, threads exit | App triggers restart per N0 D0.4 | REQUIRED |
+| Version mismatch | `version.status` with `compatible: false`, connection closed | Show version mismatch error | REQUIRED |
+| Mutex poison (internal) | `is_ui_connected()` returns `false` (fail-closed) | Treated as daemon unavailable | REQUIRED |
+
+**Degraded Mode Transitions:**
+
+| Trigger | State Transition | Recovery |
+|---------|-----------------|----------|
+| Daemon not started within 10s | `starting` -> `degraded` | Manual retry button |
+| Daemon crash | `ready` -> `restarting (N/3)` | Auto-restart per N0 D0.4 |
+| 3 consecutive crash restarts | `restarting` -> `degraded` | Manual restart button |
+| Version mismatch | `starting` -> `incompatible` | Update app+daemon bundle |
+| IPC disconnect (no crash) | `ready` -> `reconnecting` | Auto-reconnect (single attempt, then degrade) |
+
+#### N2-S6: Compatibility Policy
+
+| Aspect | Rule | Normative |
+|--------|------|-----------|
+| Breaking change | Adding/removing/renaming required envelope fields; changing `kind` or `type` values; removing a STABLE message type; changing STABLE payload field names/types | REQUIRED major version bump |
+| Non-breaking change | Adding optional fields to payload (with `skip_serializing_if`); adding new message types; adding new `decision` enum variants | REQUIRED minor version bump |
+| Extension mechanism | New message types MUST follow existing envelope schema; unknown `type` values MUST be silently dropped (already implemented) | REQUIRED |
+| Deprecation | STABLE messages MUST NOT be removed without one full minor version deprecation cycle | REQUIRED |
+| Forward compatibility | Extra fields in `payload` MUST be preserved through roundtrip (already implemented per test `extra_fields_in_payload_are_preserved`) | REQUIRED |
+
+**IPC Version Numbering:** IPC contract version follows daemon `Cargo.toml` version (currently `0.0.1`). Pre-1.0: breaking changes allowed with minor bump. Post-1.0: semver strict. App and daemon MUST match on `major.minor` (N0 D0.7).
+
+#### N2 Acceptance Checklist (for N5 harness)
+
+- [ ] AC-N2-1: App connects to daemon socket within 10s of spawn
+- [ ] AC-N2-2: Version handshake completes as first message exchange
+- [ ] AC-N2-3: Version mismatch produces fail-closed error (connection terminated)
+- [ ] AC-N2-4: `daemon.status` received after successful version handshake
+- [ ] AC-N2-5: `pairing.request` event delivered to app with all required fields
+- [ ] AC-N2-6: `pairing.decision` accepted by daemon with correct request_id correlation
+- [ ] AC-N2-7: `transfer.incoming.request` event delivered with all required fields
+- [ ] AC-N2-8: `transfer.incoming.decision` accepted by daemon
+- [ ] AC-N2-9: Decision timeout (30s) results in fail-closed deny
+- [ ] AC-N2-10: Unknown message types silently dropped (forward-compatible)
+- [ ] AC-N2-11: Extra payload fields preserved through roundtrip
+
+---
+
+### B-STREAM Dependency Items (from N1/N2)
+
+These gaps require daemon-side changes. Recorded here; implementation is B-STREAM governance.
+
+| ID | Description | Blocking Phase | Severity |
+|----|-------------|---------------|----------|
+| B-DEP-N1-1 | Daemon needs `--socket-path` and `--data-dir` CLI flags for platform-appropriate filesystem locations (currently hardcoded `/tmp/bolt-daemon.sock`, `~/.bolt/`) | N6 (execution) | Medium — defaults work for dev/beta, REQUIRED for GA |
+| B-DEP-N2-1 | `daemon.status` event must be emitted in default mode on client connect (currently simulate-mode only) | N3 (supervision readiness check) | High |
+| B-DEP-N2-2 | `version.handshake` (app->daemon) and `version.status` (daemon->app) messages must be implemented | N3 (version-gated supervision) | High |
+| B-DEP-N2-3 | Windows named pipe support (daemon currently Unix socket only) | N6 (Windows platform) | Medium |
 
 ---
 

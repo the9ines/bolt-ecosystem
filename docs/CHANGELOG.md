@@ -5,6 +5,33 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## N-STREAM-1 N1+N2 Lock — Packaging Matrix + IPC Contract — 2026-03-07
+
+- **N1 DONE:** Per-platform packaging + security matrix locked (macOS/Windows/Linux)
+  - Bundle location + binary naming per Tauri v2 sidecar convention
+  - Platform-appropriate filesystem locations (socket, PID, identity, pins, logs, config)
+  - Signing/notarization: SHOULD (pre-release), REQUIRED (GA)
+  - Least-privilege permission model (no elevation, `0600` socket, data-dir-only writes)
+  - Co-versioned bundle, whole-bundle update/rollback only
+  - 11 acceptance checks defined for N5 harness
+- **N2 DONE (spec locked, implementation dependencies open):** IPC contract baseline locked
+  - 5 stable messages: `daemon.status`, `pairing.request`, `transfer.incoming.request`, `pairing.decision`, `transfer.incoming.decision`
+  - 2 provisional messages: `version.handshake` (app->daemon), `version.status` (daemon->app) — schema locked, implementation B-STREAM
+  - NDJSON wire format, single-client kick-on-reconnect, 1 MiB max line, 30s decision timeout (fail-closed)
+  - Version handshake required as first IPC exchange; strict major.minor match
+  - Compatibility policy: breaking = major bump, non-breaking = minor bump, unknown types silently dropped
+  - 5 degraded mode transitions, error contract, 11 acceptance checks
+- **B-STREAM dependencies recorded:**
+  - B-DEP-N1-1: `--socket-path`/`--data-dir` CLI flags (blocks N6 GA)
+  - B-DEP-N2-1: `daemon.status` in default mode (blocks N3)
+  - B-DEP-N2-2: `version.handshake`/`version.status` messages (blocks N3)
+  - B-DEP-N2-3: Windows named pipe support (blocks N6 Windows)
+- Risks R12/R13 closed; R15/R16 opened for B-STREAM deps
+- N3 (supervision) and N4 (rollout) now unblocked (spec-side); N3 blocked on B-DEP-N2-1/N2-2 for implementation
+- Tag: `ecosystem-v0.1.74-n-stream-1-n1-n2-lock`
+
+---
+
 ## N-STREAM-1 N0 Policy Lock — Native App + Daemon Bundling — 2026-03-07
 
 - **N0 DONE:** All 8 policy decisions locked (D0.1–D0.8), PM-approved
