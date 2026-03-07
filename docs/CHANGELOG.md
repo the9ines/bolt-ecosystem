@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## N-STREAM-1 N6-A2 — IPC Bridge + Frontend Readiness Gating — 2026-03-07
+
+- **N6 IN-PROGRESS (N6-A2 completed):** IPC bridge, frontend daemon service, and readiness gating
+- Persistent IPC bridge (ipc_bridge.rs): reconnects after readiness probe, forwards
+  daemon.status/pairing.request/transfer.incoming.request to frontend via Tauri events
+- Decision relay: pairing.decision and transfer.incoming.decision sent from frontend to daemon
+- Frontend daemon service (daemon.ts): Tauri event subscriptions, command wrappers, graceful non-Tauri degradation
+- Header: daemon watchdog status indicator (5 states: starting/ready/restarting/degraded/incompatible)
+- Transfer: readiness gating (fail-closed), degraded banner + restart action, incompatible banner
+- IPC types: PairingRequestPayload, TransferIncomingRequestPayload, Decision enum + decision payloads
+- Tauri commands: send_pairing_decision, send_transfer_decision (+ existing get_watchdog_state, restart_daemon)
+- Support bundle stub: NOT_IMPLEMENTED (deferred to N6-B)
+- @tauri-apps/api added as frontend dependency
+- 48 Rust tests (11 new), 52 web tests (20 new), 100 total
+- Coverage: 91/94/85/90 (above 90/90/80/90 thresholds)
+- B-DEP-N1-1 STILL OPEN: platform path CLI flags (blocks N6 GA)
+- B-DEP-N2-3 STILL OPEN: Windows named pipe (blocks N6 Windows)
+- localbolt-app tag: `localbolt-app-v1.2.12-n6a2-ipc-ui-gating` (`8f4aea9`)
+- Tag: `ecosystem-v0.1.79-n-stream-1-n6a2-progress`
+
+---
+
 ## N-STREAM-1 N6-A1 — Sidecar Lifecycle + Watchdog Core — 2026-03-07
 
 - **N6 IN-PROGRESS (N6-A1 completed):** Daemon sidecar lifecycle and watchdog core implemented in localbolt-app

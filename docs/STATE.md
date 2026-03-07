@@ -4,13 +4,13 @@ Snapshot Derived From:
 - daemon-v0.2.31-bdep-n2-ipc-unblock (1ad2db8)
 - v3.0.79-s-stream-r1-r1.4-security-test-lift (31046ac)
 - localbolt-v1.0.27-s-stream-r1-r1.4-security-test-lift (fc360c5)
-- localbolt-app-v1.2.11-n6a-sidecar-lifecycle (0c218bb)
-Last Refreshed By: N6-A1 sidecar lifecycle (localbolt-app-v1.2.11)
+- localbolt-app-v1.2.12-n6a2-ipc-ui-gating (8f4aea9)
+Last Refreshed By: N6-A2 IPC bridge + frontend readiness gating (localbolt-app-v1.2.12)
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-07 (N6-A1 sidecar lifecycle — watchdog + IPC readiness + stderr capture)
+> **Last Updated:** 2026-03-07 (N6-A2 IPC bridge + frontend readiness gating — event forwarding + decision relay + daemon UX)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
