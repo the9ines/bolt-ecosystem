@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative
-> **Last Updated:** 2026-03-07 (N8 signal observability — D2 follow-on complete)
+> **Last Updated:** 2026-03-07 (R17 closeout attempt — P0 env gate failed, R17 remains OPEN)
 > **Authority:** PM-approved execution plan.
 
 ---
@@ -404,7 +404,7 @@ C0 (PM policy decision) ← BLOCKER
 | R14 | Daemon crash recovery undefined — single-instance and lifecycle policy not yet decided | Medium | **Closed** | N0 policy lock completed (`ecosystem-v0.1.73-n-stream-1-n0-policy-lock`) |
 | R15 | B-DEP-N2-1/N2-2: daemon.status + version handshake not yet in default mode — N3 spec locked, blocks N6 implementation of readiness + version-gated supervision | High | **Closed** | `daemon-v0.2.31-bdep-n2-ipc-unblock` (`1ad2db8`) — daemon.status in all modes + version.handshake/version.status implemented |
 | R16 | B-DEP-N2-3: Windows named pipe not supported — blocks N6 Windows GA | Medium | **Closed** | N6-B3 integrated Windows named pipe transport (`ipc_transport.rs` + `daemon-v0.2.33`). Code complete, B-DEP resolved. |
-| R17 | Windows runtime validation — no Windows CI runner, named pipe code compile-validated only | Low | Open | Windows CI runner or manual Windows test pass confirms runtime behavior. Tracked for N7. |
+| R17 | Windows runtime validation — no Windows CI runner, named pipe code compile-validated only | Low | **OPEN** | Closeout attempted 2026-03-07: P0 env gate failed (no Windows runtime). Next: provision Windows CI runner or manual machine, re-execute validation matrix. Owner: PM. |
 
 ---
 
@@ -493,7 +493,7 @@ N-STREAM-1 (native app + daemon bundling — **CLOSED**):
                             │                 └── N5 (harness) ✓ ──┘
                             └── N3 (supervision) ✓ ──┘
   B-STREAM deps: ALL RESOLVED
-  Residual: R17 (Windows runtime validation, Low, OPEN)
+  Residual: R17 (Windows runtime validation, Low, OPEN — closeout attempted 2026-03-07, P0 env gate failed)
 ```
 
 ---

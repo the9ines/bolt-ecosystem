@@ -1793,7 +1793,7 @@ All required historical anchors verified reachable on origin:
 
 | ID | Risk | Severity | Status | Owner | Next Action |
 |----|------|----------|--------|-------|-------------|
-| R17 | Windows runtime validation — named pipe code compile-validated only, no Windows CI runner | Low | **OPEN** | N-STREAM / B-STREAM | Windows CI runner or manual Windows runtime validation pass |
+| R17 | Windows runtime validation — named pipe code compile-validated only, no Windows CI runner | Low | **OPEN** | N-STREAM / B-STREAM | R17 closeout attempted 2026-03-07: P0 environment gate FAILED (macOS-only, no Windows runtime/CI/emulation). Blocker: no Windows runtime environment. Next: provision Windows CI runner (GitHub Actions `windows-latest`) or manual Windows machine, then re-execute R17 validation matrix (A1–A5, B6–B7 critical checks). Owner: PM. Target: next sprint with Windows CI budget. |
 | OQ-2 | bolt-rendezvous `run()` blocks forever (no graceful shutdown hook) | Low | **OPEN** | bolt-rendezvous upstream | Track as upstream enhancement; non-blocking for N-STREAM-1 |
 
 #### Decision Continuity
@@ -1851,7 +1851,7 @@ Under Option A, the app owns the signal server. The daemon has no signal server 
 
 #### Residuals
 
-- **R17** (Windows runtime): Unchanged. Open, Low.
+- **R17** (Windows runtime): Open, Low. Closeout attempted 2026-03-07 — P0 environment gate failed (no Windows runtime). Blocker recorded, next action assigned.
 - **OQ-2** (graceful shutdown): Unchanged. Open, Low. N8 signal monitor handles OQ-2 interaction by checking shutdown flag before state transitions.
 
 ### Dependency Map

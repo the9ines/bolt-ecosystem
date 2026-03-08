@@ -5,6 +5,26 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## R17 — Windows Runtime Validation Closeout Attempt — 2026-03-07
+
+- **R17 remains OPEN:** P0 environment gate FAILED — no Windows runtime available
+- Closeout type: residual-risk closeout (not a new stream phase). N-STREAM-1 remains CLOSED
+- Environment: macOS Darwin 24.6.0 (ARM64). No Windows CI runner, no Wine/QEMU, no manual Windows machine
+- Baseline tags verified:
+  - `daemon-v0.2.33-n6b2-windows-pipe` (confirmed)
+  - `localbolt-app-v1.2.14-n8-signal-observability` (confirmed)
+  - `ecosystem-v0.1.83-n-stream-1-n8-observability` (confirmed)
+- Validation matrix (A1–D15): all NOT_RUN — P0 environment gate failed
+- No code changes, no runtime modifications
+- Blocker: no Windows runtime environment (CI or manual)
+- Next action: provision Windows CI runner (GitHub Actions `windows-latest`) or manual Windows machine
+- Owner: PM
+- Target: next sprint with Windows CI budget
+- Governance docs updated: GOVERNANCE_WORKSTREAMS.md, ROADMAP.md, STATE.md, CHANGELOG.md
+- Ecosystem tag: `ecosystem-v0.1.84-r17-progress`
+
+---
+
 ## N-STREAM-1 N8 — D2 Signal Observability (Post-Closure Follow-On) — 2026-03-07
 
 - **N8 DONE:** D2 signal health observability delivered as post-closure follow-on
