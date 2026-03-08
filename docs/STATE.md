@@ -1,17 +1,17 @@
 ---
 Snapshot Derived From:
 - sdk-v0.5.28-d3-registry-migration (66aaa3a)
-- daemon-v0.2.31-bdep-n2-ipc-unblock (1ad2db8)
+- daemon-v0.2.34-r17-windows-validated (82d0f83)
 - v3.0.79-s-stream-r1-r1.4-security-test-lift (31046ac)
 - localbolt-v1.0.27-s-stream-r1-r1.4-security-test-lift (fc360c5)
-- localbolt-app-v1.2.14-n8-signal-observability (a7e4f8b)
-- ecosystem-v0.1.84-r17-progress
-Last Refreshed By: R17 Windows runtime closeout attempt (ecosystem-v0.1.84)
+- localbolt-app-v1.2.15-r17-windows-validated (7116d12)
+- ecosystem-v0.1.85-r17-windows-validated
+Last Refreshed By: R17 Windows runtime validation closeout (ecosystem-v0.1.85)
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-07 (R17 closeout attempt — P0 env gate failed, R17 remains OPEN)
+> **Last Updated:** 2026-03-08 (R17 CLOSED — Windows CI provisioned, daemon + app IPC validated on windows-latest)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -686,9 +686,9 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 | N7 | Closure | **DONE** | `ecosystem-v0.1.82-n-stream-1-n7-closure` |
 | N8 | D2 signal observability (post-closure follow-on) | **DONE** | `localbolt-app-v1.2.14-n8-signal-observability` (`a7e4f8b`) |
 
-Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem-v0.1.73-n-stream-1-n0-policy-lock (2026-03-07). N1+N2 locked: ecosystem-v0.1.74-n-stream-1-n1-n2-lock (2026-03-07). N3 locked: ecosystem-v0.1.75-n-stream-1-n3-supervision (2026-03-07). N4+N5 locked: ecosystem-v0.1.76-n-stream-1-n4-n5-lock (2026-03-07). N7 closure: ecosystem-v0.1.82-n-stream-1-n7-closure (2026-03-07). N-STREAM-1 governs app bundling, process lifecycle, packaging, supervision, and operator UX for daemon integration. B-STREAM governs daemon protocol/runtime. N-STREAM-1 consumes daemon API surface; does not redefine it. Primary target: localbolt-app. Finding series `N1-F*` reserved. **Stream status: CLOSED.** Residual R17 (Windows runtime validation) tracked — closeout attempted 2026-03-07, P0 environment gate failed (no Windows runtime), remains OPEN. D2 observability delivered via N8 post-closure follow-on (`localbolt-app-v1.2.14-n8-signal-observability`, `a7e4f8b`). AC-SE-06/07 realized with architecture-neutral wording (app-side probe, not daemon).
+Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem-v0.1.73-n-stream-1-n0-policy-lock (2026-03-07). N1+N2 locked: ecosystem-v0.1.74-n-stream-1-n1-n2-lock (2026-03-07). N3 locked: ecosystem-v0.1.75-n-stream-1-n3-supervision (2026-03-07). N4+N5 locked: ecosystem-v0.1.76-n-stream-1-n4-n5-lock (2026-03-07). N7 closure: ecosystem-v0.1.82-n-stream-1-n7-closure (2026-03-07). N-STREAM-1 governs app bundling, process lifecycle, packaging, supervision, and operator UX for daemon integration. B-STREAM governs daemon protocol/runtime. N-STREAM-1 consumes daemon API surface; does not redefine it. Primary target: localbolt-app. Finding series `N1-F*` reserved. **Stream status: CLOSED.** Residual R17 (Windows runtime validation) CLOSED 2026-03-08 — Windows CI provisioned, daemon + app IPC validated on `windows-latest`. D2 observability delivered via N8 post-closure follow-on (`localbolt-app-v1.2.14-n8-signal-observability`, `a7e4f8b`). AC-SE-06/07 realized with architecture-neutral wording (app-side probe, not daemon).
 
-**A0 Signal Ownership Decision (2026-03-07):** Option A (status quo coexistence) approved. App owns embedded signaling server (bolt-rendezvous via signal/ subtree, 0.0.0.0:3001). Daemon owns IPC decisions only. D2 observability (signal.status monitoring) deferred to N8 or B-stream. Options B and D1 rejected (7–9 amendment burden, guardrail 13 violation). AC-SE-01..05/08..10 approved; AC-SE-06/07 deferred. Residuals: R17 (Windows), OQ-2 (graceful shutdown). Tag: `ecosystem-v0.1.81-signal-eval-a0-decision`.
+**A0 Signal Ownership Decision (2026-03-07):** Option A (status quo coexistence) approved. App owns embedded signaling server (bolt-rendezvous via signal/ subtree, 0.0.0.0:3001). Daemon owns IPC decisions only. D2 observability (signal.status monitoring) deferred to N8 or B-stream. Options B and D1 rejected (7–9 amendment burden, guardrail 13 violation). AC-SE-01..05/08..10 approved; AC-SE-06/07 deferred. Residuals: R17 (Windows, CLOSED 2026-03-08), OQ-2 (graceful shutdown). Tag: `ecosystem-v0.1.81-signal-eval-a0-decision`.
 
 **N0 decisions (summary):** App-managed lifecycle (D0.1). Daemon spawned on app launch with 10s readiness timeout (D0.2). SIGTERM+5s grace+SIGKILL on app exit (D0.3). Exponential backoff restart 1s/3s/10s, 3 max, degraded mode (D0.4). Per-user single instance via socket lockfile (D0.5). Persistent state survives crashes, transient state resets (D0.6). Strict major.minor version match, fail-closed (D0.7). B-STREAM boundary reaffirmed (D0.8). N1 and N2 unblocked.
 

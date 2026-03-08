@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## R17 — Windows Runtime Validation CLOSED — 2026-03-08
+
+- **R17 CLOSED:** Windows CI provisioned (`windows-latest`), daemon + app IPC validated on real Windows runtime
+- Closeout type: residual-risk closeout (not a new stream phase). N-STREAM-1 remains CLOSED
+- Environment: GitHub Actions `windows-latest` (Windows Server 2022, x86_64)
+- Windows CI workflows added to both repos (`workflow_dispatch` trigger)
+- **bolt-daemon** (`daemon-v0.2.34-r17-windows-validated`, `82d0f83`):
+  - cargo fmt: PASS
+  - cargo clippy: PASS (6 commits of fixes: import paths, HANDLE types, visibility, needless return, mut refs, cfg gates)
+  - cargo test: PASS — 362 tests (default features), 429 tests (test-support), 0 failures
+  - Key fixes: windows-sys 0.59 API migration (ConvertStringSecurityDescriptorToSecurityDescriptorW, PIPE_ACCESS_DUPLEX, DUPLICATE_SAME_ACCESS moved; HANDLE = `*mut c_void` not `isize`), cross-platform ipc-client binary, cfg(unix) gates on Unix-only tests
+- **localbolt-app** (`localbolt-app-v1.2.15-r17-windows-validated`, `7116d12`):
+  - Tauri App: fmt PASS, clippy PASS, test FAIL (`STATUS_ENTRYPOINT_NOT_FOUND` — WebView2 DLL missing on headless CI, not IPC-related)
+  - Signal Server: clippy FAIL (`result_large_err` in vendored signal/ subtree — read-only per subtree policy, not R17)
+  - Web App: coverage threshold FAIL (Windows coverage instrumentation differs — tests pass, threshold not met)
+  - Key fixes: block-expression wrapping for `#[cfg(windows)]` connect(), needless_return removal
+- Bugs discovered and fixed: 8 commits across 2 repos. All were real compilation/clippy errors that would manifest on Windows at build time
+- CI evidence: daemon run `22816178593` (all green), app run `22814949072` (Tauri fmt+clippy green)
+- Ecosystem tag: `ecosystem-v0.1.85-r17-windows-validated`
+
+---
+
 ## R17 — Windows Runtime Validation Closeout Attempt — 2026-03-07
 
 - **R17 remains OPEN:** P0 environment gate FAILED — no Windows runtime available

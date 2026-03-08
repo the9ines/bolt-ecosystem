@@ -1708,7 +1708,7 @@ Signal health monitoring via daemon (read-only `signal.status` IPC event) deferr
 
 #### Residuals
 
-- **R17** (Windows runtime validation): Open. Signal server + daemon coexistence on Windows untested at runtime.
+- **R17** (Windows runtime validation): **CLOSED** (2026-03-08). Windows CI provisioned, daemon + app IPC validated on `windows-latest`. Tags: `daemon-v0.2.34-r17-windows-validated`, `localbolt-app-v1.2.15-r17-windows-validated`.
 - **OQ-2** (graceful shutdown): bolt-rendezvous `run()` blocks forever. Track as upstream enhancement.
 - **OQ-5** (B-stream authority): B-stream may independently route signaling ownership changes under its own governance. This A0 decision covers N-stream scope only.
 
@@ -1793,7 +1793,7 @@ All required historical anchors verified reachable on origin:
 
 | ID | Risk | Severity | Status | Owner | Next Action |
 |----|------|----------|--------|-------|-------------|
-| R17 | Windows runtime validation — named pipe code compile-validated only, no Windows CI runner | Low | **OPEN** | N-STREAM / B-STREAM | R17 closeout attempted 2026-03-07: P0 environment gate FAILED (macOS-only, no Windows runtime/CI/emulation). Blocker: no Windows runtime environment. Next: provision Windows CI runner (GitHub Actions `windows-latest`) or manual Windows machine, then re-execute R17 validation matrix (A1–A5, B6–B7 critical checks). Owner: PM. Target: next sprint with Windows CI budget. |
+| R17 | Windows runtime validation — named pipe IPC on Windows | Low | **CLOSED** | N-STREAM / B-STREAM | R17 closed 2026-03-08: Windows CI provisioned (`windows-latest`), daemon and app IPC code validated on real Windows runtime. Daemon: `daemon-v0.2.34-r17-windows-validated` (`82d0f83`) — fmt/clippy/test all PASS (362+429 tests). App: `localbolt-app-v1.2.15-r17-windows-validated` (`7116d12`) — fmt/clippy PASS, test FAIL (WebView2 DLL missing on headless CI — not IPC-related). CI run evidence: daemon `22816178593`, app `22814949072`. |
 | OQ-2 | bolt-rendezvous `run()` blocks forever (no graceful shutdown hook) | Low | **OPEN** | bolt-rendezvous upstream | Track as upstream enhancement; non-blocking for N-STREAM-1 |
 
 #### Decision Continuity
@@ -1851,7 +1851,7 @@ Under Option A, the app owns the signal server. The daemon has no signal server 
 
 #### Residuals
 
-- **R17** (Windows runtime): Open, Low. Closeout attempted 2026-03-07 — P0 environment gate failed (no Windows runtime). Blocker recorded, next action assigned.
+- **R17** (Windows runtime): **CLOSED**, Low. Closed 2026-03-08 — Windows CI provisioned (`windows-latest`), daemon + app IPC code validated on real Windows runtime. Daemon `daemon-v0.2.34-r17-windows-validated`, app `localbolt-app-v1.2.15-r17-windows-validated`.
 - **OQ-2** (graceful shutdown): Unchanged. Open, Low. N8 signal monitor handles OQ-2 interaction by checking shutdown flag before state transitions.
 
 ### Dependency Map

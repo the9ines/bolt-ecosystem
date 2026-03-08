@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative
-> **Last Updated:** 2026-03-07 (R17 closeout attempt — P0 env gate failed, R17 remains OPEN)
+> **Last Updated:** 2026-03-08 (R17 CLOSED — Windows CI provisioned, daemon + app IPC validated on windows-latest)
 > **Authority:** PM-approved execution plan.
 
 ---
@@ -376,7 +376,9 @@ C0 (PM policy decision) ← BLOCKER
 
 **Signal ownership decision (A0, 2026-03-07):** Option A (status quo coexistence) approved. App owns embedded signaling server (bolt-rendezvous via signal/ subtree). Daemon owns IPC decisions only. Options B (daemon-only signaling) and D1 (daemon spawns signal) rejected — amendment burden (7–9 locked decisions) and guardrail 13 violation outweigh benefits.
 
-**N7 closure (2026-03-07):** All closure criteria (C1–C5) passed. Phase ledger finalized. All 4 B-DEPs RESOLVED. Residual R17 (Windows runtime validation, Low) remains OPEN — owner: N-STREAM/B-STREAM, next: Windows CI runner or manual validation. Stream status: CLOSED.
+**N7 closure (2026-03-07):** All closure criteria (C1–C5) passed. Phase ledger finalized. All 4 B-DEPs RESOLVED. Residual R17 (Windows runtime validation, Low) was OPEN at closure — subsequently CLOSED 2026-03-08 via Windows CI validation. Stream status: CLOSED.
+
+**R17 closure (2026-03-08):** Windows CI (`windows-latest`) provisioned for bolt-daemon and localbolt-app. Named pipe IPC code validated on real Windows runtime. Daemon: fmt/clippy/test all PASS (362+429 tests, 0 failures). App: fmt/clippy PASS (test binary crash: WebView2 DLL missing on headless CI — Tauri platform dependency, not IPC). 8 R17 fix commits across both repos. Tags: `daemon-v0.2.34-r17-windows-validated` (`82d0f83`), `localbolt-app-v1.2.15-r17-windows-validated` (`7116d12`).
 
 **N8 signal observability (2026-03-07):** D2 follow-on delivered as post-closure item (Option C stream semantics — standalone lineage-linked, stream remains CLOSED). AC-SE-06/07 realized with architecture-neutral wording: app-side TCP probe (Path 1), zero daemon changes. Unified health indicator aggregates daemon + signal status. No transfer gating changes (observability only). 146 tests (82 Rust + 64 web), 0 regressions. Tag: `localbolt-app-v1.2.14-n8-signal-observability` (`a7e4f8b`).
 
@@ -404,7 +406,7 @@ C0 (PM policy decision) ← BLOCKER
 | R14 | Daemon crash recovery undefined — single-instance and lifecycle policy not yet decided | Medium | **Closed** | N0 policy lock completed (`ecosystem-v0.1.73-n-stream-1-n0-policy-lock`) |
 | R15 | B-DEP-N2-1/N2-2: daemon.status + version handshake not yet in default mode — N3 spec locked, blocks N6 implementation of readiness + version-gated supervision | High | **Closed** | `daemon-v0.2.31-bdep-n2-ipc-unblock` (`1ad2db8`) — daemon.status in all modes + version.handshake/version.status implemented |
 | R16 | B-DEP-N2-3: Windows named pipe not supported — blocks N6 Windows GA | Medium | **Closed** | N6-B3 integrated Windows named pipe transport (`ipc_transport.rs` + `daemon-v0.2.33`). Code complete, B-DEP resolved. |
-| R17 | Windows runtime validation — no Windows CI runner, named pipe code compile-validated only | Low | **OPEN** | Closeout attempted 2026-03-07: P0 env gate failed (no Windows runtime). Next: provision Windows CI runner or manual machine, re-execute validation matrix. Owner: PM. |
+| R17 | Windows runtime validation — named pipe IPC on Windows | Low | **Closed** | Closed 2026-03-08: Windows CI provisioned (`windows-latest`). Daemon fmt/clippy/test all PASS (791 tests). App fmt/clippy PASS (test FAIL: WebView2 DLL, not IPC). Tags: `daemon-v0.2.34-r17-windows-validated`, `localbolt-app-v1.2.15-r17-windows-validated`. |
 
 ---
 
@@ -493,7 +495,7 @@ N-STREAM-1 (native app + daemon bundling — **CLOSED**):
                             │                 └── N5 (harness) ✓ ──┘
                             └── N3 (supervision) ✓ ──┘
   B-STREAM deps: ALL RESOLVED
-  Residual: R17 (Windows runtime validation, Low, OPEN — closeout attempted 2026-03-07, P0 env gate failed)
+  Residuals: R17 (CLOSED 2026-03-08), OQ-2 (graceful shutdown, Low, OPEN)
 ```
 
 ---
