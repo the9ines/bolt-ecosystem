@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-07 (N-STREAM-1-SIGNAL-EVAL A0 decision — Option A approved, D2 deferred)
+> **Updated:** 2026-03-07 (N-STREAM-1 N7 closure — stream CLOSED)
 > **Tag:** ecosystem-v0.1.81-signal-eval-a0-decision
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
@@ -1598,7 +1598,7 @@ R1-0 (baseline evidence) ✓ DONE
 
 **Repos:** localbolt-app (primary), bolt-ecosystem (governance). Future: bytebolt-app (as approved).
 **Goal:** Define how native apps bundle and lifecycle-manage bolt-daemon so they operate as one product safely and predictably.
-**Status:** N0/N1/N2/N3/N4/N5 DONE, N6–N7 NOT-STARTED
+**Status:** N0–N6 DONE, A0 DONE, N7 DONE (CLOSED)
 **Codified:** ecosystem-v0.1.72-n-stream-1-codify (2026-03-07)
 **N0 locked:** ecosystem-v0.1.73-n-stream-1-n0-policy-lock (2026-03-07)
 **N1+N2 locked:** ecosystem-v0.1.74-n-stream-1-n1-n2-lock (2026-03-07)
@@ -1639,11 +1639,11 @@ Any N-stream phase requiring new top-level folders under workspace root MUST res
 | N0 | Policy lock | **DONE** | None | All 8 policy decisions locked (D0.1–D0.8). See N0 Decision Record below. |
 | N1 | Packaging + security matrix | **DONE** | N0 | Per-platform matrix locked (macOS/Windows/Linux). See N1 Specification below. |
 | N2 | IPC contract stabilization | **DONE** (spec locked; all implementation dependencies **RESOLVED**) | N0 | IPC contract baseline locked (5 stable + 2 provisional messages). All B-DEPs resolved: B-DEP-N2-1/2 (`daemon-v0.2.31`), B-DEP-N2-3 (`daemon-v0.2.33` + `localbolt-app-v1.2.13`). See N2 Specification below. |
-| N3 | Process supervision + diagnostics | **DONE** (spec locked; B-DEP-N2-1/N2-2 block N6 impl) | N2 | Watchdog state machine (5 states), retry/backoff (1s/3s/10s, 3 max), stale cleanup algorithm, stderr capture + support bundle, user-visible status transitions. See N3 Specification below. |
+| N3 | Process supervision + diagnostics | **DONE** (spec locked; B-DEP-N2-1/N2-2 **RESOLVED**) | N2 | Watchdog state machine (5 states), retry/backoff (1s/3s/10s, 3 max), stale cleanup algorithm, stderr capture + support bundle, user-visible status transitions. See N3 Specification below. |
 | N4 | Rollout + migration | **DONE** | N1, N2 | Stage-gate spec locked (local/dev, alpha, beta, GA). Version-skew policy, update/rollback model, migration strategy, blocker-aware gating. 7 acceptance checks. See N4 Specification below. |
 | N5 | Acceptance harness | **DONE** | N2, N3 | Acceptance harness spec locked. 8 test domains, 4 tiers (smoke/integration/failure-injection/pre-release), 44 checks (37 from N1–N3 + 7 new N4), blocker-aware execution rules, evidence contract. See N5 Specification below. |
 | N6 | Execution + hardening | **DONE** | N4, N5 | N6-A1 sidecar lifecycle (`localbolt-app-v1.2.11`), N6-A2 IPC bridge + frontend gating (`localbolt-app-v1.2.12`), N6-B3 GA wiring + support bundle + cross-platform IPC (`localbolt-app-v1.2.13-n6b3-ga-wiring`). All B-DEPs resolved. 118 tests (66 Rust + 52 web). Windows runtime validation: R17. |
-| N7 | Closure | NOT-STARTED | N6 | Final evidence criteria met; closure gate definition satisfied; residual risk handling documented |
+| N7 | Closure | **DONE** | N6 | Closure gate passed (C1–C5 PASS). Phase ledger finalized. Residual R17 (Windows runtime) tracked with owner/next action. D2 observability deferred to N8/B-stream. Stream status: CLOSED. Tag: `ecosystem-v0.1.82-n-stream-1-n7-closure`. |
 | A0 | Signaling ownership evaluation (governance-only) | **DONE** | N6 | Option A (status quo) approved. D2 observability deferred to N8/B-stream. See A0 Decision Record below. |
 
 ### N-STREAM-1-SIGNAL-EVAL / A0 — Signaling Ownership Decision Record
@@ -1714,6 +1714,91 @@ Signal health monitoring via daemon (read-only `signal.status` IPC event) deferr
 #### Locked-Decision Impact
 
 **None.** Option A preserves all N0–N6 decisions as-is. No amendments required.
+
+### N7 — Closure (Evidence Package)
+
+**Status:** DONE
+**Tag:** `ecosystem-v0.1.82-n-stream-1-n7-closure`
+**Date:** 2026-03-07
+**Stream Status:** N-STREAM-1 **CLOSED**
+
+#### Baseline Verification (P1)
+
+All required historical anchors verified reachable on origin:
+
+| Anchor | Type | Verified |
+|--------|------|:--------:|
+| `ecosystem-v0.1.80-n-stream-1-n6-complete` (`83be65a`) | Tag (origin) | PASS |
+| `cfaa526` (N6 governance errata) | Commit | PASS |
+| `ecosystem-v0.1.81-signal-eval-a0-decision` (`f6b9125`) | Tag (origin) | PASS |
+| `localbolt-app-v1.2.11-n6a-sidecar-lifecycle` (`0c218bb`) | Tag (origin) | PASS |
+| `localbolt-app-v1.2.12-n6a2-ipc-ui-gating` (`8f4aea9`) | Tag (origin) | PASS |
+| `localbolt-app-v1.2.13-n6b3-ga-wiring` (`88954c8`) | Tag (origin) | PASS |
+| `daemon-v0.2.31-bdep-n2-ipc-unblock` (`a6b174e`) | Tag (origin) | PASS |
+| `daemon-v0.2.32-n6b1-path-flags` (`80fb0af`) | Tag (origin) | PASS |
+| `daemon-v0.2.33-n6b2-windows-pipe` (`b8c1f3c`) | Tag (origin) | PASS |
+
+#### Closure Criteria Assessment (P2)
+
+| ID | Criterion | Result | Evidence |
+|----|-----------|--------|----------|
+| C1 | Phase completion integrity | **PASS** | N0–N6 all DONE with tag anchors. A0 decision locked and routed (D2 → N8/B-stream). No contradictory statuses. |
+| C2 | Acceptance harness closure integrity | **PASS** | N5 matrix: 44 total checks across 4 tiers. N6 execution evidence: 118 tests (66 Rust + 52 web) across N6-A1/A2/B3. Aggregate test evidence format accepted as policy-valid — traceable to N5 domains D1–D8. 9 previously-blocked checks (B-DEP-N2-1/N2-2/N1-1/N2-3) all unblocked by daemon tags `v0.2.31`–`v0.2.33` and app tag `v1.2.13`. |
+| C3 | Dependency and blocker closure integrity | **PASS** | All 4 B-DEPs RESOLVED with tag evidence. No residual blockers. R17 (Windows runtime) is residual risk, not a blocker — code is compile-validated, runtime untested. |
+| C4 | Residual risk handling | **PASS** | R17 OPEN (Low severity). Owner: N-STREAM / B-STREAM. Next action: Windows CI runner or manual Windows runtime validation pass. No other untracked residuals. |
+| C5 | Release/readiness narrative integrity | **PASS** | Stream outcome documented: localbolt-app ships bundled daemon with full supervision. Limits: Windows runtime unvalidated (R17), code signing not yet procured (GA gate). Deferred: D2 observability (AC-SE-06/07) routed to N8/B-stream. No scope creep. |
+
+**Decision: N7 DONE. N-STREAM-1 CLOSED.**
+
+#### Final Phase Ledger (N0–N7)
+
+| Phase | Status | Anchor |
+|-------|--------|--------|
+| N0 | **DONE** | `ecosystem-v0.1.73-n-stream-1-n0-policy-lock` |
+| N1 | **DONE** | `ecosystem-v0.1.74-n-stream-1-n1-n2-lock` |
+| N2 | **DONE** | `ecosystem-v0.1.74-n-stream-1-n1-n2-lock` |
+| N3 | **DONE** | `ecosystem-v0.1.75-n-stream-1-n3-supervision` |
+| N4 | **DONE** | `ecosystem-v0.1.76-n-stream-1-n4-n5-lock` |
+| N5 | **DONE** | `ecosystem-v0.1.76-n-stream-1-n4-n5-lock` |
+| N6 | **DONE** | `ecosystem-v0.1.80-n-stream-1-n6-complete` |
+| A0 | **DONE** | `ecosystem-v0.1.81-signal-eval-a0-decision` |
+| N7 | **DONE** | `ecosystem-v0.1.82-n-stream-1-n7-closure` |
+
+#### Acceptance Summary Rollup
+
+| Metric | Count |
+|--------|------:|
+| Total N5 checks specified | 44 |
+| Checks unblocked and executable | 44 (all B-DEPs resolved) |
+| N6 aggregate test evidence | 118 tests (66 Rust + 52 web) |
+| N6 sub-phases | 3 (N6-A1, N6-A2, N6-B3) |
+| Previously-blocked checks (B-DEP) | 9 (all unblocked) |
+| Tier 4 (Pre-Release, GA-only) | 2 (deferred to GA — code signing not procured) |
+
+**Non-pass rationale:** Tier 4 checks (AC-N1-10 macOS signing, AC-N1-11 Windows signing) are GA-only gates — not required for stream closure, required before GA release. No checks in FAIL status.
+
+#### Blocker/Risk Final Map
+
+**B-DEP Final State:**
+
+| ID | Description | Status | Resolution Evidence |
+|----|-------------|--------|---------------------|
+| B-DEP-N1-1 | Platform path CLI flags | **RESOLVED** | `daemon-v0.2.32-n6b1-path-flags` (`80fb0af`) |
+| B-DEP-N2-1 | `daemon.status` in default mode | **RESOLVED** | `daemon-v0.2.31-bdep-n2-ipc-unblock` (`1ad2db8`) |
+| B-DEP-N2-2 | Version handshake messages | **RESOLVED** | `daemon-v0.2.31-bdep-n2-ipc-unblock` (`1ad2db8`) |
+| B-DEP-N2-3 | Windows named pipe support | **RESOLVED** | `daemon-v0.2.33-n6b2-windows-pipe` (`b8c1f3c`) |
+
+**Residual Risks:**
+
+| ID | Risk | Severity | Status | Owner | Next Action |
+|----|------|----------|--------|-------|-------------|
+| R17 | Windows runtime validation — named pipe code compile-validated only, no Windows CI runner | Low | **OPEN** | N-STREAM / B-STREAM | Windows CI runner or manual Windows runtime validation pass |
+| OQ-2 | bolt-rendezvous `run()` blocks forever (no graceful shutdown hook) | Low | **OPEN** | bolt-rendezvous upstream | Track as upstream enhancement; non-blocking for N-STREAM-1 |
+
+#### Decision Continuity
+
+- **A0 Option A retained:** App owns embedded signaling server. Daemon owns IPC decisions only. No amendments to N0–N6 decisions.
+- **D2 observability deferred:** AC-SE-06 (daemon polls signal health) and AC-SE-07 (unified status indicator) routed to N8 (if minor daemon IPC change) or B-stream (if substantial). Not mixed into N7 closure.
 
 ### Dependency Map
 

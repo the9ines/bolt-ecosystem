@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative
-> **Last Updated:** 2026-03-07 (N-STREAM-1 N4+N5 rollout + acceptance harness spec lock)
+> **Last Updated:** 2026-03-07 (N-STREAM-1 N7 closure — stream CLOSED)
 > **Authority:** PM-approved execution plan.
 
 ---
@@ -350,12 +350,13 @@ C0 (PM policy decision) ← BLOCKER
 
 ## Workstream N — Native App + Daemon Bundling (N-STREAM-1)
 
-**Status:** N0–N6 DONE, N7 NOT-STARTED
+**Status:** **CLOSED** (N0–N7 DONE, A0 DONE)
 **Codified:** ecosystem-v0.1.72-n-stream-1-codify (2026-03-07)
 **N0 locked:** ecosystem-v0.1.73-n-stream-1-n0-policy-lock (2026-03-07)
 **N1+N2 locked:** ecosystem-v0.1.74-n-stream-1-n1-n2-lock (2026-03-07)
 **N3 locked:** ecosystem-v0.1.75-n-stream-1-n3-supervision (2026-03-07)
 **N4+N5 locked:** ecosystem-v0.1.76-n-stream-1-n4-n5-lock (2026-03-07)
+**N7 closure:** ecosystem-v0.1.82-n-stream-1-n7-closure (2026-03-07)
 **Primary success gate:** localbolt-app ships with bundled bolt-daemon as a single supervised product.
 
 | Phase | Description | Status | Dependencies |
@@ -367,12 +368,14 @@ C0 (PM policy decision) ← BLOCKER
 | N4 | Rollout + migration | **DONE** (spec locked) | N1, N2 |
 | N5 | Acceptance harness | **DONE** (spec locked) | N2, N3 |
 | N6 | Execution + hardening | **DONE** | N4, N5 |
-| N7 | Closure | NOT-STARTED | N6 |
 | A0 | Signaling ownership evaluation (governance-only) | **DONE** | N6 |
+| N7 | Closure | **DONE** | N6, A0 |
 
 **Ownership boundary:** N-STREAM-1 governs bundling/lifecycle/packaging/supervision. B-STREAM governs daemon protocol/runtime. N-STREAM-1 consumes daemon API surface, does not redefine it.
 
 **Signal ownership decision (A0, 2026-03-07):** Option A (status quo coexistence) approved. App owns embedded signaling server (bolt-rendezvous via signal/ subtree). Daemon owns IPC decisions only. D2 observability (signal.status monitoring) deferred to N8 or B-stream. Options B (daemon-only signaling) and D1 (daemon spawns signal) rejected — amendment burden (7–9 locked decisions) and guardrail 13 violation outweigh benefits.
+
+**N7 closure (2026-03-07):** All closure criteria (C1–C5) passed. Phase ledger finalized. All 4 B-DEPs RESOLVED. Residual R17 (Windows runtime validation, Low) remains OPEN — owner: N-STREAM/B-STREAM, next: Windows CI runner or manual validation. D2 observability (AC-SE-06/07) deferred to N8/B-stream. Stream status: CLOSED.
 
 **Full specification:** `docs/GOVERNANCE_WORKSTREAMS.md` (Workstream N section)
 
@@ -480,16 +483,14 @@ S-STREAM-R1 (security/foundation recovery, independent of D-stream):
 C-STREAM-R1 (UI/state regression recovery, independent of D-stream):
   Single phase: generation guards + snapshot fix + trust truth table → DONE (v3.0.80-c-stream-r1-ui-state-fix)
 
-N-STREAM-1 (native app + daemon bundling, consumes B-stream API surface):
+N-STREAM-1 (native app + daemon bundling — **CLOSED**):
   N0 (policy lock) ✓ ──┬── N1 (packaging) ✓ ──┐
                        │                      ├── N4 (rollout) ✓ ──┐
-                       └── N2 (IPC contract) ✓┤                    ├── N6 (execution) ✓ → N7 (closure)
+                       └── N2 (IPC contract) ✓┤                    ├── N6 (execution) ✓ → N7 (closure) ✓
                             │                 └── N5 (harness) ✓ ──┘
                             └── N3 (supervision) ✓ ──┘
-  B-STREAM deps: B-DEP-N2-1 (daemon.status in default mode) → RESOLVED (daemon-v0.2.31)
-                 B-DEP-N2-2 (version handshake messages) → RESOLVED (daemon-v0.2.31)
-                 B-DEP-N1-1 (platform path CLI flags) → RESOLVED (localbolt-app-v1.2.13-n6b3)
-                 B-DEP-N2-3 (Windows named pipe) → RESOLVED (localbolt-app-v1.2.13-n6b3; runtime validation: R17)
+  B-STREAM deps: ALL RESOLVED
+  Residual: R17 (Windows runtime validation, Low, OPEN)
 ```
 
 ---

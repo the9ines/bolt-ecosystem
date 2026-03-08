@@ -5,6 +5,27 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## N-STREAM-1 N7 — Closure Gate — 2026-03-07
+
+- **N7 DONE:** Closure gate executed. N-STREAM-1 **CLOSED**.
+- Baseline verification: all 9 historical anchors (tags/commits) verified reachable on origin
+- Closure criteria assessment: C1–C5 all **PASS**
+  - C1 (phase completion integrity): N0–N6 + A0 all DONE, statuses consistent
+  - C2 (acceptance harness closure): 44 N5 checks, 118 N6 tests (66 Rust + 52 web), all B-DEPs unblocked
+  - C3 (dependency/blocker closure): all 4 B-DEPs RESOLVED with tag evidence
+  - C4 (residual risk handling): R17 (Windows runtime, Low) OPEN with owner/next action
+  - C5 (release/readiness narrative): stream outcome, limits, and deferred work documented
+- Residual risks carried forward:
+  - R17 (Windows runtime validation): OPEN, Low — owner: N-STREAM/B-STREAM, next: Windows CI runner or manual validation
+  - OQ-2 (bolt-rendezvous graceful shutdown): OPEN, Low — upstream enhancement
+- Decision continuity: A0 Option A retained, D2 observability deferred to N8/B-stream
+- Stale status fix: N3 phase table entry updated (B-DEP block language → RESOLVED)
+- Stale status fix: N2 STATE.md entry updated (impl deps open → all impl deps RESOLVED)
+- No code changes, no runtime modifications, no subtree edits
+- Tag: `ecosystem-v0.1.82-n-stream-1-n7-closure`
+
+---
+
 ## N-STREAM-1-SIGNAL-EVAL / A0 — Signaling Ownership Decision — 2026-03-07
 
 - **A0 DONE:** Governance-only signaling ownership evaluation for native app flows
