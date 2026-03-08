@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-07 (N-STREAM-1 N6-B3 execution + N6 DONE)
-> **Tag:** ecosystem-v0.1.80-n-stream-1-n6-complete
+> **Updated:** 2026-03-07 (N-STREAM-1-SIGNAL-EVAL A0 decision — Option A approved, D2 deferred)
+> **Tag:** ecosystem-v0.1.81-signal-eval-a0-decision
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -1644,6 +1644,76 @@ Any N-stream phase requiring new top-level folders under workspace root MUST res
 | N5 | Acceptance harness | **DONE** | N2, N3 | Acceptance harness spec locked. 8 test domains, 4 tiers (smoke/integration/failure-injection/pre-release), 44 checks (37 from N1–N3 + 7 new N4), blocker-aware execution rules, evidence contract. See N5 Specification below. |
 | N6 | Execution + hardening | **DONE** | N4, N5 | N6-A1 sidecar lifecycle (`localbolt-app-v1.2.11`), N6-A2 IPC bridge + frontend gating (`localbolt-app-v1.2.12`), N6-B3 GA wiring + support bundle + cross-platform IPC (`localbolt-app-v1.2.13-n6b3-ga-wiring`). All B-DEPs resolved. 118 tests (66 Rust + 52 web). Windows runtime validation: R17. |
 | N7 | Closure | NOT-STARTED | N6 | Final evidence criteria met; closure gate definition satisfied; residual risk handling documented |
+| A0 | Signaling ownership evaluation (governance-only) | **DONE** | N6 | Option A (status quo) approved. D2 observability deferred to N8/B-stream. See A0 Decision Record below. |
+
+### N-STREAM-1-SIGNAL-EVAL / A0 — Signaling Ownership Decision Record
+
+**Status:** DONE
+**Tag:** `ecosystem-v0.1.81-signal-eval-a0-decision`
+**Date:** 2026-03-07
+**Approved by:** PM (explicit approval)
+
+#### Context
+
+Governance-only evaluation of signaling runtime ownership for native app flows. Assessed whether signaling server ownership should remain as-is, move to daemon, or route to cross-stream convergence.
+
+#### Audit Findings (Read-Only)
+
+1. **localbolt-app** embeds bolt-rendezvous as an in-process signaling server (`src-tauri/src/lib.rs:19–45`). Runs on `0.0.0.0:3001` on every app launch. Not dev-only — production runtime component. Features dependent: peer discovery, connection approval, SDP/ICE relay, status indicator.
+2. **bolt-daemon** has zero signaling server capability. In rendezvous mode, it connects as a WebSocket client to an external bolt-rendezvous server. IPC layer handles pairing/transfer decisions only.
+3. **bolt-rendezvous** is dual-mode (binary + embeddable library). Public API: `SignalingServer::new(addr).run()`. Explicitly designed for Tauri embedding. Missing: graceful shutdown hook.
+4. **Daemon and signaling are independent failure domains.** Signal server failure does not affect IPC. Daemon crash does not affect peer discovery.
+
+#### Decision: Option A — Status Quo Coexistence
+
+**Approved.** Current architecture preserved:
+- App owns embedded signaling server (bolt-rendezvous via `signal/` subtree, port 3001).
+- Daemon owns IPC decisions (pairing, transfer approval, status).
+- No ownership change. No signaling responsibility added to daemon.
+
+**Rationale:**
+1. Current architecture is deployed and validated (N6 complete, 118 tests).
+2. Daemon has zero signaling capability — Options B/D1 require substantial new infrastructure.
+3. Separation is a strength: independent failure domains for signaling and IPC.
+4. Options B/D1 require 7–9 locked-decision amendments and violate guardrail 13.
+
+#### Rejected Options
+
+- **Option B (daemon-only signaling):** Requires 9 locked-decision amendments including D0.1, D0.2, D0.8, guardrail 13, N1, N2, N3, N5, ARCHITECTURE.md §5. Couples signaling availability to daemon health.
+- **Option C (S0/cross-stream convergence):** Adds governance overhead without demonstrated need. S0 already resolved signal implementation convergence.
+- **Option D1 (daemon spawns signal process):** Requires 7 amendments. Introduces three-level process supervision (app→daemon→signal). N3 watchdog not designed for nested supervision.
+
+#### D2 Observability Follow-On (Deferred)
+
+Signal health monitoring via daemon (read-only `signal.status` IPC event) deferred:
+- **Route to N8** if daemon IPC changes are minor (new provisional message type).
+- **Route to B-stream** if daemon changes are substantial (new runtime responsibility).
+- AC-SE-06 and AC-SE-07 deferred to D2 follow-on phase.
+
+#### Approved Acceptance Criteria
+
+| ID | Criterion | Status |
+|----|-----------|--------|
+| AC-SE-01 | Signal server starts on every app launch before UI bootstrap | Approved |
+| AC-SE-02 | Signal server binds 0.0.0.0:3001 and accepts LAN WebSocket connections | Approved |
+| AC-SE-03 | Daemon startup and signal server startup do not conflict | Approved |
+| AC-SE-04 | Daemon IPC does not depend on signal server availability | Approved |
+| AC-SE-05 | Signal server failure does not trigger daemon watchdog restart | Approved |
+| AC-SE-06 | (D2) Daemon polls signal health and emits `signal.status` | **Deferred** |
+| AC-SE-07 | (D2) App aggregates daemon + signal status into unified indicator | **Deferred** |
+| AC-SE-08 | All existing N5 acceptance checks pass without modification | Approved |
+| AC-SE-09 | signal/ subtree remains read-only | Approved |
+| AC-SE-10 | Rollback possible by reverting single commit per repo | Approved |
+
+#### Residuals
+
+- **R17** (Windows runtime validation): Open. Signal server + daemon coexistence on Windows untested at runtime.
+- **OQ-2** (graceful shutdown): bolt-rendezvous `run()` blocks forever. Track as upstream enhancement.
+- **OQ-5** (B-stream authority): B-stream may independently route signaling ownership changes under its own governance. This A0 decision covers N-stream scope only.
+
+#### Locked-Decision Impact
+
+**None.** Option A preserves all N0–N6 decisions as-is. No amendments required.
 
 ### Dependency Map
 

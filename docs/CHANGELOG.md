@@ -5,6 +5,26 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## N-STREAM-1-SIGNAL-EVAL / A0 — Signaling Ownership Decision — 2026-03-07
+
+- **A0 DONE:** Governance-only signaling ownership evaluation for native app flows
+- Read-only audit: localbolt-app, bolt-daemon, bolt-rendezvous
+- **Decision: Option A (status quo coexistence)** — PM-approved
+  - App embeds signaling server (bolt-rendezvous via signal/ subtree, 0.0.0.0:3001)
+  - Daemon remains IPC-only (pairing/transfer decisions, no signaling hosting)
+  - signal/ subtree unchanged
+- **D2 observability deferred** to N8 (daemon IPC changes) or B-stream (if substantial)
+  - AC-SE-06/07 (signal.status monitoring) deferred to D2 follow-on phase
+- Options B (daemon-only signaling) and D1 (daemon spawns signal) explicitly rejected
+  - B requires 9 locked-decision amendments; D1 requires 7
+  - Both violate guardrail 13 (daemon protocol is B-stream ownership)
+- Approved acceptance criteria: AC-SE-01..05, AC-SE-08..10 (immediate)
+- Residuals carried forward: R17 (Windows runtime validation), OQ-2 (graceful shutdown)
+- No code changes, no runtime modifications, no subtree edits
+- Tag: `ecosystem-v0.1.81-signal-eval-a0-decision`
+
+---
+
 ## N-STREAM-1 N6 Complete — GA Wiring + Support Bundle + Cross-Platform IPC — 2026-03-07
 
 - **N6 DONE:** All execution + hardening work complete across N6-A1, N6-A2, and N6-B3

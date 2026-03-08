@@ -5,12 +5,13 @@ Snapshot Derived From:
 - v3.0.79-s-stream-r1-r1.4-security-test-lift (31046ac)
 - localbolt-v1.0.27-s-stream-r1-r1.4-security-test-lift (fc360c5)
 - localbolt-app-v1.2.13-n6b3-ga-wiring (88954c8)
-Last Refreshed By: N6-B3 GA wiring + support bundle + cross-platform IPC (localbolt-app-v1.2.13)
+- ecosystem-v0.1.81-signal-eval-a0-decision (pending)
+Last Refreshed By: N-STREAM-1-SIGNAL-EVAL A0 decision (ecosystem-v0.1.81)
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-07 (N6-B3 GA wiring — platform paths, cross-platform IPC transport, support bundle, signal coexistence verified)
+> **Last Updated:** 2026-03-07 (A0 signal ownership evaluation — Option A approved, D2 deferred)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -682,8 +683,11 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 | N5 | Acceptance harness | **DONE** (spec locked) | `ecosystem-v0.1.76-n-stream-1-n4-n5-lock` |
 | N6 | Execution + hardening | **DONE** | `localbolt-app-v1.2.13-n6b3-ga-wiring` (`88954c8`) |
 | N7 | Closure | NOT-STARTED | -- |
+| A0 | Signaling ownership evaluation | **DONE** | `ecosystem-v0.1.81-signal-eval-a0-decision` |
 
 Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem-v0.1.73-n-stream-1-n0-policy-lock (2026-03-07). N1+N2 locked: ecosystem-v0.1.74-n-stream-1-n1-n2-lock (2026-03-07). N3 locked: ecosystem-v0.1.75-n-stream-1-n3-supervision (2026-03-07). N4+N5 locked: ecosystem-v0.1.76-n-stream-1-n4-n5-lock (2026-03-07). N-STREAM-1 governs app bundling, process lifecycle, packaging, supervision, and operator UX for daemon integration. B-STREAM governs daemon protocol/runtime. N-STREAM-1 consumes daemon API surface; does not redefine it. Primary target: localbolt-app. Finding series `N1-F*` reserved.
+
+**A0 Signal Ownership Decision (2026-03-07):** Option A (status quo coexistence) approved. App owns embedded signaling server (bolt-rendezvous via signal/ subtree, 0.0.0.0:3001). Daemon owns IPC decisions only. D2 observability (signal.status monitoring) deferred to N8 or B-stream. Options B and D1 rejected (7–9 amendment burden, guardrail 13 violation). AC-SE-01..05/08..10 approved; AC-SE-06/07 deferred. Residuals: R17 (Windows), OQ-2 (graceful shutdown). Tag: `ecosystem-v0.1.81-signal-eval-a0-decision`.
 
 **N0 decisions (summary):** App-managed lifecycle (D0.1). Daemon spawned on app launch with 10s readiness timeout (D0.2). SIGTERM+5s grace+SIGKILL on app exit (D0.3). Exponential backoff restart 1s/3s/10s, 3 max, degraded mode (D0.4). Per-user single instance via socket lockfile (D0.5). Persistent state survives crashes, transient state resets (D0.6). Strict major.minor version match, fail-closed (D0.7). B-STREAM boundary reaffirmed (D0.8). N1 and N2 unblocked.
 

@@ -368,8 +368,11 @@ C0 (PM policy decision) ← BLOCKER
 | N5 | Acceptance harness | **DONE** (spec locked) | N2, N3 |
 | N6 | Execution + hardening | **DONE** | N4, N5 |
 | N7 | Closure | NOT-STARTED | N6 |
+| A0 | Signaling ownership evaluation (governance-only) | **DONE** | N6 |
 
 **Ownership boundary:** N-STREAM-1 governs bundling/lifecycle/packaging/supervision. B-STREAM governs daemon protocol/runtime. N-STREAM-1 consumes daemon API surface, does not redefine it.
+
+**Signal ownership decision (A0, 2026-03-07):** Option A (status quo coexistence) approved. App owns embedded signaling server (bolt-rendezvous via signal/ subtree). Daemon owns IPC decisions only. D2 observability (signal.status monitoring) deferred to N8 or B-stream. Options B (daemon-only signaling) and D1 (daemon spawns signal) rejected — amendment burden (7–9 locked decisions) and guardrail 13 violation outweigh benefits.
 
 **Full specification:** `docs/GOVERNANCE_WORKSTREAMS.md` (Workstream N section)
 
