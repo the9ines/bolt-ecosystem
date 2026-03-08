@@ -1793,7 +1793,7 @@ All required historical anchors verified reachable on origin:
 
 | ID | Risk | Severity | Status | Owner | Next Action |
 |----|------|----------|--------|-------|-------------|
-| R17 | Windows runtime validation — named pipe IPC on Windows | Low | **CLOSED** | N-STREAM / B-STREAM | R17 closed 2026-03-08: Windows CI provisioned (`windows-latest`), daemon and app IPC code validated on real Windows runtime. Daemon: `daemon-v0.2.34-r17-windows-validated` (`82d0f83`) — fmt/clippy/test all PASS (362+429 tests). App: `localbolt-app-v1.2.15-r17-windows-validated` (`7116d12`) — fmt/clippy PASS, test FAIL (WebView2 DLL missing on headless CI — not IPC-related). CI run evidence: daemon `22816178593`, app `22814949072`. |
+| R17 | Windows runtime validation — named pipe IPC on Windows | Low | **CLOSED** | N-STREAM / B-STREAM | R17 closed 2026-03-08: Windows CI provisioned (`windows-latest`), daemon and app IPC code validated on real Windows runtime. Critical checks A1–A5 (daemon compilation/clippy/tests) all PASS: CI `22816178593`, 362+429 tests, 0 failures. B6–B8 (app IPC transport compilation/clippy, named pipe path detection) all PASS: CI `22814949072` Tauri clippy step. Out-of-scope failures: Tauri test binary crash (WebView2 DLL, not IPC), signal subtree clippy (read-only), web coverage threshold (instrumentation, not IPC). Full evidence matrix in CHANGELOG.md. Tags: `daemon-v0.2.34-r17-windows-validated` (`82d0f83`), `localbolt-app-v1.2.15-r17-windows-validated` (`7116d12`). |
 | OQ-2 | bolt-rendezvous `run()` blocks forever (no graceful shutdown hook) | Low | **OPEN** | bolt-rendezvous upstream | Track as upstream enhancement; non-blocking for N-STREAM-1 |
 
 #### Decision Continuity

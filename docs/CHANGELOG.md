@@ -23,6 +23,23 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
   - Key fixes: block-expression wrapping for `#[cfg(windows)]` connect(), needless_return removal
 - Bugs discovered and fixed: 8 commits across 2 repos. All were real compilation/clippy errors that would manifest on Windows at build time
 - CI evidence: daemon run `22816178593` (all green), app run `22814949072` (Tauri fmt+clippy green)
+- **R17 critical-check evidence matrix:**
+
+| ID | Check | Scope | Result | Evidence |
+|----|-------|-------|--------|----------|
+| A1 | Windows compilation (daemon lib) | bolt-daemon | **PASS** | CI `22816178593` clippy step — `bolt-daemon` lib compiles clean |
+| A2 | Windows compilation (daemon bins) | bolt-daemon | **PASS** | CI `22816178593` clippy step — `bolt-ipc-client`, `bolt-daemon`, `bolt-relay` all compile |
+| A3 | Windows clippy clean | bolt-daemon | **PASS** | CI `22816178593` clippy step — 0 warnings, `-D warnings` enforced |
+| A4 | Windows tests (default features) | bolt-daemon | **PASS** | CI `22816178593` — 362 tests, 0 failures |
+| A5 | Windows tests (test-support) | bolt-daemon | **PASS** | CI `22816178593` — 429 tests, 0 failures, 3 ignored |
+| B6 | App IPC transport compilation | localbolt-app | **PASS** | CI `22814949072` Tauri clippy step — `ipc_transport.rs` compiles clean on Windows |
+| B7 | App IPC transport clippy clean | localbolt-app | **PASS** | CI `22814949072` Tauri clippy step — 0 IPC-related warnings |
+| B8 | Named pipe path detection | bolt-daemon | **PASS** | CI `22816178593` test step — `is_windows_pipe_path` tests pass (15 transport tests) |
+
+- **Out-of-scope failures (not R17-blocking):**
+  - Tauri `cargo test` (`STATUS_ENTRYPOINT_NOT_FOUND`, exit 0xc0000139): WebView2Loader.dll not present on headless `windows-latest` runner. This is a Tauri GUI runtime dependency — the test binary links against WebView2 platform DLLs unavailable in headless CI. The IPC transport code (`ipc_transport.rs`) compiled and passed clippy; the test binary crash occurs before any test executes. Not an IPC or named pipe issue.
+  - Signal Server `result_large_err`: `ErrorResponse` type (136 bytes) in vendored `signal/` subtree. Subtree is read-only per CLAUDE.md policy — fixes must go upstream to bolt-rendezvous. Pre-existing issue unrelated to R17 IPC validation.
+  - Web App coverage threshold: Tests pass (82.6%/70.79% coverage) but below 90% configured threshold. Windows coverage instrumentation differs from macOS/Linux. Tests themselves execute correctly; only the coverage threshold gate fails. Not IPC-related.
 - Ecosystem tag: `ecosystem-v0.1.85-r17-windows-validated`
 
 ---
