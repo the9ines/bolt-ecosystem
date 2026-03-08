@@ -4,13 +4,13 @@ Snapshot Derived From:
 - daemon-v0.2.31-bdep-n2-ipc-unblock (1ad2db8)
 - v3.0.79-s-stream-r1-r1.4-security-test-lift (31046ac)
 - localbolt-v1.0.27-s-stream-r1-r1.4-security-test-lift (fc360c5)
-- localbolt-app-v1.2.12-n6a2-ipc-ui-gating (8f4aea9)
-Last Refreshed By: N6-A2 IPC bridge + frontend readiness gating (localbolt-app-v1.2.12)
+- localbolt-app-v1.2.13-n6b3-ga-wiring (88954c8)
+Last Refreshed By: N6-B3 GA wiring + support bundle + cross-platform IPC (localbolt-app-v1.2.13)
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-07 (N6-A2 IPC bridge + frontend readiness gating — event forwarding + decision relay + daemon UX)
+> **Last Updated:** 2026-03-07 (N6-B3 GA wiring — platform paths, cross-platform IPC transport, support bundle, signal coexistence verified)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -670,7 +670,7 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 
 **Scope guardrails:** No protocol, wire-format, or cryptographic changes. A-stream preserves WebRTCService public API.
 
-### N-STREAM-1 — Native App + Daemon Bundling (localbolt-app): N0/N1/N2/N3/N4/N5 DONE
+### N-STREAM-1 — Native App + Daemon Bundling (localbolt-app): N0–N6 DONE
 
 | ID | Goal | Status | Tag |
 |----|------|--------|-----|
@@ -680,7 +680,7 @@ Fail-closed option C. Defaults flipped to Web*. B5 wired persistent TOFU pinning
 | N3 | Process supervision + diagnostics | **DONE** (spec locked; B-DEP-N2-1/N2-2 **RESOLVED**) | `ecosystem-v0.1.75-n-stream-1-n3-supervision` |
 | N4 | Rollout + migration | **DONE** (spec locked) | `ecosystem-v0.1.76-n-stream-1-n4-n5-lock` |
 | N5 | Acceptance harness | **DONE** (spec locked) | `ecosystem-v0.1.76-n-stream-1-n4-n5-lock` |
-| N6 | Execution + hardening | **IN-PROGRESS** (N6-A1 done) | `localbolt-app-v1.2.11-n6a-sidecar-lifecycle` |
+| N6 | Execution + hardening | **DONE** | `localbolt-app-v1.2.13-n6b3-ga-wiring` (`88954c8`) |
 | N7 | Closure | NOT-STARTED | -- |
 
 Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem-v0.1.73-n-stream-1-n0-policy-lock (2026-03-07). N1+N2 locked: ecosystem-v0.1.74-n-stream-1-n1-n2-lock (2026-03-07). N3 locked: ecosystem-v0.1.75-n-stream-1-n3-supervision (2026-03-07). N4+N5 locked: ecosystem-v0.1.76-n-stream-1-n4-n5-lock (2026-03-07). N-STREAM-1 governs app bundling, process lifecycle, packaging, supervision, and operator UX for daemon integration. B-STREAM governs daemon protocol/runtime. N-STREAM-1 consumes daemon API surface; does not redefine it. Primary target: localbolt-app. Finding series `N1-F*` reserved.
@@ -711,8 +711,8 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | bolt-daemon (test-support) | 398 + 3 ignored | main (includes H3/H5/P1/SA1/B5/B6-P1/B3-P1/B3-P2/B4/B3-P3 + D-E2E-A + D-E2E-B) |
 | bolt-rendezvous | 49 | main (48 unit + 1 doc-test) |
 | localbolt (TS) | 319 | 15 test files, 80/70/80% coverage thresholds, includes 27 TOFU + 19 security-session-integrity tests |
-| localbolt-app (TS) | 32 | 3 test files (1 smoke + 10 TOFU integration + 21 security-session-integrity), coverage thresholds 90/90/80/90 |
-| localbolt-app (Rust) | 37 | 6 modules (watchdog 17, daemon_log 5, ipc_client 5, ipc_types 4, daemon 4, commands 2) |
+| localbolt-app (TS) | 52 | 4 test files (1 smoke + 10 TOFU integration + 21 security-session-integrity + 20 daemon service), coverage thresholds 90/90/80/90 |
+| localbolt-app (Rust) | 66 | 9 modules (watchdog 17, daemon_log 5, ipc_client 5, ipc_types 4, daemon 8, commands 6, platform 9, ipc_transport 4, ipc_bridge 4 + 4 existing) |
 | localbolt-v3 (TS, localbolt-core) | 50 | Session state machine, verification bus, transfer policy, race hardening, C7 closure + 7 security-reconnect-integrity tests |
 | localbolt-v3 (TS, localbolt-web) | 59 | H5-v3 TOFU/SAS tests + session orchestration consumer wiring |
 | localbolt-v3 (Rust signal) | 36 | main (S0 canonical bolt-rendezvous wrapper, up from 32) |

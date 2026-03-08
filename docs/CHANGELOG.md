@@ -5,6 +5,26 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## N-STREAM-1 N6 Complete — GA Wiring + Support Bundle + Cross-Platform IPC — 2026-03-07
+
+- **N6 DONE:** All execution + hardening work complete across N6-A1, N6-A2, and N6-B3
+- N6-B3 GA wiring (localbolt-app-v1.2.13-n6b3-ga-wiring, `88954c8`):
+  - Platform-aware IPC paths: `--socket-path` and `--data-dir` passed to daemon at spawn
+  - `platform.rs`: centralized defaults for macOS/Linux/Windows (socket, PID, data-dir, crash-log, support-bundle paths)
+  - Cross-platform IPC transport abstraction (`ipc_transport.rs`): `IpcStream` enum supports Unix domain sockets and Windows named pipes
+  - All IPC client/bridge code migrated from direct `UnixStream` usage to `IpcStream`
+  - Full support bundle export: 8 manifest sections (watchdog, stderr, crash snapshots, versions, platform metadata, IPC config, spawn counters)
+  - Daemon process management abstracted: `platform::process_alive/terminate/force_kill` (Unix via libc, Windows compile-validated stubs)
+  - Windows named pipe path detection and platform-aware binary resolution (`which` → `where` on Windows)
+  - Signal server coexistence verified: TCP:3001 vs Unix socket, no conflict
+- B-DEP-N1-1 **RESOLVED**: daemon receives `--socket-path` and `--data-dir`
+- B-DEP-N2-3 **RESOLVED** (with residual): transport layer supports `\\.\pipe\` format, compile-validated, runtime testing deferred to N7 Windows beta
+- R16 **CLOSED**: Windows named pipe integrated
+- 118 tests (66 Rust + 52 web), clippy 0 warnings, fmt clean
+- Tag: `ecosystem-v0.1.80-n-stream-1-n6-complete`
+
+---
+
 ## N-STREAM-1 N6-A2 — IPC Bridge + Frontend Readiness Gating — 2026-03-07
 
 - **N6 IN-PROGRESS (N6-A2 completed):** IPC bridge, frontend daemon service, and readiness gating

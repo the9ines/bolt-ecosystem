@@ -350,7 +350,7 @@ C0 (PM policy decision) ← BLOCKER
 
 ## Workstream N — Native App + Daemon Bundling (N-STREAM-1)
 
-**Status:** N0/N1/N2/N3/N4/N5 DONE, N6–N7 NOT-STARTED
+**Status:** N0–N6 DONE, N7 NOT-STARTED
 **Codified:** ecosystem-v0.1.72-n-stream-1-codify (2026-03-07)
 **N0 locked:** ecosystem-v0.1.73-n-stream-1-n0-policy-lock (2026-03-07)
 **N1+N2 locked:** ecosystem-v0.1.74-n-stream-1-n1-n2-lock (2026-03-07)
@@ -366,7 +366,7 @@ C0 (PM policy decision) ← BLOCKER
 | N3 | Process supervision + diagnostics | **DONE** (spec locked; B-DEP-N2-1/N2-2 **RESOLVED**) | N2 |
 | N4 | Rollout + migration | **DONE** (spec locked) | N1, N2 |
 | N5 | Acceptance harness | **DONE** (spec locked) | N2, N3 |
-| N6 | Execution + hardening | NOT-STARTED | N4, N5 |
+| N6 | Execution + hardening | **DONE** | N4, N5 |
 | N7 | Closure | NOT-STARTED | N6 |
 
 **Ownership boundary:** N-STREAM-1 governs bundling/lifecycle/packaging/supervision. B-STREAM governs daemon protocol/runtime. N-STREAM-1 consumes daemon API surface, does not redefine it.
@@ -394,7 +394,7 @@ C0 (PM policy decision) ← BLOCKER
 | R13 | Cross-platform packaging complexity — macOS/Windows/Linux signing and notarization | Medium | **Closed** | N1 packaging matrix locked per platform (`ecosystem-v0.1.74-n-stream-1-n1-n2-lock`) |
 | R14 | Daemon crash recovery undefined — single-instance and lifecycle policy not yet decided | Medium | **Closed** | N0 policy lock completed (`ecosystem-v0.1.73-n-stream-1-n0-policy-lock`) |
 | R15 | B-DEP-N2-1/N2-2: daemon.status + version handshake not yet in default mode — N3 spec locked, blocks N6 implementation of readiness + version-gated supervision | High | **Closed** | `daemon-v0.2.31-bdep-n2-ipc-unblock` (`1ad2db8`) — daemon.status in all modes + version.handshake/version.status implemented |
-| R16 | B-DEP-N2-3: Windows named pipe not supported — blocks N6 Windows GA | Medium | Open | B-STREAM adds Windows named pipe IPC transport |
+| R16 | B-DEP-N2-3: Windows named pipe not supported — blocks N6 Windows GA | Medium | **Closed** | N6-B3 integrated compile-validated Windows named pipe transport (`ipc_transport.rs`). Runtime testing deferred to N7 Windows beta. |
 
 ---
 
@@ -479,13 +479,13 @@ C-STREAM-R1 (UI/state regression recovery, independent of D-stream):
 N-STREAM-1 (native app + daemon bundling, consumes B-stream API surface):
   N0 (policy lock) ✓ ──┬── N1 (packaging) ✓ ──┐
                        │                      ├── N4 (rollout) ✓ ──┐
-                       └── N2 (IPC contract) ✓┤                    ├── N6 (execution) → N7 (closure)
+                       └── N2 (IPC contract) ✓┤                    ├── N6 (execution) ✓ → N7 (closure)
                             │                 └── N5 (harness) ✓ ──┘
                             └── N3 (supervision) ✓ ──┘
   B-STREAM deps: B-DEP-N2-1 (daemon.status in default mode) → RESOLVED (daemon-v0.2.31)
                  B-DEP-N2-2 (version handshake messages) → RESOLVED (daemon-v0.2.31)
-                 B-DEP-N1-1 (platform path CLI flags) → blocks N6 GA
-                 B-DEP-N2-3 (Windows named pipe) → blocks N6 Windows
+                 B-DEP-N1-1 (platform path CLI flags) → RESOLVED (localbolt-app-v1.2.13-n6b3)
+                 B-DEP-N2-3 (Windows named pipe) → RESOLVED w/ residual (compile-validated, runtime deferred to N7)
 ```
 
 ---

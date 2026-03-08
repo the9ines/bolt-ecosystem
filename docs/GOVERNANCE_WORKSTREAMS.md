@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-07 (N-STREAM-1 N4+N5 rollout + acceptance harness spec lock)
-> **Tag:** ecosystem-v0.1.76-n-stream-1-n4-n5-lock
+> **Updated:** 2026-03-07 (N-STREAM-1 N6-B3 execution + N6 DONE)
+> **Tag:** ecosystem-v0.1.80-n-stream-1-n6-complete
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -1642,7 +1642,7 @@ Any N-stream phase requiring new top-level folders under workspace root MUST res
 | N3 | Process supervision + diagnostics | **DONE** (spec locked; B-DEP-N2-1/N2-2 block N6 impl) | N2 | Watchdog state machine (5 states), retry/backoff (1s/3s/10s, 3 max), stale cleanup algorithm, stderr capture + support bundle, user-visible status transitions. See N3 Specification below. |
 | N4 | Rollout + migration | **DONE** | N1, N2 | Stage-gate spec locked (local/dev, alpha, beta, GA). Version-skew policy, update/rollback model, migration strategy, blocker-aware gating. 7 acceptance checks. See N4 Specification below. |
 | N5 | Acceptance harness | **DONE** | N2, N3 | Acceptance harness spec locked. 8 test domains, 4 tiers (smoke/integration/failure-injection/pre-release), 44 checks (37 from N1–N3 + 7 new N4), blocker-aware execution rules, evidence contract. See N5 Specification below. |
-| N6 | Execution + hardening | NOT-STARTED | N4, N5 | Implementation sequencing tied to dependencies; hardening checkpoints against observed failures. Execution acceptance criteria are structure-only at codification; detailed gates defined in N-stream execution prompts |
+| N6 | Execution + hardening | **DONE** | N4, N5 | N6-A1 sidecar lifecycle (`localbolt-app-v1.2.11`), N6-A2 IPC bridge + frontend gating (`localbolt-app-v1.2.12`), N6-B3 GA wiring + support bundle + cross-platform IPC (`localbolt-app-v1.2.13-n6b3-ga-wiring`). B-DEP-N1-1 consumed, B-DEP-N2-3 integrated (compile-validated). 118 tests (66 Rust + 52 web). |
 | N7 | Closure | NOT-STARTED | N6 | Final evidence criteria met; closure gate definition satisfied; residual risk handling documented |
 
 ### Dependency Map
@@ -2100,10 +2100,10 @@ These gaps require daemon-side changes. Recorded here; implementation is B-STREA
 
 | ID | Description | Blocking Phase | Severity |
 |----|-------------|---------------|----------|
-| B-DEP-N1-1 | Daemon needs `--socket-path` and `--data-dir` CLI flags for platform-appropriate filesystem locations (currently hardcoded `/tmp/bolt-daemon.sock`, `~/.bolt/`) | N6 (execution) | Medium — defaults work for dev/beta, REQUIRED for GA |
+| B-DEP-N1-1 | Daemon needs `--socket-path` and `--data-dir` CLI flags for platform-appropriate filesystem locations (currently hardcoded `/tmp/bolt-daemon.sock`, `~/.bolt/`) | N6 (execution) | Medium — **RESOLVED** (`daemon-v0.2.32-n6b1-path-flags`, `80fb0af`; consumed by `localbolt-app-v1.2.13-n6b3-ga-wiring`, `88954c8`) |
 | B-DEP-N2-1 | `daemon.status` event must be emitted in default mode on client connect (currently simulate-mode only) | N3 (supervision readiness check) | High — **RESOLVED** (`daemon-v0.2.31-bdep-n2-ipc-unblock`, `1ad2db8`) |
 | B-DEP-N2-2 | `version.handshake` (app->daemon) and `version.status` (daemon->app) messages must be implemented | N3 (version-gated supervision) | High — **RESOLVED** (`daemon-v0.2.31-bdep-n2-ipc-unblock`, `1ad2db8`) |
-| B-DEP-N2-3 | Windows named pipe support (daemon currently Unix socket only) | N6 (Windows platform) | Medium |
+| B-DEP-N2-3 | Windows named pipe support (daemon currently Unix socket only) | N6 (Windows platform) | Medium — **RESOLVED** in code (`daemon-v0.2.33-n6b2-windows-pipe`, `b8c1f3c`; app transport: `localbolt-app-v1.2.13-n6b3-ga-wiring`, `88954c8`). Windows runtime: residual (compile-validated, no Windows CI runner) |
 
 ---
 
