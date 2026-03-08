@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative
-> **Last Updated:** 2026-03-07 (N-STREAM-1 N7 closure — stream CLOSED)
+> **Last Updated:** 2026-03-07 (N8 signal observability — D2 follow-on complete)
 > **Authority:** PM-approved execution plan.
 
 ---
@@ -370,12 +370,15 @@ C0 (PM policy decision) ← BLOCKER
 | N6 | Execution + hardening | **DONE** | N4, N5 |
 | A0 | Signaling ownership evaluation (governance-only) | **DONE** | N6 |
 | N7 | Closure | **DONE** | N6, A0 |
+| N8 | D2 signal observability (post-closure follow-on) | **DONE** | N7, A0 |
 
 **Ownership boundary:** N-STREAM-1 governs bundling/lifecycle/packaging/supervision. B-STREAM governs daemon protocol/runtime. N-STREAM-1 consumes daemon API surface, does not redefine it.
 
-**Signal ownership decision (A0, 2026-03-07):** Option A (status quo coexistence) approved. App owns embedded signaling server (bolt-rendezvous via signal/ subtree). Daemon owns IPC decisions only. D2 observability (signal.status monitoring) deferred to N8 or B-stream. Options B (daemon-only signaling) and D1 (daemon spawns signal) rejected — amendment burden (7–9 locked decisions) and guardrail 13 violation outweigh benefits.
+**Signal ownership decision (A0, 2026-03-07):** Option A (status quo coexistence) approved. App owns embedded signaling server (bolt-rendezvous via signal/ subtree). Daemon owns IPC decisions only. Options B (daemon-only signaling) and D1 (daemon spawns signal) rejected — amendment burden (7–9 locked decisions) and guardrail 13 violation outweigh benefits.
 
-**N7 closure (2026-03-07):** All closure criteria (C1–C5) passed. Phase ledger finalized. All 4 B-DEPs RESOLVED. Residual R17 (Windows runtime validation, Low) remains OPEN — owner: N-STREAM/B-STREAM, next: Windows CI runner or manual validation. D2 observability (AC-SE-06/07) deferred to N8/B-stream. Stream status: CLOSED.
+**N7 closure (2026-03-07):** All closure criteria (C1–C5) passed. Phase ledger finalized. All 4 B-DEPs RESOLVED. Residual R17 (Windows runtime validation, Low) remains OPEN — owner: N-STREAM/B-STREAM, next: Windows CI runner or manual validation. Stream status: CLOSED.
+
+**N8 signal observability (2026-03-07):** D2 follow-on delivered as post-closure item (Option C stream semantics — standalone lineage-linked, stream remains CLOSED). AC-SE-06/07 realized with architecture-neutral wording: app-side TCP probe (Path 1), zero daemon changes. Unified health indicator aggregates daemon + signal status. No transfer gating changes (observability only). 146 tests (82 Rust + 64 web), 0 regressions. Tag: `localbolt-app-v1.2.14-n8-signal-observability` (`a7e4f8b`).
 
 **Full specification:** `docs/GOVERNANCE_WORKSTREAMS.md` (Workstream N section)
 

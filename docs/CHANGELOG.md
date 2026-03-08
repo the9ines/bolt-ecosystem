@@ -5,6 +5,30 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## N-STREAM-1 N8 — D2 Signal Observability (Post-Closure Follow-On) — 2026-03-07
+
+- **N8 DONE:** D2 signal health observability delivered as post-closure follow-on
+- Stream semantics: Option C (standalone lineage-linked item). N-STREAM-1 remains CLOSED
+- Routing decision: N8 (zero daemon impact). Daemon repo NOT touched
+- Architecture: Path 1 (app-side TCP probe + app-emitted unified status)
+- AC-SE-06 realized: signal health measured by app (runtime owner), architecture-neutral wording
+- AC-SE-07 realized: unified indicator aggregates daemon + signal state
+- Implementation:
+  - Signal monitor (`signal_monitor.rs`): TCP probe to 127.0.0.1:3001, 5s interval, 4-state machine (unknown/active/degraded/offline), 3-failure offline threshold
+  - Shutdown-aware: probe transitions suppressed during SIGTERM grace window (N3-W4/OQ-2 interaction)
+  - Unified health indicator in header.ts (HEALTHY/SIG DEGRADED/SIG OFFLINE)
+  - Frontend signal://status event subscription + get_signal_status command
+  - Support bundle includes signal_status section
+- No transfer gating changes (observability only, per PM approval)
+- Option A topology preserved: app remains signaling runtime owner
+- Tests: 82 Rust (66→82, +16 new) + 64 web (52→64, +12 new) = 146 total, 0 regressions
+- signal/ subtree: zero diff verified
+- Residuals unchanged: R17 (Windows runtime, Low), OQ-2 (graceful shutdown, Low)
+- App tag: `localbolt-app-v1.2.14-n8-signal-observability` (`a7e4f8b`)
+- Ecosystem tag: `ecosystem-v0.1.83-n-stream-1-n8-observability`
+
+---
+
 ## N-STREAM-1 N7 — Closure Gate — 2026-03-07
 
 - **N7 DONE:** Closure gate executed. N-STREAM-1 **CLOSED**.

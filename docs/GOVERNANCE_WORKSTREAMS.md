@@ -1645,6 +1645,7 @@ Any N-stream phase requiring new top-level folders under workspace root MUST res
 | N6 | Execution + hardening | **DONE** | N4, N5 | N6-A1 sidecar lifecycle (`localbolt-app-v1.2.11`), N6-A2 IPC bridge + frontend gating (`localbolt-app-v1.2.12`), N6-B3 GA wiring + support bundle + cross-platform IPC (`localbolt-app-v1.2.13-n6b3-ga-wiring`). All B-DEPs resolved. 118 tests (66 Rust + 52 web). Windows runtime validation: R17. |
 | N7 | Closure | **DONE** | N6 | Closure gate passed (C1–C5 PASS). Phase ledger finalized. Residual R17 (Windows runtime) tracked with owner/next action. D2 observability deferred to N8/B-stream. Stream status: CLOSED. Tag: `ecosystem-v0.1.82-n-stream-1-n7-closure`. |
 | A0 | Signaling ownership evaluation (governance-only) | **DONE** | N6 | Option A (status quo) approved. D2 observability deferred to N8/B-stream. See A0 Decision Record below. |
+| N8 | D2 signal observability (post-closure follow-on) | **DONE** | N7, A0 | Signal health probe + unified status indicator. AC-SE-06/07 realized (architecture-neutral). No ownership change, no daemon code, no subtree modification. Tag: `localbolt-app-v1.2.14-n8-signal-observability`. See N8 Record below. |
 
 ### N-STREAM-1-SIGNAL-EVAL / A0 — Signaling Ownership Decision Record
 
@@ -1699,8 +1700,8 @@ Signal health monitoring via daemon (read-only `signal.status` IPC event) deferr
 | AC-SE-03 | Daemon startup and signal server startup do not conflict | Approved |
 | AC-SE-04 | Daemon IPC does not depend on signal server availability | Approved |
 | AC-SE-05 | Signal server failure does not trigger daemon watchdog restart | Approved |
-| AC-SE-06 | (D2) Daemon polls signal health and emits `signal.status` | **Deferred** |
-| AC-SE-07 | (D2) App aggregates daemon + signal status into unified indicator | **Deferred** |
+| AC-SE-06 | (D2) Signal health is measured by runtime owner and surfaced | **DONE** (N8, architecture-neutral: app probes, not daemon — per Option A) |
+| AC-SE-07 | (D2) App aggregates daemon + signal status into unified indicator | **DONE** (N8, `localbolt-app-v1.2.14-n8-signal-observability`) |
 | AC-SE-08 | All existing N5 acceptance checks pass without modification | Approved |
 | AC-SE-09 | signal/ subtree remains read-only | Approved |
 | AC-SE-10 | Rollback possible by reverting single commit per repo | Approved |
@@ -1799,6 +1800,59 @@ All required historical anchors verified reachable on origin:
 
 - **A0 Option A retained:** App owns embedded signaling server. Daemon owns IPC decisions only. No amendments to N0–N6 decisions.
 - **D2 observability deferred:** AC-SE-06 (daemon polls signal health) and AC-SE-07 (unified status indicator) routed to N8 (if minor daemon IPC change) or B-stream (if substantial). Not mixed into N7 closure.
+- **D2 observability delivered (N8):** AC-SE-06/07 realized via N8 post-closure follow-on. App-side probe architecture (Path 1). Zero daemon changes. See N8 record below.
+
+### N8 — D2 Signal Observability (Post-Closure Follow-On)
+
+**Status:** DONE
+**Tag:** `localbolt-app-v1.2.14-n8-signal-observability` (`a7e4f8b`)
+**Ecosystem Tag:** `ecosystem-v0.1.83-n-stream-1-n8-observability`
+**Date:** 2026-03-07
+**Stream Semantics:** Option C — standalone lineage-linked follow-on. N-STREAM-1 remains CLOSED; N8 executes as post-closure item authorized by A0 D2 deferral clause.
+
+#### Context
+
+A0 decision deferred D2 observability (AC-SE-06/07) with routing criteria:
+- Route to N8 if daemon impact is minor.
+- Route to B-stream if daemon impact is substantial.
+
+#### Routing Decision: N8 (Zero Daemon Impact)
+
+Under Option A, the app owns the signal server. The daemon has no signal server relationship. Adding daemon-side signal polling would violate AC-SE-04 ("Daemon IPC does not depend on signal server availability"). Therefore:
+- **Daemon repo: NOT TOUCHED.** Zero lines changed.
+- **Architecture: Path 1** — app-side TCP health probe + app-emitted unified status.
+- AC-SE-06 reworded to architecture-neutral: "Signal health is measured by the signaling runtime owner (the app) and surfaced to the user."
+
+#### Implementation Summary
+
+1. **Signal monitor** (`signal_monitor.rs`): TCP connect probe to `127.0.0.1:3001`, 5s interval, 2s timeout, 4-state machine (unknown → active → degraded → offline), 3-failure offline threshold. Shutdown-aware via shared `AtomicBool` flag — probe transitions suppressed during SIGTERM grace window (N3-W4/OQ-2 interaction).
+2. **Unified status** (`header.ts`): Three indicators — unified health (HEALTHY/SIG DEGRADED/SIG OFFLINE), individual daemon dot, individual signal dot. Daemon non-ready states dominate unified display.
+3. **Frontend subscription** (`daemon.ts`): `signal://status` event listener + `get_signal_status` initial probe. `SignalStatus` type added to `DaemonState`.
+4. **Support bundle**: `signal_status` field and manifest section added.
+5. **No transfer gating changes.** Observability only — per PM approval.
+
+#### Acceptance Results
+
+| ID | Criterion | Result | Evidence |
+|----|-----------|--------|----------|
+| AC-SE-06 (realized) | Signal health measured and surfaced | **PASS** | App-side TCP probe, `signal://status` events, header indicator |
+| AC-SE-07 (realized) | Unified indicator reflects daemon + signal state | **PASS** | `computeUnifiedStatus()` aggregation, 8 unit tests |
+| N6 regression | Existing tests pass unchanged | **PASS** | 66/66 Rust, 52/52 web (N6 baseline intact) |
+| Option A guardrail | App remains signaling runtime owner | **PASS** | Daemon repo untouched, no ownership change |
+| Subtree guardrail | `signal/` diff empty | **PASS** | `git diff HEAD -- signal/` = 0 lines |
+
+#### Test Evidence
+
+| Surface | Baseline (N6) | After N8 | Delta | Regressions |
+|---------|:------------:|:--------:|:-----:|:-----------:|
+| Rust | 66 | 82 | +16 | 0 |
+| Web | 52 | 64 | +12 | 0 |
+| **Total** | **118** | **146** | **+28** | **0** |
+
+#### Residuals
+
+- **R17** (Windows runtime): Unchanged. Open, Low.
+- **OQ-2** (graceful shutdown): Unchanged. Open, Low. N8 signal monitor handles OQ-2 interaction by checking shutdown flag before state transitions.
 
 ### Dependency Map
 
