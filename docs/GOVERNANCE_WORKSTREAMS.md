@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-07 (N-STREAM-1 N7 closure — stream CLOSED)
-> **Tag:** ecosystem-v0.1.81-signal-eval-a0-decision
+> **Updated:** 2026-03-08 (Forward backlog codification — 9-item post-R17 roadmap)
+> **Tag:** ecosystem-v0.1.86-roadmap-codify-transfer-security-mobile
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -2312,7 +2312,7 @@ These gaps require daemon-side changes. Recorded here; implementation is B-STREA
 | B-DEP-N1-1 | Daemon needs `--socket-path` and `--data-dir` CLI flags for platform-appropriate filesystem locations (currently hardcoded `/tmp/bolt-daemon.sock`, `~/.bolt/`) | N6 (execution) | Medium — **RESOLVED** (`daemon-v0.2.32-n6b1-path-flags`, `80fb0af`; consumed by `localbolt-app-v1.2.13-n6b3-ga-wiring`, `88954c8`) |
 | B-DEP-N2-1 | `daemon.status` event must be emitted in default mode on client connect (currently simulate-mode only) | N3 (supervision readiness check) | High — **RESOLVED** (`daemon-v0.2.31-bdep-n2-ipc-unblock`, `1ad2db8`) |
 | B-DEP-N2-2 | `version.handshake` (app->daemon) and `version.status` (daemon->app) messages must be implemented | N3 (version-gated supervision) | High — **RESOLVED** (`daemon-v0.2.31-bdep-n2-ipc-unblock`, `1ad2db8`) |
-| B-DEP-N2-3 | Windows named pipe support (daemon currently Unix socket only) | N6 (Windows platform) | Medium — **RESOLVED** (`daemon-v0.2.33-n6b2-windows-pipe`, `b8c1f3c`; app transport: `localbolt-app-v1.2.13-n6b3-ga-wiring`, `88954c8`). Code complete; Windows runtime validation tracked as R17. |
+| B-DEP-N2-3 | Windows named pipe support (daemon currently Unix socket only) | N6 (Windows platform) | Medium — **RESOLVED** (`daemon-v0.2.33-n6b2-windows-pipe`, `b8c1f3c`; app transport: `localbolt-app-v1.2.13-n6b3-ga-wiring`, `88954c8`). Code complete; Windows runtime validated via R17 (CLOSED 2026-03-08, `daemon-v0.2.34-r17-windows-validated`). |
 
 ---
 
@@ -3105,6 +3105,32 @@ No check is duplicated across tiers. No check contradicts its source phase defin
 - Tags are immutable. Once created, never moved, deleted, or reused.
 - Each phase completion produces exactly one tag.
 - Version numbers increment monotonically from the latest tag in each repo.
+
+---
+
+## Forward Backlog (Post-R17)
+
+**Status:** Codified
+**Codified:** ecosystem-v0.1.86-roadmap-codify-transfer-security-mobile (2026-03-08)
+**Full specification:** `docs/FORWARD_BACKLOG.md`
+
+9-item forward backlog covering transfer completion, release architecture, security, platform convergence, and mobile readiness. Summary:
+
+| ID | Item | Priority | Routing |
+|----|------|----------|---------|
+| B-XFER-1 | Transfer pause/resume completion (daemon transfer SM remaining scope) | NOW | bolt-daemon |
+| REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem |
+| SEC-DR1 | Double Ratchet pre-ByteBolt security gate (DR-STREAM) | NEXT | bolt-core-sdk + bolt-protocol |
+| T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | New crate + daemon consumer |
+| SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk |
+| T-STREAM-1 | Browser selective WASM integration | LATER | bolt-core-sdk (TS) + WASM |
+| PLAT-CORE1 | Shared Rust core + thin platform UIs | LATER | TBD |
+| MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD |
+| ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM |
+
+**B-XFER-1 / T-STREAM-0 boundary:** B-XFER-1 completes current daemon-local pause/resume behavior within existing `src/transfer.rs`. T-STREAM-0 extracts a shared `bolt-transfer-core` crate for cross-platform reuse. These are distinct scopes.
+
+**Sequencing constraint:** MOB-RUNTIME1 priority ≤ PLAT-CORE1 priority.
 
 ---
 

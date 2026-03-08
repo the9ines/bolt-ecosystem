@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative
-> **Last Updated:** 2026-03-08 (R17 CLOSED — Windows CI provisioned, daemon + app IPC validated on windows-latest)
+> **Last Updated:** 2026-03-08 (Forward backlog codified — 9-item post-R17 roadmap: transfer, security, platform, mobile)
 > **Authority:** PM-approved execution plan.
 
 ---
@@ -520,3 +520,57 @@ N-STREAM-1 (native app + daemon bundling — **CLOSED**):
 **Sole residual:** Rust SDK reconnect/race tests (LOW) — deferred, not a critical/high risk.
 
 Full specification in `docs/GOVERNANCE_WORKSTREAMS.md` (S-STREAM-R1 section).
+
+---
+
+## Forward Backlog (Post-R17)
+
+**Status:** Codified
+**Codified:** ecosystem-v0.1.86-roadmap-codify-transfer-security-mobile (2026-03-08)
+**Full specification:** `docs/FORWARD_BACKLOG.md`
+
+### Priority Tiers
+
+**NOW:**
+| ID | Item | Routing |
+|----|------|---------|
+| B-XFER-1 | Transfer pause/resume completion (daemon transfer SM remaining scope) | bolt-daemon |
+| REL-ARCH1 | Multi-arch daemon build/package matrix | bolt-daemon + ecosystem |
+
+**NEXT:**
+| ID | Item | Routing |
+|----|------|---------|
+| SEC-DR1 | Double Ratchet pre-ByteBolt security gate (DR-STREAM) | bolt-core-sdk + bolt-protocol |
+| T-STREAM-0 | Rust transfer core (no UDP in v1) | New crate + daemon consumer |
+| SEC-CORE2 | Rust-first security/protocol consolidation | bolt-core-sdk |
+
+**LATER:**
+| ID | Item | Routing |
+|----|------|---------|
+| T-STREAM-1 | Browser selective WASM integration | bolt-core-sdk (TS) + WASM |
+| PLAT-CORE1 | Shared Rust core + thin platform UIs | TBD |
+| MOB-RUNTIME1 | Mobile embedded runtime model | TBD |
+| ARCH-WASM1 | WASM protocol engine (medium risk) | bolt-core-sdk + WASM |
+
+### Dependency Map
+
+```
+NOW:
+  B-XFER-1 ──────────────────┐
+  REL-ARCH1 (independent)    │
+                              │
+NEXT:                         │
+  T-STREAM-0 ◄───────────────┘ (B-XFER-1 stabilizes SM design first)
+  SEC-DR1 (independent, pre-ByteBolt gate)
+  SEC-CORE2 ◄── S1 (DONE)
+                              │
+LATER:                        │
+  T-STREAM-1 ◄── T-STREAM-0  │
+  PLAT-CORE1 ◄── T-STREAM-0 + SEC-CORE2
+  MOB-RUNTIME1 ◄── PLAT-CORE1 (priority ≤ PLAT-CORE1)
+  ARCH-WASM1 ◄── T-STREAM-0 + S4 gate
+```
+
+### Relationship to Existing S-Program
+
+T-STREAM-0 is the concrete extraction backing S2 (Transfer Performance Program). SEC-CORE2 continues S3 (Logic Not Transport). ARCH-WASM1 extends S4 (WASM Protocol Engine). The forward backlog items supersede S2–S4 as actionable execution plans; S2–S4 remain as strategic direction references.

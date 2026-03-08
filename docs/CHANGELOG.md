@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## Forward Backlog Codification — 2026-03-08
+
+- **Post-R17 forward backlog codified:** 9 items covering transfer completion, release architecture, security, platform convergence, and mobile readiness
+- Ecosystem tag: `ecosystem-v0.1.86-roadmap-codify-transfer-security-mobile`
+- **Part A — R17 addendum verified:** Critical evidence mapping (A1–A5, B6–B8), non-blocking rationale (WebView2 DLL, signal subtree clippy, web coverage threshold), and closure integrity statement all present and complete. No gaps found. B-DEP-N2-3 stale wording updated to reflect R17 CLOSED.
+- **Part B — Backlog items codified:**
+  - B-XFER-1: Transfer pause/resume completion (daemon transfer SM remaining scope) — **NOW**
+  - REL-ARCH1: Multi-arch daemon build/package matrix — **NOW**
+  - SEC-DR1: Double Ratchet pre-ByteBolt security gate (DR-STREAM, phased) — **NEXT**
+  - T-STREAM-0: Rust transfer core, no UDP in v1 — **NEXT**
+  - SEC-CORE2: Rust-first security/protocol consolidation — **NEXT**
+  - T-STREAM-1: Browser selective WASM integration — **LATER**
+  - PLAT-CORE1: Shared Rust core + thin platform UIs — **LATER**
+  - MOB-RUNTIME1: Mobile embedded runtime model (sequenced after PLAT-CORE1) — **LATER**
+  - ARCH-WASM1: WASM protocol engine (medium risk) — **LATER**
+- **Boundary note:** B-XFER-1 (#1) completes current daemon-local pause/resume behavior. T-STREAM-0 (#4) is shared transfer-core architecture extraction/reuse. Distinct scopes.
+- **Guardrails enforced:** Browser native WebRTC retained (G1), no UDP in transfer-core v1 (G2), no A0 Option A reversal (G3)
+- **AC coverage:** NOW and NEXT items have concrete AC IDs. LATER items: "AC: TBD at stream codification."
+- **Files changed:** `docs/FORWARD_BACKLOG.md` (new), `docs/GOVERNANCE_WORKSTREAMS.md`, `docs/ROADMAP.md`, `docs/STATE.md`, `docs/CHANGELOG.md`
+
+---
+
 ## R17 — Windows Runtime Validation CLOSED — 2026-03-08
 
 - **R17 CLOSED:** Windows CI provisioned (`windows-latest`), daemon + app IPC validated on real Windows runtime

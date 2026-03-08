@@ -5,13 +5,13 @@ Snapshot Derived From:
 - v3.0.79-s-stream-r1-r1.4-security-test-lift (31046ac)
 - localbolt-v1.0.27-s-stream-r1-r1.4-security-test-lift (fc360c5)
 - localbolt-app-v1.2.15-r17-windows-validated (7116d12)
-- ecosystem-v0.1.85-r17-windows-validated
-Last Refreshed By: R17 Windows runtime validation closeout (ecosystem-v0.1.85)
+- ecosystem-v0.1.86-roadmap-codify-transfer-security-mobile
+Last Refreshed By: Forward backlog codification (ecosystem-v0.1.86)
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-08 (R17 CLOSED — Windows CI provisioned, daemon + app IPC validated on windows-latest)
+> **Last Updated:** 2026-03-08 (Forward backlog codified — 9-item post-R17 roadmap: transfer, security, platform, mobile)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -701,6 +701,23 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 **N4 (summary):** Rollout + migration spec locked. 4-stage rollout (Local/Dev, Alpha, Beta, GA) with explicit entry/exit criteria and blocker-aware gating. Local/Dev unblocked; Alpha requires B-DEP-N2-1; Beta requires B-DEP-N2-2; GA requires B-DEP-N1-1 + all B-DEPs. Version-skew policy: strict major.minor match, fail-closed on mismatch (N0 D0.7, N2-S3). Whole-bundle update/rollback with data preservation (identity keys, TOFU pins survive). Migration strategy: purely additive (no existing daemon config), transparent to user, 5 invariants (M-01–M-05). 7 acceptance checks for N5 harness (AC-N4-1 through AC-N4-7). Rollout cannot-progress decision tree maps all 4 B-DEPs to stage gates.
 
 **N5 (summary):** Acceptance harness spec locked. 8 test domains (packaging, lifecycle, IPC readiness, IPC messages, degraded UX, update/rollback, diagnostics, data safety). 4 tiers: Smoke (8 checks, <30s), Integration (26 checks, <5min), Failure Injection (8 checks, <10min), Pre-Release (2 checks, GA-only). 44 total checks: 37 from N1–N3 + 7 new from N4. 9 checks blocked by B-DEPs (8 full + 1 partial); blocked checks report SKIP status, not FAIL. Pass/fail criteria: hard fail blocks stage progression; soft fail tracked but non-blocking. Evidence contract: 9 artifact types, CI-automatable vs human-review classification, retention until N7. All AC-N1/AC-N2/AC-N3/AC-N4 checks incorporated without contradiction or duplication (verified by arithmetic).
+
+### Forward Backlog (Post-R17)
+
+**Codified:** ecosystem-v0.1.86-roadmap-codify-transfer-security-mobile (2026-03-08)
+**Full specification:** `docs/FORWARD_BACKLOG.md`
+
+| ID | Item | Priority | Routing | Status |
+|----|------|----------|---------|--------|
+| B-XFER-1 | Transfer pause/resume completion | NOW | bolt-daemon | NOT-STARTED |
+| REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem | NOT-STARTED |
+| SEC-DR1 | Double Ratchet pre-ByteBolt gate (DR-STREAM) | NEXT | bolt-core-sdk + bolt-protocol | NOT-STARTED |
+| T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | New crate + daemon | NOT-STARTED |
+| SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk | NOT-STARTED |
+| T-STREAM-1 | Browser selective WASM integration | LATER | bolt-core-sdk + WASM | NOT-STARTED |
+| PLAT-CORE1 | Shared Rust core + thin platform UIs | LATER | TBD | NOT-STARTED |
+| MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD | NOT-STARTED |
+| ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | NOT-STARTED |
 
 ---
 
