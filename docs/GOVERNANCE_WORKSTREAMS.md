@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-08 (Forward backlog codification — 9-item post-R17 roadmap)
-> **Tag:** ecosystem-v0.1.86-roadmap-codify-transfer-security-mobile
+> **Updated:** 2026-03-08 (B-XFER-1 pause/resume completion — daemon transfer SM remaining scope)
+> **Tag:** ecosystem-v0.1.87-bxfer1-pause-resume
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -579,10 +579,10 @@ The daemon recognizes all seven file transfer message types at the wire level (B
 **Gates (full B3 — remaining):**
 - [x] Send-side transfer (B3-P3)
 - [x] Cancel handling (B3-P3)
-- [ ] State machine covers: PAUSE, RESUME transitions
-- [ ] Disk writes
-- [ ] Multiple concurrent transfers
-- [ ] `scripts/check_no_panic.sh` passes
+- [x] State machine covers: PAUSE, RESUME transitions — **B-XFER-1 DONE** (`daemon-v0.2.35-bxfer1-pause-resume`)
+- [ ] Disk writes (deferred — separate future item)
+- [ ] Multiple concurrent transfers (deferred — PM-FB-01 resolved: out of scope for B-XFER-1)
+- [x] `scripts/check_no_panic.sh` passes
 
 **Acceptance Definition (full B3):**
 - Transfer state machine implemented with all normative state transitions enforced
@@ -716,7 +716,9 @@ Introduced shared `run_post_hello_loop()` used by both offerer and answerer WebD
 
 **B3-P3 integration (AUDIT-GOV-43):** B3-P3 (`daemon-v0.2.29-b3-transfer-sm-p3-sender`) added SendSession to `run_post_hello_loop`. FileAccept and Cancel carved out from `route_inner_message` to Ok(None) for loop-level interception. FileAccept drives send-side SM when active (stream chunks + FileFinish), absorbed when idle. Cancel same pattern. Pause/Resume remain INVALID_STATE.
 
-**Remaining B6 work:** Full B6 completion requires full B3 — pause/resume transitions and remaining transfer lifecycle routing into the event loop.
+**B-XFER-1 integration:** B-XFER-1 (`daemon-v0.2.35-bxfer1-pause-resume`) completed sender-side pause/resume. Pause and Resume carved out from `route_inner_message` to Ok(None) for loop-level dispatch. Chunk streaming restructured from tight `while let` loop to incremental one-chunk-per-iteration at top of main loop, allowing Pause/Resume/Cancel interleaving. SendState gains `Paused` variant (Sending→Paused→Sending). 12 new unit tests, 2 updated envelope tests, 2 integration tests. PM-FB-01 resolved: concurrent transfers out of scope.
+
+**Remaining B6 work:** Disk writes (received files currently in-memory only) and multiple concurrent transfers. Pause/resume routing into event loop is complete (B-XFER-1).
 
 **Goal:** Replace the deadline-bounded demo loops (INTEROP-3/4) with a persistent recv → decode → route → respond loop after HELLO completes. Both offerer and answerer paths require parity.
 
@@ -3116,17 +3118,17 @@ No check is duplicated across tiers. No check contradicts its source phase defin
 
 9-item forward backlog covering transfer completion, release architecture, security, platform convergence, and mobile readiness. Summary:
 
-| ID | Item | Priority | Routing |
-|----|------|----------|---------|
-| B-XFER-1 | Transfer pause/resume completion (daemon transfer SM remaining scope) | NOW | bolt-daemon |
-| REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem |
-| SEC-DR1 | Double Ratchet pre-ByteBolt security gate (DR-STREAM) | NEXT | bolt-core-sdk + bolt-protocol |
-| T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | New crate + daemon consumer |
-| SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk |
-| T-STREAM-1 | Browser selective WASM integration | LATER | bolt-core-sdk (TS) + WASM |
-| PLAT-CORE1 | Shared Rust core + thin platform UIs | LATER | TBD |
-| MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD |
-| ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM |
+| ID | Item | Priority | Routing | Status |
+|----|------|----------|---------|--------|
+| B-XFER-1 | Transfer pause/resume completion (daemon transfer SM remaining scope) | NOW | bolt-daemon | **DONE** (`daemon-v0.2.35-bxfer1-pause-resume`, `9f087a1`) |
+| REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem | NOT-STARTED |
+| SEC-DR1 | Double Ratchet pre-ByteBolt security gate (DR-STREAM) | NEXT | bolt-core-sdk + bolt-protocol | NOT-STARTED |
+| T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | New crate + daemon consumer | NOT-STARTED |
+| SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk | NOT-STARTED |
+| T-STREAM-1 | Browser selective WASM integration | LATER | bolt-core-sdk (TS) + WASM | NOT-STARTED |
+| PLAT-CORE1 | Shared Rust core + thin platform UIs | LATER | TBD | NOT-STARTED |
+| MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD | NOT-STARTED |
+| ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | NOT-STARTED |
 
 **B-XFER-1 / T-STREAM-0 boundary:** B-XFER-1 completes current daemon-local pause/resume behavior within existing `src/transfer.rs`. T-STREAM-0 extracts a shared `bolt-transfer-core` crate for cross-platform reuse. These are distinct scopes.
 
@@ -3140,7 +3142,7 @@ No check is duplicated across tiers. No check contradicts its source phase defin
 - **Within A-stream:** Phases A1–A4 are sequential (each depends on the prior extraction). A5 depends on A1–A4.
 - **Within B-stream (corrected AUDIT-GOV-27):**
   - B1→B2: sequential (B2 depends on B1 defaults). DONE.
-  - B3+B6: coupled deliverable (transfer SM needs event loop; event loop needs SM). **Critical path.** B3-P1/P2/P3 done; remaining: pause/resume, disk writes, concurrent transfers.
+  - B3+B6: coupled deliverable (transfer SM needs event loop; event loop needs SM). **Critical path.** B3-P1/P2/P3 done; pause/resume done (B-XFER-1); remaining: disk writes, concurrent transfers.
   - B4: **DONE** (`daemon-v0.2.27-b4-file-hash`). Receiver-side only; B3-P2 receive path was sufficient.
   - B5: **DONE** (`daemon-v0.2.23-b5-tofu-persist`). Independent.
   - D-E2E-A: **DONE** (`daemon-v0.2.28-d-e2e-a-live-transfer`). Live Rust↔Rust E2E.

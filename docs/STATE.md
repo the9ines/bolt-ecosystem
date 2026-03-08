@@ -1,12 +1,12 @@
 ---
 Snapshot Derived From:
 - sdk-v0.5.28-d3-registry-migration (66aaa3a)
-- daemon-v0.2.34-r17-windows-validated (82d0f83)
+- daemon-v0.2.35-bxfer1-pause-resume (9f087a1)
 - v3.0.79-s-stream-r1-r1.4-security-test-lift (31046ac)
 - localbolt-v1.0.27-s-stream-r1-r1.4-security-test-lift (fc360c5)
 - localbolt-app-v1.2.15-r17-windows-validated (7116d12)
-- ecosystem-v0.1.86-roadmap-codify-transfer-security-mobile
-Last Refreshed By: Forward backlog codification (ecosystem-v0.1.86)
+- ecosystem-v0.1.87-bxfer1-pause-resume
+Last Refreshed By: B-XFER-1 pause/resume completion (ecosystem-v0.1.87)
 ---
 
 # Bolt Ecosystem — State
@@ -709,7 +709,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 
 | ID | Item | Priority | Routing | Status |
 |----|------|----------|---------|--------|
-| B-XFER-1 | Transfer pause/resume completion | NOW | bolt-daemon | NOT-STARTED |
+| B-XFER-1 | Transfer pause/resume completion | NOW | bolt-daemon | **DONE** (`daemon-v0.2.35-bxfer1-pause-resume`) |
 | REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem | NOT-STARTED |
 | SEC-DR1 | Double Ratchet pre-ByteBolt gate (DR-STREAM) | NEXT | bolt-core-sdk + bolt-protocol | NOT-STARTED |
 | T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | New crate + daemon | NOT-STARTED |

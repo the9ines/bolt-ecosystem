@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative
-> **Last Updated:** 2026-03-08 (Forward backlog codified — 9-item post-R17 roadmap: transfer, security, platform, mobile)
+> **Last Updated:** 2026-03-08 (B-XFER-1 pause/resume completion — daemon transfer SM remaining scope)
 > **Authority:** PM-approved execution plan.
 
 ---
@@ -532,35 +532,35 @@ Full specification in `docs/GOVERNANCE_WORKSTREAMS.md` (S-STREAM-R1 section).
 ### Priority Tiers
 
 **NOW:**
-| ID | Item | Routing |
-|----|------|---------|
-| B-XFER-1 | Transfer pause/resume completion (daemon transfer SM remaining scope) | bolt-daemon |
-| REL-ARCH1 | Multi-arch daemon build/package matrix | bolt-daemon + ecosystem |
+| ID | Item | Routing | Status |
+|----|------|---------|--------|
+| B-XFER-1 | Transfer pause/resume completion (daemon transfer SM remaining scope) | bolt-daemon | **DONE** (`daemon-v0.2.35-bxfer1-pause-resume`) |
+| REL-ARCH1 | Multi-arch daemon build/package matrix | bolt-daemon + ecosystem | NOT-STARTED |
 
 **NEXT:**
-| ID | Item | Routing |
-|----|------|---------|
-| SEC-DR1 | Double Ratchet pre-ByteBolt security gate (DR-STREAM) | bolt-core-sdk + bolt-protocol |
-| T-STREAM-0 | Rust transfer core (no UDP in v1) | New crate + daemon consumer |
-| SEC-CORE2 | Rust-first security/protocol consolidation | bolt-core-sdk |
+| ID | Item | Routing | Status |
+|----|------|---------|--------|
+| SEC-DR1 | Double Ratchet pre-ByteBolt security gate (DR-STREAM) | bolt-core-sdk + bolt-protocol | NOT-STARTED |
+| T-STREAM-0 | Rust transfer core (no UDP in v1) | New crate + daemon consumer | NOT-STARTED |
+| SEC-CORE2 | Rust-first security/protocol consolidation | bolt-core-sdk | NOT-STARTED |
 
 **LATER:**
-| ID | Item | Routing |
-|----|------|---------|
-| T-STREAM-1 | Browser selective WASM integration | bolt-core-sdk (TS) + WASM |
-| PLAT-CORE1 | Shared Rust core + thin platform UIs | TBD |
-| MOB-RUNTIME1 | Mobile embedded runtime model | TBD |
-| ARCH-WASM1 | WASM protocol engine (medium risk) | bolt-core-sdk + WASM |
+| ID | Item | Routing | Status |
+|----|------|---------|--------|
+| T-STREAM-1 | Browser selective WASM integration | bolt-core-sdk (TS) + WASM | NOT-STARTED |
+| PLAT-CORE1 | Shared Rust core + thin platform UIs | TBD | NOT-STARTED |
+| MOB-RUNTIME1 | Mobile embedded runtime model | TBD | NOT-STARTED |
+| ARCH-WASM1 | WASM protocol engine (medium risk) | bolt-core-sdk + WASM | NOT-STARTED |
 
 ### Dependency Map
 
 ```
 NOW:
-  B-XFER-1 ──────────────────┐
+  B-XFER-1 ──────────────────┐  ✓ DONE (daemon-v0.2.35)
   REL-ARCH1 (independent)    │
                               │
 NEXT:                         │
-  T-STREAM-0 ◄───────────────┘ (B-XFER-1 stabilizes SM design first)
+  T-STREAM-0 ◄───────────────┘ (B-XFER-1 DONE — SM design stabilized)
   SEC-DR1 (independent, pre-ByteBolt gate)
   SEC-CORE2 ◄── S1 (DONE)
                               │

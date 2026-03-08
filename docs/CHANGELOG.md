@@ -5,6 +5,27 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## B-XFER-1 — Transfer Pause/Resume Completion — 2026-03-08
+
+- **B-XFER-1 DONE:** Sender-side pause/resume implemented in bolt-daemon transfer state machine
+- Daemon tag: `daemon-v0.2.35-bxfer1-pause-resume` (`9f087a1`)
+- Ecosystem tag: `ecosystem-v0.1.87-bxfer1-pause-resume`
+- **Implementation:**
+  - `SendState::Paused` variant added (Sending→Paused→Sending lifecycle)
+  - `on_pause()`, `on_resume()`, `is_send_active()` methods on SendSession
+  - Pause/Resume carved out from `route_inner_message` to `Ok(None)` for loop-level dispatch
+  - Chunk streaming restructured: tight `while let` loop → incremental one-chunk-per-iteration (allows Pause/Resume/Cancel interleaving)
+  - `on_cancel()` accepts Paused state; `finish()` rejects Paused state
+- **Tests:** 12 new unit tests, 2 updated envelope tests, 2 integration tests; all existing tests pass
+- **Validation gates:** `cargo test` (all pass), `cargo clippy -- -D warnings` (clean), `scripts/check_no_panic.sh` (pass)
+- **PM-FB-01 resolved:** Concurrent transfers OUT OF SCOPE for B-XFER-1
+- **Dependency note:** T-STREAM-0 unblocked (B-XFER-1 stabilizes SM design)
+- **AC-BX mapping:** AC-BX-01 through AC-BX-09 all satisfied (see `docs/FORWARD_BACKLOG.md`)
+- **Files changed (daemon):** `src/transfer.rs`, `src/envelope.rs`, `src/rendezvous.rs`
+- **Files changed (ecosystem):** `docs/FORWARD_BACKLOG.md`, `docs/GOVERNANCE_WORKSTREAMS.md`, `docs/ROADMAP.md`, `docs/STATE.md`, `docs/CHANGELOG.md`
+
+---
+
 ## Forward Backlog Codification — 2026-03-08
 
 - **Post-R17 forward backlog codified:** 9 items covering transfer completion, release architecture, security, platform convergence, and mobile readiness

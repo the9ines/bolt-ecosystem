@@ -53,6 +53,7 @@ Priority constraint: MOB-RUNTIME1 ≤ PLAT-CORE1 (mobile cannot exceed shared co
 ## Item 1: B-XFER-1 — Transfer Pause/Resume Completion
 
 **Priority:** NOW
+**Status:** **DONE** — `daemon-v0.2.35-bxfer1-pause-resume` (`9f087a1`)
 **Routing:** bolt-daemon
 **Category:** Daemon transfer state machine remaining scope
 
