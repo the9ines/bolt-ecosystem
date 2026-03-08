@@ -18,8 +18,9 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
   - Windows named pipe path detection and platform-aware binary resolution (`which` → `where` on Windows)
   - Signal server coexistence verified: TCP:3001 vs Unix socket, no conflict
 - B-DEP-N1-1 **RESOLVED**: daemon receives `--socket-path` and `--data-dir`
-- B-DEP-N2-3 **RESOLVED** (with residual): transport layer supports `\\.\pipe\` format, compile-validated, runtime testing deferred to N7 Windows beta
-- R16 **CLOSED**: Windows named pipe integrated
+- B-DEP-N2-3 **RESOLVED**: transport layer supports `\\.\pipe\` format (daemon + app)
+- R16 **CLOSED**: Windows named pipe code complete
+- R17 **OPENED**: Windows runtime validation — no Windows CI runner, code compile-validated only (Low, tracked for N7)
 - 118 tests (66 Rust + 52 web), clippy 0 warnings, fmt clean
 - Tag: `ecosystem-v0.1.80-n-stream-1-n6-complete`
 

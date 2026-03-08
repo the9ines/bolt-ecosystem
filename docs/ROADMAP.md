@@ -362,7 +362,7 @@ C0 (PM policy decision) ← BLOCKER
 |-------|-------------|--------|-------------|
 | N0 | Policy lock (lifecycle, restart, single-instance, crash recovery) | **DONE** | None |
 | N1 | Packaging + security matrix (macOS/Windows/Linux) | **DONE** | N0 |
-| N2 | IPC contract stabilization | **DONE** (spec locked, impl deps open) | N0 |
+| N2 | IPC contract stabilization | **DONE** (spec locked; all impl deps resolved) | N0 |
 | N3 | Process supervision + diagnostics | **DONE** (spec locked; B-DEP-N2-1/N2-2 **RESOLVED**) | N2 |
 | N4 | Rollout + migration | **DONE** (spec locked) | N1, N2 |
 | N5 | Acceptance harness | **DONE** (spec locked) | N2, N3 |
@@ -394,7 +394,8 @@ C0 (PM policy decision) ← BLOCKER
 | R13 | Cross-platform packaging complexity — macOS/Windows/Linux signing and notarization | Medium | **Closed** | N1 packaging matrix locked per platform (`ecosystem-v0.1.74-n-stream-1-n1-n2-lock`) |
 | R14 | Daemon crash recovery undefined — single-instance and lifecycle policy not yet decided | Medium | **Closed** | N0 policy lock completed (`ecosystem-v0.1.73-n-stream-1-n0-policy-lock`) |
 | R15 | B-DEP-N2-1/N2-2: daemon.status + version handshake not yet in default mode — N3 spec locked, blocks N6 implementation of readiness + version-gated supervision | High | **Closed** | `daemon-v0.2.31-bdep-n2-ipc-unblock` (`1ad2db8`) — daemon.status in all modes + version.handshake/version.status implemented |
-| R16 | B-DEP-N2-3: Windows named pipe not supported — blocks N6 Windows GA | Medium | **Closed** | N6-B3 integrated compile-validated Windows named pipe transport (`ipc_transport.rs`). Runtime testing deferred to N7 Windows beta. |
+| R16 | B-DEP-N2-3: Windows named pipe not supported — blocks N6 Windows GA | Medium | **Closed** | N6-B3 integrated Windows named pipe transport (`ipc_transport.rs` + `daemon-v0.2.33`). Code complete, B-DEP resolved. |
+| R17 | Windows runtime validation — no Windows CI runner, named pipe code compile-validated only | Low | Open | Windows CI runner or manual Windows test pass confirms runtime behavior. Tracked for N7. |
 
 ---
 
@@ -485,7 +486,7 @@ N-STREAM-1 (native app + daemon bundling, consumes B-stream API surface):
   B-STREAM deps: B-DEP-N2-1 (daemon.status in default mode) → RESOLVED (daemon-v0.2.31)
                  B-DEP-N2-2 (version handshake messages) → RESOLVED (daemon-v0.2.31)
                  B-DEP-N1-1 (platform path CLI flags) → RESOLVED (localbolt-app-v1.2.13-n6b3)
-                 B-DEP-N2-3 (Windows named pipe) → RESOLVED w/ residual (compile-validated, runtime deferred to N7)
+                 B-DEP-N2-3 (Windows named pipe) → RESOLVED (localbolt-app-v1.2.13-n6b3; runtime validation: R17)
 ```
 
 ---
