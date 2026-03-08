@@ -5,6 +5,22 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## UI-XFER-1 — Pause/Stop Button Reliability (Canonical DC Control) — 2026-03-08
+
+- **UI-XFER-1 DONE:** Canonical DC control messages for pause/resume/cancel in SDK
+- SDK tag: `sdk-v0.5.29-uixfer1-canonical-control` (`89e2edb`)
+- Ecosystem tag: `ecosystem-v0.1.88-uixfer1-pause-stop-fix`
+- **Root cause:** SDK emitted `{ type: "file-chunk", paused: true }` — daemon parsed as data chunk, not control. Daemon emitted `{ type: "pause" }` — SDK rejected as unknown type and disconnected.
+- **Fix:** Emit path converged to canonical shapes (`{ type: "pause"/"resume"/"cancel", transferId }`) matching daemon `dc_messages.rs`. Legacy `file-chunk` control flags removed from emit, retained on receive for backward compat (deprecated).
+- **False completion race fixed:** Cancel now clears pending completion timeout; timeout callback checks cancelled flag.
+- **Decision lock:** No legacy emit. Legacy receive tolerance temporary (deprecation noted, removal target: next major).
+- **Tests:** 17 new tests in `uixfer1-canonical-control.test.ts`, 270 total pass
+- **Consumer adoption:** localbolt, localbolt-app, localbolt-v3 updated to `@the9ines/bolt-transport-web@0.6.5`
+- **Files changed (SDK):** `types.ts`, `TransferManager.ts`, `WebRTCService.ts`, `webrtcservice-lifecycle.test.ts`, `uixfer1-canonical-control.test.ts`, `package.json`
+- **Files changed (ecosystem):** `docs/GOVERNANCE_WORKSTREAMS.md`, `docs/ROADMAP.md`, `docs/STATE.md`, `docs/CHANGELOG.md`
+
+---
+
 ## B-XFER-1 — Transfer Pause/Resume Completion — 2026-03-08
 
 - **B-XFER-1 DONE:** Sender-side pause/resume implemented in bolt-daemon transfer state machine

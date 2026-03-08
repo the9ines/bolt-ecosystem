@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-08 (B-XFER-1 pause/resume completion — daemon transfer SM remaining scope)
-> **Tag:** ecosystem-v0.1.87-bxfer1-pause-resume
+> **Updated:** 2026-03-08 (UI-XFER-1 canonical DC control — pause/stop button reliability)
+> **Tag:** ecosystem-v0.1.88-uixfer1-pause-stop-fix
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -3131,6 +3131,8 @@ No check is duplicated across tiers. No check contradicts its source phase defin
 | ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | NOT-STARTED |
 
 **B-XFER-1 / T-STREAM-0 boundary:** B-XFER-1 completes current daemon-local pause/resume behavior within existing `src/transfer.rs`. T-STREAM-0 extracts a shared `bolt-transfer-core` crate for cross-platform reuse. These are distinct scopes.
+
+**UI-XFER-1 (companion to B-XFER-1):** SDK-side canonical DC control convergence (`sdk-v0.5.29-uixfer1-canonical-control`). Emit path uses `{ type: "pause"/"resume"/"cancel", transferId }` matching daemon wire format. Legacy file-chunk control flags removed from emit; retained on receive for backward compat (deprecated, removal target: next major). False completion race fixed. 17 new tests, consumers updated to `@the9ines/bolt-transport-web@0.6.5`.
 
 **Sequencing constraint:** MOB-RUNTIME1 priority ≤ PLAT-CORE1 priority.
 

@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative
-> **Last Updated:** 2026-03-08 (B-XFER-1 pause/resume completion — daemon transfer SM remaining scope)
+> **Last Updated:** 2026-03-08 (UI-XFER-1 canonical DC control — pause/stop button reliability)
 > **Authority:** PM-approved execution plan.
 
 ---

@@ -1,12 +1,12 @@
 ---
 Snapshot Derived From:
-- sdk-v0.5.28-d3-registry-migration (66aaa3a)
+- sdk-v0.5.29-uixfer1-canonical-control (89e2edb)
 - daemon-v0.2.35-bxfer1-pause-resume (9f087a1)
-- v3.0.79-s-stream-r1-r1.4-security-test-lift (31046ac)
-- localbolt-v1.0.27-s-stream-r1-r1.4-security-test-lift (fc360c5)
-- localbolt-app-v1.2.15-r17-windows-validated (7116d12)
-- ecosystem-v0.1.87-bxfer1-pause-resume
-Last Refreshed By: B-XFER-1 pause/resume completion (ecosystem-v0.1.87)
+- v3.0.81-uixfer1-control-adoption (92c3630)
+- localbolt-v1.0.28-uixfer1-control-adoption (d59ae82)
+- localbolt-app-v1.2.16-uixfer1-control-adoption (205fcb8)
+- ecosystem-v0.1.88-uixfer1-pause-stop-fix
+Last Refreshed By: UI-XFER-1 canonical DC control (ecosystem-v0.1.88)
 ---
 
 # Bolt Ecosystem — State
