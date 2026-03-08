@@ -1,17 +1,17 @@
 ---
 Snapshot Derived From:
-- sdk-v0.5.30-tstream0-transfer-core-v1
+- sdk-v0.5.31-s2a-transfer-policy-substantive (c67bd68)
 - daemon-v0.2.36-tstream0-adapter
 - v3.0.81-uixfer1-control-adoption (92c3630)
 - localbolt-v1.0.28-uixfer1-control-adoption (d59ae82)
 - localbolt-app-v1.2.16-uixfer1-control-adoption (205fcb8)
-- ecosystem-v0.1.89-tstream0-transfer-core-v1
-Last Refreshed By: T-STREAM-0 transfer core extraction (ecosystem-v0.1.89)
+- ecosystem-v0.1.90-s2a-transfer-policy-substantive
+Last Refreshed By: S2A transfer policy substantive (ecosystem-v0.1.90)
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-08 (T-STREAM-0 transfer core extraction — DONE)
+> **Last Updated:** 2026-03-08 (S2A transfer policy substantive — DONE)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -89,7 +89,7 @@ TOFU identity pinning and SAS verification wired into localbolt-v3 product UI wi
 |-------|-------------|--------|---------|--------|-----------|
 | S0 | Canonical hardened rendezvous | DONE-MERGED | bolt-rendezvous, localbolt-v3 | `rendezvous-v0.2.2-s0-canonical-lib-verified`, `v3.0.63-s0-canonical-rendezvous` | `fd8d3df`, `2963539` |
 | S1 | Core protocol conformance harness (Rust SDK) | DONE-MERGED | bolt-core-sdk | `sdk-v0.5.4-s1-conformance-harness` | `cced058` |
-| S2 | Transfer performance program | IN-PROGRESS | bolt-core-sdk | `sdk-v0.5.5-s2-policy-skeleton`, `sdk-v0.5.6-s2-policy-contract-tests`, `transport-web-v0.6.1-s2b-instrumentation` | `31bdc0b`, `39ed6dc`, `02e36b1` |
+| S2 | Transfer performance program | IN-PROGRESS (S2A DONE) | bolt-core-sdk | `sdk-v0.5.5-s2-policy-skeleton`, `sdk-v0.5.6-s2-policy-contract-tests`, `transport-web-v0.6.1-s2b-instrumentation`, `sdk-v0.5.31-s2a-transfer-policy-substantive` | `31bdc0b`, `39ed6dc`, `02e36b1`, `c67bd68` |
 
 ## Governance Phases
 

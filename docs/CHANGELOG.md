@@ -5,6 +5,29 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## S2A — Transfer Policy Substantive Logic — 2026-03-08
+
+- **S2A DONE:** Substantive transfer policy replacing trivial stub, pre-WASM
+- SDK tag: `sdk-v0.5.31-s2a-transfer-policy-substantive` (`c67bd68`)
+- Ecosystem tag: `ecosystem-v0.1.90-s2a-transfer-policy-substantive`
+- Daemon: **untouched** (no transfer_policy imports; AC-S2A-12 N/A)
+- **Policy ownership (Option B):** Moved `transfer_policy` from `bolt-core` to `bolt-transfer-core/policy/`
+- **Unified backpressure authority:** `BackpressureSignal` enum removed; `BackpressureController` feeds `PressureState` into `PolicyInput`; policy emits single `Backpressure` signal
+- **Effective chunk cap:** `effective_chunk_size = min(configured_chunk_size, transport_max_message_size)`
+- **Send-window sizing:** Pressure-aware (halves under Elevated, zeroes under Pressured), fairness-mode adjustments (Latency→1, Throughput→full), device-class scaling (LowPower→½, Mobile→¾)
+- **RTT-proportional pacing:** Latency mode adds rtt/4, Balanced+Elevated adds rtt/8
+- **Stall detection:** Pure threshold-based classification (Healthy/Warning/Stalled/Complete)
+- **Progress cadence (forward-investment):** Pure function for T-STREAM-1 TS/WASM consumption, no daemon consumer
+- **Tests:** 207 total pass (62 bolt-core + 16 conformance + 93 bolt-transfer-core unit + 36 S2A integration)
+- **Validation gates:** `cargo clippy -- -D warnings` clean, `cargo fmt -- --check` clean, WASM build verified
+- **AC-S2A-01..11 satisfied** (AC-S2A-12 N/A — daemon untouched)
+- **Files changed (bolt-core-sdk):** `rust/bolt-core/src/lib.rs`, `rust/bolt-core/src/transfer_policy/` (deleted), `rust/bolt-core/tests/s2_policy_contracts.rs` (deleted), `rust/bolt-transfer-core/src/backpressure.rs`, `rust/bolt-transfer-core/src/lib.rs`, `rust/bolt-transfer-core/src/policy/` (new: mod, types, decide, stall, progress), `rust/bolt-transfer-core/tests/s2a_policy_tests.rs` (new)
+- **Deferred to T-STREAM-1:** wasm-bindgen exports, TS adapter, browser runtime wiring, progress cadence TS consumer
+- **Deferred to ARCH-WASM1:** Full WASM protocol engine
+- **Deferred:** Daemon integration (calling `decide()` in send loop), ACK-based stall recovery
+
+---
+
 ## T-STREAM-0 — Rust Transfer Core Extraction — 2026-03-08
 
 - **T-STREAM-0 DONE:** Transport-agnostic transfer state machine extracted from daemon into shared `bolt-transfer-core` crate
