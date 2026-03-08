@@ -5,6 +5,29 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## T-STREAM-0 — Rust Transfer Core Extraction — 2026-03-08
+
+- **T-STREAM-0 DONE:** Transport-agnostic transfer state machine extracted from daemon into shared `bolt-transfer-core` crate
+- SDK tag: `sdk-v0.5.30-tstream0-transfer-core-v1`
+- Daemon tag: `daemon-v0.2.36-tstream0-adapter`
+- Ecosystem tag: `ecosystem-v0.1.89-tstream0-transfer-core-v1`
+- **PM-FB-04 resolved:** Crate placed as workspace member in `bolt-core-sdk/rust/bolt-transfer-core/` (path dependency)
+- **New crate:** `bolt-transfer-core` v0.1.0 — 6 modules (state, error, send, receive, backpressure, transport)
+- **§9 conformance:** All 8 PROTOCOL.md §9 states represented (Idle, Offered, Accepted, Transferring, Paused, Completed, Cancelled, Error)
+- **AC-TC-01..06 all satisfied** (see evidence matrix in SDK CHANGELOG)
+- **WASM gate:** `cargo build --target wasm32-unknown-unknown` passes. rlib: 107 KB uncompressed, 49 KB gzipped
+- **Daemon adapter:** `bolt-daemon/src/transfer.rs` → thin facade re-exporting from `bolt-transfer-core` + `Sha256Verifier`
+- **Zero duplicated SM logic:** All state machine code lives in `bolt-transfer-core`; daemon is pure adapter
+- **Tests:** 60 core crate tests + 362 daemon tests pass (0 regressions)
+- **Consumer repos intentionally untouched** (localbolt, localbolt-app, localbolt-v3)
+- **Deferred to T-STREAM-1:** wasm-bindgen exports, TS adapter, browser runtime wiring
+- **Deferred to S2:** Full performance tuning (hysteresis, fairness, RTT/loss hints)
+- **Files changed (bolt-core-sdk):** `rust/Cargo.toml` (NEW workspace root), `rust/bolt-transfer-core/` (NEW crate, 7 files)
+- **Files changed (bolt-daemon):** `Cargo.toml`, `src/transfer.rs`, `src/lib.rs`, `src/rendezvous.rs`
+- **Files changed (ecosystem):** `docs/ROADMAP.md`, `docs/STATE.md`, `docs/CHANGELOG.md`, `docs/GOVERNANCE_WORKSTREAMS.md`
+
+---
+
 ## UI-XFER-1 — Pause/Stop Button Reliability (Canonical DC Control) — 2026-03-08
 
 - **UI-XFER-1 DONE:** Canonical DC control messages for pause/resume/cancel in SDK

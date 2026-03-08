@@ -3123,7 +3123,7 @@ No check is duplicated across tiers. No check contradicts its source phase defin
 | B-XFER-1 | Transfer pause/resume completion (daemon transfer SM remaining scope) | NOW | bolt-daemon | **DONE** (`daemon-v0.2.35-bxfer1-pause-resume`, `9f087a1`) |
 | REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem | NOT-STARTED |
 | SEC-DR1 | Double Ratchet pre-ByteBolt security gate (DR-STREAM) | NEXT | bolt-core-sdk + bolt-protocol | NOT-STARTED |
-| T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | New crate + daemon consumer | NOT-STARTED |
+| T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | `bolt-transfer-core` (bolt-core-sdk workspace) + daemon consumer | **DONE** (`sdk-v0.5.30-tstream0-transfer-core-v1`) |
 | SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk | NOT-STARTED |
 | T-STREAM-1 | Browser selective WASM integration | LATER | bolt-core-sdk (TS) + WASM | NOT-STARTED |
 | PLAT-CORE1 | Shared Rust core + thin platform UIs | LATER | TBD | NOT-STARTED |

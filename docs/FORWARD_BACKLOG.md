@@ -143,9 +143,10 @@ Priority constraint: MOB-RUNTIME1 ≤ PLAT-CORE1 (mobile cannot exceed shared co
 ## Item 4: T-STREAM-0 — Rust Transfer Core (No UDP in v1)
 
 **Priority:** NEXT
-**Routing:** New crate (e.g., `bolt-transfer-core`), bolt-daemon consumer, bolt-core-sdk consumer
+**Status:** **DONE** — `sdk-v0.5.30-tstream0-transfer-core-v1` + `daemon-v0.2.36-tstream0-adapter`
+**Routing:** `bolt-transfer-core` (bolt-core-sdk workspace member), bolt-daemon consumer
 **Category:** Architecture — shared transfer logic
-**Dependencies:** B-XFER-1 (Item 1) should be complete first to stabilize transfer SM design
+**Dependencies:** B-XFER-1 (Item 1) complete (SM design stabilized)
 
 **Boundary note vs B-XFER-1:** Item 1 completes the current daemon-local pause/resume behavior. Item 4 extracts the proven transfer state machine into a shared Rust crate for cross-platform reuse. The extraction boundary is:
 - **B-XFER-1 scope:** `bolt-daemon/src/transfer.rs` pause/resume + disk writes

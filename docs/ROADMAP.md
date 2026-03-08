@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative
-> **Last Updated:** 2026-03-08 (UI-XFER-1 canonical DC control — pause/stop button reliability)
+> **Last Updated:** 2026-03-08 (T-STREAM-0 transfer core extraction — DONE)
 > **Authority:** PM-approved execution plan.
 
 ---
@@ -541,7 +541,7 @@ Full specification in `docs/GOVERNANCE_WORKSTREAMS.md` (S-STREAM-R1 section).
 | ID | Item | Routing | Status |
 |----|------|---------|--------|
 | SEC-DR1 | Double Ratchet pre-ByteBolt security gate (DR-STREAM) | bolt-core-sdk + bolt-protocol | NOT-STARTED |
-| T-STREAM-0 | Rust transfer core (no UDP in v1) | New crate + daemon consumer | NOT-STARTED |
+| T-STREAM-0 | Rust transfer core (no UDP in v1) | `bolt-transfer-core` (bolt-core-sdk workspace) + daemon consumer | **DONE** (`sdk-v0.5.30-tstream0-transfer-core-v1`) |
 | SEC-CORE2 | Rust-first security/protocol consolidation | bolt-core-sdk | NOT-STARTED |
 
 **LATER:**
@@ -560,7 +560,7 @@ NOW:
   REL-ARCH1 (independent)    │
                               │
 NEXT:                         │
-  T-STREAM-0 ◄───────────────┘ (B-XFER-1 DONE — SM design stabilized)
+  T-STREAM-0 ◄───────────────┘ ✓ DONE (sdk-v0.5.30, daemon-v0.2.36)
   SEC-DR1 (independent, pre-ByteBolt gate)
   SEC-CORE2 ◄── S1 (DONE)
                               │

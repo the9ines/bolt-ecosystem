@@ -1,17 +1,17 @@
 ---
 Snapshot Derived From:
-- sdk-v0.5.29-uixfer1-canonical-control (89e2edb)
-- daemon-v0.2.35-bxfer1-pause-resume (9f087a1)
+- sdk-v0.5.30-tstream0-transfer-core-v1
+- daemon-v0.2.36-tstream0-adapter
 - v3.0.81-uixfer1-control-adoption (92c3630)
 - localbolt-v1.0.28-uixfer1-control-adoption (d59ae82)
 - localbolt-app-v1.2.16-uixfer1-control-adoption (205fcb8)
-- ecosystem-v0.1.88-uixfer1-pause-stop-fix
-Last Refreshed By: UI-XFER-1 canonical DC control (ecosystem-v0.1.88)
+- ecosystem-v0.1.89-tstream0-transfer-core-v1
+Last Refreshed By: T-STREAM-0 transfer core extraction (ecosystem-v0.1.89)
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-08 (Forward backlog codified — 9-item post-R17 roadmap: transfer, security, platform, mobile)
+> **Last Updated:** 2026-03-08 (T-STREAM-0 transfer core extraction — DONE)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
