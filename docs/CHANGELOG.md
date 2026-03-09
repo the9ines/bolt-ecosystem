@@ -5,6 +5,25 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## RECON-XFER-1 Phase A — Transfer Reconnect Recovery Fix — 2026-03-09
+
+- **RECON-XFER-1 PHASE A DONE:** Root-cause locked and fix applied
+- **Root cause:** localbolt-v3 consumer orchestration — NOT SDK
+  - RC-1: `serviceGeneration` captured once at init, never updated across reconnect → all callbacks silently dropped
+  - RC-2: SDK one-shot lifecycle (`disconnect()` kills signaling listener) — reusing dead service blocked reconnect
+- **SDK verdict:** Core teardown sufficient. Test-only change (8 one-shot contract tests).
+- **Fix:** `createFreshRtcService()` factory in `peer-connection.ts` — new `WebRTCService` per connection attempt, synchronized generation, old service fully detached before swap
+- **Tests:** 16 regression tests (localbolt-core), 8 one-shot contract tests (SDK) — 298 SDK total, 70 localbolt-core total, 70 localbolt-web total — all green
+- **Build:** localbolt-v3 Vite production build green (WASM + fallback)
+- **Tags:**
+  - `sdk-v0.5.35-recon-xfer1-phase-a-tests` (2f219d4) — test-only
+  - `v3.0.88-recon-xfer1-phase-a` (a7e311b) — primary fix
+  - `ecosystem-v0.1.96-recon-xfer1-phase-a` — this commit
+- **Phase B pending:** localbolt + localbolt-app consumer verification
+- **No daemon changes** — escalation not triggered
+
+---
+
 ## RECON-XFER-1 — Transfer Reconnect Recovery Codification — 2026-03-09
 
 - **RECON-XFER-1 CODIFIED:** Governance codification of mid-transfer disconnect → reconnect stuck bug

@@ -22,7 +22,7 @@ Linked from `docs/GOVERNANCE_WORKSTREAMS.md` (summary) and `docs/ROADMAP.md` (de
 NOW:
   B-XFER-1 (transfer pause/resume completion) ─── DONE (daemon-v0.2.35)
   REL-ARCH1 (multi-arch build matrix) ─────────── DONE (daemon-v0.2.38)
-  RECON-XFER-1 (transfer reconnect recovery) ──── NOT-STARTED
+  RECON-XFER-1 (transfer reconnect recovery) ──── PHASE-A-DONE
 
 NEXT:
   SEC-DR1 (Double Ratchet security gate) ──────── independent (pre-ByteBolt)
@@ -262,8 +262,8 @@ Priority constraint: MOB-RUNTIME1 ≤ PLAT-CORE1 (mobile cannot exceed shared co
 
 **Priority:** NOW
 **Risk:** HIGH
-**Status:** NOT-STARTED
-**Routing:** bolt-core-sdk (`ts/bolt-transport-web` — session + transfer coordination), consumers for verification
+**Status:** PHASE-A-DONE
+**Routing:** bolt-core-sdk (`ts/bolt-transport-web` — test-only), localbolt-v3 (primary fix), consumers for Phase B verification
 **Category:** Reliability — transfer lifecycle across disconnect boundary
 **Dependencies:** T-STREAM-1 completion (DONE) provides prerequisite context (WASM policy layer)
 
@@ -286,6 +286,19 @@ Priority constraint: MOB-RUNTIME1 ≤ PLAT-CORE1 (mobile cannot exceed shared co
 1. **SDK session/transfer coordination** (primary suspect) — transfer state machine does not transition to terminal reset on `disconnect` event when transfer is in-progress. `transferId`, queue pointers, and paused/sending/cancel flags survive across reconnect boundary.
 2. **Consumer UI state** (secondary) — even if SDK resets, consumer-side transfer state (progress callbacks, file queue, UI flags) may not be cleaned up on reconnect.
 3. **Daemon lifecycle** (conditional, escalation-only) — only relevant if daemon-side transfer SM also fails to reset on IPC disconnect during active transfer. Currently unconfirmed.
+
+**Phase A Root-Cause Determination (CONFIRMED):**
+
+**Verdict: SDK core teardown SUFFICIENT. Bug is localbolt-v3 consumer orchestration.**
+
+Two compounding root causes in `packages/localbolt-web/src/components/peer-connection.ts`:
+
+1. **RC-1**: `serviceGeneration` captured once at init (line 432), never updated across reconnect — all SDK callbacks silently dropped as stale after first disconnect.
+2. **RC-2**: SDK `WebRTCService` follows one-shot lifecycle (constructor registers signaling listener, `disconnect()` permanently removes it) — reusing same instance after user-initiated disconnect means no signal delivery for reconnect.
+
+**Fix**: `createFreshRtcService()` factory creates new `WebRTCService` per connection attempt, synchronizes `serviceGeneration`, fully detaches old service before swap (guardrail: `setConnectionStateHandler(() => {})` + `disconnect()` before new instance).
+
+**Tags**: `sdk-v0.5.35-recon-xfer1-phase-a-tests` (2f219d4), `v3.0.88-recon-xfer1-phase-a` (a7e311b)
 
 **Acceptance Criteria:**
 
