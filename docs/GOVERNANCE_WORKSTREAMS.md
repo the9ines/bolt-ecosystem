@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-08 (UI-XFER-1 canonical DC control — pause/stop button reliability)
-> **Tag:** ecosystem-v0.1.88-uixfer1-pause-stop-fix
+> **Updated:** 2026-03-09 (RECON-XFER-1 — transfer reconnect recovery codification)
+> **Tag:** ecosystem-v0.1.95-recon-xfer-1-codify
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -3129,6 +3129,9 @@ No check is duplicated across tiers. No check contradicts its source phase defin
 | PLAT-CORE1 | Shared Rust core + thin platform UIs | LATER | TBD | NOT-STARTED |
 | MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD | NOT-STARTED |
 | ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | NOT-STARTED |
+| RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | NOT-STARTED |
+
+**RECON-XFER-1 (distinct from Q7/C7):** Post-C7 transfer-recovery bug. If disconnect occurs during active file transfer, reconnect gets stuck and new transfers fail to start. Browser path confirmed. Daemon-only path unconfirmed (escalation-only). Prior C7/Q7 work addressed stale callback pollution; this bug is about transfer SM + session coordination not resetting on mid-transfer disconnect. Full spec in `docs/FORWARD_BACKLOG.md` Item 10.
 
 **B-XFER-1 / T-STREAM-0 boundary:** B-XFER-1 completes current daemon-local pause/resume behavior within existing `src/transfer.rs`. T-STREAM-0 extracts a shared `bolt-transfer-core` crate for cross-platform reuse. These are distinct scopes.
 

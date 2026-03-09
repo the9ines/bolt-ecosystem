@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative
-> **Last Updated:** 2026-03-08 (T-STREAM-0 transfer core extraction — DONE)
+> **Last Updated:** 2026-03-09 (RECON-XFER-1 — transfer reconnect recovery codification)
 > **Authority:** PM-approved execution plan.
 
 ---
@@ -536,6 +536,7 @@ Full specification in `docs/GOVERNANCE_WORKSTREAMS.md` (S-STREAM-R1 section).
 |----|------|---------|--------|
 | B-XFER-1 | Transfer pause/resume completion (daemon transfer SM remaining scope) | bolt-daemon | **DONE** (`daemon-v0.2.35-bxfer1-pause-resume`) |
 | REL-ARCH1 | Multi-arch daemon build/package matrix | bolt-daemon + ecosystem | **DONE** (`daemon-v0.2.38-relarch1-multiarch-matrix`, `ab56606`) |
+| RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | bolt-core-sdk (TS) + consumers | NOT-STARTED |
 
 **NEXT:**
 | ID | Item | Routing | Status |
@@ -558,6 +559,7 @@ Full specification in `docs/GOVERNANCE_WORKSTREAMS.md` (S-STREAM-R1 section).
 NOW:
   B-XFER-1 ──────────────────┐  ✓ DONE (daemon-v0.2.35)
   REL-ARCH1 ──────────────────┘ ✓ DONE (daemon-v0.2.38)
+  RECON-XFER-1 ◄── T-STREAM-1 (DONE, prerequisite context)
                               │
 NEXT:                         │
   T-STREAM-0 ◄───────────────┘ ✓ DONE (sdk-v0.5.30, daemon-v0.2.36)

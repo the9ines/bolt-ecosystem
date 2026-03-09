@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## RECON-XFER-1 — Transfer Reconnect Recovery Codification — 2026-03-09
+
+- **RECON-XFER-1 CODIFIED:** Governance codification of mid-transfer disconnect → reconnect stuck bug
+- **Priority:** NOW / HIGH — user-facing reliability regression
+- **Status:** NOT-STARTED (docs/governance codification only in this pass)
+- **Repro:** Start transfer → disconnect mid-transfer → reconnect → new transfer fails to start
+- **Repro surface:** Browser path (`localbolt.app`) confirmed. Daemon-only path unknown/unconfirmed.
+- **Root-cause hypothesis:** SDK session/transfer coordination (`ts/bolt-transport-web`) — transfer SM does not reset to terminal state on mid-transfer disconnect; stale `transferId`, queue pointers, and control flags survive across reconnect boundary
+- **Distinct from prior work:**
+  - Q7/C7 (DONE): stale callback pollution (UI shows wrong state) — RECON-XFER-1 is stuck state (cannot start new transfer)
+  - C-STREAM-R1 (DONE): generation guards + disconnect idempotency — RECON-XFER-1 is transfer SM lifecycle coordination
+  - UI-XFER-1 (DONE): emit path correctness — RECON-XFER-1 is disconnect boundary cleanup
+- **Acceptance criteria:** AC-RX-01 through AC-RX-08 (terminal reset, fresh session generation, same-run new transfer, no stale state crossing, post-reconnect controls, regression test, phased consumer verification, WASM/fallback non-regression)
+- **Phased verification:** Phase A (SDK + localbolt-v3), Phase B (localbolt + localbolt-app)
+- **Daemon scope:** Escalation-only (not initial scope)
+- **Dependencies:** T-STREAM-1 (DONE) prerequisite context
+- **PM decisions:** PM-RX-01/02/03 all APPROVED
+- **Docs updated:** `FORWARD_BACKLOG.md` (Item 10), `GOVERNANCE_WORKSTREAMS.md`, `ROADMAP.md`, `STATE.md`, `CHANGELOG.md`
+- Ecosystem tag: `ecosystem-v0.1.95-recon-xfer-1-codify`
+
+---
+
 ## REL-ARCH1 — Multi-Arch Daemon Build/Package Matrix — 2026-03-09
 
 - **REL-ARCH1 DONE:** Deterministic multi-architecture release workflow for bolt-daemon

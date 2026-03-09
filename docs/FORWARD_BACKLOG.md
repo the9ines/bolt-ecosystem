@@ -2,6 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
+> **Updated:** 2026-03-09 (RECON-XFER-1 — transfer reconnect recovery codification)
 > **Codified:** ecosystem-v0.1.86-roadmap-codify-transfer-security-mobile
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -9,7 +10,7 @@
 
 ## Purpose
 
-This document codifies the post-R17 forward backlog: 9 items spanning transfer completion, release architecture, security, platform convergence, and mobile readiness. Items are prioritized into NOW / NEXT / LATER tiers with acceptance criteria defined for NOW and NEXT items. LATER items have AC deferred to stream codification.
+This document codifies the post-R17 forward backlog: 10 items spanning transfer completion, release architecture, security, transfer reliability, platform convergence, and mobile readiness. Items are prioritized into NOW / NEXT / LATER tiers with acceptance criteria defined for NOW and NEXT items. LATER items have AC deferred to stream codification.
 
 Linked from `docs/GOVERNANCE_WORKSTREAMS.md` (summary) and `docs/ROADMAP.md` (dependency map).
 
@@ -21,6 +22,7 @@ Linked from `docs/GOVERNANCE_WORKSTREAMS.md` (summary) and `docs/ROADMAP.md` (de
 NOW:
   B-XFER-1 (transfer pause/resume completion) ─── DONE (daemon-v0.2.35)
   REL-ARCH1 (multi-arch build matrix) ─────────── DONE (daemon-v0.2.38)
+  RECON-XFER-1 (transfer reconnect recovery) ──── NOT-STARTED
 
 NEXT:
   SEC-DR1 (Double Ratchet security gate) ──────── independent (pre-ByteBolt)
@@ -256,6 +258,64 @@ Priority constraint: MOB-RUNTIME1 ≤ PLAT-CORE1 (mobile cannot exceed shared co
 
 ---
 
+## Item 10: RECON-XFER-1 — Transfer Reconnect Recovery After Mid-Transfer Disconnect
+
+**Priority:** NOW
+**Risk:** HIGH
+**Status:** NOT-STARTED
+**Routing:** bolt-core-sdk (`ts/bolt-transport-web` — session + transfer coordination), consumers for verification
+**Category:** Reliability — transfer lifecycle across disconnect boundary
+**Dependencies:** T-STREAM-1 completion (DONE) provides prerequisite context (WASM policy layer)
+
+**Context:** User-facing reliability bug observed: if disconnect occurs during active file transfer, reconnect can get stuck and new transfers fail to start. Browser path (`localbolt.app`) confirmed. Daemon-only repro unknown/unconfirmed.
+
+**Relationship to prior work:** This is a **distinct post-C7 transfer-recovery bug**, not a regression of prior fixes:
+- Q7/C7 (DONE-VERIFIED): addressed stale callback *pollution* (wrong state shown in UI). RECON-XFER-1 is about *stuck state* (transfer path blocked, cannot start new transfer).
+- C-STREAM-R1 (DONE): fixed generation guards and disconnect idempotency. RECON-XFER-1 is about transfer SM + session coordination not resetting on mid-transfer disconnect.
+- UI-XFER-1 (DONE): fixed emit path correctness for pause/resume/cancel. RECON-XFER-1 is about lifecycle coordination across disconnect boundaries.
+
+**Repro:**
+1. Start file transfer between two peers.
+2. Disconnect mid-transfer (network drop, tab close, WebRTC ICE failure).
+3. Reconnect.
+4. Attempt new transfer.
+- **Actual:** Transfer path remains stuck / cannot start new transfer.
+- **Expected:** Clean reconnect and immediate new-transfer capability.
+
+**Root-cause hypothesis (docs-level):**
+1. **SDK session/transfer coordination** (primary suspect) — transfer state machine does not transition to terminal reset on `disconnect` event when transfer is in-progress. `transferId`, queue pointers, and paused/sending/cancel flags survive across reconnect boundary.
+2. **Consumer UI state** (secondary) — even if SDK resets, consumer-side transfer state (progress callbacks, file queue, UI flags) may not be cleaned up on reconnect.
+3. **Daemon lifecycle** (conditional, escalation-only) — only relevant if daemon-side transfer SM also fails to reset on IPC disconnect during active transfer. Currently unconfirmed.
+
+**Acceptance Criteria:**
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-RX-01 | Mid-transfer disconnect transitions transfer/session to terminal reset state | Unit tests showing disconnect during TRANSFERRING → terminal state |
+| AC-RX-02 | Reconnect creates fresh session generation/token; stale callbacks are ignored | Session generation tests across disconnect boundary |
+| AC-RX-03 | New transfer starts successfully in same app run after reconnect (no app restart) | Integration test: disconnect-during-transfer → reconnect → new transfer succeeds |
+| AC-RX-04 | No stale transfer state crosses reconnect (`transferId`, paused/sending/cancel flags, queue pointers) | State inspection tests verifying clean slate after reconnect |
+| AC-RX-05 | Pause/resume/cancel controls remain functional after reconnect | Control tests post-reconnect |
+| AC-RX-06 | Automated regression test covers disconnect-during-transfer → reconnect → resend | CI-gated regression test |
+| AC-RX-07 | Phased consumer verification model: Phase A — SDK + primary reproducer consumer (localbolt-v3 / localbolt.app) verified; Phase B — remaining consumers verified | Per-consumer test evidence |
+| AC-RX-08 | Explicit WASM/fallback non-regression gate: reconnect-resend passes in WASM mode and in forced-fallback mode | Dual-mode test evidence |
+
+**Phased verification model:**
+- **Phase A (required for core fix DONE):** SDK fix + localbolt-v3 (`localbolt.app`) verified as primary reproducer consumer.
+- **Phase B (required for full rollout closeout):** localbolt and localbolt-app verified.
+
+**Daemon scope:** Escalation-only. Not in initial scope unless evidence emerges showing daemon-side lifecycle contribution to the stuck state.
+
+**Open PM Decisions:**
+
+| ID | Decision | Status |
+|----|----------|--------|
+| PM-RX-01 | Confirm severity NOW / HIGH | **APPROVED** |
+| PM-RX-02 | Confirm Phase A primary reproducer (localbolt.app via localbolt-v3) | **APPROVED** |
+| PM-RX-03 | Confirm daemon investigation is escalation-only | **APPROVED** |
+
+---
+
 ## Routing Summary
 
 | Item | Routing | Certainty |
@@ -269,6 +329,7 @@ Priority constraint: MOB-RUNTIME1 ≤ PLAT-CORE1 (mobile cannot exceed shared co
 | PLAT-CORE1 | TBD — architecture decision required | Uncertain |
 | MOB-RUNTIME1 | TBD — architecture decision required | Uncertain |
 | ARCH-WASM1 | bolt-core-sdk + WASM | Confirmed |
+| RECON-XFER-1 | bolt-core-sdk (TS primary) + consumers (verification) | Confirmed |
 
 ---
 
@@ -283,3 +344,6 @@ Priority constraint: MOB-RUNTIME1 ≤ PLAT-CORE1 (mobile cannot exceed shared co
 | PM-FB-05 | PLAT-CORE1: Crate topology decision — when to start architecture work | Stream codification | LATER |
 | PM-FB-06 | MOB-RUNTIME1: Target platforms (iOS-only? Android-only? Both?) | Stream codification | LATER |
 | PM-FB-07 | ARCH-WASM1: Bundle size budget and browser support matrix | Stream codification | LATER |
+| PM-RX-01 | RECON-XFER-1: Confirm severity NOW / HIGH | Execution priority | **APPROVED** |
+| PM-RX-02 | RECON-XFER-1: Confirm Phase A primary reproducer (localbolt.app via localbolt-v3) | Phase A scope | **APPROVED** |
+| PM-RX-03 | RECON-XFER-1: Confirm daemon investigation is escalation-only | Phase A scope | **APPROVED** |

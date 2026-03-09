@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-08 (REL-ARCH1 — multi-arch daemon build/package matrix)
+> **Last Updated:** 2026-03-09 (RECON-XFER-1 — transfer reconnect recovery codification)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -718,6 +718,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | PLAT-CORE1 | Shared Rust core + thin platform UIs | LATER | TBD | NOT-STARTED |
 | MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD | NOT-STARTED |
 | ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | NOT-STARTED |
+| RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | NOT-STARTED |
 
 ---
 
