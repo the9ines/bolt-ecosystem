@@ -5,6 +5,29 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## REL-ARCH1 — Multi-Arch Daemon Build/Package Matrix — 2026-03-08
+
+- **REL-ARCH1 DONE:** Deterministic multi-architecture release workflow for bolt-daemon
+- **Daemon tag:** `daemon-v0.2.37-relarch1-multiarch-matrix` (`3cb3b56`)
+- **New workflow:** `.github/workflows/release.yml` — 5-target matrix build + package + publish
+- **Targets:**
+  - `x86_64-apple-darwin` (macos-13, native)
+  - `aarch64-apple-darwin` (macos-14, native)
+  - `x86_64-pc-windows-msvc` (windows-latest, native)
+  - `x86_64-unknown-linux-gnu` (ubuntu-latest, native)
+  - `aarch64-unknown-linux-gnu` (ubuntu-latest, cross via `cross`)
+- **Shipped binaries:** `bolt-daemon` + `bolt-relay` (per archive)
+- **Excluded:** `bolt-ipc-client` (dev harness)
+- **Packaging:** `.tar.gz` (macOS/Linux), `.zip` (Windows), `SHA256SUMS.txt`
+- **Trigger:** Tag push (`daemon-v*`) + `workflow_dispatch` manual rebuild
+- **CI fix:** Added missing `bolt-core-sdk` checkout to `ci.yml` (broken since T-STREAM-0)
+- **Fmt fix:** Pre-existing `cargo fmt` violation in `src/rendezvous.rs` corrected
+- **Validation:** 362 tests pass, fmt clean, clippy clean, no-panic clean
+- **Residual:** Code signing/notarization (follow-on), `aarch64-pc-windows-msvc` (deferred)
+- Ecosystem tag: `ecosystem-v0.1.93-relarch1-multiarch-matrix`
+
+---
+
 ## T-STREAM-1 P4 CLOSE — WASM Activation + Evidence — 2026-03-08
 
 - **T-STREAM-1 P4 CLOSED:** WASM policy adapter active in production across all three consumers

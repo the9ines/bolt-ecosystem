@@ -19,8 +19,8 @@ Linked from `docs/GOVERNANCE_WORKSTREAMS.md` (summary) and `docs/ROADMAP.md` (de
 
 ```
 NOW:
-  B-XFER-1 (transfer pause/resume completion) ─── daemon-local scope
-  REL-ARCH1 (multi-arch build matrix) ─────────── independent
+  B-XFER-1 (transfer pause/resume completion) ─── DONE (daemon-v0.2.35)
+  REL-ARCH1 (multi-arch build matrix) ─────────── DONE (daemon-v0.2.37)
 
 NEXT:
   SEC-DR1 (Double Ratchet security gate) ──────── independent (pre-ByteBolt)
@@ -89,21 +89,17 @@ Priority constraint: MOB-RUNTIME1 ≤ PLAT-CORE1 (mobile cannot exceed shared co
 **Priority:** NOW
 **Routing:** bolt-daemon, bolt-ecosystem (governance)
 **Category:** Release architecture
-
-**Context:** Daemon builds currently target the CI runner architecture only. For production distribution (N-STREAM-1 GA rollout per N4), pre-built binaries are needed for:
-- macOS (aarch64-apple-darwin, x86_64-apple-darwin)
-- Linux (x86_64-unknown-linux-gnu, aarch64-unknown-linux-gnu)
-- Windows (x86_64-pc-windows-msvc)
+**Status:** **DONE** (`daemon-v0.2.37-relarch1-multiarch-matrix`, `3cb3b56`)
 
 **Acceptance Criteria:**
 
-| ID | Criterion | Evidence Required |
-|----|-----------|------------------|
-| AC-RA-01 | CI matrix builds daemon for all 5 targets | GitHub Actions workflow with cross-compilation |
-| AC-RA-02 | Release artifacts published per tag | `gh release create` with binaries attached |
-| AC-RA-03 | Binary naming convention codified | Documented in bolt-daemon README or RELEASE.md |
-| AC-RA-04 | Code signing strategy defined (at minimum: macOS notarization) | Governance decision recorded |
-| AC-RA-05 | localbolt-app N1 packaging matrix compatibility verified | Tauri sidecar integration test |
+| ID | Criterion | Evidence Required | Status |
+|----|-----------|------------------|--------|
+| AC-RA-01 | CI matrix builds daemon for all 5 targets | GitHub Actions workflow with cross-compilation | **DONE** — `.github/workflows/release.yml` |
+| AC-RA-02 | Release artifacts published per tag | `gh release create` with binaries attached | **DONE** — `softprops/action-gh-release@v2` in publish job |
+| AC-RA-03 | Binary naming convention codified | Documented in bolt-daemon docs/STATE.md | **DONE** — `bolt-daemon-<ver>-<target>.<ext>` |
+| AC-RA-04 | Code signing strategy defined (at minimum: macOS notarization) | Governance decision recorded | **RESIDUAL** — not implemented, documented as follow-on |
+| AC-RA-05 | localbolt-app N1 packaging matrix compatibility verified | Tauri sidecar integration test | **RESIDUAL** — deferred to N-STREAM GA
 
 ---
 

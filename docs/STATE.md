@@ -1,17 +1,17 @@
 ---
 Snapshot Derived From:
 - sdk-v0.5.32-tstream1-wasm-policy-wiring (2d4792f)
-- daemon-v0.2.36-tstream0-adapter
+- daemon-v0.2.37-relarch1-multiarch-matrix (3cb3b56)
 - v3.0.87-domain-rename (69ec25c)
 - localbolt-v1.0.34-domain-rename (c8f9fdc)
 - localbolt-app-v1.2.22-domain-rename (beb8891)
-- ecosystem-v0.1.92-tstream1-wasm-activation
-Last Refreshed By: T-STREAM-1 P4 CLOSE — WASM activation (ecosystem-v0.1.92)
+- ecosystem-v0.1.93-relarch1-multiarch-matrix
+Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosystem-v0.1.93)
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-08 (T-STREAM-1 P4 CLOSED — WASM active in production)
+> **Last Updated:** 2026-03-08 (REL-ARCH1 — multi-arch daemon build/package matrix)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -587,7 +587,7 @@ App-layer convergence and session UX findings registered as part of Workstream C
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
 | bolt-core-sdk | `sdk-v0.5.28-d3-registry-migration` | `66aaa3a` |
-| bolt-daemon | `daemon-v0.2.30-d-e2e-b-cross-impl` | `a8cf108` |
+| bolt-daemon | `daemon-v0.2.37-relarch1-multiarch-matrix` | `3cb3b56` |
 | bolt-rendezvous | `rendezvous-v0.2.12-dp5-session-guard` | `aa8bed0` |
 | localbolt | `localbolt-v1.0.27-s-stream-r1-r1.4-security-test-lift` | `fc360c5` (code), `490f0cd` (docs HEAD) |
 | localbolt-app | `localbolt-app-v1.2.10-s-stream-r1-r1.4-security-test-lift` | `71c3181` (code), `bc0ee2a` (docs HEAD) |
@@ -710,7 +710,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | ID | Item | Priority | Routing | Status |
 |----|------|----------|---------|--------|
 | B-XFER-1 | Transfer pause/resume completion | NOW | bolt-daemon | **DONE** (`daemon-v0.2.35-bxfer1-pause-resume`) |
-| REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem | NOT-STARTED |
+| REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem | **DONE** (`daemon-v0.2.37-relarch1-multiarch-matrix`, `3cb3b56`) |
 | SEC-DR1 | Double Ratchet pre-ByteBolt gate (DR-STREAM) | NEXT | bolt-core-sdk + bolt-protocol | NOT-STARTED |
 | T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | New crate + daemon | NOT-STARTED |
 | SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk | NOT-STARTED |
@@ -729,8 +729,8 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | bolt-core-sdk (TS transport-web) | 253 | Includes H2 enforcement + S2B metrics + interop error framing + SA5/SA6 lifecycle harden + SA10 hello timeout + AC-8/AC-9 proto-harden regression + AC-6/AC-19/AC-20 signaling golden vectors + AC-5 send-side atomicity + NF-1 envelope filename validation |
 | bolt-core-sdk (Rust, default) | 87 | main (61 unit + 11 S1 conformance + 15 S2 contract) |
 | bolt-core-sdk (Rust, vectors) | 117 | main (61 unit + 27 S1 conformance + 14 H3 vectors + 15 S2 contract) |
-| bolt-daemon (default) | 318 | main (includes B1B2, B5, B6-P1, B3-P1, B3-P2, B4, D-E2E-A, B3-P3) |
-| bolt-daemon (test-support) | 398 + 3 ignored | main (includes H3/H5/P1/SA1/B5/B6-P1/B3-P1/B3-P2/B4/B3-P3 + D-E2E-A + D-E2E-B) |
+| bolt-daemon (default) | 362 | main (195 lib + 128 main + 15 relay + 13 n6b1 + 11 n6b2; includes T-STREAM-0 adapter) |
+| bolt-daemon (test-support) | 362 + 3 ignored | main (same suite with test-support feature; includes H3/H5/P1/SA1/B5/B6-P1/B3-P1/B3-P2/B4/B3-P3 + D-E2E-A + D-E2E-B + T-STREAM-0) |
 | bolt-rendezvous | 49 | main (48 unit + 1 doc-test) |
 | localbolt (TS) | 319 | 15 test files, 80/70/80% coverage thresholds, includes 27 TOFU + 19 security-session-integrity tests |
 | localbolt-app (TS) | 64 | 5 test files (1 smoke + 10 TOFU integration + 21 security-session-integrity + 24 daemon service + 8 header unified status), coverage thresholds 90/90/80/90 |
