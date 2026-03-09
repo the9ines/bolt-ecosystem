@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-09 (RECON-XFER-1 Phase B — consumer verification closeout, RECON-XFER-1 DONE)
+> **Last Updated:** 2026-03-09 (RECON-XFER-1 evidence tail correction — RX-EVID-1 registered)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -718,7 +718,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | PLAT-CORE1 | Shared Rust core + thin platform UIs | LATER | TBD | NOT-STARTED |
 | MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD | NOT-STARTED |
 | ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | NOT-STARTED |
-| RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE** — Phase A: `sdk-v0.5.35-recon-xfer1-phase-a-tests`, `v3.0.88-recon-xfer1-phase-a`. Phase B: `localbolt-v1.0.35-recon-xfer1-phase-b`, `localbolt-app-v1.2.23-recon-xfer1-phase-b`. All 8 AC-RX criteria satisfied. No residuals. |
+| RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** — Phase A: `sdk-v0.5.35-recon-xfer1-phase-a-tests`, `v3.0.88-recon-xfer1-phase-a`. Phase B: `localbolt-v1.0.35-recon-xfer1-phase-b`, `localbolt-app-v1.2.23-recon-xfer1-phase-b`. AC-RX-01–07 satisfied. AC-RX-08 automated PASS, manual runtime PENDING (RX-EVID-1). All code work closed. |
 
 ---
 
