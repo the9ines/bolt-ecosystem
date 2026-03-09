@@ -2,16 +2,16 @@
 Snapshot Derived From:
 - sdk-v0.5.32-tstream1-wasm-policy-wiring (2d4792f)
 - daemon-v0.2.36-tstream0-adapter
-- v3.0.82-tstream1-wasm-policy (d6fdb0e)
-- localbolt-v1.0.29-tstream1-wasm-policy (44b8d1b)
-- localbolt-app-v1.2.17-tstream1-wasm-policy (95125dd)
-- ecosystem-v0.1.91-tstream1-wasm-policy-adoption
-Last Refreshed By: T-STREAM-1 P4 consumer adoption (ecosystem-v0.1.91)
+- v3.0.87-domain-rename (69ec25c)
+- localbolt-v1.0.34-domain-rename (c8f9fdc)
+- localbolt-app-v1.2.22-domain-rename (beb8891)
+- ecosystem-v0.1.92-tstream1-wasm-activation
+Last Refreshed By: T-STREAM-1 P4 CLOSE — WASM activation (ecosystem-v0.1.92)
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-08 (T-STREAM-1 P4 consumer adoption — DONE)
+> **Last Updated:** 2026-03-08 (T-STREAM-1 P4 CLOSED — WASM active in production)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---

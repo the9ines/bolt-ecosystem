@@ -5,6 +5,33 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## T-STREAM-1 P4 CLOSE — WASM Activation + Evidence — 2026-03-08
+
+- **T-STREAM-1 P4 CLOSED:** WASM policy adapter active in production across all three consumers
+- **SDK version:** `@the9ines/bolt-transport-web@0.6.7` (npmjs.org) — ships WASM binary in tarball, diagnostic logging
+- **WASM-enabled evidence:** Footer shows `Policy: WASM` on localbolt.app after CSP fix
+- **Forced-fallback evidence:** Footer showed `Policy: Fallback` prior to CSP fix (CSP `script-src 'self'` blocked `WebAssembly.instantiateStreaming`)
+- **CSP fix:** Added `'wasm-unsafe-eval'` to `script-src` in all three consumer `index.html` files
+- **Pause/resume/cancel sanity:** 17 UI-XFER-1 canonical control tests pass in SDK (pause blocks enqueue, resume unblocks, cancel terminal state, no completion after cancel, canonical receive-side routing)
+- **Full test evidence:**
+  - SDK (bolt-transport-web): 27 files, 290 tests PASS
+  - localbolt: 15 files, 319 tests PASS
+  - localbolt-app: 5 files, 64 tests PASS
+  - localbolt-v3: 4 files, 70 tests PASS
+  - **Total: 743 tests, 0 failures**
+- **Domain rename:** All `localbolt.site` references updated to `localbolt.app` across all repos
+- CSP tags:
+  - `localbolt-v1.0.33-csp-wasm` (`cbd43af`)
+  - `localbolt-app-v1.2.21-csp-wasm` (`83a8350`)
+  - `v3.0.86-csp-wasm` (`98610d3`)
+- Domain rename tags:
+  - `localbolt-v1.0.34-domain-rename` (`c8f9fdc`)
+  - `localbolt-app-v1.2.22-domain-rename` (`beb8891`)
+  - `v3.0.87-domain-rename` (`69ec25c`)
+- Ecosystem tag: `ecosystem-v0.1.92-tstream1-wasm-activation`
+
+---
+
 ## T-STREAM-1 P4 — Consumer Adoption (WASM Policy Wiring) — 2026-03-08
 
 - **T-STREAM-1 P4 DONE:** All three consumers adopt `@the9ines/bolt-transport-web@0.6.5` from npmjs.org with WASM policy wiring
