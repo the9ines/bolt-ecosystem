@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-07 (N-STREAM-1 codification — finding series reservation)
+**Last updated:** 2026-03-09 (RECON-XFER-1 Phase B closeout — Q11 registered + DONE-VERIFIED)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -51,6 +51,7 @@
 | Q8 | Verification policy mismatch between runtime behavior and tests/docs | MEDIUM | **DONE-VERIFIED** | C0 resolved: PM policy decision locked — `unverified` blocks file transfer. Codified in `v3.0.70-session-hardening-cpre2` (`cac5e4a`). Runtime behavior, test expectations, and documentation now consistent. |
 | Q9 | App-layer behavior drift across localbolt-v3, localbolt, localbolt-app | MEDIUM | **DONE-VERIFIED** | C2–C5 resolved: all three consumers now depend on `@the9ines/localbolt-core@0.1.0`. Canonical extraction baseline: session state machine, verification state bus, transfer gating policy. Tags: `v3.0.71-localbolt-core-c2`, `localbolt-v1.0.21-c4-localbolt-core`, `localbolt-app-v1.2.4-c5-localbolt-core`. |
 | Q10 | Missing app-layer drift guards (transport guarded, app layer not guarded) | MEDIUM | **DONE-VERIFIED** | C6 complete: CI-enforced core guard scripts (version-pin, single-install, drift) active in localbolt and localbolt-app. `upgrade-localbolt-core.sh` (check + write modes) added to both consumers. localbolt-v3 core drift guard added to CI (`packages/localbolt-web/src`). Workspace exemption documented (v3 is origin workspace — pin/single-install not applicable). Manual drift validation runbook in `docs/LOCALBOLT_CORE_DRIFT_RUNBOOK.md`. |
+| Q11 | Mid-transfer disconnect → reconnect → new transfer stuck (RECON-XFER-1) | HIGH | **DONE-VERIFIED** | Phase A: root cause locked to localbolt-v3 consumer orchestration (RC-1: stale `serviceGeneration`, RC-2: one-shot service reuse). Fix: `createFreshRtcService()` factory + generation guards. SDK: 8 one-shot contract tests (`sdk-v0.5.35-recon-xfer1-phase-a-tests`). localbolt-v3: 16 regression tests (`v3.0.88-recon-xfer1-phase-a`). Phase B: localbolt (`localbolt-v1.0.35-recon-xfer1-phase-b`) and localbolt-app (`localbolt-app-v1.2.23-recon-xfer1-phase-b`) verified — no code changes needed. Both protected by shared `@the9ines/localbolt-core` generation guard pattern (19 + 21 security-session-integrity tests). localbolt-app Tauri IPC bridge lifecycle also clean (Mutex writer, reader thread lifecycle, no cached refs). AC-RX-01 through AC-RX-08 all satisfied. |
 
 ---
 
@@ -117,8 +118,8 @@ Product repos on main are pinned to published SDK releases.
 
 ## SUMMARY
 
-- **Total findings:** 110 (41 prior + 19 SA-series + 11 N-series + 25 AC-series + 9 DP-series + 1 NF-series + 4 Q-series)
-- **DONE / DONE-VERIFIED:** 90 (+Q7 in Batch 6)
+- **Total findings:** 111 (41 prior + 19 SA-series + 11 N-series + 25 AC-series + 9 DP-series + 1 NF-series + 5 Q-series)
+- **DONE / DONE-VERIFIED:** 91 (+Q11 RECON-XFER-1)
 - **CODIFIED:** 12 (O1–O12, PROTO-HARDEN-1 — spec-level, implementation audit pending)
 - **CLOSED-NO-BUG:** 1 (I6)
 - **DONE-BY-DESIGN:** 6 (SA11, SA15, N9, AC-23, AC-24, AC-25)
@@ -500,6 +501,10 @@ DONE/DONE-VERIFIED = 85. OPEN = 0. Total = 106.
 Arithmetic reconciled in ecosystem-v0.1.55-audit-gov-49 —
 Registered: Q7, Q8, Q9, Q10 (app-layer convergence + session UX findings, Workstream C scope).
 DONE/DONE-VERIFIED = 85. OPEN = 4. Total = 110.
+
+Arithmetic reconciled in ecosystem-v0.1.97-recon-xfer1-phase-b —
+Registered + closed: Q11 (RECON-XFER-1 mid-transfer disconnect → reconnect stuck).
+DONE/DONE-VERIFIED = 91. OPEN = 0. Total = 111.
 
 ---
 

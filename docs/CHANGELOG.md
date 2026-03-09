@@ -5,6 +5,22 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## RECON-XFER-1 Phase B — Consumer Verification Closeout — 2026-03-09
+
+- **RECON-XFER-1 PHASE B DONE:** Both remaining consumers verified — no code changes required
+- **localbolt (v1.0.35):** Already protected via `@the9ines/localbolt-core` generation guards. 19 security-session-integrity tests cover stale callback rejection. 319 tests pass, build green.
+- **localbolt-app (v1.2.23):** Already protected via shared SDK (web layer) + Tauri IPC bridge lifecycle (Rust layer). No Tauri command caches refs across reconnect. Bridge writer Mutex + reader thread lifecycle prevents stale callbacks. 146 tests pass (64 web + 82 Rust), build green.
+- **AC-RX-07 SATISFIED:** Both remaining consumers verified — no consumer-specific patches needed. Defenses come from shared `@the9ines/localbolt-core` generation guard pattern (wired in all consumers since Q7/C7 closure).
+- **AC-RX-08 SATISFIED:** WASM policy adapter is orthogonal to reconnect-resend path (transfer scheduling/backpressure only, not session lifecycle). Both consumers build with WASM bundle. Forced-fallback uses identical session lifecycle. Manual runtime confirmation deferred (requires live peer pairs).
+- **No daemon changes** — no escalation triggered
+- **RECON-XFER-1 RECOMMENDATION: DONE** — all 8 acceptance criteria satisfied across Phase A + Phase B. No residuals.
+- **Tags:**
+  - `localbolt-v1.0.35-recon-xfer1-phase-b` — docs-only (no code change)
+  - `localbolt-app-v1.2.23-recon-xfer1-phase-b` — docs-only (no code change)
+  - `ecosystem-v0.1.97-recon-xfer1-phase-b` — this commit
+
+---
+
 ## RECON-XFER-1 Phase A — Transfer Reconnect Recovery Fix — 2026-03-09
 
 - **RECON-XFER-1 PHASE A DONE:** Root-cause locked and fix applied
