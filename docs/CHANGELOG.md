@@ -5,6 +5,30 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## T-STREAM-1 P4 — Consumer Adoption (WASM Policy Wiring) — 2026-03-08
+
+- **T-STREAM-1 P4 DONE:** All three consumers adopt `@the9ines/bolt-transport-web@0.6.5` from npmjs.org with WASM policy wiring
+- SDK tag: `sdk-v0.5.32-tstream1-wasm-policy-wiring` (`2d4792f`)
+- Consumer tags:
+  - `localbolt-v1.0.29-tstream1-wasm-policy` (`44b8d1b`)
+  - `localbolt-app-v1.2.17-tstream1-wasm-policy` (`95125dd`)
+  - `v3.0.82-tstream1-wasm-policy` (`d6fdb0e`)
+- Ecosystem tag: `ecosystem-v0.1.91-tstream1-wasm-policy-adoption`
+- **Registry migration:** All consumers switched from GitHub Packages to npmjs.org for `@the9ines` scope
+- **WASM external pattern:** All three consumers mark `bolt_transfer_policy_wasm` as rollup external — dynamic import in `PolicyAdapter.js` is wrapped in try/catch; `TsFallbackPolicyAdapter` activates at runtime when WASM unavailable
+- **SDK publish fix:** `fix(ci)` commits (`5762927`, `a9590b1`) patch npmjs publish workflow to override scoped `.npmrc`
+- **Build evidence:**
+  - localbolt: PASS (vite build, 58 modules, 319 tests)
+  - localbolt-app: PASS (vite build, 62 modules, 64 tests)
+  - localbolt-v3: PASS (vite build, 62 modules, 124 tests — 70 localbolt-web + 54 localbolt-core)
+- **Manual runtime evidence:** Deferred to Human Scope (WASM transfer, fallback transfer, pause/resume/cancel per consumer)
+- **Files changed (localbolt):** `web/.npmrc`, `web/package-lock.json`, `web/vite.config.ts`
+- **Files changed (localbolt-app):** `web/package-lock.json`, `web/vite.config.ts`
+- **Files changed (localbolt-v3):** `.npmrc`, `package-lock.json`, `packages/localbolt-web/.npmrc`, `packages/localbolt-web/vite.config.ts`
+- **Files changed (bolt-core-sdk):** `.github/workflows/publish-transport-web-npmjs.yml` (CI fix only)
+
+---
+
 ## S2A — Transfer Policy Substantive Logic — 2026-03-08
 
 - **S2A DONE:** Substantive transfer policy replacing trivial stub, pre-WASM

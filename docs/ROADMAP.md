@@ -547,7 +547,7 @@ Full specification in `docs/GOVERNANCE_WORKSTREAMS.md` (S-STREAM-R1 section).
 **LATER:**
 | ID | Item | Routing | Status |
 |----|------|---------|--------|
-| T-STREAM-1 | Browser selective WASM integration | bolt-core-sdk (TS) + WASM | NOT-STARTED |
+| T-STREAM-1 | Browser selective WASM integration | bolt-core-sdk (TS) + WASM + consumers | **DONE** (`sdk-v0.5.32-tstream1-wasm-policy-wiring`, consumers adopted) |
 | PLAT-CORE1 | Shared Rust core + thin platform UIs | TBD | NOT-STARTED |
 | MOB-RUNTIME1 | Mobile embedded runtime model | TBD | NOT-STARTED |
 | ARCH-WASM1 | WASM protocol engine (medium risk) | bolt-core-sdk + WASM | NOT-STARTED |
@@ -565,7 +565,7 @@ NEXT:                         │
   SEC-CORE2 ◄── S1 (DONE)
                               │
 LATER:                        │
-  T-STREAM-1 ◄── T-STREAM-0  │
+  T-STREAM-1 ◄── T-STREAM-0  │  ✓ DONE (sdk-v0.5.32, consumers adopted)
   PLAT-CORE1 ◄── T-STREAM-0 + SEC-CORE2
   MOB-RUNTIME1 ◄── PLAT-CORE1 (priority ≤ PLAT-CORE1)
   ARCH-WASM1 ◄── T-STREAM-0 + S4 gate

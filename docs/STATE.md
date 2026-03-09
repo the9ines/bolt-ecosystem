@@ -1,17 +1,17 @@
 ---
 Snapshot Derived From:
-- sdk-v0.5.31-s2a-transfer-policy-substantive (c67bd68)
+- sdk-v0.5.32-tstream1-wasm-policy-wiring (2d4792f)
 - daemon-v0.2.36-tstream0-adapter
-- v3.0.81-uixfer1-control-adoption (92c3630)
-- localbolt-v1.0.28-uixfer1-control-adoption (d59ae82)
-- localbolt-app-v1.2.16-uixfer1-control-adoption (205fcb8)
-- ecosystem-v0.1.90-s2a-transfer-policy-substantive
-Last Refreshed By: S2A transfer policy substantive (ecosystem-v0.1.90)
+- v3.0.82-tstream1-wasm-policy (d6fdb0e)
+- localbolt-v1.0.29-tstream1-wasm-policy (44b8d1b)
+- localbolt-app-v1.2.17-tstream1-wasm-policy (95125dd)
+- ecosystem-v0.1.91-tstream1-wasm-policy-adoption
+Last Refreshed By: T-STREAM-1 P4 consumer adoption (ecosystem-v0.1.91)
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-08 (S2A transfer policy substantive — DONE)
+> **Last Updated:** 2026-03-08 (T-STREAM-1 P4 consumer adoption — DONE)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -714,7 +714,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | SEC-DR1 | Double Ratchet pre-ByteBolt gate (DR-STREAM) | NEXT | bolt-core-sdk + bolt-protocol | NOT-STARTED |
 | T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | New crate + daemon | NOT-STARTED |
 | SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk | NOT-STARTED |
-| T-STREAM-1 | Browser selective WASM integration | LATER | bolt-core-sdk + WASM | NOT-STARTED |
+| T-STREAM-1 | Browser selective WASM integration | LATER | bolt-core-sdk + WASM + consumers | **SDK DONE, CONSUMERS ADOPTED** (`sdk-v0.5.32`, `localbolt-v1.0.29`, `localbolt-app-v1.2.17`, `v3.0.82`) — manual runtime evidence pending |
 | PLAT-CORE1 | Shared Rust core + thin platform UIs | LATER | TBD | NOT-STARTED |
 | MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD | NOT-STARTED |
 | ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | NOT-STARTED |
