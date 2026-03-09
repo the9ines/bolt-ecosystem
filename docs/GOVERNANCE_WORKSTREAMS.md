@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-09 (RECON-XFER-1 — transfer reconnect recovery codification)
-> **Tag:** ecosystem-v0.1.95-recon-xfer-1-codify
+> **Updated:** 2026-03-09 (SEC-DR1 P0 — stream kickoff, docs codification + read-only audit)
+> **Tag:** ecosystem-v0.1.99-sec-dr1-p0-codify
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -3082,6 +3082,491 @@ No check is duplicated across tiers. No check contradicts its source phase defin
 
 ---
 
+## DR-STREAM-1 — Double Ratchet Pre-ByteBolt Security Gate
+
+> **Stream ID:** DR-STREAM-1
+> **Backlog Item:** SEC-DR1
+> **Priority:** NEXT (pre-ByteBolt gate — blocks ByteBolt start)
+> **Repos:** bolt-core-sdk (Rust + TS), bolt-protocol (spec amendment)
+> **Codified:** ecosystem-v0.1.99-sec-dr1-p0-codify (2026-03-09)
+> **Status:** P0 (stream kickoff — docs codification + read-only audit). No code changes.
+
+---
+
+### Context & Motivation
+
+Current Bolt protocol uses **static ephemeral keys per connection** with no mid-session key rotation (SEC-05). Each message within a session is encrypted with the same ephemeral shared secret, differentiated only by a fresh random nonce. This provides:
+
+- **Session-level forward secrecy:** Ephemeral keys discarded on disconnect protect past sessions.
+- **No intra-session forward secrecy:** Compromise of the ephemeral secret key during an active session exposes **all messages** in that session.
+- **No backward secrecy:** No mechanism to recover from mid-session key compromise.
+
+For **LocalBolt** (short-lived WebRTC sessions, typically minutes), this is acceptable. For **ByteBolt** (persistent relay-mediated connections, potentially hours/days), the security posture degrades significantly:
+
+- Longer sessions increase the window of vulnerability for ephemeral key compromise.
+- Relay-mediated transport adds an additional trust boundary (relay sees encrypted traffic).
+- Persistent connections mean session-level rotation is insufficient.
+
+**Double Ratchet** (or equivalent continuous key agreement protocol) provides:
+
+- Per-message forward secrecy (compromise of message key N does not reveal message N-1).
+- Self-healing after compromise (new DH ratchet step restores secrecy).
+- Backward secrecy (future messages protected even if current state is compromised, after next DH ratchet).
+
+This is a **pre-ByteBolt security gate**: ByteBolt development MUST NOT begin until DR-STREAM-1 reaches at minimum DR-4 (wire integration complete with backward-compatible negotiation).
+
+---
+
+### Scope Guardrails
+
+| ID | Guardrail |
+|----|-----------|
+| DR-G1 | Browser retains native WebRTC transport — no browser webrtc-rs swap |
+| DR-G2 | Ratchet layer MUST be transport-independent (Core, not Profile) |
+| DR-G3 | Backward compatibility MUST be explicit, testable, and auditable |
+| DR-G4 | No retroactive rewrites of completed streams |
+| DR-G5 | No protocol-breaking changes without capability negotiation gate |
+| DR-G6 | Rust is reference implementation; TS achieves parity via shared vectors |
+| DR-G7 | Rendezvous server requires ZERO changes (confirmed opaque to payload) |
+| DR-G8 | Consumer apps (localbolt, localbolt-app, localbolt-v3) are OUT OF SCOPE for DR-STREAM-1 |
+
+---
+
+### P0 Audit Summary (Read-Only)
+
+#### bolt-core-sdk
+
+**Rust (`rust/bolt-core/src/`):**
+- `crypto.rs`: `KeyPair` (X25519), `seal_box_payload()` / `open_box_payload()` — NaCl box with fresh 24-byte random nonce per message. No KDF, no chain state. `Drop` impl volatile-zeros secret key.
+- `identity.rs`: `IdentityKeyPair` (persistent, TOFU-pinned). No persistence logic in core — transport responsibility.
+- `sas.rs`: `compute_sas()` — SHA-256 over sorted identity + ephemeral keys. Deterministic, commutative.
+- `constants.rs`: `NONCE_LENGTH=24`, `PUBLIC_KEY_LENGTH=32`, `SECRET_KEY_LENGTH=32`, `BOX_OVERHEAD=16`, `BOLT_VERSION=1`, `CAPABILITY_NAMESPACE="bolt."`.
+- `errors.rs`: 22 wire error codes (11 PROTOCOL + 11 ENFORCEMENT).
+
+**TypeScript (`ts/bolt-core/src/` + `ts/bolt-transport-web/src/`):**
+- `crypto.ts`: TweetNaCl `box.keyPair()`, same seal/open pattern as Rust. No explicit zeroization (done at WebRTCService disconnect level).
+- `WebRTCService.ts`: Session state machine (`pre_hello` / `post_hello` / `closed`). Ephemeral `keyPair`, `remotePublicKey`, `remoteIdentityKey` — all nulled on disconnect.
+- `HandshakeManager.ts`: HELLO exchange, TOFU verify, SAS compute, capability intersection. 5s timeout (SA10). Reentrancy guard (SA12).
+- `EnvelopeCodec.ts`: ProfileEnvelopeV1 `{type: "profile-envelope", version: 1, encoding: "base64", payload: sealBoxPayload_output}`. Gated by `bolt.profile-envelope-v1` capability.
+
+**Test Vectors (5 JSON files in `ts/bolt-core/__tests__/vectors/`):**
+- `box-payload.vectors.json` (4 seal + 4 corrupt vectors)
+- `envelope-open.vectors.json` (3 envelope round-trip cases)
+- `sas.vectors.json` (2 SAS determinism cases)
+- `web-hello-open.vectors.json` (1 HELLO open case)
+- `framing.vectors.json` (wire format layout)
+
+**Cross-language model:** TS generates vectors → JSON → Rust loads via serde. S1 conformance harness (27 tests) verifies parity.
+
+#### bolt-protocol
+
+- **Envelope wire format:** `senderEphemeralKey` (32B cleartext), `nonce` (24B), `ciphertext` (variable). Receiver needs sender ephemeral key before decryption.
+- **HELLO payload (encrypted):** `bolt_version`, `identity_key`, `capabilities[]`, `encoding`, optional `limits`.
+- **Capability negotiation:** Intersection model. Unknown capabilities ignored. Immutable after HANDSHAKE_COMPLETE.
+- **No ratchet in v1.** PROTOCOL.md Appendix B notes: "v2 will define explicit KEY_ROTATE messages with SAS confirmation."
+- **Key constraint:** Ephemeral keys "MUST NOT be rotated mid-session in v1" (§3.3).
+
+#### bolt-daemon
+
+- `session.rs`: `SessionContext` holds `local_keypair: KeyPair`, `remote_public_key`, `negotiated_capabilities`, `hello_state`.
+- Imports `bolt-core` (path dep) and `bolt-rendezvous-protocol` (git tag dep `rendezvous-v0.2.6-clean-1`).
+- **Shared ratchet crate feasibility: HIGH.** Architecture supports `bolt-core-sdk/rust/bolt-ratchet` as new workspace member consumed by both SDK and daemon.
+- Version: `daemon-v0.2.38`, 362 tests, Phase REL-ARCH1 complete.
+
+#### bolt-rendezvous
+
+- **Fully opaque to envelope contents.** `Signal { to, payload: serde_json::Value }` — payload passed through unchanged. Zero crypto operations. Zero format assumptions.
+- **CONFIRMED: No rendezvous changes needed for DR-STREAM-1.**
+- Version: `rendezvous-v0.2.12-dp5-session-guard`, 49 tests.
+
+---
+
+### DR-STREAM-1 Phase Table
+
+| Phase | Description | Serial Gate | Dependencies | Parallelizable With | Status |
+|-------|-------------|-------------|--------------|---------------------|--------|
+| **DR-0** | Spec + capability negotiation lock | YES — gates all subsequent phases | None (independent) | — | NOT-STARTED |
+| **DR-1** | Rust reference ratchet state machine | YES — gates DR-2, DR-3 | DR-0 complete | — | NOT-STARTED |
+| **DR-2** | TypeScript parity implementation | NO | DR-1 complete (vectors available) | DR-3 (partial — can start harness while TS impl proceeds) | NOT-STARTED |
+| **DR-3** | Cross-language vectors + conformance harness | NO | DR-1 complete | DR-2 (harness can scaffold before TS impl complete) | NOT-STARTED |
+| **DR-4** | Wire integration + compatibility rollout gates | YES — gates ByteBolt start | DR-2 + DR-3 complete | — | NOT-STARTED |
+| **DR-5** | Default-on + legacy path deprecation decision | PM decision gate | DR-4 deployed + burn-in data | — | NOT-STARTED |
+
+#### Dependency DAG
+
+```
+DR-0 (spec lock)
+  │
+  ▼
+DR-1 (Rust reference)
+  │
+  ├──────────────┐
+  ▼              ▼
+DR-2 (TS)    DR-3 (vectors)     ← partially parallelizable
+  │              │
+  └──────┬───────┘
+         ▼
+DR-4 (wire integration + rollout)
+         │
+         ▼
+DR-5 (default-on decision)       ← PM gate, not engineering
+```
+
+**Serial gates:**
+- DR-0 is a hard gate: no implementation may begin without locked spec.
+- DR-1 is a hard gate: TS parity and vector corpus require Rust reference to exist.
+- DR-4 is the **ByteBolt gate**: ByteBolt development blocked until DR-4 complete.
+- DR-5 is a PM decision gate, not an engineering gate.
+
+**Parallelization:**
+- DR-2 and DR-3 are partially parallelizable after DR-1:
+  - DR-3 conformance harness scaffolding can begin immediately after DR-1 (Rust vectors available).
+  - DR-2 TS implementation can proceed in parallel with DR-3 harness setup.
+  - DR-3 parity verification requires DR-2 completion.
+  - Final DR-3 sign-off requires both DR-1 Rust and DR-2 TS implementations passing all vectors.
+
+---
+
+### Backward-Compatibility Policy
+
+#### Capability Negotiation Matrix
+
+| Sender DR Support | Receiver DR Support | Behavior | Security Level | Fail Mode |
+|-------------------|---------------------|----------|----------------|-----------|
+| YES | YES | Full double ratchet | Per-message FS + self-healing | — |
+| YES | NO | **Downgrade to static ephemeral** | Session-level FS only (current v1) | Fail-open (downgrade-with-warning) |
+| NO | YES | **Downgrade to static ephemeral** | Session-level FS only (current v1) | Fail-open (downgrade-with-warning) |
+| NO | NO | Static ephemeral (current behavior) | Session-level FS only | — |
+| YES | MALFORMED | **Reject + ERROR** | N/A | Fail-closed |
+| MALFORMED | YES | **Reject + ERROR** | N/A | Fail-closed |
+
+#### Downgrade Options Analysis
+
+| Option | Description | Security Tradeoff | Recommendation |
+|--------|-------------|-------------------|----------------|
+| **A: Refuse** | Peers without DR capability cannot connect | Maximum security; breaks all existing clients immediately | **NOT RECOMMENDED** — too disruptive for phased rollout |
+| **B: Downgrade-with-warning** | Fall back to static ephemeral; surface warning to user via `onVerificationState` | Users see reduced security indicator; connection still functions | **RECOMMENDED for DR-4** — enables phased rollout without breaking existing clients |
+| **C: Silent-downgrade** | Fall back to static ephemeral; no user indication | Users unaware of reduced security | **NOT RECOMMENDED** — violates transparency principle; auditors cannot verify deployment state |
+
+#### Phase-by-Phase Fail Mode
+
+| Phase | Default Behavior | Rationale |
+|-------|-----------------|-----------|
+| DR-4 (dark launch) | Fail-open (downgrade-with-warning) | Enable testing with mixed fleet; no user disruption |
+| DR-4 (opt-in) | Fail-open (downgrade-with-warning) | Early adopters can enable; non-adopters unaffected |
+| DR-5 (default-on) | PM decision: fail-open or fail-closed | Trade-off between security enforcement vs backward compat |
+| DR-5 (legacy deprecation) | Fail-closed (refuse non-DR peers) | Only after sufficient migration window; PM-approved |
+
+#### Capability String
+
+```
+bolt.double-ratchet-v1
+```
+
+Follows existing `bolt.*` namespace convention (CAPABILITY_NAMESPACE constant). Negotiated via HELLO `capabilities[]` intersection — identical mechanism to `bolt.file-hash` and `bolt.profile-envelope-v1`.
+
+---
+
+### Wire Delta Summary
+
+#### Current Envelope (ProfileEnvelopeV1)
+
+```json
+{
+  "type": "profile-envelope",
+  "version": 1,
+  "encoding": "base64",
+  "payload": "<base64(nonce[24] || ciphertext[N+16])>"
+}
+```
+
+**Overhead per message:** 24 bytes nonce + 16 bytes Poly1305 MAC = 40 bytes crypto overhead.
+
+#### Proposed DR Envelope (ProfileEnvelopeV2 — name TBD at DR-0)
+
+```json
+{
+  "type": "profile-envelope",
+  "version": 2,
+  "encoding": "base64",
+  "dh": "<base64(ratchet_public_key[32])>",
+  "pn": <previous_chain_length>,
+  "n": <message_number>,
+  "payload": "<base64(nonce[24] || ciphertext[N+16])>"
+}
+```
+
+**New fields:**
+
+| Field | Type | Size | Purpose |
+|-------|------|------|---------|
+| `dh` | base64 string | 32 bytes (44 chars encoded) | Current ratchet public key (DH ratchet step) |
+| `pn` | uint32 | 4 bytes (JSON number) | Previous sending chain length (enables out-of-order decryption) |
+| `n` | uint32 | 4 bytes (JSON number) | Message number in current sending chain |
+
+**Overhead delta per message:**
+
+| Component | Current | DR | Delta |
+|-----------|---------|-----|-------|
+| Crypto overhead | 40 B | 40 B | 0 (same NaCl box) |
+| Wire header | ~95 B JSON | ~175 B JSON | +~80 B |
+| `dh` field | — | 44 B (base64) + key | +~50 B |
+| `pn` field | — | 1–5 B (JSON int) | +~8 B |
+| `n` field | — | 1–5 B (JSON int) | +~6 B |
+| `version` field | `1` | `2` | 0 B |
+
+**Estimated per-message overhead increase:** ~80 bytes JSON (~4% increase on a typical 2KB file chunk message). Negligible for file transfer workload.
+
+#### What Remains Unchanged
+
+| Component | Change? | Notes |
+|-----------|---------|-------|
+| NaCl box algorithm (XSalsa20-Poly1305) | NO | Same AEAD primitive; message key changes, not algorithm |
+| Nonce generation (24B CSPRNG) | NO | Same nonce strategy per sealed payload |
+| HELLO message format | MINOR | Add `bolt.double-ratchet-v1` to capabilities array |
+| SAS computation | NO | Still binds identity + ephemeral keys; ratchet keys NOT in SAS |
+| TOFU pinning | NO | Identity keys unchanged; ratchet keys are session-internal |
+| Identity key lifecycle | NO | Persistent, TOFU-pinned (unchanged) |
+| Signaling/rendezvous protocol | NO | Opaque relay — confirmed zero changes |
+| Error codes | MINOR | Add 2-3 new ratchet-specific error codes |
+| Ping/Pong (unprotected) | NO | Remain outside envelope |
+
+#### Versioning Strategy
+
+- **Envelope version bump:** `version: 1` → `version: 2` in ProfileEnvelopeV1/V2.
+- **Backward compat:** Peers negotiating `bolt.double-ratchet-v1` use version 2 envelopes. Peers without the capability continue using version 1.
+- **No major protocol version bump required.** Capability negotiation handles the transition without changing `bolt_version` in HELLO.
+
+---
+
+### Key Material Storage Impact
+
+#### Current Key State (v1)
+
+| Key Material | Persisted? | Location | Protection |
+|--------------|-----------|----------|------------|
+| Identity keypair | YES | IndexedDB (browser), `~/.bolt/identity.key` (daemon) | Per-origin (browser), 0600 (daemon) |
+| Ephemeral session keypair | NO (memory only) | Process memory | Volatile-zeroed on Drop (Rust), loop-zeroed on disconnect (TS) |
+| Remote ephemeral public key | NO (memory only) | Process memory | Zeroed on disconnect |
+| Remote identity public key | NO (memory only) | Process memory | Zeroed on disconnect |
+| TOFU pin store | YES | IndexedDB (browser), `~/.bolt/pins/` (daemon) | Per-origin (browser), 0600 (daemon) |
+
+#### DR Ratchet State (New — Must Persist Per Active Session)
+
+| Key Material | Must Persist? | Lifetime | Size | Sensitivity |
+|--------------|--------------|----------|------|-------------|
+| Root key (RK) | YES (if session persistence desired) | Per DH ratchet step | 32 B | HIGH — derives all chain keys |
+| Sending chain key (CKs) | YES (if session persistence desired) | Per sending chain | 32 B | HIGH — derives message keys |
+| Receiving chain key (CKr) | YES (if session persistence desired) | Per receiving chain | 32 B | HIGH — derives message keys |
+| Sending ratchet keypair | YES (if session persistence desired) | Per DH ratchet step | 64 B (pub+sec) | CRITICAL — ratchet DH secret |
+| Message counter (Ns) | YES | Per sending chain | 4 B | LOW |
+| Message counter (Nr) | YES | Per receiving chain | 4 B | LOW |
+| Previous chain length (PN) | YES | Per DH ratchet step | 4 B | LOW |
+| Skipped message keys | YES (bounded buffer) | Until consumed or evicted | 32 B × max_skip | HIGH — decrypt out-of-order messages |
+
+**Total per-session ratchet state:** ~200 B base + (32 B × `MAX_SKIP`) for skipped keys.
+
+#### Interaction with Existing Invariants
+
+| Invariant | Impact | Resolution |
+|-----------|--------|------------|
+| **SEC-04** (ephemeral secret keys MUST NOT be persisted to disk) | **TENSION** — ratchet DH secret is ephemeral-like but may need persistence for session resumption | **Decision required (PM-DR-03):** Option A: ratchet state is memory-only (no session resumption — matches current SEC-04 strictly). Option B: ratchet state is persisted with equivalent protection to identity key (file-based, 0600, encrypted-at-rest). |
+| **SEC-05** (ephemeral keys MUST be discarded on disconnection) | **COMPATIBLE** — ratchet state can be discarded on disconnect (fresh ratchet on reconnect, same as fresh ephemeral today) | If session resumption is NOT a goal, SEC-05 applies unchanged. Ratchet state zeroed on disconnect. |
+| **SEC-01** (fresh CSPRNG nonce per envelope) | **UNCHANGED** — nonce generation is independent of ratchet | No impact. |
+| **SEC-03** (fresh ephemeral keypair per connection) | **MODIFIED** — initial ephemeral keypair bootstraps the ratchet; subsequent DH ratchet steps generate new keypairs mid-session | Spec must clarify: initial keypair is per-connection (SEC-03 preserved). Ratchet keypairs are per-DH-step (new invariant). |
+
+#### Storage Location & Protection
+
+| Platform | Ratchet State Location | Protection | Cleanup |
+|----------|----------------------|------------|---------|
+| Browser (TS) | Memory only (no IndexedDB) | GC on tab close; explicit zero on disconnect | Disconnect handler zeros all ratchet state |
+| Daemon (Rust) | Memory only (no disk) | `Drop` impl volatile-zeros | Process exit or session disconnect |
+| Future (session resumption) | TBD — requires PM-DR-03 decision | Encrypted-at-rest, 0600, per-session file | Explicit cleanup on session close + TTL expiry |
+
+**Recommendation:** Start with **memory-only ratchet state** (no persistence). This preserves SEC-04/SEC-05 invariants exactly. Session resumption (persisted ratchet state) is a future enhancement that requires separate PM approval and security review.
+
+---
+
+### Test / Vector Strategy
+
+#### Vector Corpus Format
+
+| Field | Value |
+|-------|-------|
+| Format | JSON (matching existing `__tests__/vectors/*.vectors.json` pattern) |
+| Ownership | Generated by **Rust reference** (DR-1), consumed by both Rust and TS |
+| Location | `bolt-core-sdk/rust/bolt-core/test-vectors/ratchet/` (source of truth) |
+| TS copy | `bolt-core-sdk/ts/bolt-core/__tests__/vectors/ratchet/` (generated, not hand-authored) |
+| Generation script | `bolt-core-sdk/rust/bolt-core/src/bin/generate-ratchet-vectors.rs` |
+
+**Note:** This reverses the current TS-generates-vectors model (per SEC-CORE2 direction: Rust becomes vector authority).
+
+#### Vector Categories
+
+| Category | Purpose | Minimum Count |
+|----------|---------|---------------|
+| `ratchet-init.vectors.json` | Root key derivation from initial DH | 3 |
+| `ratchet-symmetric.vectors.json` | Symmetric ratchet step (CK → MK derivation) | 5 |
+| `ratchet-dh-step.vectors.json` | DH ratchet step (new keypair, root key update) | 4 |
+| `ratchet-encrypt-decrypt.vectors.json` | Full message encrypt/decrypt with ratchet state | 6 |
+| `ratchet-out-of-order.vectors.json` | Skipped message key recovery | 4 |
+| `ratchet-state-serialization.vectors.json` | Ratchet state serialize/deserialize determinism | 3 |
+| `ratchet-error.vectors.json` | Corrupt/invalid ratchet messages | 5 |
+| `ratchet-interop.vectors.json` | Cross-language round-trip (Rust seal → TS open, TS seal → Rust open) | 4 |
+
+#### Parity Matrix
+
+| Test Type | Rust | TS | Cross-Language |
+|-----------|------|-----|----------------|
+| Unit (ratchet SM) | DR-1 | DR-2 | — |
+| Vector determinism | DR-1 | DR-2 | DR-3 |
+| Interop (seal/open) | DR-3 | DR-3 | DR-3 (primary) |
+| Conformance harness | DR-3 | DR-3 | DR-3 |
+| Integration (handshake + ratchet) | DR-4 | DR-4 | DR-4 |
+| Adversarial (malformed, replay) | DR-3 | DR-3 | DR-3 |
+
+#### Conformance Gate
+
+DR-3 completion requires:
+1. All vector categories above pass in both Rust and TS.
+2. Cross-language interop: Rust-sealed messages decrypt in TS, and vice versa.
+3. State serialization: Rust and TS produce identical ratchet state given identical inputs.
+4. Adversarial: Both implementations reject malformed ratchet messages identically.
+5. CI gate: `cargo test --features vectors` (Rust) + `npm test` (TS) must both pass.
+
+---
+
+### Acceptance Criteria
+
+#### DR-0 — Spec + Capability Negotiation Lock
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-DR-01 | Threat model documents relay-mediated session risks (ByteBolt-specific) | Published analysis in `bolt-protocol/docs/` or `bolt-ecosystem/docs/` |
+| AC-DR-02 | Protocol amendment drafted with MUST-level ratchet invariants | PROTOCOL.md PR or draft section (§new) |
+| AC-DR-03 | Capability string `bolt.double-ratchet-v1` specified with negotiation rules | Spec section with all 6 matrix cases |
+| AC-DR-04 | Key schedule formally specified: ratchet inputs, outputs, state transitions | Spec section with KDF chain diagram |
+| AC-DR-05 | Wire delta locked: envelope v2 field names, types, sizes, encoding | Spec section |
+| AC-DR-06 | Backward compatibility policy locked: downgrade-with-warning as default | Spec section |
+| AC-DR-07 | Key storage decision locked (memory-only vs persisted) | PM approval recorded |
+| AC-DR-08 | New error codes defined (ratchet-specific) | Spec section + constants update |
+| AC-DR-09 | Skipped message key policy defined (MAX_SKIP bound, eviction) | Spec section |
+| AC-DR-10 | SAS computation unchanged (confirmed no ratchet key input) | Spec confirmation note |
+
+#### DR-1 — Rust Reference Ratchet State Machine
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-DR-11 | `bolt-ratchet` crate created in `bolt-core-sdk/rust/` workspace | Crate compiles with `cargo build` |
+| AC-DR-12 | Root key, chain key, message key KDF chain implemented | Unit tests for each derivation step |
+| AC-DR-13 | DH ratchet step: new keypair generation + root key update | Unit tests |
+| AC-DR-14 | Symmetric ratchet: chain key advancement + message key derivation | Unit tests |
+| AC-DR-15 | Encrypt/decrypt using ratchet-derived message keys | Round-trip tests |
+| AC-DR-16 | Out-of-order message handling with skipped key buffer | Skipped key tests with MAX_SKIP enforcement |
+| AC-DR-17 | Ratchet state serialization (deterministic, for vector generation) | Serialization round-trip tests |
+| AC-DR-18 | Vector generation binary produces all vector categories | JSON vector files generated and committed |
+| AC-DR-19 | `Drop` impl volatile-zeros all secret key material in ratchet state | Zeroization test (SA4 pattern) |
+| AC-DR-20 | No transport dependencies in `bolt-ratchet` crate | Dependency audit |
+| AC-DR-21 | All existing `bolt-core` tests pass (no regression) | `cargo test` |
+
+#### DR-2 — TypeScript Parity Implementation
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-DR-22 | TS ratchet module in `ts/bolt-core/src/ratchet/` | Module compiles |
+| AC-DR-23 | All Rust-generated vectors pass in TS | Vector test suite |
+| AC-DR-24 | Key zeroization on disconnect (loop-zero pattern per SA7/SA19) | Zeroization tests |
+| AC-DR-25 | API parity with Rust (same state machine interface) | Interface comparison |
+
+#### DR-3 — Cross-Language Vectors + Conformance Harness
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-DR-26 | Cross-language interop: Rust → TS and TS → Rust round-trip | Interop vector tests |
+| AC-DR-27 | Conformance harness (extends S1 pattern) with ratchet test domain | CI-gated harness |
+| AC-DR-28 | Adversarial vectors: malformed dh, invalid pn/n, replay, MAX_SKIP exceeded | Adversarial test suite |
+| AC-DR-29 | State determinism: identical inputs → identical ratchet state in both langs | State comparison vectors |
+
+#### DR-4 — Wire Integration + Compatibility Rollout Gates
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-DR-30 | Handshake integration: `bolt.double-ratchet-v1` capability negotiated in HELLO | Integration tests |
+| AC-DR-31 | Envelope v2 sent/received when capability negotiated | Wire-level tests |
+| AC-DR-32 | Downgrade to v1 envelope when capability not negotiated | Downgrade tests |
+| AC-DR-33 | Warning surfaced to user on downgrade (via `onVerificationState` or equivalent) | UI callback tests |
+| AC-DR-34 | Daemon integration: `bolt-daemon` consumes `bolt-ratchet` crate | Daemon tests pass |
+| AC-DR-35 | Dark launch flag: ratchet capability advertised but disabled by default | Feature flag tests |
+| AC-DR-36 | Rollback path: disabling ratchet returns to v1 behavior cleanly | Rollback tests |
+| AC-DR-37 | All existing test suites pass across all repos (no regression) | CI gate across repos |
+
+#### DR-5 — Default-On + Legacy Path Deprecation Decision
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-DR-38 | AC: TBD at DR-4 completion — depends on burn-in data and PM decision | — |
+
+---
+
+### Risk Register
+
+| ID | Risk | Severity | Mitigation | Owner |
+|----|------|----------|------------|-------|
+| DR-R1 | KDF implementation divergence between Rust and TS | HIGH | Shared test vectors; conformance harness CI gate (DR-3) | Engineering |
+| DR-R2 | Browser crypto API limitations (Web Crypto lacks XSalsa20) | MEDIUM | TweetNaCl already provides XSalsa20; ratchet KDF uses HKDF-SHA256 (Web Crypto native) | Engineering |
+| DR-R3 | Skipped message key buffer memory exhaustion | LOW | MAX_SKIP constant (suggest 1000); eviction policy in spec (DR-0) | Engineering |
+| DR-R4 | Wire overhead impacts file transfer throughput | LOW | ~80B/message increase is negligible vs chunk size (~16KB) | Engineering |
+| DR-R5 | Session resumption demand emerges before persistence is designed | MEDIUM | Memory-only ratchet is the safe default; persistence deferred explicitly with PM gate | PM |
+| DR-R6 | Mixed-fleet deployment complexity (v1 + v2 peers coexisting) | MEDIUM | Capability negotiation + downgrade-with-warning; phased rollout (dark → opt-in → default) | Engineering + PM |
+| DR-R7 | Ratchet state corruption on unclean disconnect | MEDIUM | Memory-only state + fresh ratchet on reconnect eliminates persistence corruption risk | Engineering |
+
+### Explicit Non-Goals
+
+| ID | Non-Goal | Rationale |
+|----|----------|-----------|
+| DR-NG1 | Session resumption (persistent ratchet state across disconnects) | Deferred — requires separate security review and PM approval (PM-DR-03) |
+| DR-NG2 | Group ratchet / multi-party key agreement | Bolt is peer-to-peer; group semantics are out of scope |
+| DR-NG3 | Post-quantum key exchange | Separate security gate; does not block DR-STREAM-1 |
+| DR-NG4 | Consumer app UI changes | Consumer apps are out of scope for DR-STREAM-1 (DR-G8) |
+| DR-NG5 | Rendezvous server changes | Confirmed unnecessary — server is payload-opaque |
+| DR-NG6 | Transport layer changes | Ratchet is Core-level, transport-independent (DR-G2) |
+| DR-NG7 | Replacing NaCl box with a different AEAD | NaCl box remains the primitive; ratchet changes key derivation, not encryption algorithm |
+
+---
+
+### PM Open Decisions Table
+
+| ID | Decision | Blocks | Priority | Status |
+|----|----------|--------|----------|--------|
+| PM-DR-01 | Confirm DR-STREAM (phased) vs single-gate approach | All phases | P0 | **RESOLVED by this P0 — DR-STREAM confirmed** |
+| PM-DR-02 | Approve downgrade-with-warning as default compatibility mode | DR-4 | DR-0 | PENDING |
+| PM-DR-03 | Key storage: memory-only (recommended) vs persisted ratchet state | DR-0 spec lock | DR-0 | PENDING |
+| PM-DR-04 | MAX_SKIP value (suggested: 1000) | DR-0 spec lock | DR-0 | PENDING |
+| PM-DR-05 | Envelope version field: bump to `2` vs new capability-only gate | DR-0 spec lock | DR-0 | PENDING |
+| PM-DR-06 | Rust crate name: `bolt-ratchet` (recommended) vs alternative | DR-1 | DR-0 | PENDING |
+| PM-DR-07 | Vector authority: confirm Rust-generates, TS-consumes (aligns with SEC-CORE2) | DR-1 | DR-0 | PENDING |
+| PM-DR-08 | Dark launch duration before opt-in promotion | DR-4 rollout | DR-4 | PENDING |
+| PM-DR-09 | Legacy deprecation timeline (how long to support non-DR peers) | DR-5 | DR-5 | PENDING |
+| PM-DR-10 | New error code names for ratchet failures (suggestion: `RATCHET_OUT_OF_SYNC`, `RATCHET_DERIVE_FAILED`, `RATCHET_MAX_SKIP_EXCEEDED`) | DR-0 spec lock | DR-0 | PENDING |
+
+---
+
+### Rollout Strategy
+
+| Stage | Criteria to Enter | Behavior | Duration |
+|-------|-------------------|----------|----------|
+| **Dark launch** | DR-4 complete; all CI gates pass | `bolt.double-ratchet-v1` advertised in HELLO but disabled by default (feature flag) | PM-DR-08 decision |
+| **Opt-in** | Dark launch burn-in clean; no regressions | Users can enable ratchet via config/UI toggle; downgrade-with-warning for non-DR peers | 2+ weeks suggested |
+| **Default-on** | Opt-in period clean; PM approval (DR-5) | Ratchet enabled by default; downgrade-with-warning for legacy peers | Until PM-DR-09 |
+| **Legacy deprecation** | Default-on period complete; migration data shows >95% adoption | Non-DR peers refused (fail-closed) | PM-DR-09 decision |
+
+**Rollback path at every stage:**
+- Disable feature flag → immediate return to v1 behavior.
+- No persisted ratchet state → no state cleanup needed.
+- Capability negotiation ensures clean fallback (intersection removes `bolt.double-ratchet-v1`).
+
+---
+
 ## Tag Naming Rules
 
 | Workstream | Repo | Format | Example |
@@ -3100,6 +3585,8 @@ No check is duplicated across tiers. No check contradicts its source phase defin
 | S-STREAM-R1 (products) | localbolt-v3, localbolt, localbolt-app | `<repo-prefix>-r1-<phase>-<slug>` | `localbolt-v1.0.27-r1-3-crypto-converge` |
 | N-stream | localbolt-app | `localbolt-app-vX.Y.Z-n<phase>-<slug>` | `localbolt-app-v1.3.0-n0-policy-lock` |
 | N-stream (governance) | bolt-ecosystem | `ecosystem-v0.1.X-n-stream-1-<slug>` | `ecosystem-v0.1.72-n-stream-1-codify` |
+| DR-STREAM-1 (SDK) | bolt-core-sdk | `sdk-vX.Y.Z-dr<phase>-<slug>` | `sdk-v0.6.0-dr0-spec-lock` |
+| DR-STREAM-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-sec-dr1-<slug>` | `ecosystem-v0.1.99-sec-dr1-p0-codify` |
 | Governance | bolt-ecosystem | `ecosystem-v0.1.X-workstreams-N` | `ecosystem-v0.1.30-workstreams-1` |
 
 **Rules:**
@@ -3122,7 +3609,7 @@ No check is duplicated across tiers. No check contradicts its source phase defin
 |----|------|----------|---------|--------|
 | B-XFER-1 | Transfer pause/resume completion (daemon transfer SM remaining scope) | NOW | bolt-daemon | **DONE** (`daemon-v0.2.35-bxfer1-pause-resume`, `9f087a1`) |
 | REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem | **DONE** (`daemon-v0.2.38-relarch1-multiarch-matrix`, `ab56606`) |
-| SEC-DR1 | Double Ratchet pre-ByteBolt security gate (DR-STREAM) | NEXT | bolt-core-sdk + bolt-protocol | NOT-STARTED |
+| SEC-DR1 | Double Ratchet pre-ByteBolt security gate (DR-STREAM-1) | NEXT | bolt-core-sdk + bolt-protocol | **P0-DONE** (stream kickoff codified) |
 | T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | `bolt-transfer-core` (bolt-core-sdk workspace) + daemon consumer | **DONE** (`sdk-v0.5.30-tstream0-transfer-core-v1`) |
 | SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk | NOT-STARTED |
 | T-STREAM-1 | Browser selective WASM integration | LATER | bolt-core-sdk (TS) + WASM | NOT-STARTED |
@@ -3130,6 +3617,8 @@ No check is duplicated across tiers. No check contradicts its source phase defin
 | MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD | NOT-STARTED |
 | ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | NOT-STARTED |
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | NOT-STARTED |
+
+**SEC-DR1 (P0 stream kickoff codified):** Double Ratchet pre-ByteBolt security gate. P0 complete: read-only audit of bolt-core-sdk, bolt-protocol, bolt-daemon, bolt-rendezvous + full stream codification in GOVERNANCE_WORKSTREAMS.md § DR-STREAM-1. 6 phases (DR-0 through DR-5), 38 acceptance criteria, dependency DAG, compatibility matrix, wire delta, key storage impact, test/vector strategy, risk register, PM decisions table. No code changes. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1, `docs/FORWARD_BACKLOG.md` Item 3.
 
 **RECON-XFER-1 (distinct from Q7/C7):** Post-C7 transfer-recovery bug. If disconnect occurs during active file transfer, reconnect gets stuck and new transfers fail to start. Browser path confirmed. Daemon-only path unconfirmed (escalation-only). Prior C7/Q7 work addressed stale callback pollution; this bug is about transfer SM + session coordination not resetting on mid-transfer disconnect. Full spec in `docs/FORWARD_BACKLOG.md` Item 10.
 

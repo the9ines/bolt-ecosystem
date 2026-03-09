@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## SEC-DR1 P0 — Double Ratchet Stream Kickoff — 2026-03-09
+
+- **SEC-DR1 P0 DONE:** Stream kickoff — docs codification + read-only audit complete
+- **Stream confirmed:** DR-STREAM-1 (phased, 6 phases: DR-0 through DR-5)
+- **Read-only audit:** bolt-core-sdk (Rust + TS crypto/session modules), bolt-protocol (wire format + capability negotiation), bolt-daemon (SessionContext + shared-crate feasibility), bolt-rendezvous (confirmed opaque — zero changes needed)
+- **Deliverables codified in `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1:**
+  - Phase table + dependency DAG (serial gates: DR-0, DR-1, DR-4; partial parallel: DR-2 ∥ DR-3)
+  - 38 acceptance criteria (AC-DR-01 through AC-DR-38) — concrete for DR-0/DR-1, defined for DR-2/DR-3/DR-4, TBD for DR-5
+  - Capability negotiation matrix (6 cases: both/one-sided/neither/malformed)
+  - Wire delta summary (~80B/msg increase, negligible; envelope v1→v2 with `dh`, `pn`, `n` fields)
+  - Key storage impact (memory-only recommended; SEC-04/SEC-05 interaction analyzed)
+  - Test/vector strategy (Rust-generates, TS-consumes; 8 vector categories, parity matrix)
+  - Risk register (7 risks, all mitigated)
+  - PM open decisions table (10 decisions, PM-DR-01 resolved)
+  - Rollout strategy (dark launch → opt-in → default-on → legacy deprecation)
+  - Backward compatibility: downgrade-with-warning recommended (PM-DR-02 pending)
+- **AUDIT_TRACKER.md:** DR-F series reserved (DR-F1–DR-F99, non-colliding)
+- **No code changes** — docs-only codification pass
+- Ecosystem tag: `ecosystem-v0.1.99-sec-dr1-p0-codify`
+
+---
+
 ## RECON-XFER-1 Evidence Tail Correction — 2026-03-09
 
 - **Correction:** RECON-XFER-1 status adjusted from DONE to DONE-VERIFIED (evidence tail: RX-EVID-1)

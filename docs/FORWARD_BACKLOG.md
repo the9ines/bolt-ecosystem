@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-09 (RECON-XFER-1 — transfer reconnect recovery codification)
-> **Codified:** ecosystem-v0.1.86-roadmap-codify-transfer-security-mobile
+> **Updated:** 2026-03-09 (SEC-DR1 P0 — stream kickoff, docs codification + read-only audit)
+> **Codified:** ecosystem-v0.1.99-sec-dr1-p0-codify
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
 ---
@@ -108,33 +108,58 @@ Priority constraint: MOB-RUNTIME1 ≤ PLAT-CORE1 (mobile cannot exceed shared co
 ## Item 3: SEC-DR1 — Double Ratchet Pre-ByteBolt Security Gate
 
 **Priority:** NEXT
-**Routing:** bolt-core-sdk (Rust crate), bolt-protocol (spec amendment)
-**Category:** Security — pre-ByteBolt gate
+**Status:** **P0 DONE** (stream kickoff — docs codification + read-only audit complete)
+**Routing:** bolt-core-sdk (Rust crate + TS parity), bolt-protocol (spec amendment)
+**Category:** Security — pre-ByteBolt gate (blocks ByteBolt start)
+**Stream:** DR-STREAM-1 (phased)
+**Full specification:** `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1
 
 **Context:** Current protocol uses static ephemeral keys per connection (no mid-session key rotation, SEC-05). For ByteBolt (persistent connections, relay-mediated), forward secrecy degrades without ratcheting. Double Ratchet (or equivalent) is a pre-ByteBolt security requirement.
 
-**Scope assessment:** This is stream-scale work — DR-STREAM with phased plan required.
+**Scope assessment:** This is stream-scale work — DR-STREAM-1 confirmed as phased stream (PM-DR-01 resolved at P0).
 
-**Phased Plan (DR-STREAM):**
+**P0 Audit Results (2026-03-09):**
+- **bolt-core-sdk:** NaCl box, static ephemeral per session, no KDF chain, no ratchet. 5 cross-language vector files. Rust reference + TS parity model confirmed viable.
+- **bolt-protocol:** No ratchet in v1. Appendix B notes v2 KEY_ROTATE. Capability negotiation via HELLO intersection model supports new `bolt.double-ratchet-v1` capability.
+- **bolt-daemon:** `SessionContext` holds ephemeral keypair. Shared `bolt-ratchet` crate feasibility: HIGH (path dep pattern established).
+- **bolt-rendezvous:** Fully opaque to payload. ZERO changes needed. Confirmed.
 
-| Phase | Description | Status |
-|-------|-------------|--------|
-| DR-0 | Threat model + protocol gap analysis (relay MITM, session duration, key compromise window) | NOT-STARTED |
-| DR-1 | Protocol specification amendment (PROTOCOL.md §new — ratchet lifecycle, state serialization) | NOT-STARTED |
-| DR-2 | Rust reference implementation in bolt-core-sdk | NOT-STARTED |
-| DR-3 | TypeScript implementation + golden vector parity | NOT-STARTED |
-| DR-4 | Integration into existing handshake flow (backward-compatible negotiation) | NOT-STARTED |
+**Phased Plan (DR-STREAM-1):**
 
-**Acceptance Criteria (NEXT-tier — DR-0 and DR-1 only):**
+| Phase | Description | Serial Gate | Status |
+|-------|-------------|-------------|--------|
+| DR-0 | Spec + capability negotiation lock | YES (gates all) | NOT-STARTED |
+| DR-1 | Rust reference ratchet state machine | YES (gates DR-2, DR-3) | NOT-STARTED |
+| DR-2 | TypeScript parity implementation | NO (parallel with DR-3) | NOT-STARTED |
+| DR-3 | Cross-language vectors + conformance harness | NO (parallel with DR-2) | NOT-STARTED |
+| DR-4 | Wire integration + compatibility rollout gates | YES (ByteBolt gate) | NOT-STARTED |
+| DR-5 | Default-on + legacy path deprecation decision | PM decision gate | NOT-STARTED |
+
+**Acceptance Criteria (DR-0 + DR-1):**
 
 | ID | Criterion | Evidence Required |
 |----|-----------|------------------|
-| AC-DR-01 | Threat model documents relay-mediated session risks | Published analysis in docs/ |
-| AC-DR-02 | Protocol amendment drafted with MUST-level invariants | PROTOCOL.md PR or draft |
-| AC-DR-03 | Backward compatibility plan (capability negotiation) | Spec section |
-| AC-DR-04 | Key schedule formally specified (ratchet inputs, outputs, state) | Spec section |
+| AC-DR-01 | Threat model documents relay-mediated session risks | Published analysis |
+| AC-DR-02 | Protocol amendment drafted with MUST-level ratchet invariants | PROTOCOL.md PR or draft |
+| AC-DR-03 | Capability string `bolt.double-ratchet-v1` specified with negotiation rules | Spec section with all 6 matrix cases |
+| AC-DR-04 | Key schedule formally specified (ratchet inputs, outputs, state) | Spec section with KDF chain |
+| AC-DR-05 | Wire delta locked: envelope v2 fields | Spec section |
+| AC-DR-06 | Backward compat policy locked (downgrade-with-warning default) | Spec section |
+| AC-DR-07 | Key storage decision locked (memory-only recommended) | PM approval |
+| AC-DR-08 | New error codes defined | Spec section |
+| AC-DR-09 | Skipped message key policy (MAX_SKIP) | Spec section |
+| AC-DR-10 | SAS computation unchanged (confirmed) | Spec note |
+| AC-DR-11 | `bolt-ratchet` crate created in SDK workspace | Crate compiles |
+| AC-DR-12–21 | Rust reference implementation (KDF, DH ratchet, encrypt/decrypt, vectors, zeroization) | Unit tests + vectors |
 
-**AC for DR-2 through DR-4:** TBD at DR-1 completion — depends on protocol design decisions.
+**AC for DR-2 through DR-5:** Defined in `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 (AC-DR-22 through AC-DR-38).
+
+**Key decisions (from P0):**
+- Stream shape confirmed as DR-STREAM-1 (phased), not single-gate.
+- Compatibility: downgrade-with-warning recommended (PM-DR-02 pending).
+- Key storage: memory-only recommended (PM-DR-03 pending).
+- Rendezvous: zero changes required (audit-confirmed).
+- Wire overhead: ~80B/message increase (~4% on typical 2KB chunk). Negligible.
 
 ---
 
@@ -352,7 +377,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 |----|----------------|--------|----------|
 | PM-FB-01 | B-XFER-1: Should concurrent transfers be in scope or deferred further? | AC-BX scope | NOW |
 | PM-FB-02 | REL-ARCH1: Code signing budget/infrastructure (macOS notarization, Windows Authenticode) | AC-RA-04 | NOW |
-| PM-FB-03 | SEC-DR1: Confirm DR-STREAM (phased) vs single-gate approach | DR scope | NEXT |
+| PM-FB-03 | SEC-DR1: Confirm DR-STREAM (phased) vs single-gate approach | DR scope | **RESOLVED** (DR-STREAM-1 confirmed at P0) |
 | PM-FB-04 | T-STREAM-0: Crate naming and repository location (new repo vs bolt-core-sdk workspace member) | AC-TC-01 | NEXT |
 | PM-FB-05 | PLAT-CORE1: Crate topology decision — when to start architecture work | Stream codification | LATER |
 | PM-FB-06 | MOB-RUNTIME1: Target platforms (iOS-only? Android-only? Both?) | Stream codification | LATER |

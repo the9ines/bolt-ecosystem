@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-09 (RECON-XFER-1 evidence tail correction — RX-EVID-1 registered, AC-RX-08 wording corrected)
+**Last updated:** 2026-03-09 (SEC-DR1 P0 — DR-F series reserved for DR-STREAM-1)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -512,6 +512,10 @@ Registered: RX-EVID-1 (manual runtime evidence tail, LOW). Q11 status corrected 
 DONE-VERIFIED with evidence tail note. AC-RX-08 wording corrected.
 DONE/DONE-VERIFIED = 91. OPEN = 1. Total = 112.
 
+Arithmetic reconciled in ecosystem-v0.1.99-sec-dr1-p0-codify —
+DR-F series reserved (DR-F1–DR-F99) for DR-STREAM-1 findings. No new findings registered.
+DONE/DONE-VERIFIED = 91. OPEN = 1. Total = 112. (unchanged — reservation only)
+
 ---
 
 ## N-STREAM-1 — Native App + Daemon Bundling
@@ -521,3 +525,16 @@ DONE/DONE-VERIFIED = 91. OPEN = 1. Total = 112.
 > **Status:** No findings registered. Series reserved for findings discovered during N-STREAM-1 phase execution.
 
 No execution findings in this pass. Findings will be registered here with `N1-F<N>` IDs when evidence is confirmed during phase execution.
+
+---
+
+## DR-STREAM-1 — Double Ratchet Pre-ByteBolt Security Gate
+
+> **Finding series reservation:** `DR-F*`
+> **Codified:** ecosystem-v0.1.99-sec-dr1-p0-codify (2026-03-09)
+> **Status:** P0 complete (stream kickoff, docs codification + read-only audit). No code changes.
+> **Full specification:** `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1
+
+**Audit ID reservation:** `DR-F1` through `DR-F99` reserved for findings discovered during DR-STREAM-1 phase execution (DR-0 through DR-5). IDs are non-colliding with all existing series (S, N, AC, DP, NF, RX, Q, N1-F).
+
+No execution findings in this pass. Findings will be registered here with `DR-F<N>` IDs when evidence is confirmed during phase execution.
