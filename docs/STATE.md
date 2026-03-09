@@ -1,12 +1,12 @@
 ---
 Snapshot Derived From:
 - sdk-v0.5.32-tstream1-wasm-policy-wiring (2d4792f)
-- daemon-v0.2.37-relarch1-multiarch-matrix (3cb3b56)
+- daemon-v0.2.38-relarch1-multiarch-matrix (ab56606)
 - v3.0.87-domain-rename (69ec25c)
 - localbolt-v1.0.34-domain-rename (c8f9fdc)
 - localbolt-app-v1.2.22-domain-rename (beb8891)
-- ecosystem-v0.1.93-relarch1-multiarch-matrix
-Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosystem-v0.1.93)
+- ecosystem-v0.1.94-relarch1-multiarch-matrix
+Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosystem-v0.1.94)
 ---
 
 # Bolt Ecosystem — State
@@ -587,7 +587,7 @@ App-layer convergence and session UX findings registered as part of Workstream C
 | Repo | Latest Tag (main) | Main HEAD |
 |------|-------------------|-----------|
 | bolt-core-sdk | `sdk-v0.5.28-d3-registry-migration` | `66aaa3a` |
-| bolt-daemon | `daemon-v0.2.37-relarch1-multiarch-matrix` | `3cb3b56` |
+| bolt-daemon | `daemon-v0.2.38-relarch1-multiarch-matrix` | `ab56606` |
 | bolt-rendezvous | `rendezvous-v0.2.12-dp5-session-guard` | `aa8bed0` |
 | localbolt | `localbolt-v1.0.27-s-stream-r1-r1.4-security-test-lift` | `fc360c5` (code), `490f0cd` (docs HEAD) |
 | localbolt-app | `localbolt-app-v1.2.10-s-stream-r1-r1.4-security-test-lift` | `71c3181` (code), `bc0ee2a` (docs HEAD) |
@@ -710,7 +710,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | ID | Item | Priority | Routing | Status |
 |----|------|----------|---------|--------|
 | B-XFER-1 | Transfer pause/resume completion | NOW | bolt-daemon | **DONE** (`daemon-v0.2.35-bxfer1-pause-resume`) |
-| REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem | **DONE** (`daemon-v0.2.37-relarch1-multiarch-matrix`, `3cb3b56`) |
+| REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem | **DONE** (`daemon-v0.2.38-relarch1-multiarch-matrix`, `ab56606`) |
 | SEC-DR1 | Double Ratchet pre-ByteBolt gate (DR-STREAM) | NEXT | bolt-core-sdk + bolt-protocol | NOT-STARTED |
 | T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | New crate + daemon | NOT-STARTED |
 | SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk | NOT-STARTED |

@@ -535,7 +535,7 @@ Full specification in `docs/GOVERNANCE_WORKSTREAMS.md` (S-STREAM-R1 section).
 | ID | Item | Routing | Status |
 |----|------|---------|--------|
 | B-XFER-1 | Transfer pause/resume completion (daemon transfer SM remaining scope) | bolt-daemon | **DONE** (`daemon-v0.2.35-bxfer1-pause-resume`) |
-| REL-ARCH1 | Multi-arch daemon build/package matrix | bolt-daemon + ecosystem | **DONE** (`daemon-v0.2.37-relarch1-multiarch-matrix`, `3cb3b56`) |
+| REL-ARCH1 | Multi-arch daemon build/package matrix | bolt-daemon + ecosystem | **DONE** (`daemon-v0.2.38-relarch1-multiarch-matrix`, `ab56606`) |
 
 **NEXT:**
 | ID | Item | Routing | Status |
@@ -557,7 +557,7 @@ Full specification in `docs/GOVERNANCE_WORKSTREAMS.md` (S-STREAM-R1 section).
 ```
 NOW:
   B-XFER-1 ──────────────────┐  ✓ DONE (daemon-v0.2.35)
-  REL-ARCH1 ──────────────────┘ ✓ DONE (daemon-v0.2.37)
+  REL-ARCH1 ──────────────────┘ ✓ DONE (daemon-v0.2.38)
                               │
 NEXT:                         │
   T-STREAM-0 ◄───────────────┘ ✓ DONE (sdk-v0.5.30, daemon-v0.2.36)

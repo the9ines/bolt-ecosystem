@@ -20,7 +20,7 @@ Linked from `docs/GOVERNANCE_WORKSTREAMS.md` (summary) and `docs/ROADMAP.md` (de
 ```
 NOW:
   B-XFER-1 (transfer pause/resume completion) ─── DONE (daemon-v0.2.35)
-  REL-ARCH1 (multi-arch build matrix) ─────────── DONE (daemon-v0.2.37)
+  REL-ARCH1 (multi-arch build matrix) ─────────── DONE (daemon-v0.2.38)
 
 NEXT:
   SEC-DR1 (Double Ratchet security gate) ──────── independent (pre-ByteBolt)
@@ -89,7 +89,7 @@ Priority constraint: MOB-RUNTIME1 ≤ PLAT-CORE1 (mobile cannot exceed shared co
 **Priority:** NOW
 **Routing:** bolt-daemon, bolt-ecosystem (governance)
 **Category:** Release architecture
-**Status:** **DONE** (`daemon-v0.2.37-relarch1-multiarch-matrix`, `3cb3b56`)
+**Status:** **DONE** (`daemon-v0.2.38-relarch1-multiarch-matrix`, `ab56606`)
 
 **Acceptance Criteria:**
 
