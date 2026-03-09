@@ -45,7 +45,7 @@ Both models share one protocol, one SDK, and one security guarantee. The ecosyst
 |------------|---------------|------------|
 | localbolt | Self-hosted lite web app | User runs locally |
 | localbolt-app | Native desktop app (Tauri v2) | User installs binary |
-| localbolt-v3 | Hosted web app | localbolt.site (Netlify + Fly.io) |
+| localbolt-v3 | Hosted web app | localbolt.app (Netlify + Fly.io) |
 | bytebolt-app | Commercial global app | App stores + direct download |
 
 ---
@@ -196,7 +196,7 @@ bytebolt-relay (standalone commercial)
 ### Cost Structure
 
 1. Fly.io hosting for cloud rendezvous (localbolt-signal.fly.dev).
-2. Netlify hosting for localbolt.site.
+2. Netlify hosting for localbolt.app.
 3. GitHub organization and CI compute.
 4. Apple/Google developer accounts for app store distribution.
 
@@ -234,6 +234,6 @@ Security is implemented once in the SDK and consumed by all products. Products m
 | bolt-daemon | daemon-v0.0.1 | README stub only | No |
 | localbolt | v1.0.0 | Production | Self-hosted |
 | localbolt-app | v1.0.0 | Production | GitHub releases |
-| localbolt-v3 | v3.0.38 | Production (web) | localbolt.site |
+| localbolt-v3 | v3.0.38 | Production (web) | localbolt.app |
 | bytebolt-app | bytebolt-v0.0.1 | README stub only | No |
 | bytebolt-relay | relay-v0.0.1 | README stub only | No |
