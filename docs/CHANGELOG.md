@@ -5,6 +5,35 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## BTR-0 — Spec + Capability Negotiation Lock (SEC-BTR1) — 2026-03-09
+
+- **BTR-0 DONE:** Protocol specification locked for Bolt Transfer Ratchet.
+- **PROTOCOL.md changes (bolt-protocol):**
+  - §4: `bolt.transfer-ratchet-v1` capability registered with 6-cell negotiation matrix
+  - §6: Envelope schema extended with conditional BTR fields (`ratchet_public_key`, `ratchet_generation`, `chain_index`)
+  - §8: Replay protection extended with `ratchet_generation`
+  - §10: 4 new BTR error codes (`RATCHET_STATE_ERROR`, `RATCHET_CHAIN_ERROR`, `RATCHET_DECRYPT_FAIL`, `RATCHET_DOWNGRADE_REJECTED`); registry now 26 codes
+  - §11: BTR security properties (REPLAY-BTR, ISOLATION-BTR, ORDER-BTR, EPOCH-BTR)
+  - §13: BTR conformance requirements added
+  - §14: BTR constants (HKDF info strings, key lengths)
+  - §16 (NEW): Complete BTR specification — architecture, envelope fields, key schedule (HKDF-SHA256), encryption with message keys, key lifecycle (memory-only), 11 invariants (BTR-INV-01–11), error behavior, BTR-1 entry criteria
+  - Appendix B: Updated from "out of scope" to reference BTR §16
+  - Appendix C: 5 BTR vector categories defined with schemas and pass criteria
+- **LOCALBOLT_PROFILE.md changes:** BTR envelope fields in `json-envelope-v1` encoding (camelCase mapping)
+- **CONFORMANCE.md changes:** 4 new BTR rows (§16, §16.3, §16.5, §16.6); scope updated to §1–§16; total rows now 27
+- **Key decisions locked:**
+  - Downgrade-with-warning default (PM-BTR-02)
+  - Memory-only key storage (PM-BTR-03)
+  - NaCl secretbox for BTR-encrypted envelopes (keyed by HKDF-derived message_key)
+  - Ordered-chunk assumption (no skipped-key buffer)
+  - DH ratchet at transfer boundaries, symmetric chain per chunk
+- **SAS unchanged:** BTR does not alter SAS computation inputs
+- **BTR-1 UNBLOCKED:** All 7 entry criteria satisfied
+- Protocol tag: `v0.1.6-spec-btr0-lock`
+- Ecosystem tag: `ecosystem-v0.1.102-btr0-spec-lock`
+
+---
+
 ## BTR-STREAM-1 PM Decisions — BTR-0 Unblocked — 2026-03-09
 
 - **PM-BTR-02 APPROVED:** Downgrade-with-warning as default backward compatibility mode
