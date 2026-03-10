@@ -5,6 +5,22 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## BTR-STREAM-1 PM Decisions — BTR-0 Unblocked — 2026-03-09
+
+- **PM-BTR-02 APPROVED:** Downgrade-with-warning as default backward compatibility mode
+  - Peers without `bolt.transfer-ratchet-v1` capability fall back to static ephemeral (v1 behavior)
+  - Warning surfaced to user indicating reduced security
+  - Fail-closed only for malformed capability claims
+- **PM-BTR-03 APPROVED:** Memory-only key storage (no persistence)
+  - All BTR ratchet state (session DH, transfer keys, chain keys) is memory-only
+  - SEC-04/SEC-05 invariants preserved exactly
+  - Session resumption deferred as explicit non-goal (BTR-NG1)
+- **BTR-0 unblocked:** Both blocking PM decisions resolved. BTR-0 (spec + capability negotiation lock) can proceed when prioritized.
+- **AC-BTR-08, AC-BTR-09:** PM approval evidence recorded
+- Ecosystem tag: `ecosystem-v0.1.101-btr-pm-decisions`
+
+---
+
 ## SEC-BTR1 — Bolt Transfer Ratchet Replaces Double Ratchet — 2026-03-09
 
 - **SEC-BTR1 P0 DONE:** Bolt Transfer Ratchet (BTR) codified as replacement for Double Ratchet (DR)

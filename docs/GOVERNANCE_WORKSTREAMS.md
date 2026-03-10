@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-09 (SEC-BTR1 replaces SEC-DR1 — BTR-STREAM-1 codified, DR-STREAM-1 frozen)
-> **Tag:** ecosystem-v0.1.100-sec-btr1-replaces-dr
+> **Updated:** 2026-03-09 (PM-BTR-02 + PM-BTR-03 approved — downgrade-with-warning + memory-only locked)
+> **Tag:** ecosystem-v0.1.101-btr-pm-decisions
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -3747,7 +3747,7 @@ Follows existing `bolt.*` namespace convention. Negotiated via HELLO `capabiliti
 | NO | NO | Static ephemeral (current behavior) | Session-level FS only | — |
 | YES/NO | MALFORMED | **Reject + ERROR** | N/A | Fail-closed |
 
-**Recommended default:** Downgrade-with-warning (PM-BTR-02 pending).
+**Default:** Downgrade-with-warning (**PM-BTR-02 APPROVED**).
 
 #### Phase-by-Phase Fail Mode
 
@@ -3841,7 +3841,7 @@ Follows existing `bolt.*` namespace convention. Negotiated via HELLO `capabiliti
 | **SEC-01** (fresh CSPRNG nonce per envelope) | **UNCHANGED** | No impact |
 | **SEC-03** (fresh ephemeral keypair per connection) | **COMPATIBLE** — initial ephemeral bootstraps BTR; DH ratchet keypairs are per-transfer-boundary (new invariant) | Spec must clarify |
 
-**Recommendation:** Memory-only BTR state. SEC-04/SEC-05 preserved exactly. Session resumption (persisted state) deferred as explicit non-goal.
+**Decision (PM-BTR-03 APPROVED):** Memory-only BTR state. SEC-04/SEC-05 preserved exactly. Session resumption (persisted state) deferred as explicit non-goal.
 
 ---
 
@@ -3892,8 +3892,8 @@ Follows existing `bolt.*` namespace convention. Negotiated via HELLO `capabiliti
 | AC-BTR-05 | Chunk ratchet formally specified: chain key → message key KDF, advancement rule | Spec section |
 | AC-BTR-06 | Inter-transfer DH ratchet specified: when new DH step occurs, how session secret updates | Spec section |
 | AC-BTR-07 | Wire delta locked: envelope v2 field names, ratchet object structure | Spec section |
-| AC-BTR-08 | Backward compatibility policy locked (downgrade-with-warning default) | Spec section |
-| AC-BTR-09 | Key storage confirmed memory-only (no persistence) | PM approval recorded |
+| AC-BTR-08 | Backward compatibility policy locked (downgrade-with-warning default) | Spec section — **PM-BTR-02 APPROVED** |
+| AC-BTR-09 | Key storage confirmed memory-only (no persistence) | PM approval recorded — **PM-BTR-03 APPROVED** |
 | AC-BTR-10 | New error codes defined (BTR-specific) | Spec section |
 | AC-BTR-11 | SAS computation unchanged (confirmed no ratchet key input) | Spec confirmation note |
 | AC-BTR-12 | Ordered-delivery assumption documented: no skipped-key buffer, fail-closed on gap | Spec section |
@@ -3985,8 +3985,8 @@ Follows existing `bolt.*` namespace convention. Negotiated via HELLO `capabiliti
 | ID | Decision | Blocks | Priority | Status |
 |----|----------|--------|----------|--------|
 | PM-BTR-01 | BTR replaces DR as architecture (not rename/complement) | All phases | P0 | **RESOLVED** |
-| PM-BTR-02 | Approve downgrade-with-warning as default compatibility mode | BTR-4 | BTR-0 | PENDING |
-| PM-BTR-03 | Confirm memory-only key storage (recommended) | BTR-0 spec lock | BTR-0 | PENDING |
+| PM-BTR-02 | Approve downgrade-with-warning as default compatibility mode | BTR-4 | BTR-0 | **APPROVED** |
+| PM-BTR-03 | Confirm memory-only key storage (recommended) | BTR-0 spec lock | BTR-0 | **APPROVED** |
 | PM-BTR-04 | Approve DR-STREAM-1 deprecation (SUPERSEDED-BY-BTR, frozen) | Governance | P0 | **RESOLVED** |
 | PM-BTR-05 | Envelope version field: bump to `2` vs capability-only gate | BTR-0 spec lock | BTR-0 | PENDING |
 | PM-BTR-06 | Rust crate name: `bolt-btr` (recommended) vs alternative | BTR-1 | BTR-0 | PENDING |

@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-09 (SEC-BTR1 replaces SEC-DR1 — BTR-STREAM-1 codified, DR-STREAM-1 frozen)
-> **Codified:** ecosystem-v0.1.100-sec-btr1-replaces-dr
+> **Updated:** 2026-03-09 (PM-BTR-02 + PM-BTR-03 approved — downgrade-with-warning + memory-only locked)
+> **Codified:** ecosystem-v0.1.101-btr-pm-decisions
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
 ---
@@ -389,8 +389,8 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-FB-01 | B-XFER-1: Should concurrent transfers be in scope or deferred further? | AC-BX scope | NOW |
 | PM-FB-02 | REL-ARCH1: Code signing budget/infrastructure (macOS notarization, Windows Authenticode) | AC-RA-04 | NOW |
 | PM-FB-03 | SEC-DR1: Confirm DR-STREAM (phased) vs single-gate approach | DR scope | **RESOLVED** → **SUPERSEDED** (DR replaced by BTR per PM-BTR-01–04) |
-| PM-FB-08 | SEC-BTR1: Confirm downgrade-with-warning as default compat mode | BTR-0 spec lock | NEXT |
-| PM-FB-09 | SEC-BTR1: Confirm memory-only key storage | BTR-0 spec lock | NEXT |
+| PM-FB-08 | SEC-BTR1: Confirm downgrade-with-warning as default compat mode | BTR-0 spec lock | **APPROVED** |
+| PM-FB-09 | SEC-BTR1: Confirm memory-only key storage | BTR-0 spec lock | **APPROVED** |
 | PM-FB-10 | SEC-BTR1: External security audit timing (pre-GA or pre-default-on?) | BTR-4/BTR-5 | NEXT |
 | PM-FB-04 | T-STREAM-0: Crate naming and repository location (new repo vs bolt-core-sdk workspace member) | AC-TC-01 | NEXT |
 | PM-FB-05 | PLAT-CORE1: Crate topology decision — when to start architecture work | Stream codification | LATER |
