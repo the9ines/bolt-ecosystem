@@ -5,6 +5,45 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## BTR-2 — TypeScript Parity + Deterministic Interop Vectors (SEC-BTR1) — 2026-03-10
+
+- **BTR-2 DONE:** TypeScript parity implementation matching Rust BTR-1 outputs exactly.
+- **New TS modules: `ts/bolt-core/src/btr/`** — 8 files, full engine parity:
+  - `constants.ts`: 5 HKDF info strings, key length, 4 BTR wire error codes
+  - `errors.ts`: BtrError class with wireCode + requiresDisconnect() semantics
+  - `key-schedule.ts`: deriveSessionRoot, deriveTransferRoot, chainAdvance (HKDF-SHA256 via @noble/hashes)
+  - `ratchet.ts`: deriveRatchetedSessionRoot, scalarMult (tweetnacl.scalarMult), generateRatchetKeypair
+  - `encrypt.ts`: btrSeal, btrOpen (NaCl secretbox via tweetnacl.secretbox), btrSealDeterministic (test-only)
+  - `state.ts`: BtrEngine + BtrTransferContext with full lifecycle parity
+  - `replay.ts`: ReplayGuard class with ORDER-BTR enforcement
+  - `negotiate.ts`: BtrMode enum, negotiateBtr (6-cell matrix), btrLogToken
+- **Wire error registry extended:** TS WIRE_ERROR_CODES 22 → 26 codes (+4 BTR), matching Rust exactly.
+- **New dependency:** `@noble/hashes@2.0.1` (HKDF-SHA256). No other new runtime deps.
+- **Rust vector generator extended** with 2 new categories:
+  - `btr-encrypt-decrypt.vectors.json` (6 vectors: fixed-nonce deterministic encrypt/decrypt + tampered + truncated)
+  - `btr-dh-sanity.vectors.json` (4 vectors: X25519 cross-library validation)
+- **8 Rust authority vector categories consumed by TS** (25 vectors + 4 DH sanity = 29 total interop vectors):
+  - Key schedule: 3 session root ✓
+  - Transfer ratchet: 4 transfer root ✓
+  - Chain advance: 5 chain steps ✓
+  - DH ratchet: 3 ratchet steps ✓
+  - Replay reject: 4 scenarios ✓
+  - Negotiate: 6 matrix cells ✓
+  - Encrypt/decrypt: 6 vectors (4 valid + 2 error) ✓
+  - DH sanity: 4 cross-library (incl. commutativity + basepoint) ✓
+- **Deterministic interop proof:**
+  - TS decrypts Rust-generated ciphertext for all valid vectors ✓
+  - TS encrypts with fixed nonce/key/plaintext → byte-identical ciphertext to Rust ✓
+  - Tampered ciphertext → RATCHET_DECRYPT_FAIL in both TS and Rust (same error class) ✓
+  - Truncated ciphertext → RATCHET_DECRYPT_FAIL in both TS and Rust ✓
+- **DH sanity check passed:** tweetnacl.scalarMult matches x25519-dalek for all 4 test cases.
+- **Error parity verified:** All 4 BTR error codes with matching disconnect/cancel semantics.
+- **Tests:** 78 new BTR tests + 120 existing = 198 total TS tests pass. 280 Rust workspace tests pass.
+- **Regression:** All existing ts/bolt-core tests remain green (exports, crypto, hash, SAS, vectors, etc.).
+- Tag: `sdk-v0.5.37-btr2-ts-parity`
+
+---
+
 ## BTR-1 — Rust Reference Implementation (SEC-BTR1) — 2026-03-09
 
 - **BTR-1 DONE:** Rust reference implementation of Bolt Transfer Ratchet.
