@@ -5,6 +5,36 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## BTR-3 — Conformance Gap-Fill + Lifecycle Vectors (SEC-BTR1) — 2026-03-10
+
+- **BTR-3 DONE:** Cross-language conformance gap-fill with lifecycle vectors and adversarial coverage.
+- **P2 — Full-lifecycle vector** (`btr-lifecycle.vectors.json`):
+  - 2 transfers × 3 chunks each, deterministic `StaticSecret` keypairs, fixed nonces
+  - Proves DH ratchet advances session root between transfers (EPOCH-BTR)
+  - Proves transfer isolation (ISOLATION-BTR) and multi-chunk seal/open parity
+  - TS consumes and validates all 28 lifecycle assertions against Rust authority
+- **P3 — Adversarial gap-fill** (`btr-adversarial.vectors.json`):
+  - Wrong-key decrypt: valid ciphertext sealed with correct key, opened with wrong key → RATCHET_DECRYPT_FAIL
+  - Chain-index desync: receiver at idx=0, open at idx=2 → RATCHET_CHAIN_ERROR
+  - Both Rust and TS produce matching error classes
+- **P4 — CI trigger + execution fix:**
+  - Rust CI working-directory: `rust/bolt-core` → `rust/` (workspace root) for full workspace fmt/clippy/test
+  - TS CI trigger paths: added `rust/bolt-core/test-vectors/btr/**` so vector changes re-trigger TS parity tests
+  - Pre-existing clippy lint in bolt-transfer-policy-wasm suppressed (WASM flat-arg signature)
+- **P6 — BTR constants parity check** (`scripts/verify-btr-constants.sh`):
+  - Verifies 5 HKDF info strings, BTR_KEY_LENGTH, and 4 wire error codes Rust↔TS
+  - Wired into CI gate (runs before TS build)
+- **P1 — Unified conformance wrapper** (`scripts/btr-conformance.sh`):
+  - Runs 5 checks: Rust unit, Rust vectors, TS tests, BTR constants, core constants
+  - Emits pass/fail summary
+- **P5 — BTR vector policy** (`docs/BTR_VECTOR_POLICY.md` in bolt-ecosystem):
+  - Authority path, regeneration command, review requirement for vector changes
+- **Vector categories: 8 → 10** (+lifecycle, +adversarial)
+- **Tests:** 69 Rust bolt-btr (58 unit + 11 golden), 232 TS total, 280 Rust workspace total. 0 regressions.
+- Tag: `sdk-v0.5.38-btr3-conformance-gapfill` (`ec37998`)
+
+---
+
 ## BTR-2 — TypeScript Parity + Deterministic Interop Vectors (SEC-BTR1) — 2026-03-10
 
 - **BTR-2 DONE:** TypeScript parity implementation matching Rust BTR-1 outputs exactly.

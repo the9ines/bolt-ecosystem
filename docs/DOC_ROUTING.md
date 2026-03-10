@@ -36,6 +36,7 @@ These live at the workspace root (`bolt-ecosystem/docs/`) and govern the entire 
 | DOC_ROUTING.md | `docs/DOC_ROUTING.md` | This file — canonical doc routing table |
 | AUDIT_TRACKER.md | `docs/AUDIT_TRACKER.md` | Ecosystem-wide audit findings tracker |
 | GOVERNANCE_WORKSTREAMS.md | `docs/GOVERNANCE_WORKSTREAMS.md` | A/B workstream phase gates and tag discipline |
+| BTR_VECTOR_POLICY.md | `docs/BTR_VECTOR_POLICY.md` | BTR test vector authority, regeneration, and review policy |
 
 ---
 

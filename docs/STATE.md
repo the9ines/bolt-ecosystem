@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-10 (BTR-2 TypeScript parity — sdk-v0.5.37-btr2-ts-parity)
+> **Last Updated:** 2026-03-10 (BTR-3 conformance gap-fill — sdk-v0.5.38-btr3-conformance-gapfill)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -712,7 +712,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | B-XFER-1 | Transfer pause/resume completion | NOW | bolt-daemon | **DONE** (`daemon-v0.2.35-bxfer1-pause-resume`) |
 | REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem | **DONE** (`daemon-v0.2.38-relarch1-multiarch-matrix`, `ab56606`) |
 | SEC-DR1 | Double Ratchet pre-ByteBolt gate (DR-STREAM-1) | ~~NEXT~~ | bolt-core-sdk + bolt-protocol | **SUPERSEDED-BY: SEC-BTR1** (frozen, `ecosystem-v0.1.99-sec-dr1-p0-codify`) |
-| SEC-BTR1 | Bolt Transfer Ratchet pre-ByteBolt gate (BTR-STREAM-1) | NEXT | bolt-core-sdk + bolt-protocol | **BTR-0 DONE** (spec lock). **BTR-1 DONE** (Rust reference, sdk-v0.5.36). **BTR-2 DONE** (TS parity, sdk-v0.5.37, 198 tests, 8 vector categories consumed). BTR-3 UNBLOCKED. |
+| SEC-BTR1 | Bolt Transfer Ratchet pre-ByteBolt gate (BTR-STREAM-1) | NEXT | bolt-core-sdk + bolt-protocol | **BTR-0 DONE** (spec lock). **BTR-1 DONE** (Rust reference, sdk-v0.5.36). **BTR-2 DONE** (TS parity, sdk-v0.5.37). **BTR-3 DONE** (conformance gap-fill, sdk-v0.5.38, 232 TS + 69 Rust BTR tests, 10 vector categories, CI hardened). BTR-4 UNBLOCKED. |
 | T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | New crate + daemon | NOT-STARTED |
 | SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk | NOT-STARTED |
 | T-STREAM-1 | Browser selective WASM integration | LATER | bolt-core-sdk + WASM + consumers | **SDK DONE, CONSUMERS ADOPTED** (`sdk-v0.5.32`, `localbolt-v1.0.29`, `localbolt-app-v1.2.17`, `v3.0.82`) — manual runtime evidence pending |
@@ -727,10 +727,10 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 
 | Repo | Tests | Notes |
 |------|------:|-------|
-| bolt-core-sdk (TS bolt-core) | 120 | Includes H2 enforcement + H3 golden vectors + H6 nonce tests + governance-sweep-1 |
+| bolt-core-sdk (TS bolt-core) | 232 | Includes H2 enforcement + H3 golden vectors + H6 nonce + BTR-2 parity (78) + BTR-3 lifecycle/adversarial (34) |
 | bolt-core-sdk (TS transport-web) | 253 | Includes H2 enforcement + S2B metrics + interop error framing + SA5/SA6 lifecycle harden + SA10 hello timeout + AC-8/AC-9 proto-harden regression + AC-6/AC-19/AC-20 signaling golden vectors + AC-5 send-side atomicity + NF-1 envelope filename validation |
-| bolt-core-sdk (Rust, default) | 87 | main (61 unit + 11 S1 conformance + 15 S2 contract) |
-| bolt-core-sdk (Rust, vectors) | 117 | main (61 unit + 27 S1 conformance + 14 H3 vectors + 15 S2 contract) |
+| bolt-core-sdk (Rust, default) | 280 | main (63 bolt-core + 58 bolt-btr + 16 conformance + 93 transfer-core + 36 s2a + 14 wasm) |
+| bolt-core-sdk (Rust, vectors) | 291 | main (280 default + 11 bolt-btr vector golden tests) |
 | bolt-daemon (default) | 362 | main (195 lib + 128 main + 15 relay + 13 n6b1 + 11 n6b2; includes T-STREAM-0 adapter) |
 | bolt-daemon (test-support) | 362 + 3 ignored | main (same suite with test-support feature; includes H3/H5/P1/SA1/B5/B6-P1/B3-P1/B3-P2/B4/B3-P3 + D-E2E-A + D-E2E-B + T-STREAM-0) |
 | bolt-rendezvous | 49 | main (48 unit + 1 doc-test) |
