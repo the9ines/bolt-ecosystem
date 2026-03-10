@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-09 (SEC-DR1 P0 — DR-F series reserved for DR-STREAM-1)
+**Last updated:** 2026-03-09 (SEC-BTR1 replaces SEC-DR1 — DR-F frozen, BTR-F reserved)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -516,6 +516,11 @@ Arithmetic reconciled in ecosystem-v0.1.99-sec-dr1-p0-codify —
 DR-F series reserved (DR-F1–DR-F99) for DR-STREAM-1 findings. No new findings registered.
 DONE/DONE-VERIFIED = 91. OPEN = 1. Total = 112. (unchanged — reservation only)
 
+Arithmetic reconciled in ecosystem-v0.1.100-sec-btr1-replaces-dr —
+DR-F series FROZEN (DR-STREAM-1 superseded by BTR-STREAM-1). BTR-F series reserved
+(BTR-F1–BTR-F99). No new findings registered.
+DONE/DONE-VERIFIED = 91. OPEN = 1. Total = 112. (unchanged — reservation only)
+
 ---
 
 ## N-STREAM-1 — Native App + Daemon Bundling
@@ -528,13 +533,25 @@ No execution findings in this pass. Findings will be registered here with `N1-F<
 
 ---
 
-## DR-STREAM-1 — Double Ratchet Pre-ByteBolt Security Gate
+## DR-STREAM-1 — Double Ratchet Pre-ByteBolt Security Gate [SUPERSEDED]
 
-> **Finding series reservation:** `DR-F*`
+> **Finding series reservation:** `DR-F*` — **FROZEN** (stream superseded by BTR-STREAM-1)
 > **Codified:** ecosystem-v0.1.99-sec-dr1-p0-codify (2026-03-09)
-> **Status:** P0 complete (stream kickoff, docs codification + read-only audit). No code changes.
-> **Full specification:** `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1
+> **Superseded:** ecosystem-v0.1.100-sec-btr1-replaces-dr (2026-03-09)
+> **Status:** SUPERSEDED-BY: BTR-STREAM-1. No phases executed. No findings registered. Series frozen.
 
-**Audit ID reservation:** `DR-F1` through `DR-F99` reserved for findings discovered during DR-STREAM-1 phase execution (DR-0 through DR-5). IDs are non-colliding with all existing series (S, N, AC, DP, NF, RX, Q, N1-F).
+DR-F series (DR-F1–DR-F99) frozen. No new findings will be registered under this series. Superseded by BTR-F series.
 
-No execution findings in this pass. Findings will be registered here with `DR-F<N>` IDs when evidence is confirmed during phase execution.
+---
+
+## BTR-STREAM-1 — Bolt Transfer Ratchet Pre-ByteBolt Security Gate
+
+> **Finding series reservation:** `BTR-F*`
+> **Codified:** ecosystem-v0.1.100-sec-btr1-replaces-dr (2026-03-09)
+> **Status:** P0 complete (replacement architecture codified). No code changes.
+> **Full specification:** `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1
+> **Replaces:** DR-STREAM-1 (SEC-DR1) — per PM-BTR-01 through PM-BTR-04
+
+**Audit ID reservation:** `BTR-F1` through `BTR-F99` reserved for findings discovered during BTR-STREAM-1 phase execution (BTR-0 through BTR-5). IDs are non-colliding with all existing series (S, N, AC, DP, NF, RX, Q, N1-F, DR-F).
+
+No execution findings in this pass. Findings will be registered here with `BTR-F<N>` IDs when evidence is confirmed during phase execution.

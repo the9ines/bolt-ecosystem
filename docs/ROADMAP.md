@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative
-> **Last Updated:** 2026-03-09 (SEC-DR1 P0 — stream kickoff codification)
+> **Last Updated:** 2026-03-09 (SEC-BTR1 replaces SEC-DR1 — BTR-STREAM-1 codified)
 > **Authority:** PM-approved execution plan.
 
 ---
@@ -541,7 +541,8 @@ Full specification in `docs/GOVERNANCE_WORKSTREAMS.md` (S-STREAM-R1 section).
 **NEXT:**
 | ID | Item | Routing | Status |
 |----|------|---------|--------|
-| SEC-DR1 | Double Ratchet pre-ByteBolt security gate (DR-STREAM-1) | bolt-core-sdk + bolt-protocol | **P0-DONE** (stream kickoff codified) |
+| SEC-DR1 | Double Ratchet pre-ByteBolt security gate (DR-STREAM-1) | bolt-core-sdk + bolt-protocol | **SUPERSEDED-BY: SEC-BTR1** (frozen) |
+| SEC-BTR1 | Bolt Transfer Ratchet pre-ByteBolt security gate (BTR-STREAM-1) | bolt-core-sdk + bolt-protocol | **P0-DONE** (stream kickoff codified) |
 | T-STREAM-0 | Rust transfer core (no UDP in v1) | `bolt-transfer-core` (bolt-core-sdk workspace) + daemon consumer | **DONE** (`sdk-v0.5.30-tstream0-transfer-core-v1`) |
 | SEC-CORE2 | Rust-first security/protocol consolidation | bolt-core-sdk | NOT-STARTED |
 

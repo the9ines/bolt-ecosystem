@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-09 (SEC-DR1 P0 — stream kickoff, docs codification + read-only audit)
-> **Codified:** ecosystem-v0.1.99-sec-dr1-p0-codify
+> **Updated:** 2026-03-09 (SEC-BTR1 replaces SEC-DR1 — BTR-STREAM-1 codified, DR-STREAM-1 frozen)
+> **Codified:** ecosystem-v0.1.100-sec-btr1-replaces-dr
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
 ---
@@ -25,7 +25,8 @@ NOW:
   RECON-XFER-1 (transfer reconnect recovery) ──── PHASE-A-DONE
 
 NEXT:
-  SEC-DR1 (Double Ratchet security gate) ──────── independent (pre-ByteBolt)
+  SEC-DR1 (Double Ratchet security gate) ──────── SUPERSEDED-BY: SEC-BTR1
+  SEC-BTR1 (Bolt Transfer Ratchet) ──────────── independent (pre-ByteBolt, replaces SEC-DR1)
   T-STREAM-0 (Rust transfer core) ────────────── depends on B-XFER-1 completion
   SEC-CORE2 (Rust-first security consolidation) ── depends on S1 (DONE)
 
@@ -105,61 +106,26 @@ Priority constraint: MOB-RUNTIME1 ≤ PLAT-CORE1 (mobile cannot exceed shared co
 
 ---
 
-## Item 3: SEC-DR1 — Double Ratchet Pre-ByteBolt Security Gate
+## Item 3: SEC-DR1 — Double Ratchet Pre-ByteBolt Security Gate [SUPERSEDED]
 
-**Priority:** NEXT
-**Status:** **P0 DONE** (stream kickoff — docs codification + read-only audit complete)
+**Priority:** ~~NEXT~~ → SUPERSEDED
+**Status:** **SUPERSEDED-BY: SEC-BTR1** (Item 11). DR-STREAM-1 frozen for traceability.
 **Routing:** bolt-core-sdk (Rust crate + TS parity), bolt-protocol (spec amendment)
-**Category:** Security — pre-ByteBolt gate (blocks ByteBolt start)
-**Stream:** DR-STREAM-1 (phased)
-**Full specification:** `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1
+**Category:** Security — pre-ByteBolt gate
+**Stream:** DR-STREAM-1 (frozen — no phases will execute)
+**Frozen specification:** `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED]
 
-**Context:** Current protocol uses static ephemeral keys per connection (no mid-session key rotation, SEC-05). For ByteBolt (persistent connections, relay-mediated), forward secrecy degrades without ratcheting. Double Ratchet (or equivalent) is a pre-ByteBolt security requirement.
+**Supersession rationale (PM-BTR-01 through PM-BTR-04, 2026-03-09):**
+The Signal Double Ratchet is optimized for asynchronous bidirectional messaging with out-of-order delivery. Bolt is a file transfer protocol with ordered chunks, clear transfer boundaries, and unidirectional data flow per transfer. PM approved replacement architecture (BTR — Bolt Transfer Ratchet) purpose-built for file transfer semantics. DR P0 audit findings (codebase state, rendezvous opacity, shared-crate feasibility) inherited by BTR-STREAM-1.
 
-**Scope assessment:** This is stream-scale work — DR-STREAM-1 confirmed as phased stream (PM-DR-01 resolved at P0).
+**P0 Audit Results (2026-03-09) — inherited by SEC-BTR1:**
+- **bolt-core-sdk:** NaCl box, static ephemeral per session, no KDF chain. Shared crate feasibility: HIGH.
+- **bolt-protocol:** No ratchet in v1. Capability negotiation supports new capabilities.
+- **bolt-daemon:** `SessionContext` holds ephemeral keypair.
+- **bolt-rendezvous:** Fully opaque to payload. ZERO changes needed.
 
-**P0 Audit Results (2026-03-09):**
-- **bolt-core-sdk:** NaCl box, static ephemeral per session, no KDF chain, no ratchet. 5 cross-language vector files. Rust reference + TS parity model confirmed viable.
-- **bolt-protocol:** No ratchet in v1. Appendix B notes v2 KEY_ROTATE. Capability negotiation via HELLO intersection model supports new `bolt.double-ratchet-v1` capability.
-- **bolt-daemon:** `SessionContext` holds ephemeral keypair. Shared `bolt-ratchet` crate feasibility: HIGH (path dep pattern established).
-- **bolt-rendezvous:** Fully opaque to payload. ZERO changes needed. Confirmed.
-
-**Phased Plan (DR-STREAM-1):**
-
-| Phase | Description | Serial Gate | Status |
-|-------|-------------|-------------|--------|
-| DR-0 | Spec + capability negotiation lock | YES (gates all) | NOT-STARTED |
-| DR-1 | Rust reference ratchet state machine | YES (gates DR-2, DR-3) | NOT-STARTED |
-| DR-2 | TypeScript parity implementation | NO (parallel with DR-3) | NOT-STARTED |
-| DR-3 | Cross-language vectors + conformance harness | NO (parallel with DR-2) | NOT-STARTED |
-| DR-4 | Wire integration + compatibility rollout gates | YES (ByteBolt gate) | NOT-STARTED |
-| DR-5 | Default-on + legacy path deprecation decision | PM decision gate | NOT-STARTED |
-
-**Acceptance Criteria (DR-0 + DR-1):**
-
-| ID | Criterion | Evidence Required |
-|----|-----------|------------------|
-| AC-DR-01 | Threat model documents relay-mediated session risks | Published analysis |
-| AC-DR-02 | Protocol amendment drafted with MUST-level ratchet invariants | PROTOCOL.md PR or draft |
-| AC-DR-03 | Capability string `bolt.double-ratchet-v1` specified with negotiation rules | Spec section with all 6 matrix cases |
-| AC-DR-04 | Key schedule formally specified (ratchet inputs, outputs, state) | Spec section with KDF chain |
-| AC-DR-05 | Wire delta locked: envelope v2 fields | Spec section |
-| AC-DR-06 | Backward compat policy locked (downgrade-with-warning default) | Spec section |
-| AC-DR-07 | Key storage decision locked (memory-only recommended) | PM approval |
-| AC-DR-08 | New error codes defined | Spec section |
-| AC-DR-09 | Skipped message key policy (MAX_SKIP) | Spec section |
-| AC-DR-10 | SAS computation unchanged (confirmed) | Spec note |
-| AC-DR-11 | `bolt-ratchet` crate created in SDK workspace | Crate compiles |
-| AC-DR-12–21 | Rust reference implementation (KDF, DH ratchet, encrypt/decrypt, vectors, zeroization) | Unit tests + vectors |
-
-**AC for DR-2 through DR-5:** Defined in `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 (AC-DR-22 through AC-DR-38).
-
-**Key decisions (from P0):**
-- Stream shape confirmed as DR-STREAM-1 (phased), not single-gate.
-- Compatibility: downgrade-with-warning recommended (PM-DR-02 pending).
-- Key storage: memory-only recommended (PM-DR-03 pending).
-- Rendezvous: zero changes required (audit-confirmed).
-- Wire overhead: ~80B/message increase (~4% on typical 2KB chunk). Negligible.
+**DR-STREAM-1 phases (all frozen at NOT-STARTED):**
+DR-0 through DR-5, AC-DR-01 through AC-DR-38, DR-F1–F99 tracker series — all frozen. See `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED] for full frozen spec.
 
 ---
 
@@ -354,13 +320,58 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 ---
 
+## Item 11: SEC-BTR1 — Bolt Transfer Ratchet Pre-ByteBolt Security Gate
+
+**Priority:** NEXT
+**Status:** **P0 DONE** (stream kickoff — replacement architecture codified)
+**Routing:** bolt-core-sdk (Rust crate + TS parity), bolt-protocol (spec amendment)
+**Category:** Security — pre-ByteBolt gate (blocks ByteBolt start)
+**Stream:** BTR-STREAM-1 (phased)
+**Replaces:** SEC-DR1 / DR-STREAM-1 (per PM-BTR-01 through PM-BTR-04)
+**Full specification:** `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1
+
+**Context:** Current protocol uses static ephemeral keys per connection (SEC-05). For ByteBolt (persistent relay-mediated connections), forward secrecy degrades without continuous key agreement. BTR (Bolt Transfer Ratchet) is a transfer-scoped key agreement protocol purpose-built for file transfer — replacing the Signal Double Ratchet approach (SEC-DR1/DR-STREAM-1) which was designed for messaging semantics.
+
+**Why BTR instead of Double Ratchet:**
+- Bolt has ordered chunk delivery → no need for out-of-order/skipped-key complexity
+- Bolt transfers are unidirectional → no need for bidirectional chain pairs
+- Bolt has clear transfer boundaries (FILE_OFFER/FILE_FINISH) → natural DH ratchet points
+- Simpler state (~164B vs ~200B+ with skipped keys), same security properties
+
+**Phased Plan (BTR-STREAM-1):**
+
+| Phase | Description | Serial Gate | Status |
+|-------|-------------|-------------|--------|
+| BTR-0 | Spec + capability negotiation lock | YES (gates all) | NOT-STARTED |
+| BTR-1 | Rust reference BTR state machine | YES (gates BTR-2, BTR-3) | NOT-STARTED |
+| BTR-2 | TypeScript parity implementation | NO (parallel with BTR-3) | NOT-STARTED |
+| BTR-3 | Cross-language vectors + conformance harness | NO (parallel with BTR-2) | NOT-STARTED |
+| BTR-4 | Wire integration + compatibility rollout gates | YES (ByteBolt gate) | NOT-STARTED |
+| BTR-5 | Default-on + legacy path deprecation decision | PM decision gate | NOT-STARTED |
+
+**Acceptance Criteria:** 40 ACs defined (AC-BTR-01 through AC-BTR-40). See `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1 for full list.
+
+**Key architectural decisions (from P0):**
+- Capability string: `bolt.transfer-ratchet-v1`
+- Per-transfer key isolation via HKDF(session_secret, transfer_id)
+- Per-chunk symmetric ratchet (chain key → message key)
+- Inter-transfer DH ratchet at FILE_FINISH boundaries
+- No skipped-key buffer (ordered delivery assumption)
+- Memory-only state (SEC-04/SEC-05 preserved)
+- Rendezvous: zero changes (inherited from DR P0 audit)
+- Wire overhead: ~100B/message (~5% on 2KB chunk). Negligible.
+- Crate name: `bolt-btr` (PM-BTR-06 pending)
+
+---
+
 ## Routing Summary
 
 | Item | Routing | Certainty |
 |------|---------|-----------|
 | B-XFER-1 | bolt-daemon | Confirmed |
 | REL-ARCH1 | bolt-daemon + bolt-ecosystem | Confirmed |
-| SEC-DR1 | bolt-core-sdk + bolt-protocol | Confirmed |
+| SEC-DR1 | bolt-core-sdk + bolt-protocol | Confirmed (SUPERSEDED by SEC-BTR1) |
+| SEC-BTR1 | bolt-core-sdk + bolt-protocol | Confirmed |
 | T-STREAM-0 | New crate + bolt-daemon consumer | Confirmed |
 | T-STREAM-1 | bolt-core-sdk (TS) + WASM | Confirmed |
 | SEC-CORE2 | bolt-core-sdk (Rust primary) | Confirmed |
@@ -377,7 +388,10 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 |----|----------------|--------|----------|
 | PM-FB-01 | B-XFER-1: Should concurrent transfers be in scope or deferred further? | AC-BX scope | NOW |
 | PM-FB-02 | REL-ARCH1: Code signing budget/infrastructure (macOS notarization, Windows Authenticode) | AC-RA-04 | NOW |
-| PM-FB-03 | SEC-DR1: Confirm DR-STREAM (phased) vs single-gate approach | DR scope | **RESOLVED** (DR-STREAM-1 confirmed at P0) |
+| PM-FB-03 | SEC-DR1: Confirm DR-STREAM (phased) vs single-gate approach | DR scope | **RESOLVED** → **SUPERSEDED** (DR replaced by BTR per PM-BTR-01–04) |
+| PM-FB-08 | SEC-BTR1: Confirm downgrade-with-warning as default compat mode | BTR-0 spec lock | NEXT |
+| PM-FB-09 | SEC-BTR1: Confirm memory-only key storage | BTR-0 spec lock | NEXT |
+| PM-FB-10 | SEC-BTR1: External security audit timing (pre-GA or pre-default-on?) | BTR-4/BTR-5 | NEXT |
 | PM-FB-04 | T-STREAM-0: Crate naming and repository location (new repo vs bolt-core-sdk workspace member) | AC-TC-01 | NEXT |
 | PM-FB-05 | PLAT-CORE1: Crate topology decision — when to start architecture work | Stream codification | LATER |
 | PM-FB-06 | MOB-RUNTIME1: Target platforms (iOS-only? Android-only? Both?) | Stream codification | LATER |

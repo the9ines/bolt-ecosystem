@@ -5,7 +5,32 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
-## SEC-DR1 P0 — Double Ratchet Stream Kickoff — 2026-03-09
+## SEC-BTR1 — Bolt Transfer Ratchet Replaces Double Ratchet — 2026-03-09
+
+- **SEC-BTR1 P0 DONE:** Bolt Transfer Ratchet (BTR) codified as replacement for Double Ratchet (DR)
+- **PM decisions (PM-BTR-01 through PM-BTR-04):**
+  - BTR is replacement architecture (not rename/complement)
+  - REPLACES mode: SEC-BTR1 replaces active execution of SEC-DR1
+  - SEC-BTR1 approved as active NEXT security stream
+  - DR-STREAM-1 deprecated: SUPERSEDED-BY-BTR, frozen for traceability
+- **Why BTR instead of DR:**
+  - Double Ratchet designed for async bidirectional messaging (Signal) — wrong fit for file transfer
+  - BTR is transfer-scoped: per-transfer key isolation via HKDF, per-chunk symmetric ratchet, DH ratchet at transfer boundaries
+  - No out-of-order complexity (Bolt chunks are ordered)
+  - No bidirectional chains (transfers are unidirectional)
+  - Simpler state (~164B vs ~200B+ with skipped keys), same security properties
+- **BTR-STREAM-1:** 6 phases (BTR-0 through BTR-5), 40 acceptance criteria (AC-BTR-01 through AC-BTR-40)
+- **Capability string:** `bolt.transfer-ratchet-v1`
+- **Crate name:** `bolt-btr` (PM-BTR-06 pending)
+- **DR-STREAM-1:** Frozen (SUPERSEDED-BY-BTR). All content preserved for traceability. No phases will execute.
+- **DR P0 audit findings:** Inherited by BTR-STREAM-1 (rendezvous opacity, shared-crate feasibility, etc.)
+- **Tracker:** DR-F series frozen. BTR-F series reserved (BTR-F1–BTR-F99)
+- **No code changes** — governance transition only
+- Ecosystem tag: `ecosystem-v0.1.100-sec-btr1-replaces-dr`
+
+---
+
+## SEC-DR1 P0 — Double Ratchet Stream Kickoff — 2026-03-09 [SUPERSEDED by SEC-BTR1]
 
 - **SEC-DR1 P0 DONE:** Stream kickoff — docs codification + read-only audit complete
 - **Stream confirmed:** DR-STREAM-1 (phased, 6 phases: DR-0 through DR-5)
