@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-09 (RECON-XFER-1 evidence tail correction — RX-EVID-1 registered)
+> **Last Updated:** 2026-03-09 (BTR-1 Rust reference implementation — sdk-v0.5.36-btr1-rust-reference)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---

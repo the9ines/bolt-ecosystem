@@ -5,6 +5,34 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## BTR-1 — Rust Reference Implementation (SEC-BTR1) — 2026-03-09
+
+- **BTR-1 DONE:** Rust reference implementation of Bolt Transfer Ratchet.
+- **New crate: `bolt-btr` v0.1.0** — transport-agnostic BTR engine.
+  - `key_schedule.rs`: HKDF-SHA256 derivation chain (session root, transfer root, chain advance, message key)
+  - `ratchet.rs`: Inter-transfer DH ratchet step (fresh X25519 keypair per transfer boundary)
+  - `encrypt.rs`: NaCl secretbox (XSalsa20-Poly1305) keyed by BTR message_key
+  - `state.rs`: BtrEngine + BtrTransferContext with lifecycle cleanup and zeroize-on-drop
+  - `replay.rs`: (transfer_id, generation, chain_index) replay guard with ORDER-BTR enforcement
+  - `negotiate.rs`: 6-cell capability negotiation matrix (§4)
+  - `errors.rs`: 4 BTR error types with wire code mapping and disconnect/cancel semantics
+  - `vectors.rs`: Deterministic golden vector generator (feature-gated)
+- **Wire error registry extended:** bolt-core WIRE_ERROR_CODES 22 → 26 codes (+4 BTR)
+- **6 golden vector files generated** (Rust-authority, for BTR-2 TS parity):
+  - `btr-key-schedule.vectors.json` (3 vectors)
+  - `btr-transfer-ratchet.vectors.json` (4 vectors)
+  - `btr-chain-advance.vectors.json` (5 vectors)
+  - `btr-replay-reject.vectors.json` (4 vectors)
+  - `btr-downgrade-negotiate.vectors.json` (6 vectors)
+  - `btr-dh-ratchet.vectors.json` (3 vectors)
+- **Dependency audit (AC-BTR-22):** Zero transport/I/O/async deps. Pure crypto + state.
+- **Zeroization (AC-BTR-21):** All secret structs use `zeroize` crate with ZeroizeOnDrop.
+- **Tests:** 58 new bolt-btr tests + 7 vector golden tests = 65 new. 280 total workspace pass.
+- **Regression (AC-BTR-23):** All existing bolt-core, bolt-transfer-core, conformance, wasm-parity tests pass.
+- Tag: `sdk-v0.5.36-btr1-rust-reference` (cc4965e)
+
+---
+
 ## BTR-0 — Spec + Capability Negotiation Lock (SEC-BTR1) — 2026-03-09
 
 - **BTR-0 DONE:** Protocol specification locked for Bolt Transfer Ratchet.
