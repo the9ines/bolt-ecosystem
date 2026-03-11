@@ -4091,8 +4091,8 @@ CONSUMER-BTR-1 is a rollout stream, not a feature stream. No protocol or SDK cha
 
 | ID | Decision | Blocks | Priority | Status |
 |----|----------|--------|----------|--------|
-| PM-CBTR-01 | Confirm CBTR-1 first (localbolt-v3 as primary rollout target) | Phase sequencing | NOW | PENDING |
-| PM-CBTR-02 | Dark launch burn-in: per-consumer or shared across stream? | Rollout timing | NOW | PENDING |
+| PM-CBTR-01 | Confirm CBTR-1 first (localbolt-v3 as primary rollout target) | Phase sequencing | NOW | **APPROVED** — rollout order: localbolt-v3 → localbolt → localbolt-app |
+| PM-CBTR-02 | Dark launch burn-in: per-consumer or shared across stream? | Rollout timing | NOW | **APPROVED** — 24h clean run per phase before promoting to next consumer |
 
 ### Risk Register
 

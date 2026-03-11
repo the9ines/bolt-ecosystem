@@ -5,6 +5,20 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## CONSUMER-BTR-1 — CBTR-1 P1 Executed (localbolt-v3 BTR Enabled) — 2026-03-11
+
+- **PM-CBTR-01 APPROVED:** Rollout order confirmed — localbolt-v3 → localbolt → localbolt-app
+- **PM-CBTR-02 APPROVED:** 24h clean run per phase before promoting to next consumer
+- **CBTR-1 P1 DONE:** `btrEnabled: true` added to localbolt-v3 `peer-connection.ts` WebRTCServiceOptions
+  - Tag: `v3.0.89-consumer-btr1-p1` (`e34e617`)
+  - Tests: 145 passing (75 localbolt-web + 70 localbolt-core), build green
+  - 6 new compatibility tests in `cbtr1-btr-compatibility.test.ts`
+- **Burn-in gate:** 24h clean run required before CBTR-2 (localbolt)
+- **Governance sync:** PM decisions, STATE.md, FORWARD_BACKLOG.md updated
+- Tag: `ecosystem-v0.1.109-cbtr1-p1-executed`
+
+---
+
 ## CONSUMER-BTR-1 — Stream Codification (Consumer App BTR Rollout) — 2026-03-11
 
 - **New stream codified:** CONSUMER-BTR-1 (outside BTR-STREAM-1 per BTR-G8)
