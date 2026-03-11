@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-09 (PM-BTR-02 + PM-BTR-03 approved — downgrade-with-warning + memory-only locked)
-> **Codified:** ecosystem-v0.1.101-btr-pm-decisions
+> **Updated:** 2026-03-11 (BTR-5 decision gate — BTR-0 through BTR-4 DONE, BTR-5 STOP FOR APPROVAL)
+> **Codified:** ecosystem-v0.1.106-btr5-decision-gate
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
 ---
@@ -323,7 +323,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 11: SEC-BTR1 — Bolt Transfer Ratchet Pre-ByteBolt Security Gate
 
 **Priority:** NEXT
-**Status:** **P0 DONE** (stream kickoff — replacement architecture codified)
+**Status:** **BTR-0 through BTR-4 DONE. BTR-5 IN-PROGRESS** (PM decision gate — STOP FOR APPROVAL)
 **Routing:** bolt-core-sdk (Rust crate + TS parity), bolt-protocol (spec amendment)
 **Category:** Security — pre-ByteBolt gate (blocks ByteBolt start)
 **Stream:** BTR-STREAM-1 (phased)
@@ -342,12 +342,12 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 | Phase | Description | Serial Gate | Status |
 |-------|-------------|-------------|--------|
-| BTR-0 | Spec + capability negotiation lock | YES (gates all) | NOT-STARTED |
-| BTR-1 | Rust reference BTR state machine | YES (gates BTR-2, BTR-3) | NOT-STARTED |
-| BTR-2 | TypeScript parity implementation | NO (parallel with BTR-3) | NOT-STARTED |
-| BTR-3 | Cross-language vectors + conformance harness | NO (parallel with BTR-2) | NOT-STARTED |
-| BTR-4 | Wire integration + compatibility rollout gates | YES (ByteBolt gate) | NOT-STARTED |
-| BTR-5 | Default-on + legacy path deprecation decision | PM decision gate | NOT-STARTED |
+| BTR-0 | Spec + capability negotiation lock | YES (gates all) | **DONE** (`v0.1.6-spec-btr0-lock`) |
+| BTR-1 | Rust reference BTR state machine | YES (gates BTR-2, BTR-3) | **DONE** (`sdk-v0.5.36-btr1-rust-reference`) |
+| BTR-2 | TypeScript parity implementation | NO (parallel with BTR-3) | **DONE** (`sdk-v0.5.37-btr2-ts-parity`) |
+| BTR-3 | Cross-language vectors + conformance harness | NO (parallel with BTR-2) | **DONE** (`sdk-v0.5.38-btr3-conformance-gapfill`) |
+| BTR-4 | Wire integration + compatibility rollout gates | YES (ByteBolt gate) | **DONE** (`sdk-v0.5.39-btr4-wire-integration`) |
+| BTR-5 | Default-on + legacy path deprecation decision | PM decision gate | **IN-PROGRESS** (STOP FOR APPROVAL) |
 
 **Acceptance Criteria:** 40 ACs defined (AC-BTR-01 through AC-BTR-40). See `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1 for full list.
 

@@ -3584,7 +3584,7 @@ DR-3 completion requires:
 > **Priority:** NEXT (pre-ByteBolt gate — blocks ByteBolt start)
 > **Repos:** bolt-core-sdk (Rust + TS), bolt-protocol (spec amendment)
 > **Codified:** ecosystem-v0.1.100-sec-btr1-replaces-dr (2026-03-09)
-> **Status:** BTR-0 DONE (spec lock). BTR-1 UNBLOCKED.
+> **Status:** BTR-0 through BTR-4 DONE. BTR-5 IN-PROGRESS (PM decision gate — STOP FOR APPROVAL).
 > **Replaces:** DR-STREAM-1 (SEC-DR1) — per PM-BTR-01 through PM-BTR-04
 
 ---
@@ -3693,11 +3693,11 @@ The following findings from DR-STREAM-1 P0 (ecosystem-v0.1.99) remain valid and 
 | Phase | Description | Serial Gate | Dependencies | Parallelizable With | Status |
 |-------|-------------|-------------|--------------|---------------------|--------|
 | **BTR-0** | Spec + capability negotiation lock | YES — gates all subsequent phases | None (independent) | — | **DONE** (`v0.1.6-spec-btr0-lock`, `ecosystem-v0.1.102-btr0-spec-lock`) |
-| **BTR-1** | Rust reference BTR state machine | YES — gates BTR-2, BTR-3 | BTR-0 complete | — | **UNBLOCKED** (NOT-STARTED) |
-| **BTR-2** | TypeScript parity implementation | NO | BTR-1 complete (vectors available) | BTR-3 (partial) | NOT-STARTED |
-| **BTR-3** | Cross-language vectors + conformance harness | NO | BTR-1 complete | BTR-2 (partial) | NOT-STARTED |
-| **BTR-4** | Wire integration + compatibility rollout gates | YES — gates ByteBolt start | BTR-2 + BTR-3 complete | — | NOT-STARTED |
-| **BTR-5** | Default-on + legacy path deprecation decision | PM decision gate | BTR-4 deployed + burn-in data | — | NOT-STARTED |
+| **BTR-1** | Rust reference BTR state machine | YES — gates BTR-2, BTR-3 | BTR-0 complete | — | **DONE** (`sdk-v0.5.36-btr1-rust-reference`, `cc4965e`) |
+| **BTR-2** | TypeScript parity implementation | NO | BTR-1 complete (vectors available) | BTR-3 (partial) | **DONE** (`sdk-v0.5.37-btr2-ts-parity`, `a9c6d33`) |
+| **BTR-3** | Cross-language vectors + conformance harness | NO | BTR-1 complete | BTR-2 (partial) | **DONE** (`sdk-v0.5.38-btr3-conformance-gapfill`, `ec37998`) |
+| **BTR-4** | Wire integration + compatibility rollout gates | YES — gates ByteBolt start | BTR-2 + BTR-3 complete | — | **DONE** (`sdk-v0.5.39-btr4-wire-integration`, `a7b3a7b`) |
+| **BTR-5** | Default-on + legacy path deprecation decision | PM decision gate | BTR-4 deployed + burn-in data | — | **IN-PROGRESS** (decision memo: `docs/BTR5_DECISION_MEMO.md` — STOP FOR APPROVAL) |
 
 #### Dependency DAG
 
@@ -4056,7 +4056,7 @@ Follows existing `bolt.*` namespace convention. Negotiated via HELLO `capabiliti
 | B-XFER-1 | Transfer pause/resume completion (daemon transfer SM remaining scope) | NOW | bolt-daemon | **DONE** (`daemon-v0.2.35-bxfer1-pause-resume`, `9f087a1`) |
 | REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem | **DONE** (`daemon-v0.2.38-relarch1-multiarch-matrix`, `ab56606`) |
 | SEC-DR1 | Double Ratchet pre-ByteBolt security gate (DR-STREAM-1) | ~~NEXT~~ | bolt-core-sdk + bolt-protocol | **SUPERSEDED-BY: SEC-BTR1** (frozen) |
-| SEC-BTR1 | Bolt Transfer Ratchet pre-ByteBolt security gate (BTR-STREAM-1) | NEXT | bolt-core-sdk + bolt-protocol | **P0-DONE** (stream kickoff codified) |
+| SEC-BTR1 | Bolt Transfer Ratchet pre-ByteBolt security gate (BTR-STREAM-1) | NEXT | bolt-core-sdk + bolt-protocol | **BTR-0–4 DONE. BTR-5 IN-PROGRESS** (PM decision gate — STOP FOR APPROVAL) |
 | T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | `bolt-transfer-core` (bolt-core-sdk workspace) + daemon consumer | **DONE** (`sdk-v0.5.30-tstream0-transfer-core-v1`) |
 | SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk | NOT-STARTED |
 | T-STREAM-1 | Browser selective WASM integration | LATER | bolt-core-sdk (TS) + WASM | NOT-STARTED |
