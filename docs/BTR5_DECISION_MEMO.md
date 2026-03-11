@@ -1,6 +1,6 @@
 # BTR-5 Decision Memo — Default-On + Legacy Deprecation Gate
 
-> **Status:** STOP FOR APPROVAL — PM decision required
+> **Status:** GO — PM-approved default-on fail-open policy (Option C)
 > **Phase:** BTR-5 (PM decision gate, not engineering)
 > **Stream:** BTR-STREAM-1 (SEC-BTR1)
 > **Author:** Governance agent
@@ -146,12 +146,10 @@
 4. **Security improvement is substantial.** Four new security properties (per-chunk FS, transfer isolation, self-healing, backward secrecy) with no user action required.
 5. **Dark launch provides no additional signal** without real traffic. The test corpus is comprehensive; the remaining risk is operational, not algorithmic.
 
-**Conditional on:** PM approval of PM-BTR-08, PM-BTR-09, PM-BTR-11 (drafted below).
-
-**Required PM approvals for Option C:**
-- PM-BTR-08: Accept 2-week dark-launch burn-in as sufficient
-- PM-BTR-09: Accept deprecation timeline (6 months after default-on, contingent on adoption)
-- PM-BTR-11: Accept external audit before GA (not before default-on)
+**PM approvals (all resolved 2026-03-11):**
+- PM-BTR-08: **APPROVED** — 14 consecutive days, zero BTR protocol errors before default-on
+- PM-BTR-09: **APPROVED** — 6 months after default-on + >95% adoption + external audit complete
+- PM-BTR-11: **APPROVED** — external audit before GA/legacy deprecation, not before default-on
 
 ---
 
@@ -171,7 +169,7 @@
 
 **Measurable acceptance condition:** Zero `RATCHET_STATE_ERROR`, `RATCHET_CHAIN_ERROR`, `RATCHET_DECRYPT_FAIL` errors in opt-in sessions over 14 consecutive days.
 
-**Current status:** PENDING PM APPROVAL.
+**Current status:** **APPROVED** — 14 consecutive days, zero BTR protocol errors in opt-in sessions.
 
 ### PM-BTR-09: Legacy Deprecation Timeline
 
@@ -188,7 +186,7 @@
 
 **Measurable acceptance condition:** Telemetry shows >95% of successful connections use BTR for 30 consecutive days, AND external security audit complete with no HIGH findings unresolved.
 
-**Current status:** PENDING PM APPROVAL.
+**Current status:** **APPROVED** — 6 months after default-on, >95% adoption, external audit complete.
 
 ### PM-BTR-11: External Security Audit Timing
 
@@ -206,7 +204,7 @@
 
 **Measurable acceptance condition:** External auditor engaged within 60 days of default-on. Audit report delivered before PM-BTR-09 deprecation gate.
 
-**Current status:** PENDING PM APPROVAL.
+**Current status:** **APPROVED** — external audit required before GA/legacy deprecation, not before default-on fail-open.
 
 ---
 
@@ -228,12 +226,12 @@
 | 12 | Adversarial vectors | PASS | Wrong-key, chain-desync, replay, malformed |
 | 13 | PM-BTR-02 (downgrade-with-warning) | PASS | APPROVED |
 | 14 | PM-BTR-03 (memory-only) | PASS | APPROVED |
-| 15 | PM-BTR-08 (dark launch duration) | **PENDING** | Draft: 2 weeks |
-| 16 | PM-BTR-09 (legacy deprecation) | **PENDING** | Draft: 6 months + >95% adoption |
-| 17 | PM-BTR-11 (external audit timing) | **PENDING** | Draft: before GA, not before default-on |
+| 15 | PM-BTR-08 (dark launch duration) | **PASS** | **APPROVED** — 14 days, zero BTR errors |
+| 16 | PM-BTR-09 (legacy deprecation) | **PASS** | **APPROVED** — 6 months + >95% adoption + audit |
+| 17 | PM-BTR-11 (external audit timing) | **PASS** | **APPROVED** — before GA, not before default-on |
 | 18 | Consumer app rollout plan | **OUT OF SCOPE** | BTR-G8: consumer apps excluded from BTR-STREAM-1 |
 
-**Agent assessment: CONDITIONAL GO** — all engineering gates PASS. Three PM decisions (PM-BTR-08/09/11) require approval before proceeding.
+**Gate result: GO** — all 17 applicable gates PASS. PM-BTR-08/09/11 approved. Option C (default-on, fail-open with downgrade-with-warning) is the approved rollout policy.
 
 ---
 
@@ -327,4 +325,4 @@ AC-BTR-36 requires: "Daemon integration: `bolt-daemon` consumes `bolt-btr` crate
 
 ---
 
-*This memo is a STOP artifact. No code or config changes may proceed until PM approves the default-on decision and resolves PM-BTR-08, PM-BTR-09, and PM-BTR-11.*
+*BTR-5 gate: GO. PM-BTR-08/09/11 approved (2026-03-11). Option C (default-on, fail-open) is the approved policy. Next: CONSUMER-BTR-1 stream for consumer app rollout (outside BTR-STREAM-1 per BTR-G8).*

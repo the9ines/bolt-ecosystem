@@ -3584,7 +3584,7 @@ DR-3 completion requires:
 > **Priority:** NEXT (pre-ByteBolt gate — blocks ByteBolt start)
 > **Repos:** bolt-core-sdk (Rust + TS), bolt-protocol (spec amendment)
 > **Codified:** ecosystem-v0.1.100-sec-btr1-replaces-dr (2026-03-09)
-> **Status:** BTR-0 through BTR-4 DONE. BTR-5 IN-PROGRESS (PM decision gate — STOP FOR APPROVAL).
+> **Status:** BTR-STREAM-1 COMPLETE. BTR-0 through BTR-5 DONE. Approved policy: default-on fail-open (Option C).
 > **Replaces:** DR-STREAM-1 (SEC-DR1) — per PM-BTR-01 through PM-BTR-04
 
 ---
@@ -3697,7 +3697,7 @@ The following findings from DR-STREAM-1 P0 (ecosystem-v0.1.99) remain valid and 
 | **BTR-2** | TypeScript parity implementation | NO | BTR-1 complete (vectors available) | BTR-3 (partial) | **DONE** (`sdk-v0.5.37-btr2-ts-parity`, `a9c6d33`) |
 | **BTR-3** | Cross-language vectors + conformance harness | NO | BTR-1 complete | BTR-2 (partial) | **DONE** (`sdk-v0.5.38-btr3-conformance-gapfill`, `ec37998`) |
 | **BTR-4** | Wire integration + compatibility rollout gates | YES — gates ByteBolt start | BTR-2 + BTR-3 complete | — | **DONE** (`sdk-v0.5.39-btr4-wire-integration`, `a7b3a7b`) |
-| **BTR-5** | Default-on + legacy path deprecation decision | PM decision gate | BTR-4 deployed + burn-in data | — | **IN-PROGRESS** (decision memo: `docs/BTR5_DECISION_MEMO.md` — STOP FOR APPROVAL) |
+| **BTR-5** | Default-on + legacy path deprecation decision | PM decision gate | BTR-4 deployed + burn-in data | — | **DONE** (GO — Option C approved: default-on fail-open. PM-BTR-08/09/11 approved 2026-03-11) |
 
 #### Dependency DAG
 
@@ -3949,7 +3949,7 @@ Follows existing `bolt.*` namespace convention. Negotiated via HELLO `capabiliti
 
 | ID | Criterion | Evidence Required |
 |----|-----------|------------------|
-| AC-BTR-40 | AC: TBD at BTR-4 completion | — |
+| AC-BTR-40 | PM approval of default-on decision with PM-BTR-08/09/11 resolved | **SATISFIED** — GO decision recorded in `docs/BTR5_DECISION_MEMO.md` (Option C: default-on fail-open). PM-BTR-08/09/11 APPROVED 2026-03-11. |
 
 ---
 
@@ -3991,10 +3991,10 @@ Follows existing `bolt.*` namespace convention. Negotiated via HELLO `capabiliti
 | PM-BTR-05 | Envelope version field: bump to `2` vs capability-only gate | BTR-0 spec lock | BTR-0 | **RESOLVED** — capability-only gate (conditional fields per §16.2, no version bump needed) |
 | PM-BTR-06 | Rust crate name: `bolt-btr` (recommended) vs alternative | BTR-1 | BTR-0 | PENDING |
 | PM-BTR-07 | Vector authority: confirm Rust-generates, TS-consumes | BTR-1 | BTR-0 | **RESOLVED** — confirmed in PROTOCOL.md Appendix C (Rust generates, TS consumes) |
-| PM-BTR-08 | Dark launch duration before opt-in promotion | BTR-4 rollout | BTR-4 | PENDING |
-| PM-BTR-09 | Legacy deprecation timeline | BTR-5 | BTR-5 | PENDING |
+| PM-BTR-08 | Dark launch duration before opt-in promotion | BTR-4 rollout | BTR-4 | **APPROVED** — 14 consecutive days, zero BTR protocol errors before default-on |
+| PM-BTR-09 | Legacy deprecation timeline | BTR-5 | BTR-5 | **APPROVED** — 6 months after default-on + >95% adoption + external audit complete |
 | PM-BTR-10 | New error code names for BTR failures | BTR-0 spec lock | BTR-0 | **RESOLVED** — 4 codes: `RATCHET_STATE_ERROR`, `RATCHET_CHAIN_ERROR`, `RATCHET_DECRYPT_FAIL`, `RATCHET_DOWNGRADE_REJECTED` (PROTOCOL.md §10) |
-| PM-BTR-11 | External security audit: required before GA or before default-on? | BTR-4/BTR-5 | BTR-4 | PENDING |
+| PM-BTR-11 | External security audit: required before GA or before default-on? | BTR-4/BTR-5 | BTR-4 | **APPROVED** — required before GA/legacy deprecation, not before default-on fail-open |
 
 ---
 
@@ -4056,7 +4056,7 @@ Follows existing `bolt.*` namespace convention. Negotiated via HELLO `capabiliti
 | B-XFER-1 | Transfer pause/resume completion (daemon transfer SM remaining scope) | NOW | bolt-daemon | **DONE** (`daemon-v0.2.35-bxfer1-pause-resume`, `9f087a1`) |
 | REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem | **DONE** (`daemon-v0.2.38-relarch1-multiarch-matrix`, `ab56606`) |
 | SEC-DR1 | Double Ratchet pre-ByteBolt security gate (DR-STREAM-1) | ~~NEXT~~ | bolt-core-sdk + bolt-protocol | **SUPERSEDED-BY: SEC-BTR1** (frozen) |
-| SEC-BTR1 | Bolt Transfer Ratchet pre-ByteBolt security gate (BTR-STREAM-1) | NEXT | bolt-core-sdk + bolt-protocol | **BTR-0–4 DONE. BTR-5 IN-PROGRESS** (PM decision gate — STOP FOR APPROVAL) |
+| SEC-BTR1 | Bolt Transfer Ratchet pre-ByteBolt security gate (BTR-STREAM-1) | NEXT | bolt-core-sdk + bolt-protocol | **BTR-STREAM-1 COMPLETE** (BTR-0–5 DONE. Option C approved: default-on fail-open. PM-BTR-08/09/11 approved 2026-03-11) |
 | T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | `bolt-transfer-core` (bolt-core-sdk workspace) + daemon consumer | **DONE** (`sdk-v0.5.30-tstream0-transfer-core-v1`) |
 | SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk | NOT-STARTED |
 | T-STREAM-1 | Browser selective WASM integration | LATER | bolt-core-sdk (TS) + WASM | NOT-STARTED |

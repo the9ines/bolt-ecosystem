@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-11 (BTR-5 decision gate — ecosystem-v0.1.106-btr5-decision-gate)
+> **Last Updated:** 2026-03-11 (BTR-5 PM resolved — ecosystem-v0.1.107-btr5-pm-resolved)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -712,7 +712,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | B-XFER-1 | Transfer pause/resume completion | NOW | bolt-daemon | **DONE** (`daemon-v0.2.35-bxfer1-pause-resume`) |
 | REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem | **DONE** (`daemon-v0.2.38-relarch1-multiarch-matrix`, `ab56606`) |
 | SEC-DR1 | Double Ratchet pre-ByteBolt gate (DR-STREAM-1) | ~~NEXT~~ | bolt-core-sdk + bolt-protocol | **SUPERSEDED-BY: SEC-BTR1** (frozen, `ecosystem-v0.1.99-sec-dr1-p0-codify`) |
-| SEC-BTR1 | Bolt Transfer Ratchet pre-ByteBolt gate (BTR-STREAM-1) | NEXT | bolt-core-sdk + bolt-protocol | **BTR-0 DONE** (spec lock). **BTR-1 DONE** (Rust reference, sdk-v0.5.36). **BTR-2 DONE** (TS parity, sdk-v0.5.37). **BTR-3 DONE** (conformance gap-fill, sdk-v0.5.38, 10 vector categories). **BTR-4 DONE** (wire integration, sdk-v0.5.39, 40 integration tests, kill switch, 338/338 transport-web). **BTR-5 IN-PROGRESS** (PM decision gate — STOP FOR APPROVAL). |
+| SEC-BTR1 | Bolt Transfer Ratchet pre-ByteBolt gate (BTR-STREAM-1) | NEXT | bolt-core-sdk + bolt-protocol | **BTR-STREAM-1 COMPLETE.** BTR-0–5 DONE. Approved policy: Option C (default-on fail-open, downgrade-with-warning). PM-BTR-08/09/11 approved 2026-03-11. Tags: sdk-v0.5.36–v0.5.39, ecosystem-v0.1.100–v0.1.107. |
 | T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | New crate + daemon | NOT-STARTED |
 | SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk | NOT-STARTED |
 | T-STREAM-1 | Browser selective WASM integration | LATER | bolt-core-sdk + WASM + consumers | **SDK DONE, CONSUMERS ADOPTED** (`sdk-v0.5.32`, `localbolt-v1.0.29`, `localbolt-app-v1.2.17`, `v3.0.82`) — manual runtime evidence pending |

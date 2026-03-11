@@ -51,15 +51,16 @@
 
 ---
 
-## AC-BTR-40 Definition
+## AC-BTR-40 — SATISFIED
 
-Now that BTR-4 is complete, AC-BTR-40 can be concretely defined:
+| ID | Criterion | Evidence Required | Status |
+|----|-----------|------------------|--------|
+| AC-BTR-40 | PM approval of default-on decision with all three decisions resolved (PM-BTR-08, PM-BTR-09, PM-BTR-11) | BTR5_DECISION_MEMO.md status=GO; PM-BTR-08/09/11 APPROVED in GOVERNANCE_WORKSTREAMS.md | **SATISFIED** (2026-03-11) |
 
-| ID | Criterion | Evidence Required |
-|----|-----------|------------------|
-| AC-BTR-40 | PM approval of default-on decision with all three pending decisions resolved (PM-BTR-08, PM-BTR-09, PM-BTR-11) | Signed-off BTR5_DECISION_MEMO.md with GO decision recorded; PM-BTR-08/09/11 status changed to APPROVED in GOVERNANCE_WORKSTREAMS.md |
-
-**Rationale:** BTR-5 is a PM decision gate, not an engineering gate. The acceptance criterion is the decision itself — approval of the rollout posture (which option from the decision memo) and resolution of the three pending PM decisions that govern rollout timing.
+**Approved policy:** Option C — default-on, fail-open (downgrade-with-warning).
+- PM-BTR-08: **APPROVED** — 14 consecutive days, zero BTR protocol errors before default-on.
+- PM-BTR-09: **APPROVED** — 6 months after default-on + >95% adoption + external audit complete.
+- PM-BTR-11: **APPROVED** — external audit before GA/legacy deprecation, not before default-on.
 
 ---
 

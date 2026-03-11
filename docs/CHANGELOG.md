@@ -5,25 +5,21 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
-## BTR-5 — Default-On Decision Gate (SEC-BTR1) — 2026-03-11
+## BTR-5 — Default-On Decision Gate — COMPLETE (SEC-BTR1) — 2026-03-11
 
-- **BTR-5 IN-PROGRESS:** PM decision gate for default-on and legacy deprecation. STOP FOR APPROVAL.
-- **BTR-4 DONE:** Wire integration complete (`sdk-v0.5.39-btr4-wire-integration`, `a7b3a7b`):
-  - P1: Capability negotiation — 5-cell matrix (FullBtr/Downgrade/StaticEphemeral/Reject) in HandshakeManager
-  - P2: Envelope fields — `ratchet_public_key`, `ratchet_generation`, `chain_index` on ProfileEnvelopeV1
-  - P3: Transfer adapter — `BtrTransferAdapter` bridges BTR core to sendFile/processChunkGuarded
-  - P4: Backward compat — kill switch defaults off, downgrade callback, reject on malformed
-  - P5: Structured log tokens — `[BTR_FULL]`, `[BTR_DOWNGRADE]`, `[BTR_DOWNGRADE_REJECTED]`
-  - P6: 40 new integration tests (negotiation, envelope, adapter, chain desync, compat matrix, reconnect/reset)
+- **BTR-STREAM-1 COMPLETE:** All 6 phases (BTR-0 through BTR-5) done. All 40 acceptance criteria satisfied (AC-BTR-36 deferred to ByteBolt stream, non-blocking).
+- **BTR-4 DONE:** Wire integration (`sdk-v0.5.39-btr4-wire-integration`, `a7b3a7b`):
+  - 5-cell negotiation matrix, envelope fields, BtrTransferAdapter, kill switch, 40 integration tests
   - Validation: 338/338 transport-web, BTR conformance 5/5, Rust fmt/clippy clean, constants parity PASS
-- **Decision memo:** `docs/BTR5_DECISION_MEMO.md` — options matrix (A: dark launch, B: opt-in, C: default-on fail-open, D: default-on fail-closed)
-- **Recommendation:** Option C (default-on, fail-open with downgrade-with-warning) — conditional on PM-BTR-08/09/11 approval
-- **Evidence index:** `docs/BTR5_EVIDENCE_INDEX.md` — AC-BTR-32 through AC-BTR-39 mapped; AC-BTR-40 defined
-- **AC-BTR-36 (daemon integration):** DEFERRED — non-blocking; follow-up in ByteBolt stream
-- **Pending PM decisions:** PM-BTR-08 (dark launch duration), PM-BTR-09 (legacy deprecation timeline), PM-BTR-11 (external audit timing)
-- **Governance reconciliation:** GOVERNANCE_WORKSTREAMS.md phase table updated (BTR-1–4 DONE, BTR-5 IN-PROGRESS), FORWARD_BACKLOG.md updated, STATE.md updated
-- **Go/no-go:** CONDITIONAL GO — all engineering gates PASS; three PM decisions PENDING
-- Tag: `ecosystem-v0.1.106-btr5-decision-gate`
+- **BTR-5 GO:** PM decision gate resolved. Option C approved (default-on, fail-open with downgrade-with-warning).
+- **PM decisions resolved (2026-03-11):**
+  - PM-BTR-08: **APPROVED** — dark launch = 14 consecutive days, zero BTR protocol errors
+  - PM-BTR-09: **APPROVED** — legacy deprecation = 6 months after default-on + >95% adoption + external audit
+  - PM-BTR-11: **APPROVED** — external audit before GA/legacy deprecation, not before default-on
+- **Decision memo:** `docs/BTR5_DECISION_MEMO.md` (status: GO)
+- **Evidence index:** `docs/BTR5_EVIDENCE_INDEX.md` (AC-BTR-32–40 all mapped/satisfied)
+- **Governance sync:** Phase table, STATE.md, FORWARD_BACKLOG.md all reconciled to COMPLETE
+- Tags: `ecosystem-v0.1.106-btr5-decision-gate` (memo), `ecosystem-v0.1.107-btr5-pm-resolved` (closeout)
 
 ---
 

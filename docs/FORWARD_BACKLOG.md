@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-11 (BTR-5 decision gate — BTR-0 through BTR-4 DONE, BTR-5 STOP FOR APPROVAL)
-> **Codified:** ecosystem-v0.1.106-btr5-decision-gate
+> **Updated:** 2026-03-11 (BTR-5 PM resolved — BTR-STREAM-1 complete, Option C approved)
+> **Codified:** ecosystem-v0.1.107-btr5-pm-resolved
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
 ---
@@ -323,7 +323,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 11: SEC-BTR1 — Bolt Transfer Ratchet Pre-ByteBolt Security Gate
 
 **Priority:** NEXT
-**Status:** **BTR-0 through BTR-4 DONE. BTR-5 IN-PROGRESS** (PM decision gate — STOP FOR APPROVAL)
+**Status:** **BTR-STREAM-1 COMPLETE** (BTR-0–5 DONE. Option C approved: default-on fail-open. PM-BTR-08/09/11 approved 2026-03-11)
 **Routing:** bolt-core-sdk (Rust crate + TS parity), bolt-protocol (spec amendment)
 **Category:** Security — pre-ByteBolt gate (blocks ByteBolt start)
 **Stream:** BTR-STREAM-1 (phased)
@@ -347,7 +347,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | BTR-2 | TypeScript parity implementation | NO (parallel with BTR-3) | **DONE** (`sdk-v0.5.37-btr2-ts-parity`) |
 | BTR-3 | Cross-language vectors + conformance harness | NO (parallel with BTR-2) | **DONE** (`sdk-v0.5.38-btr3-conformance-gapfill`) |
 | BTR-4 | Wire integration + compatibility rollout gates | YES (ByteBolt gate) | **DONE** (`sdk-v0.5.39-btr4-wire-integration`) |
-| BTR-5 | Default-on + legacy path deprecation decision | PM decision gate | **IN-PROGRESS** (STOP FOR APPROVAL) |
+| BTR-5 | Default-on + legacy path deprecation decision | PM decision gate | **DONE** (GO — Option C: default-on fail-open) |
 
 **Acceptance Criteria:** 40 ACs defined (AC-BTR-01 through AC-BTR-40). See `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1 for full list.
 
@@ -391,7 +391,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-FB-03 | SEC-DR1: Confirm DR-STREAM (phased) vs single-gate approach | DR scope | **RESOLVED** → **SUPERSEDED** (DR replaced by BTR per PM-BTR-01–04) |
 | PM-FB-08 | SEC-BTR1: Confirm downgrade-with-warning as default compat mode | BTR-0 spec lock | **APPROVED** |
 | PM-FB-09 | SEC-BTR1: Confirm memory-only key storage | BTR-0 spec lock | **APPROVED** |
-| PM-FB-10 | SEC-BTR1: External security audit timing (pre-GA or pre-default-on?) | BTR-4/BTR-5 | NEXT |
+| PM-FB-10 | SEC-BTR1: External security audit timing (pre-GA or pre-default-on?) | BTR-4/BTR-5 | **APPROVED** (PM-BTR-11: before GA, not before default-on) |
 | PM-FB-04 | T-STREAM-0: Crate naming and repository location (new repo vs bolt-core-sdk workspace member) | AC-TC-01 | NEXT |
 | PM-FB-05 | PLAT-CORE1: Crate topology decision — when to start architecture work | Stream codification | LATER |
 | PM-FB-06 | MOB-RUNTIME1: Target platforms (iOS-only? Android-only? Both?) | Stream codification | LATER |
