@@ -24,9 +24,12 @@ NOW:
   REL-ARCH1 (multi-arch build matrix) ─────────── DONE (daemon-v0.2.38)
   RECON-XFER-1 (transfer reconnect recovery) ──── PHASE-A-DONE
 
+NOW:
+  CONSUMER-BTR1 (consumer BTR rollout) ──────── depends on SEC-BTR1 completion (DONE)
+
 NEXT:
   SEC-DR1 (Double Ratchet security gate) ──────── SUPERSEDED-BY: SEC-BTR1
-  SEC-BTR1 (Bolt Transfer Ratchet) ──────────── independent (pre-ByteBolt, replaces SEC-DR1)
+  SEC-BTR1 (Bolt Transfer Ratchet) ──────────── COMPLETE (pre-ByteBolt, replaces SEC-DR1)
   T-STREAM-0 (Rust transfer core) ────────────── depends on B-XFER-1 completion
   SEC-CORE2 (Rust-first security consolidation) ── depends on S1 (DONE)
 
@@ -364,6 +367,33 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 ---
 
+## Item 12: CONSUMER-BTR1 — Consumer App BTR Rollout
+
+**Priority:** NOW
+**Status:** NOT-STARTED
+**Routing:** localbolt-v3, localbolt, localbolt-app
+**Category:** Rollout — BTR consumer adoption
+**Stream:** CONSUMER-BTR-1 (phased)
+**Dependencies:** BTR-STREAM-1 complete (`ecosystem-v0.1.107-btr5-pm-resolved`)
+
+**Context:** BTR-STREAM-1 delivered the Bolt Transfer Ratchet at the SDK level with a kill switch defaulting to OFF. The approved BTR-5 policy (Option C: default-on fail-open) requires consumer apps to adopt the BTR-capable SDK and enable `btrEnabled: true`. This is a rollout stream — no protocol or SDK changes. Each phase updates SDK dependency, enables BTR, and verifies correct behavior including downgrade with legacy peers.
+
+**Phased Plan (CONSUMER-BTR-1):**
+
+| Phase | Description | Repo | Status |
+|-------|-------------|------|--------|
+| CBTR-1 | localbolt-v3 (localbolt.app) BTR rollout | localbolt-v3 | NOT-STARTED |
+| CBTR-2 | localbolt (web) BTR rollout | localbolt | NOT-STARTED |
+| CBTR-3 | localbolt-app (Tauri native) BTR rollout | localbolt-app | NOT-STARTED |
+
+**Acceptance Criteria:** 20 ACs defined (AC-CBTR-01 through AC-CBTR-20). See `docs/GOVERNANCE_WORKSTREAMS.md` § CONSUMER-BTR-1 for full list.
+
+**Scope per phase:** Update SDK dependency to BTR-4-capable version. Enable `btrEnabled: true`. Verify BTR↔BTR and BTR↔non-BTR transfers. Verify kill switch rollback. No UI changes required.
+
+**Parallelization:** All three phases are independently deployable and may run in parallel. Recommended: CBTR-1 first (primary reproducer), then CBTR-2 + CBTR-3 in parallel.
+
+---
+
 ## Routing Summary
 
 | Item | Routing | Certainty |
@@ -379,6 +409,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | MOB-RUNTIME1 | TBD — architecture decision required | Uncertain |
 | ARCH-WASM1 | bolt-core-sdk + WASM | Confirmed |
 | RECON-XFER-1 | bolt-core-sdk (TS primary) + consumers (verification) | Confirmed |
+| CONSUMER-BTR1 | localbolt-v3 + localbolt + localbolt-app | Confirmed |
 
 ---
 
@@ -399,3 +430,5 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-RX-01 | RECON-XFER-1: Confirm severity NOW / HIGH | Execution priority | **APPROVED** |
 | PM-RX-02 | RECON-XFER-1: Confirm Phase A primary reproducer (localbolt.app via localbolt-v3) | Phase A scope | **APPROVED** |
 | PM-RX-03 | RECON-XFER-1: Confirm daemon investigation is escalation-only | Phase A scope | **APPROVED** |
+| PM-CBTR-01 | CONSUMER-BTR1: Confirm CBTR-1 first (localbolt-v3 as primary rollout target) | Phase sequencing | NOW |
+| PM-CBTR-02 | CONSUMER-BTR1: Dark launch burn-in per-consumer or shared across stream? | Rollout timing | NOW |

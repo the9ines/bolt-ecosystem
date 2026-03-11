@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-09 (SEC-BTR1 replaces SEC-DR1 — DR-F frozen, BTR-F reserved)
+**Last updated:** 2026-03-11 (CONSUMER-BTR-1 codified — CBTR-F series reserved)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -555,3 +555,17 @@ DR-F series (DR-F1–DR-F99) frozen. No new findings will be registered under th
 **Audit ID reservation:** `BTR-F1` through `BTR-F99` reserved for findings discovered during BTR-STREAM-1 phase execution (BTR-0 through BTR-5). IDs are non-colliding with all existing series (S, N, AC, DP, NF, RX, Q, N1-F, DR-F).
 
 No execution findings in this pass. Findings will be registered here with `BTR-F<N>` IDs when evidence is confirmed during phase execution.
+
+---
+
+## CONSUMER-BTR-1 — Consumer App BTR Rollout
+
+> **Finding series reservation:** `CBTR-F*`
+> **Codified:** ecosystem-v0.1.108-consumer-btr1-codify (2026-03-11)
+> **Status:** NOT-STARTED. Stream codified. No phases executed.
+> **Full specification:** `docs/GOVERNANCE_WORKSTREAMS.md` § CONSUMER-BTR-1
+> **Depends on:** BTR-STREAM-1 (COMPLETE)
+
+**Audit ID reservation:** `CBTR-F1` through `CBTR-F99` reserved for findings discovered during CONSUMER-BTR-1 phase execution (CBTR-1 through CBTR-3). IDs are non-colliding with all existing series (S, I, Q, A, M, N, AC, DP, NF, RX, DR-F, BTR-F).
+
+No execution findings in this pass. Findings will be registered here with `CBTR-F<N>` IDs when evidence is confirmed during phase execution.

@@ -4011,6 +4011,99 @@ Follows existing `bolt.*` namespace convention. Negotiated via HELLO `capabiliti
 
 ---
 
+## CONSUMER-BTR-1 — Consumer App BTR Rollout
+
+> **Stream ID:** CONSUMER-BTR-1
+> **Backlog Item:** CONSUMER-BTR1 (new — post-BTR-STREAM-1)
+> **Priority:** NOW (next after BTR-STREAM-1 completion)
+> **Repos:** localbolt-v3, localbolt, localbolt-app
+> **Prerequisite:** BTR-STREAM-1 COMPLETE (`ecosystem-v0.1.107-btr5-pm-resolved`)
+> **Status:** NOT-STARTED
+> **Scope boundary:** BTR-G8 requires consumer rollout to be a separate stream from BTR-STREAM-1.
+
+---
+
+### Context & Motivation
+
+BTR-STREAM-1 delivered the Bolt Transfer Ratchet at the SDK level (bolt-core + bolt-transport-web) with a kill switch defaulting to OFF. The approved BTR-5 policy (Option C: default-on fail-open) requires consumer apps to adopt the BTR-capable SDK version and enable `btrEnabled: true` in their configuration.
+
+CONSUMER-BTR-1 is a rollout stream, not a feature stream. No protocol or SDK changes are expected. Each phase updates the SDK dependency, enables BTR, and verifies correct behavior (including downgrade with legacy peers).
+
+### Scope Guardrails
+
+| ID | Guardrail |
+|----|-----------|
+| CBTR-G1 | No SDK code changes in this stream (SDK work belongs in bolt-core-sdk) |
+| CBTR-G2 | No protocol semantic changes |
+| CBTR-G3 | No UI changes required (BTR is transparent to users; downgrade warning is callback-only) |
+| CBTR-G4 | Each consumer phase is independently deployable — partial rollout is valid |
+| CBTR-G5 | Kill switch (`btrEnabled`) must remain available for per-consumer rollback |
+| CBTR-G6 | Mixed-version peer testing required (BTR consumer ↔ non-BTR consumer) |
+
+### CONSUMER-BTR-1 Phase Table
+
+| Phase | Description | Repo | Dependencies | Status |
+|-------|-------------|------|--------------|--------|
+| **CBTR-1** | localbolt-v3 (localbolt.app) BTR rollout | localbolt-v3 | BTR-STREAM-1 complete | NOT-STARTED |
+| **CBTR-2** | localbolt (web) BTR rollout | localbolt | BTR-STREAM-1 complete | NOT-STARTED |
+| **CBTR-3** | localbolt-app (Tauri native) BTR rollout | localbolt-app | BTR-STREAM-1 complete | NOT-STARTED |
+
+**Parallelization:** CBTR-1, CBTR-2, CBTR-3 are fully independent and MAY run in parallel. Each operates in a separate repo with no shared code changes. Recommended sequencing: CBTR-1 first (primary reproducer for prior BTR testing), then CBTR-2 and CBTR-3 in parallel.
+
+### Acceptance Criteria
+
+#### CBTR-1 — localbolt-v3 BTR Rollout
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-CBTR-01 | SDK dependency updated to BTR-4-capable version (bolt-core + bolt-transport-web) | `package.json` diff |
+| AC-CBTR-02 | `btrEnabled: true` in WebRTCService configuration | Config diff |
+| AC-CBTR-03 | BTR↔BTR transfer succeeds (two localbolt-v3 peers) | Manual or automated smoke test |
+| AC-CBTR-04 | BTR↔non-BTR transfer succeeds with downgrade warning | Mixed-version peer test |
+| AC-CBTR-05 | Kill switch rollback: `btrEnabled: false` restores v1 behavior | Rollback test |
+| AC-CBTR-06 | All existing tests pass (no regression) | CI gate |
+| AC-CBTR-07 | `[BTR_FULL]` and `[BTR_DOWNGRADE]` log tokens observable | Log verification |
+
+#### CBTR-2 — localbolt BTR Rollout
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-CBTR-08 | SDK dependency updated to BTR-4-capable version | `package.json` diff |
+| AC-CBTR-09 | `btrEnabled: true` in WebRTCService configuration | Config diff |
+| AC-CBTR-10 | BTR↔BTR transfer succeeds | Smoke test |
+| AC-CBTR-11 | BTR↔non-BTR transfer succeeds with downgrade | Mixed-version test |
+| AC-CBTR-12 | Kill switch rollback verified | Rollback test |
+| AC-CBTR-13 | All existing tests pass (no regression) | CI gate |
+
+#### CBTR-3 — localbolt-app BTR Rollout
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-CBTR-14 | SDK dependency updated to BTR-4-capable version | `package.json` diff |
+| AC-CBTR-15 | `btrEnabled: true` in WebRTCService configuration | Config diff |
+| AC-CBTR-16 | BTR↔BTR transfer succeeds | Smoke test |
+| AC-CBTR-17 | BTR↔non-BTR transfer succeeds with downgrade | Mixed-version test |
+| AC-CBTR-18 | Kill switch rollback verified | Rollback test |
+| AC-CBTR-19 | All existing tests pass (no regression) | CI gate |
+| AC-CBTR-20 | Tauri native transport path unaffected (BTR is WebRTC-layer only) | Tauri build + smoke |
+
+### PM Decisions
+
+| ID | Decision | Blocks | Priority | Status |
+|----|----------|--------|----------|--------|
+| PM-CBTR-01 | Confirm CBTR-1 first (localbolt-v3 as primary rollout target) | Phase sequencing | NOW | PENDING |
+| PM-CBTR-02 | Dark launch burn-in: per-consumer or shared across stream? | Rollout timing | NOW | PENDING |
+
+### Risk Register
+
+| ID | Risk | Severity | Mitigation |
+|----|------|----------|------------|
+| CBTR-R1 | Consumer SDK version mismatch during partial rollout | LOW | Capability negotiation handles mixed fleet; downgrade-with-warning |
+| CBTR-R2 | Consumer-specific integration issues (Tauri, Netlify, etc.) | LOW | Per-consumer smoke tests; kill switch for immediate rollback |
+| CBTR-R3 | Dark launch burn-in period delays security benefit | LOW | 14-day window per PM-BTR-08; parallelizable across consumers |
+
+---
+
 ## Tag Naming Rules
 
 | Workstream | Repo | Format | Example |
@@ -4021,6 +4114,7 @@ Follows existing `bolt.*` namespace convention. Negotiated via HELLO `capabiliti
 | B-stream (B6) | bolt-daemon | `daemon-vX.Y.Z-event-loop-B6` | `daemon-v0.2.24-event-loop-B6` |
 | D-E2E | bolt-daemon | `daemon-vX.Y.Z-e2e-1` | `daemon-v0.2.25-e2e-1` |
 | C-stream (consumers) | localbolt-v3, localbolt, localbolt-app | `<repo-prefix>-C<N>-<slug>` | `v3.0.70-C3-core-migration` |
+| CONSUMER-BTR-1 | localbolt-v3, localbolt, localbolt-app | `<repo-prefix>-cbtr<N>-<slug>` | `v3.0.90-cbtr1-btr-rollout` |
 | C-stream (localbolt-core) | TBD (pending C1) | Deferred to C1 ARCH-08 disposition | — |
 | D-stream (SDK) | bolt-core-sdk | `sdk-v<next>-d3-registry-migration` | `sdk-v0.5.28-d3-registry-migration` |
 | D-stream (v3) | localbolt-v3 | `v3.0.<N>-d<phase>-<slug>` | `v3.0.75-d4-netlify-hardening` |
@@ -4057,6 +4151,7 @@ Follows existing `bolt.*` namespace convention. Negotiated via HELLO `capabiliti
 | REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem | **DONE** (`daemon-v0.2.38-relarch1-multiarch-matrix`, `ab56606`) |
 | SEC-DR1 | Double Ratchet pre-ByteBolt security gate (DR-STREAM-1) | ~~NEXT~~ | bolt-core-sdk + bolt-protocol | **SUPERSEDED-BY: SEC-BTR1** (frozen) |
 | SEC-BTR1 | Bolt Transfer Ratchet pre-ByteBolt security gate (BTR-STREAM-1) | NEXT | bolt-core-sdk + bolt-protocol | **BTR-STREAM-1 COMPLETE** (BTR-0–5 DONE. Option C approved: default-on fail-open. PM-BTR-08/09/11 approved 2026-03-11) |
+| CONSUMER-BTR1 | Consumer app BTR rollout (CONSUMER-BTR-1) | NOW | localbolt-v3, localbolt, localbolt-app | NOT-STARTED (20 ACs, 3 phases: CBTR-1/2/3) |
 | T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | `bolt-transfer-core` (bolt-core-sdk workspace) + daemon consumer | **DONE** (`sdk-v0.5.30-tstream0-transfer-core-v1`) |
 | SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk | NOT-STARTED |
 | T-STREAM-1 | Browser selective WASM integration | LATER | bolt-core-sdk (TS) + WASM | NOT-STARTED |
@@ -4098,6 +4193,7 @@ Follows existing `bolt.*` namespace convention. Negotiated via HELLO `capabiliti
   - D5: DONE (2026-03-06). Registry/auth regression guards + CI cleanup.
   - D6: UNBLOCKED. Burn-in window starts now (48h minimum).
 - **Cross-stream dependency:** D-stream is independent of A-stream and B-stream. D-stream operates at CI/deploy/registry layer; A/B operate at SDK/daemon protocol layers. D-stream builds on C-stream outcomes (C6 guards as D5 baseline) but does not modify C-stream deliverables.
+- **CONSUMER-BTR-1** is independent of all other streams. CBTR-1/2/3 are fully parallelizable (separate repos). Depends only on BTR-STREAM-1 completion (satisfied).
 - **N-STREAM-1** is independent of A-stream, C-stream, D-stream, and S-STREAM-R1. N-STREAM-1 consumes B-STREAM API surface but does not modify B-STREAM deliverables. N-STREAM-1 N2 (IPC contract) has an implicit dependency on B-STREAM maturity — it stabilizes only the currently available daemon API surface.
 - **Within N-stream:** N0 gates all. N1 ∥ N2 after N0. N3 after N2. N4 after N1+N2. N5 after N2+N3. N6 after N4+N5. N7 after N6.
 

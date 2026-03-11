@@ -5,6 +5,20 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## CONSUMER-BTR-1 — Stream Codification (Consumer App BTR Rollout) — 2026-03-11
+
+- **New stream codified:** CONSUMER-BTR-1 (outside BTR-STREAM-1 per BTR-G8)
+- **Scope:** Roll out BTR-capable SDK to all three consumer apps with `btrEnabled: true`
+- **Phases:** CBTR-1 (localbolt-v3), CBTR-2 (localbolt), CBTR-3 (localbolt-app) — fully parallelizable
+- **Acceptance criteria:** 20 ACs defined (AC-CBTR-01 through AC-CBTR-20)
+- **Audit tracker:** CBTR-F series reserved (CBTR-F1–CBTR-F99)
+- **Dependencies:** BTR-STREAM-1 complete (satisfied)
+- **PM decisions pending:** PM-CBTR-01 (phase sequencing), PM-CBTR-02 (burn-in model)
+- **Governance updates:** GOVERNANCE_WORKSTREAMS.md, FORWARD_BACKLOG.md, STATE.md, AUDIT_TRACKER.md
+- Tag: `ecosystem-v0.1.108-consumer-btr1-codify`
+
+---
+
 ## BTR-5 — Default-On Decision Gate — COMPLETE (SEC-BTR1) — 2026-03-11
 
 - **BTR-STREAM-1 COMPLETE:** All 6 phases (BTR-0 through BTR-5) done. All 40 acceptance criteria satisfied (AC-BTR-36 deferred to ByteBolt stream, non-blocking).
