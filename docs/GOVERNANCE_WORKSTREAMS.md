@@ -4044,9 +4044,9 @@ CONSUMER-BTR-1 is a rollout stream, not a feature stream. No protocol or SDK cha
 
 | Phase | Description | Repo | Dependencies | Status |
 |-------|-------------|------|--------------|--------|
-| **CBTR-1** | localbolt-v3 (localbolt.app) BTR rollout | localbolt-v3 | BTR-STREAM-1 complete | NOT-STARTED |
-| **CBTR-2** | localbolt (web) BTR rollout | localbolt | BTR-STREAM-1 complete | NOT-STARTED |
-| **CBTR-3** | localbolt-app (Tauri native) BTR rollout | localbolt-app | BTR-STREAM-1 complete | NOT-STARTED |
+| **CBTR-1** | localbolt-v3 (localbolt.app) BTR rollout | localbolt-v3 | BTR-STREAM-1 complete | **P1 DONE** — `v3.0.89-consumer-btr1-p1` (`e34e617`). Burn-in active. |
+| **CBTR-2** | localbolt (web) BTR rollout | localbolt | BTR-STREAM-1 complete + CBTR-F1 resolved | BLOCKED — awaiting CBTR-F1 fix + 24h burn-in |
+| **CBTR-3** | localbolt-app (Tauri native) BTR rollout | localbolt-app | BTR-STREAM-1 complete + CBTR-F1 resolved | BLOCKED — awaiting CBTR-F1 fix + 24h burn-in |
 
 **Parallelization:** CBTR-1, CBTR-2, CBTR-3 are fully independent and MAY run in parallel. Each operates in a separate repo with no shared code changes. Recommended sequencing: CBTR-1 first (primary reproducer for prior BTR testing), then CBTR-2 and CBTR-3 in parallel.
 
@@ -4063,6 +4063,14 @@ CONSUMER-BTR-1 is a rollout stream, not a feature stream. No protocol or SDK cha
 | AC-CBTR-05 | Kill switch rollback: `btrEnabled: false` restores v1 behavior | Rollback test |
 | AC-CBTR-06 | All existing tests pass (no regression) | CI gate |
 | AC-CBTR-07 | `[BTR_FULL]` and `[BTR_DOWNGRADE]` log tokens observable | Log verification |
+
+> **BLOCKER:** CBTR-F1 (receiver pause/resume defect) — pre-existing transport control asymmetry surfaced during CBTR-1 burn-in. Receiver cannot initiate pause/resume (`sendTransferIds`-only lookup). Fix required in SDK `TransferManager.ts` before CBTR-2/3 advancement. See `AUDIT_TRACKER.md § CBTR-F1`.
+
+**Additional validation criterion (added post-CBTR-F1 discovery):**
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-CBTR-07a | Receiver-initiated pause/resume works (CBTR-F1 resolved) | Receiver pause sends canonical `pause`, resume sends `resume`, sender unchanged |
 
 #### CBTR-2 — localbolt BTR Rollout
 
@@ -4101,6 +4109,7 @@ CONSUMER-BTR-1 is a rollout stream, not a feature stream. No protocol or SDK cha
 | CBTR-R1 | Consumer SDK version mismatch during partial rollout | LOW | Capability negotiation handles mixed fleet; downgrade-with-warning |
 | CBTR-R2 | Consumer-specific integration issues (Tauri, Netlify, etc.) | LOW | Per-consumer smoke tests; kill switch for immediate rollback |
 | CBTR-R3 | Dark launch burn-in period delays security benefit | LOW | 14-day window per PM-BTR-08; parallelizable across consumers |
+| CBTR-R4 | CBTR-F1: Receiver pause/resume broken (pre-existing transport asymmetry) | MEDIUM | SDK TransferManager.ts fix — add `isReceiver` param to pause/resume, mirror cancel pattern. Blocks CBTR-2/3. |
 
 ---
 

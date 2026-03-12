@@ -5,6 +5,19 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## CBTR-PAUSE-1 — Receiver Pause/Resume Defect Codified (CBTR-F1) — 2026-03-11
+
+- **Finding:** CBTR-F1 (MEDIUM, OPEN) — receiver cannot pause/resume transfer
+- **Classification:** Pre-existing transport control asymmetry, surfaced during CBTR-1 burn-in. Not a BTR regression.
+- **Root cause:** `pauseTransfer()` / `resumeTransfer()` use sender-only `getSendTransferIds()` lookup. `cancelTransfer()` already has bidirectional `isReceiver` parameter.
+- **Impact:** Receiver pause/resume silently fails (no `transferId` found → no control message sent)
+- **Blocker:** Blocks CBTR-2/3 advancement. CBTR-1 burn-in continues (sender pause works, BTR protocol unaffected).
+- **Fix routing:** SDK `bolt-transport-web` TransferManager.ts — add `isReceiver` param to pause/resume, mirror cancel pattern
+- **AC added:** AC-CBTR-07a (receiver pause/resume validated)
+- Tag: `ecosystem-v0.1.110-cbtr-pause1-codify`
+
+---
+
 ## CONSUMER-BTR-1 — CBTR-1 P1 Executed (localbolt-v3 BTR Enabled) — 2026-03-11
 
 - **PM-CBTR-01 APPROVED:** Rollout order confirmed — localbolt-v3 → localbolt → localbolt-app
