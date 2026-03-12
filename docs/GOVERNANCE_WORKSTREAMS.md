@@ -4044,9 +4044,9 @@ CONSUMER-BTR-1 is a rollout stream, not a feature stream. No protocol or SDK cha
 
 | Phase | Description | Repo | Dependencies | Status |
 |-------|-------------|------|--------------|--------|
-| **CBTR-1** | localbolt-v3 (localbolt.app) BTR rollout | localbolt-v3 | BTR-STREAM-1 complete | **P1 DONE** — `v3.0.89-consumer-btr1-p1` (`e34e617`). Burn-in active. |
-| **CBTR-2** | localbolt (web) BTR rollout | localbolt | BTR-STREAM-1 complete + CBTR-F1 fixed | UNBLOCKED — awaiting CBTR-1 24h burn-in |
-| **CBTR-3** | localbolt-app (Tauri native) BTR rollout | localbolt-app | BTR-STREAM-1 complete + CBTR-F1 fixed | UNBLOCKED — awaiting CBTR-1 24h burn-in |
+| **CBTR-1** | localbolt-v3 (localbolt.app) BTR rollout | localbolt-v3 | BTR-STREAM-1 complete | **DONE** — `v3.0.89-consumer-btr1-p1` (`e34e617`). Burn-in PASSED. |
+| **CBTR-2** | localbolt (web) BTR rollout | localbolt | BTR-STREAM-1 complete + CBTR-F1 fixed | **P2 DONE** — `localbolt-v1.0.36-consumer-btr1-p2` (`e75271a`). Burn-in active. |
+| **CBTR-3** | localbolt-app (Tauri native) BTR rollout | localbolt-app | BTR-STREAM-1 complete + CBTR-F1 fixed | UNBLOCKED — awaiting CBTR-2 24h burn-in |
 
 **Parallelization:** CBTR-1, CBTR-2, CBTR-3 are fully independent and MAY run in parallel. Each operates in a separate repo with no shared code changes. Recommended sequencing: CBTR-1 first (primary reproducer for prior BTR testing), then CBTR-2 and CBTR-3 in parallel.
 

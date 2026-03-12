@@ -5,6 +5,19 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## CONSUMER-BTR-1 — CBTR-2 P2 Executed (localbolt BTR Enabled) — 2026-03-11
+
+- **CBTR-1 burn-in PASSED:** 24h gate completed. Multiple real transfers, zero BTR protocol errors.
+- **CBTR-2 P2 DONE:** `btrEnabled: true` added to localbolt `peer-connection.ts` WebRTCServiceOptions
+  - Tag: `localbolt-v1.0.36-consumer-btr1-p2` (`e75271a`)
+  - Tests: 324 passing (16 test files), build green
+  - 6 new compatibility tests in `cbtr2-btr-compatibility.test.ts`
+  - SDK dependency: bolt-core 0.5.1 + bolt-transport-web 0.6.7 (BTR-4-capable)
+- **Burn-in gate:** 24h clean run required before CBTR-3 (localbolt-app)
+- Tag: `ecosystem-v0.1.112-cbtr2-p2-executed`
+
+---
+
 ## CBTR-F1 — Receiver Pause/Resume Fix (CBTR-PAUSE-1) — 2026-03-11
 
 - **Finding:** CBTR-F1 (MEDIUM) — receiver cannot pause/resume transfer. Pre-existing transport control asymmetry, not a BTR regression.
