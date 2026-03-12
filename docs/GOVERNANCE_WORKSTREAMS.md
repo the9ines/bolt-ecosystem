@@ -4045,8 +4045,8 @@ CONSUMER-BTR-1 is a rollout stream, not a feature stream. No protocol or SDK cha
 | Phase | Description | Repo | Dependencies | Status |
 |-------|-------------|------|--------------|--------|
 | **CBTR-1** | localbolt-v3 (localbolt.app) BTR rollout | localbolt-v3 | BTR-STREAM-1 complete | **P1 DONE** — `v3.0.89-consumer-btr1-p1` (`e34e617`). Burn-in active. |
-| **CBTR-2** | localbolt (web) BTR rollout | localbolt | BTR-STREAM-1 complete + CBTR-F1 resolved | BLOCKED — awaiting CBTR-F1 fix + 24h burn-in |
-| **CBTR-3** | localbolt-app (Tauri native) BTR rollout | localbolt-app | BTR-STREAM-1 complete + CBTR-F1 resolved | BLOCKED — awaiting CBTR-F1 fix + 24h burn-in |
+| **CBTR-2** | localbolt (web) BTR rollout | localbolt | BTR-STREAM-1 complete + CBTR-F1 fixed | UNBLOCKED — awaiting CBTR-1 24h burn-in |
+| **CBTR-3** | localbolt-app (Tauri native) BTR rollout | localbolt-app | BTR-STREAM-1 complete + CBTR-F1 fixed | UNBLOCKED — awaiting CBTR-1 24h burn-in |
 
 **Parallelization:** CBTR-1, CBTR-2, CBTR-3 are fully independent and MAY run in parallel. Each operates in a separate repo with no shared code changes. Recommended sequencing: CBTR-1 first (primary reproducer for prior BTR testing), then CBTR-2 and CBTR-3 in parallel.
 
@@ -4109,7 +4109,7 @@ CONSUMER-BTR-1 is a rollout stream, not a feature stream. No protocol or SDK cha
 | CBTR-R1 | Consumer SDK version mismatch during partial rollout | LOW | Capability negotiation handles mixed fleet; downgrade-with-warning |
 | CBTR-R2 | Consumer-specific integration issues (Tauri, Netlify, etc.) | LOW | Per-consumer smoke tests; kill switch for immediate rollback |
 | CBTR-R3 | Dark launch burn-in period delays security benefit | LOW | 14-day window per PM-BTR-08; parallelizable across consumers |
-| CBTR-R4 | CBTR-F1: Receiver pause/resume broken (pre-existing transport asymmetry) | MEDIUM | SDK TransferManager.ts fix — add `isReceiver` param to pause/resume, mirror cancel pattern. Blocks CBTR-2/3. |
+| CBTR-R4 | CBTR-F1: Receiver pause/resume broken (pre-existing transport asymmetry) | MEDIUM | **RESOLVED** — `sdk-v0.5.40-cbtr-f1-receiver-pause` (`c164fc1`). No longer blocks CBTR-2/3. |
 
 ---
 

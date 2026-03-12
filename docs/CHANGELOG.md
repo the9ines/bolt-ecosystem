@@ -5,16 +5,14 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
-## CBTR-PAUSE-1 — Receiver Pause/Resume Defect Codified (CBTR-F1) — 2026-03-11
+## CBTR-F1 — Receiver Pause/Resume Fix (CBTR-PAUSE-1) — 2026-03-11
 
-- **Finding:** CBTR-F1 (MEDIUM, OPEN) — receiver cannot pause/resume transfer
-- **Classification:** Pre-existing transport control asymmetry, surfaced during CBTR-1 burn-in. Not a BTR regression.
-- **Root cause:** `pauseTransfer()` / `resumeTransfer()` use sender-only `getSendTransferIds()` lookup. `cancelTransfer()` already has bidirectional `isReceiver` parameter.
-- **Impact:** Receiver pause/resume silently fails (no `transferId` found → no control message sent)
-- **Blocker:** Blocks CBTR-2/3 advancement. CBTR-1 burn-in continues (sender pause works, BTR protocol unaffected).
-- **Fix routing:** SDK `bolt-transport-web` TransferManager.ts — add `isReceiver` param to pause/resume, mirror cancel pattern
-- **AC added:** AC-CBTR-07a (receiver pause/resume validated)
-- Tag: `ecosystem-v0.1.110-cbtr-pause1-codify`
+- **Finding:** CBTR-F1 (MEDIUM) — receiver cannot pause/resume transfer. Pre-existing transport control asymmetry, not a BTR regression.
+- **Root cause:** `pauseTransfer()` / `resumeTransfer()` used sender-only `getSendTransferIds()` lookup. `cancelTransfer()` already had bidirectional `isReceiver` parameter.
+- **Fix:** Added `isReceiver` parameter to `pauseTransfer()` and `resumeTransfer()` in TransferManager.ts and WebRTCService.ts, mirroring the existing `cancelTransfer()` dual-lookup pattern.
+- **Tests:** 6 new tests (receiver pause/resume send canonical control, graceful failure on wrong map, sender backward compat). 344 TS + 266 Rust pass.
+- **Status:** **FIXED** — `sdk-v0.5.40-cbtr-f1-receiver-pause` (`c164fc1`). CBTR-2/3 unblocked.
+- **Governance:** Codified as `ecosystem-v0.1.110-cbtr-pause1-codify`, resolved as `ecosystem-v0.1.111-cbtr-f1-fixed`
 
 ---
 

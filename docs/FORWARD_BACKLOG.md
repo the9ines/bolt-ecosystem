@@ -392,7 +392,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 **Parallelization:** All three phases are independently deployable and may run in parallel. Recommended: CBTR-1 first (primary reproducer), then CBTR-2 + CBTR-3 in parallel.
 
-**Blocker:** CBTR-F1 (MEDIUM) — receiver pause/resume broken. Pre-existing transport control asymmetry in SDK `TransferManager.ts` (`sendTransferIds`-only lookup for pause/resume; cancel already has `isReceiver` dual-lookup). Surfaced during CBTR-1 burn-in. Blocks CBTR-2/3 advancement. Fix required in `bolt-core-sdk`.
+**Blocker (RESOLVED):** CBTR-F1 (MEDIUM) — receiver pause/resume fixed in `sdk-v0.5.40-cbtr-f1-receiver-pause` (`c164fc1`). Added `isReceiver` param to pause/resume mirroring cancel pattern. 6 new tests. No longer blocks CBTR-2/3.
 
 ---
 

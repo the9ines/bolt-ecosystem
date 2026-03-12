@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-11 (CBTR-F1 registered — receiver pause/resume defect)
+**Last updated:** 2026-03-11 (CBTR-F1 FIXED — sdk-v0.5.40-cbtr-f1-receiver-pause)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -562,7 +562,7 @@ No execution findings in this pass. Findings will be registered here with `BTR-F
 
 > **Finding series reservation:** `CBTR-F*`
 > **Codified:** ecosystem-v0.1.108-consumer-btr1-codify (2026-03-11)
-> **Status:** IN-PROGRESS. CBTR-1 P1 done. CBTR-F1 OPEN (blocker).
+> **Status:** IN-PROGRESS. CBTR-1 P1 done. CBTR-F1 FIXED (`sdk-v0.5.40-cbtr-f1-receiver-pause`, `c164fc1`).
 > **Full specification:** `docs/GOVERNANCE_WORKSTREAMS.md` § CONSUMER-BTR-1
 > **Depends on:** BTR-STREAM-1 (COMPLETE)
 
@@ -570,7 +570,7 @@ No execution findings in this pass. Findings will be registered here with `BTR-F
 
 | ID | Finding | Severity | Classification | Status | Evidence |
 |----|---------|----------|----------------|--------|----------|
-| CBTR-F1 | Receiver cannot pause/resume transfer — `pauseTransfer()` and `resumeTransfer()` use sender-only `getSendTransferIds()` lookup with no `isReceiver` parameter or `recvTransferIds` fallback. `cancelTransfer()` already has bidirectional support. | MEDIUM | Pre-existing transport control asymmetry, surfaced during CBTR-1 burn-in. Not a BTR regression. | **OPEN** | TransferManager.ts lines 725–753 (sender-only), cf. lines 755–781 (cancel has `isReceiver` param). Reception path (`routeInnerMessage`) handles both sides — only initiation is broken. |
+| CBTR-F1 | Receiver cannot pause/resume transfer — `pauseTransfer()` and `resumeTransfer()` used sender-only `getSendTransferIds()` lookup. | MEDIUM | Pre-existing transport control asymmetry, surfaced during CBTR-1 burn-in. Not a BTR regression. | **FIXED** | `sdk-v0.5.40-cbtr-f1-receiver-pause` (`c164fc1`). Added `isReceiver` param to pause/resume, mirroring cancel dual-lookup. 6 new tests, 344 TS + 266 Rust pass. |
 
 **Execution handoff (CBTR-PAUSE-1 fix run):**
 - **Code touch area:** `bolt-core-sdk/ts/bolt-transport-web/src/services/webrtc/TransferManager.ts` — add `isReceiver` parameter to `pauseTransfer()` and `resumeTransfer()`, mirror `cancelTransfer()` dual-lookup pattern.
