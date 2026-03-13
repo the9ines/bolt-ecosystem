@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-13 (RUSTIFY-CORE-1 RC1 executed — transport matrix + boundary lock)
+> **Updated:** 2026-03-13 (PM-RC-01 resolved — QUIC confirmed, RC2 READY)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -34,7 +34,7 @@ NEXT:
   SEC-CORE2 (Rust-first security consolidation) ── depends on S1 (DONE)
 
 NEXT:
-  RUSTIFY-CORE-1 (native-first transport + core) ── RC1 DONE (2026-03-13); RC2 BLOCKED (PM-RC-01)
+  RUSTIFY-CORE-1 (native-first transport + core) ── RC1 DONE (2026-03-13); RC2 READY (PM-RC-01 APPROVED — QUIC)
     Provisionally SUPERSEDES: SEC-CORE2, PLAT-CORE1 (pending PM-RC-07)
     Provisionally REFACTORS/DEPENDS-ON: MOB-RUNTIME1, ARCH-WASM1 (pending PM-RC-07)
 
@@ -416,7 +416,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 13: RUSTIFY-CORE-1 — Native-First Transport + Core Consolidation
 
 **Priority:** NEXT
-**Status:** **RC1 DONE** (`ecosystem-v0.1.120-rustify-core1-rc1-executed`, 2026-03-13). RC2 **BLOCKED (PM-RC-01)**.
+**Status:** **RC1 DONE** (`ecosystem-v0.1.120-rustify-core1-rc1-executed`, 2026-03-13). RC2 **READY** (PM-RC-01 APPROVED — QUIC confirmed, 2026-03-13).
 **Routing:** bolt-core-sdk (Rust primary), bolt-daemon, bolt-protocol (spec amendments)
 **Category:** Architecture — native transport + Rust core consolidation
 **Stream:** RUSTIFY-CORE-1 (phased, 7 phases RC1–RC7)
@@ -427,7 +427,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 **Transport matrix (RC1 LOCKED, 2026-03-13):**
 - browser↔browser: WebRTC (LOCKED — retained baseline, invariant)
-- app↔app: Rust native transport (QUIC recommended, PROVISIONAL — pending PM-RC-01)
+- app↔app: Rust native transport, QUIC (**LOCKED** — PM-RC-01 APPROVED, 2026-03-13)
 - browser↔app: browser client transport + Rust endpoint/core (PROVISIONAL — pending PM-RC-02)
 - app↔relay/cloud: DEFERRED (out of scope RC1–RC4, ByteBolt scope per ARCH-05/ARCH-07)
 
@@ -442,7 +442,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 **Acceptance Criteria:** 33 ACs defined (AC-RC-01 through AC-RC-33). RC1 ACs: AC-RC-01 DONE, AC-RC-02 DONE, AC-RC-03 PROVISIONAL, AC-RC-04 DONE. See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1 for full list.
 
-**PM Decisions:** 7 open (PM-RC-01 through PM-RC-07). All PENDING. PM-RC-02 non-blocking for RC2. See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1 for full table.
+**PM Decisions:** 8 total (PM-RC-01 through PM-RC-07 + PM-RC-01A). PM-RC-01 APPROVED (QUIC confirmed). PM-RC-01A PENDING (library selection, blocks RC3 only). PM-RC-02–07 PENDING. See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1 for full table.
 
 ---
 
@@ -595,7 +595,8 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-RX-03 | RECON-XFER-1: Confirm daemon investigation is escalation-only | Phase A scope | **APPROVED** |
 | PM-CBTR-01 | CONSUMER-BTR1: Confirm CBTR-1 first (localbolt-v3 as primary rollout target) | Phase sequencing | **APPROVED** — localbolt-v3 → localbolt → localbolt-app |
 | PM-CBTR-02 | CONSUMER-BTR1: Dark launch burn-in per-consumer or shared across stream? | Rollout timing | **APPROVED** — 24h clean run per phase before promoting |
-| PM-RC-01 | RUSTIFY-CORE-1: Native transport protocol (QUIC recommended vs alternative) | RC3 | NEXT |
+| PM-RC-01 | RUSTIFY-CORE-1: Native transport protocol — **APPROVED (QUIC confirmed, 2026-03-13)** | ~~RC3~~ | **APPROVED** |
+| PM-RC-01A | RUSTIFY-CORE-1: QUIC runtime/library selection (`quinn`, `s2n-quic`, `msquic-rs`). Owner/deadline TBD. | RC3 only (non-blocking RC2) | NEXT |
 | PM-RC-02 | RUSTIFY-CORE-1: Browser↔app transport mode default | RC5 | NEXT |
 | PM-RC-03 | RUSTIFY-CORE-1: Rollout order (app first, browser↔app second) | RC6 | NEXT |
 | PM-RC-04 | RUSTIFY-CORE-1: Performance SLO thresholds for migration gates | RC3 | NEXT |

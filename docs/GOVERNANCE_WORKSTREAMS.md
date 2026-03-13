@@ -4121,7 +4121,7 @@ CONSUMER-BTR-1 is a rollout stream, not a feature stream. No protocol or SDK cha
 > **Priority:** NEXT (execution blocked until CONSUMER-BTR1 completes)
 > **Repos:** bolt-core-sdk (Rust primary), bolt-daemon, bolt-protocol (spec amendments)
 > **Codified:** ecosystem-v0.1.113-rustify-core1-codify (2026-03-12)
-> **Status:** RC1 DONE (`ecosystem-v0.1.120-rustify-core1-rc1-executed`). RC2 BLOCKED (PM-RC-01).
+> **Status:** RC1 DONE (`ecosystem-v0.1.120-rustify-core1-rc1-executed`). RC2 READY (PM-RC-01 APPROVED — QUIC confirmed).
 
 ---
 
@@ -4151,7 +4151,7 @@ RUSTIFY-CORE-1 consolidates protocol authority in Rust and introduces native tra
 | Endpoint Pair | Transport | Authority | Status |
 |---------------|-----------|-----------|--------|
 | browser↔browser | WebRTC DataChannel | TS (`bolt-transport-web`) | **LOCKED — retained baseline** (invariant: no browser WebRTC replacement in RUSTIFY-CORE-1) |
-| app↔app | Rust native transport (QUIC recommended, pending PM-RC-01) | Rust (new crate) | **PROVISIONAL** — transport protocol pending PM-RC-01 confirmation. QUIC is recommended; alternative requires PM decision. |
+| app↔app | Rust native transport (QUIC) | Rust (new crate) | **LOCKED (QUIC)** — PM-RC-01 APPROVED (2026-03-13). QUIC confirmed as native transport protocol for app↔app. Library selection deferred to PM-RC-01A. |
 | browser↔app | Browser client transport + Rust endpoint/core | Hybrid (TS browser-side, Rust server-side) | **PROVISIONAL** — default mode pending PM-RC-02 confirmation. |
 | app↔relay/cloud | ByteBolt relay infrastructure | Commercial (bytebolt-relay) | **DEFERRED** — out of scope for RC1–RC4. Relay architecture governed by ARCH-05 (relay optional/commercial) and ARCH-07 (infrastructure monetizable). ByteBolt-specific transport binding deferred to bytebolt-relay stream. |
 
@@ -4160,7 +4160,7 @@ RUSTIFY-CORE-1 consolidates protocol authority in Rust and introduces native tra
 | Target | Current State | RUSTIFY-CORE-1 Goal |
 |--------|--------------|---------------------|
 | Protocol/security core (BTR, transfer SM, policy, integrity) | Rust crates exist (`bolt-core`, `bolt-btr`, `bolt-transfer-core`) but TS still owns wire orchestration | Rust canonical for all protocol logic; TS becomes thin I/O adapter |
-| Native transport engine (app↔app) | No native transport — app routes through IPC + daemon | Direct Rust transport (QUIC recommended) |
+| Native transport engine (app↔app) | No native transport — app routes through IPC + daemon | Direct Rust transport (QUIC — LOCKED, PM-RC-01) |
 | Session lifecycle + control-plane invariants | Split: TS owns handshake/envelope in browser, Rust owns daemon session | Rust canonical; platform adapters delegate to shared core |
 | Platform adapters | Tauri app has Rust daemon + TS WebView; browser is pure TS | Thin TS/Swift/Tauri shells over unified Rust backend |
 
@@ -4214,7 +4214,7 @@ If PM-RC-07 confirms SUPERSEDES for SEC-CORE2 and PLAT-CORE1, those items should
 | ID | Guardrail |
 |----|-----------|
 | RC-G1 | Browser↔browser retains WebRTC — no browser WebRTC replacement in this stream |
-| RC-G2 | Native transport choice (QUIC/other) requires PM-RC-01 confirmation before RC3 execution |
+| RC-G2 | Native transport choice: QUIC (PM-RC-01 APPROVED 2026-03-13). Library selection (PM-RC-01A) required before RC3 execution |
 | RC-G3 | Shared Rust core API must be transport-independent (logic boundary, not I/O) |
 | RC-G4 | CLI implementation is OUT OF SCOPE — RC7 produces governance reservation artifacts only |
 | RC-G5 | No protocol semantic changes without PM approval (inherited from G4/G5) |
@@ -4230,7 +4230,7 @@ If PM-RC-07 confirms SUPERSEDES for SEC-CORE2 and PLAT-CORE1, those items should
 |-------|-------------|------|-------------|--------------|--------|
 | **RC1** | Transport matrix + boundary lock (spec-level) | PM/Spec gate | YES — gates RC2, RC3 | CONSUMER-BTR1 complete | **DONE** (`ecosystem-v0.1.120-rustify-core1-rc1-executed`, 2026-03-13) |
 | **RC2** | Shared Rust core API design/extraction lock | Engineering + PM gate | YES — gates RC4, RC5 | RC1 complete | NOT-STARTED |
-| **RC3** | Native transport reference path (app↔app) | Engineering gate | NO (parallel with RC4) | RC1 complete, PM-RC-01 confirmed | NOT-STARTED |
+| **RC3** | Native transport reference path (app↔app, QUIC) | Engineering gate | NO (parallel with RC4) | RC1 complete, PM-RC-01 APPROVED (QUIC), PM-RC-01A (library) required | NOT-STARTED |
 | **RC4** | Shared Rust core adoption in app/runtime boundaries | Engineering gate | NO (parallel with RC3) | RC2 complete | NOT-STARTED |
 | **RC5** | Browser↔app endpoint integration gates | Engineering gate | YES — gates RC6 | RC3 + RC4 complete | NOT-STARTED |
 | **RC6** | Rollout + compatibility + rollback policy | PM/Engineering gate | YES — gates close | RC5 complete | NOT-STARTED |
@@ -4246,7 +4246,7 @@ RC1 (transport matrix + boundary lock)
       │
       ├──────────────┐
       ▼              ▼
-RC2 (core API)    RC3 (native transport)    ← RC3 requires PM-RC-01
+RC2 (core API)    RC3 (native transport, QUIC)    ← RC3 requires PM-RC-01A (library)
       │
       ├──────────────┐
       ▼              │
@@ -4264,18 +4264,18 @@ RC7 (CLI reservation) — parallel, no dependencies
 
 #### RC2 Entry Criteria (RC1 Artifact)
 
-> **Status:** RC2 **BLOCKED (PM-RC-01)**. Entry criteria not yet satisfied.
+> **Status:** RC2 **READY**. All entry criteria satisfied (PM-RC-01 APPROVED — QUIC confirmed, 2026-03-13).
 
 RC2 (Shared Rust Core API Design/Extraction Lock) starts only when ALL of the following are satisfied:
 
 | Criterion | Status | Notes |
 |-----------|--------|-------|
 | RC1 artifacts locked and cross-doc consistent | **SATISFIED** | RC1 executed `ecosystem-v0.1.120-rustify-core1-rc1-executed` |
-| PM-RC-01 status explicit (resolved, or formally pending with fallback statement) | **NOT SATISFIED** | PM-RC-01 PENDING, no approved fallback. QUIC recommended but not confirmed. |
+| PM-RC-01 status explicit (resolved, or formally pending with fallback statement) | **SATISFIED** | PM-RC-01 APPROVED (QUIC confirmed, 2026-03-13). Library selection deferred to PM-RC-01A (blocks RC3 only). |
 | PM-RC-02 impact explicit (resolved, or explicitly non-blocking for RC2) | **SATISFIED** | PM-RC-02 is non-blocking for RC2. PM-RC-02 blocks RC5 per phase table. |
 | PM-RC-07 relationship handling explicit (resolved, or provisional policy accepted) | **SATISFIED (PROVISIONAL)** | RC1 records relationship mapping as PROVISIONAL pending PM-RC-07. No silent supersession. Provisional status accepted for RC2 entry. |
 
-**Blocking path:** PM-RC-01 must be resolved (QUIC confirmed, or alternative selected, or explicit fallback statement approved) before RC2 can start. RC3 is independently blocked on PM-RC-01 per phase table.
+**Prior blocking path (RESOLVED):** PM-RC-01 resolved as QUIC APPROVED (2026-03-13). RC2 entry unblocked. RC3 remains blocked on PM-RC-01A (library selection) per phase table.
 
 ---
 
@@ -4311,7 +4311,7 @@ RC7 produces governance-only artifacts. No runtime code. Concrete deliverables:
 |----|-----------|------------------|--------|
 | AC-RC-01 | Transport matrix codified with explicit endpoint-pair → transport mapping | Published spec section | **DONE** — 4-row matrix locked (browser↔browser, app↔app, browser↔app, app↔relay/cloud) with explicit provisional flags |
 | AC-RC-02 | Browser↔browser WebRTC retention explicitly codified as invariant | Spec invariant + test reference | **DONE** — "LOCKED — retained baseline" with invariant statement in matrix |
-| AC-RC-03 | Native transport protocol confirmed (PM-RC-01 resolved) | PM decision recorded | **PROVISIONAL** — PM-RC-01 PENDING. QUIC recommended; decision-boundary explicit. Does not block RC1 lock (blocks RC3). |
+| AC-RC-03 | Native transport protocol confirmed (PM-RC-01 resolved) | PM decision recorded | **DONE** — PM-RC-01 APPROVED (QUIC confirmed, 2026-03-13). Library selection deferred to PM-RC-01A (blocks RC3, not RC2). |
 | AC-RC-04 | Boundary between Rust core and platform adapters formally defined | Architecture doc with API surface | **DONE** — Rustification Boundary Lock section codified (Rust owns / platform adapters remain thin shells) |
 
 #### RC2 — Shared Rust Core API Design/Extraction Lock
@@ -4379,7 +4379,8 @@ RC7 produces governance-only artifacts. No runtime code. Concrete deliverables:
 
 | ID | Decision | Blocks | Priority | Status |
 |----|----------|--------|----------|--------|
-| PM-RC-01 | Native transport protocol confirmation: QUIC (recommended) vs alternative. If QUIC, sub-decision: library (quinn / s2n-quic / etc.) | RC3 | RC1 | PENDING |
+| PM-RC-01 | Native transport protocol confirmation: QUIC (recommended) vs alternative. If QUIC, sub-decision: library (quinn / s2n-quic / etc.) | RC3 | RC1 | **APPROVED (QUIC confirmed, 2026-03-13)**. Library selection split to PM-RC-01A. |
+| PM-RC-01A | QUIC runtime/library selection. Shortlist: `quinn`, `s2n-quic`, `msquic-rs`. Owner: TBD (PM to assign). Deadline: TBD (PM to assign). | RC3 only (non-blocking for RC2) | RC3 | PENDING |
 | PM-RC-02 | Browser↔app transport mode default (WebSocket upgrade? WebRTC retained? Hybrid?) | RC5 | RC1 | PENDING |
 | PM-RC-03 | Rollout order confirmation: app-first, browser↔app second | RC6 | RC1 | PENDING |
 | PM-RC-04 | Performance SLO thresholds for native transport migration gates (latency, throughput, overhead) | RC3 (AC-RC-15) | RC1 | PENDING |
@@ -4393,7 +4394,7 @@ RC7 produces governance-only artifacts. No runtime code. Concrete deliverables:
 
 | ID | Risk | Severity | Mitigation |
 |----|------|----------|------------|
-| RC-R1 | QUIC library maturity/maintenance risk | MEDIUM | PM-RC-01 evaluates alternatives; quinn is actively maintained with production users |
+| RC-R1 | QUIC library maturity/maintenance risk | MEDIUM | **Protocol choice RESOLVED** (PM-RC-01: QUIC confirmed). Residual risk moved to PM-RC-01A (library selection: `quinn`, `s2n-quic`, `msquic-rs`). Library maturity/maintenance/perf tradeoff evaluated at PM-RC-01A. |
 | RC-R2 | FFI boundary complexity (Tauri + potential mobile) | HIGH | RC2 designs FFI surface before RC4 adoption; UniFFI evaluated for cross-platform |
 | RC-R3 | TS→Rust authority migration breaks existing consumers | HIGH | Kill-switch rollback (RC-G7); phased migration; no-regression gates (AC-RC-28) |
 | RC-R4 | Browser↔app transport mode selection complexity | MEDIUM | PM-RC-02 locks choice before RC5; fallback to WebRTC always available |
@@ -5158,7 +5159,7 @@ No upstream stream dependencies. COMPLEMENTS SEC-BTR1, CONSUMER-BTR1, RUSTIFY-CO
 | MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD | Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC4 (pending PM-RC-07) |
 | ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC2 (pending PM-RC-07) |
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** |
-| RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE** (`ecosystem-v0.1.120-rustify-core1-rc1-executed`). RC2 **BLOCKED (PM-RC-01)**. 7 phases (RC1–RC7), 33 ACs, 7 PM decisions. |
+| RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE** (`ecosystem-v0.1.120-rustify-core1-rc1-executed`). RC2 **READY** (PM-RC-01 APPROVED — QUIC confirmed, 2026-03-13). 7 phases (RC1–RC7), 33 ACs, 8 PM decisions (PM-RC-01A added). |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **CODIFIED** (`ecosystem-v0.1.118-btr-spec1-codify`). 5 phases (BS1–BS5), 22 ACs, 6 PM decisions. BS1 unblocked now. COMPLEMENTS SEC-BTR1/CONSUMER-BTR1/RUSTIFY-CORE-1. |

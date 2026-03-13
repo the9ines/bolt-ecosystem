@@ -5,6 +5,37 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## PM-RC-01 Resolved — QUIC Confirmed, RC2 READY — 2026-03-13
+
+- **PM-RC-01 APPROVED:** Native transport protocol confirmed as **QUIC** for `app↔app` primary path in RUSTIFY-CORE-1.
+- **Transport matrix update:**
+  - `app↔app` = Rust native transport, QUIC (**LOCKED** — was PROVISIONAL pending PM-RC-01)
+  - `browser↔browser` = WebRTC DataChannel (**LOCKED** — retained baseline, unchanged)
+  - `browser↔app` = unchanged (PROVISIONAL — pending PM-RC-02)
+  - `app↔relay/cloud` = unchanged (DEFERRED)
+- **PM-RC-01A created (sub-decision):**
+  - Title: QUIC runtime/library selection
+  - Shortlist: `quinn`, `s2n-quic`, `msquic-rs`
+  - Owner: TBD (PM to assign)
+  - Deadline: TBD (PM to assign)
+  - Blocking policy: Blocks RC3 only; non-blocking for RC2
+- **RC2 gate transition:**
+  - Previous: **BLOCKED (PM-RC-01)**
+  - New: **READY** — all RC2 entry criteria now satisfied
+  - No other pre-existing blockers discovered
+- **AC-RC-03:** PROVISIONAL → **DONE** (PM-RC-01 resolved)
+- **Risk register:** RC-R1 protocol-choice risk resolved by PM-RC-01 (QUIC confirmed). Residual risk (library maturity/maintenance/perf tradeoff) moved to PM-RC-01A.
+
+**Files changed:**
+- `docs/GOVERNANCE_WORKSTREAMS.md`
+- `docs/FORWARD_BACKLOG.md`
+- `docs/STATE.md`
+- `docs/CHANGELOG.md`
+
+**Tag:** `ecosystem-v0.1.121-rustify-core1-pmrc01-quic-locked`
+
+---
+
 ## RUSTIFY-CORE-1 RC1 Executed — Transport Matrix + Boundary Lock — 2026-03-13
 
 - **RUSTIFY-CORE-1 RC1 DONE.** Transport matrix, rustification boundary, and relationship mapping locked.
