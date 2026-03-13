@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-12 (DISCOVERY-MODE-1 codified — dual discovery mode policy)
-> **Codified:** ecosystem-v0.1.116-discovery-mode1-codify
+> **Updated:** 2026-03-13 (BTR-SPEC-1 codified — algorithm-grade BTR specification)
+> **Codified:** ecosystem-v0.1.118-btr-spec1-codify
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
 ---
@@ -47,6 +47,7 @@ LATER:
 
 NEXT (independent):
   DISCOVERY-MODE-1 (discovery mode policy) ───── no upstream dependencies; DM1 unblocked immediately
+  BTR-SPEC-1 (algorithm-grade BTR spec) ──────── no upstream dependencies; BS1 unblocked immediately
 
 Priority constraint: MOB-RUNTIME1 ≤ PLAT-CORE1 (mobile cannot exceed shared core priority).
 Priority constraint: RUSTIFY-CORE-1 execution blocked until CONSUMER-BTR1 closes.
@@ -517,6 +518,35 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 ---
 
+## Item 16: BTR-SPEC-1 — Algorithm-Grade BTR Protocol Specification
+
+**Priority:** NEXT
+**Status:** CODIFIED (BS1 unblocked immediately)
+**Routing:** bolt-protocol (primary — spec text), bolt-ecosystem (governance)
+**Category:** Specification — formal BTR protocol documentation
+**Stream:** BTR-SPEC-1 (phased, 5 phases BS1–BS5)
+**Dependencies:** None (COMPLEMENTS SEC-BTR1, CONSUMER-BTR1, RUSTIFY-CORE-1)
+
+**Context:** BTR has full implementation coverage (341 tests, 10 vector files) and substantial spec text in PROTOCOL.md §16 (300+ lines). P0 audit confirmed 5/7 modules fully specified; 2 gaps: flow control/backpressure (BTR-FC) and resume/recovery (BTR-RSM). BTR-SPEC-1 fills gaps, formalizes module boundaries, and adds change-control policy for independent-implementation-grade specification.
+
+**Phased Plan (BTR-SPEC-1):**
+
+| Phase | Description | Serial Gate | Status |
+|-------|-------------|-------------|--------|
+| BS1 | Module taxonomy + boundary lock | YES (gates BS2) | NOT-STARTED |
+| BS2 | State machines + crypto/key-schedule lock | YES (gates BS3) | NOT-STARTED |
+| BS3 | Wire format + failure/recovery semantics lock | YES (gates BS4) | NOT-STARTED |
+| BS4 | Conformance vectors + negative-test matrix lock | YES (gates BS5) | NOT-STARTED |
+| BS5 | Versioning/change-control + external review readiness | YES (closes stream) | NOT-STARTED |
+
+**Acceptance Criteria:** 22 ACs defined (AC-BS-01 through AC-BS-22). See `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-SPEC-1.
+
+**PM Decisions:** 6 open (PM-BS-01 through PM-BS-06). See `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-SPEC-1.
+
+**Risk register:** 4 risks (BS-R1–R4), all LOW–MEDIUM.
+
+---
+
 ## Routing Summary
 
 | Item | Routing | Certainty |
@@ -536,6 +566,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | RUSTIFY-CORE-1 | bolt-core-sdk (Rust) + bolt-daemon + bolt-protocol | Confirmed |
 | EGUI-NATIVE-1 | localbolt-app + bolt-ecosystem | Confirmed |
 | DISCOVERY-MODE-1 | bolt-ecosystem + localbolt-v3 + localbolt + localbolt-app | Confirmed |
+| BTR-SPEC-1 | bolt-protocol + bolt-ecosystem | Confirmed |
 
 ---
 
@@ -574,3 +605,9 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-DM-02 | DISCOVERY-MODE-1: User-facing mode toggle required? (toggle UI vs config-only) | DM2 | NEXT |
 | PM-DM-03 | DISCOVERY-MODE-1: Wording/UX for mode indicator and peer origin display | DM2 | NEXT |
 | PM-DM-04 | DISCOVERY-MODE-1: CLOUD_ONLY — codify now as optional mode, or defer entirely? | DM4 | NEXT |
+| PM-BS-01 | BTR-SPEC-1: Crypto primitive baseline confirmation (NaCl box + HKDF-SHA256) | BS2 | NEXT |
+| PM-BS-02 | BTR-SPEC-1: Rekey thresholds/lifecycle policy | BS2 | NEXT |
+| PM-BS-03 | BTR-SPEC-1: Wire format versioning policy | BS3 | NEXT |
+| PM-BS-04 | BTR-SPEC-1: Compatibility contract (strict vs tolerant parsing) | BS3 | NEXT |
+| PM-BS-05 | BTR-SPEC-1: External review gate (scope, reviewer profile, acceptance bar) | BS5 | NEXT |
+| PM-BS-06 | BTR-SPEC-1: Ratify relationship mode (COMPLEMENTS) with SEC-BTR1/CONSUMER-BTR1/RUSTIFY-CORE-1 | BS5 | NEXT |

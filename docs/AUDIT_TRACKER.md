@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-12 (DISCOVERY-MODE-1 codified — DM-F series reserved)
+**Last updated:** 2026-03-13 (BTR-SPEC-1 codified — BS-F series reserved)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -604,6 +604,22 @@ No execution findings in this pass. Findings will be registered here with `BTR-F
 > **Depends on:** None (orthogonal)
 
 **Audit ID reservation:** `DM-F1` through `DM-F99` reserved for findings discovered during DISCOVERY-MODE-1 phase execution (DM1 through DM4). IDs are non-colliding with all existing series (S, I, Q, A, M, N, AC, DP, NF, RX, DR-F, BTR-F, CBTR-F, EN-F).
+
+| ID | Finding | Severity | Classification | Status | Evidence |
+|----|---------|----------|----------------|--------|----------|
+| — | No findings yet (stream not executing) | — | — | — | — |
+
+---
+
+## BTR-SPEC-1 — Algorithm-Grade BTR Protocol Specification
+
+> **Finding series reservation:** `BS-F*`
+> **Codified:** ecosystem-v0.1.118-btr-spec1-codify (2026-03-13)
+> **Status:** CODIFIED (no phases executing yet)
+> **Full specification:** `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-SPEC-1
+> **Depends on:** None (COMPLEMENTS SEC-BTR1, CONSUMER-BTR1, RUSTIFY-CORE-1)
+
+**Audit ID reservation:** `BS-F1` through `BS-F99` reserved for findings discovered during BTR-SPEC-1 phase execution (BS1 through BS5). IDs are non-colliding with all existing series (S, I, Q, A, M, N, AC, DP, NF, RX, DR-F, BTR-F, CBTR-F, EN-F, DM-F).
 
 | ID | Finding | Severity | Classification | Status | Evidence |
 |----|---------|----------|----------------|--------|----------|

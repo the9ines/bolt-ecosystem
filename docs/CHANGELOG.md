@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## BTR-SPEC-1 — Stream Codified (Algorithm-Grade BTR Protocol Specification) — 2026-03-13
+
+- **BTR-SPEC-1 CODIFIED:** New governance stream for formal BTR protocol specification.
+- **P0 audit:** 5/7 candidate modules fully specified in PROTOCOL.md §16. 2 gaps: flow control/backpressure (BTR-FC), resume/recovery (BTR-RSM).
+- **7 modules confirmed:** BTR-HS, BTR-KS, BTR-INT, BTR-FC (gap), BTR-RSM (gap), BTR-WIRE, BTR-CNF
+- **5 phases:** BS1 (taxonomy) → BS2 (state machines + crypto) → BS3 (wire + recovery) → BS4 (conformance) → BS5 (versioning + review readiness)
+- **22 acceptance criteria:** AC-BS-01 through AC-BS-22
+- **6 PM decisions:** PM-BS-01 through PM-BS-06
+- **Relationship:** COMPLEMENTS SEC-BTR1 (complete), CONSUMER-BTR1 (in-progress), RUSTIFY-CORE-1 (codified)
+- **Priority:** NEXT. BS1 unblocked immediately. No upstream dependencies.
+
+**Files changed:**
+- `docs/GOVERNANCE_WORKSTREAMS.md`
+- `docs/FORWARD_BACKLOG.md`
+- `docs/STATE.md`
+- `docs/CHANGELOG.md`
+- `docs/AUDIT_TRACKER.md`
+
+**Tag:** `ecosystem-v0.1.118-btr-spec1-codify`
+
+---
+
 ## CBTR-3 P3 Executed + CBTR-2 Burn-in PASSED — 2026-03-12
 
 - **CBTR-2 burn-in PASSED:** Start 2026-03-12 04:16:44 UTC, passed at 2026-03-13 04:18:54 UTC (24h 02m 10s).

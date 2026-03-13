@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-12 (DISCOVERY-MODE-1 stream codified)
-> **Tag:** ecosystem-v0.1.116-discovery-mode1-codify
+> **Updated:** 2026-03-13 (BTR-SPEC-1 stream codified)
+> **Tag:** ecosystem-v0.1.118-btr-spec1-codify
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -4859,6 +4859,204 @@ No material discovery-policy risks identified at codification. Rationale:
 
 ---
 
+## BTR-SPEC-1 — Algorithm-Grade Protocol Specification
+
+> **Stream ID:** BTR-SPEC-1
+> **Backlog Item:** New (BTR formal specification suite)
+> **Priority:** NEXT (BS1 unblocked now; no hard dependency on CONSUMER-BTR1 since spec is gap-fill, not greenfield)
+> **Repos:** bolt-protocol (primary — spec text), bolt-ecosystem (governance)
+> **Codified:** ecosystem-v0.1.118-btr-spec1-codify (2026-03-13)
+> **Status:** CODIFIED (BS1 unblocked immediately)
+
+---
+
+### Context & Motivation
+
+BTR (Bolt Transfer Ratchet) has full implementation coverage (BTR-STREAM-1 COMPLETE, 341 tests, 10 conformance vector files) and substantial spec text in PROTOCOL.md §16 (300+ lines). However, the specification was written implementation-first and has gaps:
+
+1. **Flow control/backpressure** — implemented but not in §16
+2. **Resume/recovery semantics** — error codes specified (§16.7) but resume-after-disconnect behavior undefined
+3. **No formal change-control policy** — no versioning rules for §16 amendments
+4. **No external-review-readiness package** — spec, vectors, and evidence exist but are not packaged for independent review
+5. **Module boundaries implicit** — §16 subsections exist but are not named as discrete algorithm modules
+
+BTR-SPEC-1 promotes the existing specification to algorithm-grade: sufficient precision for independent implementation from spec alone, with explicit change control and review readiness.
+
+### P0 Audit Results (2026-03-13)
+
+**Spec coverage audit (PROTOCOL.md §16 vs implementation):**
+
+| Module | Spec Status | Location | Gap |
+|--------|------------|----------|-----|
+| Handshake/capability negotiation | FULL | §4.2, §16.0 | None |
+| Key schedule/ratchet lifecycle | FULL | §16.3 (4 HKDF derivations) | None |
+| Chunk integrity/replay | FULL | §11, §16.3 | None |
+| Flow control/backpressure | PARTIAL | Implementation only | §16 gap — no normative text |
+| Resume/recovery/rollback | PARTIAL | §16.7 (error codes) | Resume-after-disconnect undefined |
+| Wire framing/canonicalization | FULL | §16.2, §6.1 | None |
+| Conformance/interop rules | FULL | Appendix C, 10 vector files | None |
+
+**Existing assets:**
+- 11 security invariants (BTR-INV-01–11) in §16.6
+- 4 error codes with normative actions in §16.7
+- 10 conformance vector JSON files (Rust-generated, TS-consumed)
+- BTR_VECTOR_POLICY.md (authority model)
+- BTR5_DECISION_MEMO.md + BTR5_EVIDENCE_INDEX.md
+
+**Confirmed module taxonomy (7 modules, matching candidate list):**
+
+| Module ID | Name | Primary Spec Section |
+|-----------|------|---------------------|
+| BTR-HS | Handshake + Capability Negotiation | §4.2, §16.0 |
+| BTR-KS | Key Schedule + Ratchet Lifecycle | §16.3, §16.5 |
+| BTR-INT | Chunk Integrity + Replay/Ordering | §11, §16.6 |
+| BTR-FC | Flow Control + Backpressure | NEW (gap) |
+| BTR-RSM | Resume/Recovery/Rollback | §16.7 (extend) |
+| BTR-WIRE | Envelope Framing + Canonicalization | §16.2, §6.1 |
+| BTR-CNF | Conformance + Vectors + Interop | Appendix C |
+
+### Relationship to Existing Streams
+
+| Stream | Mode | Rationale |
+|--------|------|-----------|
+| **SEC-BTR1** (BTR-STREAM-1, COMPLETE) | **COMPLEMENTS** | BTR-SPEC-1 formalizes what SEC-BTR1 implemented. No contradiction. Completion evidence preserved. |
+| **CONSUMER-BTR1** (IN-PROGRESS) | **COMPLEMENTS** | Consumer rollout is orthogonal to spec formalization. No blocking dependency in either direction. |
+| **RUSTIFY-CORE-1** (CODIFIED, NEXT) | **COMPLEMENTS** | RC2 (shared Rust core API) may consume BTR-SPEC-1 module boundaries for API design. Non-blocking. |
+
+No SUPERSEDES or REFACTORS relationships. BTR-SPEC-1 is additive formalization.
+
+---
+
+### Scope Guardrails
+
+| ID | Guardrail |
+|----|-----------|
+| BS-G1 | No runtime code changes — spec/governance only |
+| BS-G2 | No protocol semantic rewrites — codify current intended behavior |
+| BS-G3 | Preserve SEC-BTR1 completion evidence and stream history |
+| BS-G4 | Module taxonomy must map to existing §16 subsections (extend, not restructure) |
+| BS-G5 | Conformance vectors remain Rust-authoritative (BTR_VECTOR_POLICY.md preserved) |
+| BS-G6 | No new cryptographic primitives — formalize existing NaCl box + HKDF-SHA256 stack |
+
+---
+
+### BTR-SPEC-1 Phase Table
+
+| Phase | Description | Type | Serial Gate | Dependencies | Status |
+|-------|-------------|------|-------------|--------------|--------|
+| **BS1** | Module taxonomy + boundary lock (confirm P0 modules) | Spec gate | YES — gates BS2 | None | NOT-STARTED |
+| **BS2** | State machines + crypto/key-schedule canonicalization lock | Spec gate | YES — gates BS3 | BS1 complete | NOT-STARTED |
+| **BS3** | Wire format + failure/recovery semantics lock (fill BTR-FC, BTR-RSM gaps) | Spec gate | YES — gates BS4 | BS2 complete | NOT-STARTED |
+| **BS4** | Conformance vectors + negative-test matrix lock | Spec gate | YES — gates BS5 | BS3 complete | NOT-STARTED |
+| **BS5** | Versioning/change-control + external review readiness lock | PM/Spec gate | YES — closes stream | BS4 complete | NOT-STARTED |
+
+#### Dependency DAG
+
+```
+BS1 (taxonomy lock — unblocked now)
+  │
+  ▼
+BS2 (state machines + crypto lock)
+  │
+  ▼
+BS3 (wire + failure/recovery — fills BTR-FC, BTR-RSM gaps)
+  │
+  ▼
+BS4 (conformance + negative tests)
+  │
+  ▼
+BS5 (versioning + review readiness — PM-BS-05 gate)
+```
+
+No upstream stream dependencies. COMPLEMENTS SEC-BTR1, CONSUMER-BTR1, RUSTIFY-CORE-1.
+
+---
+
+### Acceptance Criteria
+
+#### BS1 — Module Taxonomy + Boundary Lock
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-BS-01 | Module taxonomy finalized (7 modules or adjusted set) with §16 mapping | Published module table |
+| AC-BS-02 | Per-module artifact checklist confirmed (SM, invariants, pseudocode, failures, security, vectors) | Checklist doc |
+| AC-BS-03 | No contradiction with SEC-BTR1 completion evidence | Cross-reference audit |
+
+#### BS2 — State Machines + Crypto Lock
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-BS-04 | BTR-KS state machine formally defined (session root → transfer root → chain → message key → DH ratchet) | State diagram + pseudocode |
+| AC-BS-05 | BTR-HS capability negotiation state machine formally defined (6-cell matrix) | State diagram |
+| AC-BS-06 | All 11 security invariants (BTR-INV-01–11) verified against formal SM definitions | Invariant-to-SM mapping |
+| AC-BS-07 | Crypto primitive baseline confirmed (PM-BS-01 resolved) | PM decision recorded |
+| AC-BS-08 | Rekey thresholds/lifecycle policy confirmed (PM-BS-02 resolved) | PM decision recorded |
+
+#### BS3 — Wire Format + Failure/Recovery Lock
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-BS-09 | BTR-FC (flow control/backpressure) normative text added to §16 | Published spec section |
+| AC-BS-10 | BTR-RSM (resume/recovery) normative text added to §16 | Published spec section |
+| AC-BS-11 | Wire format versioning policy confirmed (PM-BS-03 resolved) | PM decision recorded |
+| AC-BS-12 | Compatibility contract confirmed — strict vs tolerant parsing (PM-BS-04 resolved) | PM decision recorded |
+| AC-BS-13 | All 4 error codes (§16.7) have deterministic failure-to-action mapping | Failure matrix |
+
+#### BS4 — Conformance + Negative Tests Lock
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-BS-14 | All 10 existing vector categories verified against formal spec | Vector-to-spec mapping |
+| AC-BS-15 | Negative-test obligations codified per module (what MUST fail and how) | Negative-test matrix |
+| AC-BS-16 | Cross-language conformance requirements formalized (Rust authority, TS consumer) | Conformance policy update |
+| AC-BS-17 | Downgrade/compatibility vectors cover all 6 negotiation cells | Vector audit |
+
+#### BS5 — Versioning + Review Readiness Lock
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-BS-18 | Change-control policy for §16 amendments codified (who, how, versioning) | Published policy |
+| AC-BS-19 | External review readiness package assembled (spec + vectors + evidence index) | Package inventory |
+| AC-BS-20 | External review gate confirmed (PM-BS-05 resolved) | PM decision recorded |
+| AC-BS-21 | Relationship mode ratified (PM-BS-06 resolved) | PM decision recorded |
+| AC-BS-22 | No non-doc files changed in this stream | `git diff --name-only` audit |
+
+---
+
+### PM Open Decisions Table
+
+| ID | Decision | Blocks | Priority | Status |
+|----|----------|--------|----------|--------|
+| PM-BS-01 | Crypto primitive baseline confirmation (NaCl box + HKDF-SHA256 — expected: ratify current) | BS2 (AC-BS-07) | BS2 | PENDING |
+| PM-BS-02 | Rekey thresholds/lifecycle policy (per-chunk chain + per-transfer DH — expected: ratify current) | BS2 (AC-BS-08) | BS2 | PENDING |
+| PM-BS-03 | Wire format versioning policy (how §16.2 fields evolve across protocol versions) | BS3 (AC-BS-11) | BS3 | PENDING |
+| PM-BS-04 | Compatibility contract: strict vs tolerant parsing of BTR envelope fields | BS3 (AC-BS-12) | BS3 | PENDING |
+| PM-BS-05 | External review gate: scope (full spec vs BTR-only), reviewer profile, acceptance bar | BS5 (AC-BS-20) | BS5 | PENDING |
+| PM-BS-06 | Ratify P0-proposed relationship mode (COMPLEMENTS for all 3 related streams) | BS5 (AC-BS-21) | BS5 | PENDING |
+
+---
+
+### Risk Register
+
+| ID | Risk | Severity | Mitigation |
+|----|------|----------|------------|
+| BS-R1 | Spec formalization reveals implementation divergence from intended behavior | LOW | §16 was written alongside implementation; 341 tests provide high-confidence alignment. BS2 cross-references SM against code. |
+| BS-R2 | BTR-FC/BTR-RSM gap-fill introduces new normative requirements that contradict implementation | LOW | BS-G2 (codify current behavior, not invent new semantics). Implementation audit informs spec text. |
+| BS-R3 | External review identifies material weakness requiring protocol change | MEDIUM | PM-BS-05 scopes review before BS5 closes. Protocol changes would spawn a follow-on stream, not modify BTR-SPEC-1. |
+| BS-R4 | Change-control policy too rigid, blocking necessary future evolution | LOW | BS5 defines amendment process with PM gate, not permanent freeze. |
+
+### Deferred / Out of Scope
+
+| Item | Rationale |
+|------|-----------|
+| New cryptographic primitives | BS-G6; formalize existing stack |
+| Browser↔browser WebRTC replacement | Transport concern, not BTR spec |
+| Native transport selection | RUSTIFY-CORE-1 PM-RC-01 scope |
+| Formal proof development | Reserved as follow-on stream (BTR-PROOF-1 placeholder) |
+| Daemon BTR integration | AC-BTR-36 deferred; RUSTIFY-CORE-1 / ByteBolt scope |
+
+---
+
 ## Tag Naming Rules
 
 | Workstream | Repo | Format | Example |
@@ -4888,6 +5086,8 @@ No material discovery-policy risks identified at codification. Rationale:
 | EGUI-NATIVE-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-egui-native1-<slug>` | `ecosystem-v0.1.115-egui-native1-codify` |
 | DISCOVERY-MODE-1 (consumers) | localbolt-v3, localbolt, localbolt-app | `<repo-prefix>-dm<phase>-<slug>` | `v3.0.90-dm2-mode-indicator` |
 | DISCOVERY-MODE-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-discovery-mode1-<slug>` | `ecosystem-v0.1.116-discovery-mode1-codify` |
+| BTR-SPEC-1 (spec) | bolt-protocol | `v0.1.X-btr-spec1-bs<phase>-<slug>` | `v0.1.7-btr-spec1-bs1-taxonomy` |
+| BTR-SPEC-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-btr-spec1-<slug>` | `ecosystem-v0.1.118-btr-spec1-codify` |
 | Governance | bolt-ecosystem | `ecosystem-v0.1.X-workstreams-N` | `ecosystem-v0.1.30-workstreams-1` |
 
 **Rules:**
@@ -4922,6 +5122,7 @@ No material discovery-policy risks identified at codification. Rationale:
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies. |
+| BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **CODIFIED** (`ecosystem-v0.1.118-btr-spec1-codify`). 5 phases (BS1–BS5), 22 ACs, 6 PM decisions. BS1 unblocked now. COMPLEMENTS SEC-BTR1/CONSUMER-BTR1/RUSTIFY-CORE-1. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 
@@ -4961,6 +5162,7 @@ No material discovery-policy risks identified at codification. Rationale:
 - **Within N-stream:** N0 gates all. N1 ∥ N2 after N0. N3 after N2. N4 after N1+N2. N5 after N2+N3. N6 after N4+N5. N7 after N6.
 - **EGUI-NATIVE-1** depends on RUSTIFY-CORE-1 RC4 for EN2+ execution. EN1 (PM framework lock) is a governance-only gate and may open in parallel with RUSTIFY-CORE-1 RC1–RC4. Within EN-stream: EN1 → EN2 → EN3 → EN4 → EN5 (fully serial). Independent of CONSUMER-BTR1, N-STREAM-1, and all other streams except RUSTIFY-CORE-1.
 - **DISCOVERY-MODE-1** has no upstream stream dependencies. Fully orthogonal to RUSTIFY-CORE-1, CONSUMER-BTR1, EGUI-NATIVE-1, and all other streams. Within DM-stream: DM1 → DM2 → DM3 → DM4 (fully serial). DM1 (PM gate) unblocked immediately.
+- **BTR-SPEC-1** has no upstream stream dependencies. COMPLEMENTS SEC-BTR1 (complete), CONSUMER-BTR1 (in-progress), RUSTIFY-CORE-1 (codified). Within BS-stream: BS1 → BS2 → BS3 → BS4 → BS5 (fully serial). BS1 unblocked immediately. May run in parallel with all other streams.
 
 ---
 
