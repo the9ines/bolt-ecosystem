@@ -4121,7 +4121,7 @@ CONSUMER-BTR-1 is a rollout stream, not a feature stream. No protocol or SDK cha
 > **Priority:** NEXT (execution blocked until CONSUMER-BTR1 completes)
 > **Repos:** bolt-core-sdk (Rust primary), bolt-daemon, bolt-protocol (spec amendments)
 > **Codified:** ecosystem-v0.1.113-rustify-core1-codify (2026-03-12)
-> **Status:** RC1 DONE (`ecosystem-v0.1.120-rustify-core1-rc1-executed`). RC2 READY (PM-RC-01 APPROVED — QUIC confirmed).
+> **Status:** RC1 DONE (`ecosystem-v0.1.120-rustify-core1-rc1-executed`). RC2 GOV-DONE, EXEC-READY (`ecosystem-v0.1.122-rustify-core1-rc2gov-executed`).
 
 ---
 
@@ -4229,7 +4229,7 @@ If PM-RC-07 confirms SUPERSEDES for SEC-CORE2 and PLAT-CORE1, those items should
 | Phase | Description | Type | Serial Gate | Dependencies | Status |
 |-------|-------------|------|-------------|--------------|--------|
 | **RC1** | Transport matrix + boundary lock (spec-level) | PM/Spec gate | YES — gates RC2, RC3 | CONSUMER-BTR1 complete | **DONE** (`ecosystem-v0.1.120-rustify-core1-rc1-executed`, 2026-03-13) |
-| **RC2** | Shared Rust core API design/extraction lock | Engineering + PM gate | YES — gates RC4, RC5 | RC1 complete | NOT-STARTED |
+| **RC2** | Shared Rust core API design/extraction lock | Engineering + PM gate | YES — gates RC4, RC5 | RC1 complete | **GOV-DONE, EXEC-READY** (`ecosystem-v0.1.122-rustify-core1-rc2gov-executed`, 2026-03-13) |
 | **RC3** | Native transport reference path (app↔app, QUIC) | Engineering gate | NO (parallel with RC4) | RC1 complete, PM-RC-01 APPROVED (QUIC), PM-RC-01A (library) required | NOT-STARTED |
 | **RC4** | Shared Rust core adoption in app/runtime boundaries | Engineering gate | NO (parallel with RC3) | RC2 complete | NOT-STARTED |
 | **RC5** | Browser↔app endpoint integration gates | Engineering gate | YES — gates RC6 | RC3 + RC4 complete | NOT-STARTED |
@@ -4264,7 +4264,7 @@ RC7 (CLI reservation) — parallel, no dependencies
 
 #### RC2 Entry Criteria (RC1 Artifact)
 
-> **Status:** RC2 **READY**. All entry criteria satisfied (PM-RC-01 APPROVED — QUIC confirmed, 2026-03-13).
+> **Status:** RC2 **GOV-DONE, EXEC-READY**. All entry criteria satisfied (PM-RC-01 APPROVED — QUIC confirmed, 2026-03-13). RC2-GOV locked (`ecosystem-v0.1.122-rustify-core1-rc2gov-executed`). RC2-EXEC ready for engineering execution.
 
 RC2 (Shared Rust Core API Design/Extraction Lock) starts only when ALL of the following are satisfied:
 
@@ -4279,19 +4279,80 @@ RC2 (Shared Rust Core API Design/Extraction Lock) starts only when ALL of the fo
 
 ---
 
+#### RC2-GOV — Governance Decisions (Locked, 2026-03-13)
+
+> **Status:** **RC2-GOV DONE** (`ecosystem-v0.1.122-rustify-core1-rc2gov-executed`, 2026-03-13). Governance/spec decisions locked. Code execution deferred to RC2-EXEC.
+
+##### A) Adoption vs Extraction Lock
+
+**Decision: Adoption-first.**
+- Existing crates (`bolt-core`, `bolt-btr`, `bolt-transfer-core`, `bolt-transfer-policy-wasm`) are adopted as-is for the shared Rust core API surface.
+- Extraction or refactor is scoped to missing seams (e.g., handshake/envelope orchestration not yet in any crate) or duplication removal (TS reimplementation of logic already in Rust).
+- No greenfield crate creation unless a functional gap is identified during RC2-EXEC that cannot be addressed by extending an existing crate.
+
+##### B) Integration Topology Lock
+
+**Decision: Direct multi-crate dependency policy (LOCKED).**
+
+Rationale from codebase audit:
+- bolt-core-sdk is a Cargo workspace with 4 crates: `bolt-core` (crypto/identity), `bolt-btr` (ratchet), `bolt-transfer-core` (transfer SM), `bolt-transfer-policy-wasm` (WASM bindings).
+- Dependency graph is acyclic: `bolt-core` ← `bolt-btr`; `bolt-transfer-core` ← `bolt-transfer-policy-wasm`. No circular deps.
+- bolt-daemon already consumes via direct path deps: `bolt-core` + `bolt-transfer-core` (selective import).
+- Each crate is well-scoped and independently consumable. A facade would add indirection without value.
+- This is the established, dominant pattern — not ambiguous.
+
+**Policy:**
+- Consumers (bolt-daemon, localbolt-app Tauri, future native targets) depend directly on the specific crates they need.
+- No umbrella/facade crate will be created. Workspace-level `cargo` commands provide unified build/test/check.
+- If a consumer needs >3 crates, a convenience re-export crate MAY be evaluated (but is not anticipated given current crate scoping).
+
+##### C) Canonical Authority + Adapter Boundary Contracts
+
+**Rust core crates are protocol/security authority:**
+- `bolt-core`: cryptographic operations, identity management, SAS computation, peer code derivation, error codes. **Canonical.** No TS/platform reimplementation permitted.
+- `bolt-btr`: BTR state machine, ratchet lifecycle, KDF chain. **Canonical.** TS BTR is parity consumer, not authority.
+- `bolt-transfer-core`: transfer state machine, chunk scheduling, backpressure policy. **Canonical.** Daemon and app adapters delegate to this crate.
+- `bolt-transfer-policy-wasm`: WASM bindings for browser consumption of transfer policy. Thin wrapper — authority remains in `bolt-transfer-core`.
+
+**Platform adapter boundary contracts:**
+- Adapters (TS `bolt-transport-web`, Tauri IPC layer, future Swift/Kotlin bindings) are **thin I/O + UI shells**.
+- Adapters MUST NOT reimplement: envelope encrypt/decrypt, handshake state machine, SAS computation, BTR ratchet operations, transfer state transitions, chunk integrity verification.
+- Adapters MAY own: transport I/O binding (WebRTC DataChannel setup, QUIC stream management), UI event routing, platform persistence (IndexedDB, filesystem), platform-specific networking (certificate handling, proxy config).
+- Adapter violations (protocol logic in adapter code) are RC2-EXEC review findings — must be extracted or delegated.
+
+##### D) Compatibility/Versioning Policy
+
+- All shared core crates follow **semver** (major.minor.patch).
+- Breaking public API changes require **major version bump**.
+- Deprecation window: **one minor version minimum** — deprecated API surface must compile (with warnings) for at least one minor release before removal.
+- Breaking changes MUST include a migration note in the crate's CHANGELOG.
+- Consumer repos MUST pin to exact crate versions in Cargo.lock (workspace members use path deps; external consumers use tag-pinned git deps per existing policy).
+- Cross-crate breaking changes (e.g., `bolt-core` type change affecting `bolt-btr`) MUST be coordinated as a single workspace-wide version bump.
+
+##### E) SEC-CORE2 Absorption Mapping (PROVISIONAL — pending PM-RC-07)
+
+| SEC-CORE2 AC | Absorbed By | RC2 Deliverable |
+|-------------|-------------|-----------------|
+| AC-SC-01 (Golden vectors from Rust) | AC-RC-08 | Rust vector generator + TS consumer tests |
+| AC-SC-02 (TS vector generation deprecated) | AC-RC-09 | Migration plan documented |
+| AC-SC-03 (Protocol SM canonical in Rust) | AC-RC-10 | Rust crate with SM + invariants |
+| AC-SC-04 (S1 conformance against Rust vectors) | AC-RC-11 | CI gate |
+
+**Provisional:** This mapping assumes PM-RC-07 confirms SUPERSEDES for SEC-CORE2. If PM-RC-07 rejects SUPERSEDES, AC-SC-01–04 remain in SEC-CORE2's own stream and RC2 ACs AC-RC-08–11 are redefined as non-absorbing equivalents.
+
 #### RC2 API Status Clarification
 
 Existing Rust crates that form the shared core foundation:
 - `bolt-core` (v0.4.0) — crypto, identity, SAS, peer code, error codes
-- `bolt-btr` — BTR state machine, ratchet, KDF
+- `bolt-btr` (v0.1.0) — BTR state machine, ratchet, KDF
 - `bolt-transfer-core` (v0.1.0) — transfer SM, backpressure
-- `bolt-transfer-policy-wasm` — WASM policy layer
+- `bolt-transfer-policy-wasm` (v0.1.0) — WASM policy layer
 
-**RC2 is primarily an integration/facade phase**, not a greenfield extraction. The crates exist. RC2 must:
-1. Define the unified API surface (facade crate or re-export strategy)
-2. Define FFI boundary for Tauri/native consumers
-3. Migrate protocol authority from TS to Rust for remaining paths (handshake, envelope orchestration)
-4. Absorb SEC-CORE2 ACs (AC-SC-01–04): Rust vector authority, TS generation deprecated, canonical Rust state machine
+**RC2 is an adoption/integration phase**, not a greenfield extraction. The crates exist. RC2-GOV locks governance decisions; RC2-EXEC implements:
+1. ~~Define the unified API surface (facade crate or re-export strategy)~~ → **LOCKED (RC2-GOV): direct multi-crate dependency policy**
+2. Define FFI boundary for Tauri/native consumers (RC2-EXEC: interface contract from RC2-GOV, codegen/impl in RC2-EXEC)
+3. Migrate protocol authority from TS to Rust for remaining paths (handshake, envelope orchestration) (RC2-EXEC)
+4. Absorb SEC-CORE2 ACs (AC-SC-01–04): Rust vector authority, TS generation deprecated, canonical Rust state machine (RC2-EXEC, PROVISIONAL pending PM-RC-07)
 
 #### RC7 CLI Reservation Artifacts
 
@@ -4316,15 +4377,17 @@ RC7 produces governance-only artifacts. No runtime code. Concrete deliverables:
 
 #### RC2 — Shared Rust Core API Design/Extraction Lock
 
-| ID | Criterion | Evidence Required |
-|----|-----------|------------------|
-| AC-RC-05 | Unified Rust core API surface defined (facade or re-export) | Crate with public API + docs |
-| AC-RC-06 | FFI boundary for Tauri/native consumers defined | FFI interface spec or UniFFI/cbindgen output |
-| AC-RC-07 | Protocol authority migrated: handshake + envelope canonical in Rust | Rust implementation + TS delegation tests |
-| AC-RC-08 | Golden vectors generated from Rust, consumed by both Rust and TS (absorbs AC-SC-01) | Rust vector generator + TS consumer tests |
-| AC-RC-09 | TS vector generation deprecated (absorbs AC-SC-02) | Migration plan documented |
-| AC-RC-10 | Protocol state machine canonical in Rust (absorbs AC-SC-03) | Rust crate with state machine + invariants |
-| AC-RC-11 | S1 conformance tests pass against Rust-generated vectors (absorbs AC-SC-04) | CI gate |
+> **RC2 Split:** RC2-GOV (governance/spec lock) is DONE. RC2-EXEC (code implementation) is READY. Both are represented within this single RC2 phase row — no new phase rows added.
+
+| ID | Criterion | Evidence Required | Scope | Status |
+|----|-----------|------------------|-------|--------|
+| AC-RC-05 | Unified Rust core API surface defined (facade or re-export) | Crate with public API + docs | **PARTIAL** — spec lock in RC2-GOV (topology: direct multi-crate dependency policy LOCKED); code verification in RC2-EXEC | **RC2-GOV: DONE** (topology locked). RC2-EXEC: NOT-STARTED. |
+| AC-RC-06 | FFI boundary for Tauri/native consumers defined | FFI interface spec or UniFFI/cbindgen output | **PARTIAL** — interface contract spec in RC2-GOV (adapter boundary contracts LOCKED); codegen/impl in RC2-EXEC | **RC2-GOV: DONE** (boundary contracts locked). RC2-EXEC: NOT-STARTED. |
+| AC-RC-07 | Protocol authority migrated: handshake + envelope canonical in Rust | Rust implementation + TS delegation tests | **DEFERRED** to RC2-EXEC | NOT-STARTED |
+| AC-RC-08 | Golden vectors generated from Rust, consumed by both Rust and TS (absorbs AC-SC-01) | Rust vector generator + TS consumer tests | **DEFERRED** to RC2-EXEC | NOT-STARTED |
+| AC-RC-09 | TS vector generation deprecated (absorbs AC-SC-02) | Migration plan documented | **DEFERRED** to RC2-EXEC | NOT-STARTED |
+| AC-RC-10 | Protocol state machine canonical in Rust (absorbs AC-SC-03) | Rust crate with state machine + invariants | **DEFERRED** to RC2-EXEC | NOT-STARTED |
+| AC-RC-11 | S1 conformance tests pass against Rust-generated vectors (absorbs AC-SC-04) | CI gate | **DEFERRED** to RC2-EXEC | NOT-STARTED |
 
 #### RC3 — Native Transport Reference Path
 
@@ -5159,7 +5222,7 @@ No upstream stream dependencies. COMPLEMENTS SEC-BTR1, CONSUMER-BTR1, RUSTIFY-CO
 | MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD | Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC4 (pending PM-RC-07) |
 | ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC2 (pending PM-RC-07) |
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** |
-| RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE** (`ecosystem-v0.1.120-rustify-core1-rc1-executed`). RC2 **READY** (PM-RC-01 APPROVED — QUIC confirmed, 2026-03-13). 7 phases (RC1–RC7), 33 ACs, 8 PM decisions (PM-RC-01A added). |
+| RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE** (`ecosystem-v0.1.120-rustify-core1-rc1-executed`). RC2 **GOV-DONE, EXEC-READY** (`ecosystem-v0.1.122-rustify-core1-rc2gov-executed`, 2026-03-13). 7 phases (RC1–RC7), 33 ACs, 8 PM decisions. |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **CODIFIED** (`ecosystem-v0.1.118-btr-spec1-codify`). 5 phases (BS1–BS5), 22 ACs, 6 PM decisions. BS1 unblocked now. COMPLEMENTS SEC-BTR1/CONSUMER-BTR1/RUSTIFY-CORE-1. |

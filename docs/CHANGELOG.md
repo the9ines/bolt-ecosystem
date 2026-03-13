@@ -5,6 +5,37 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## RC2-GOV Executed — Shared Rust Core API Governance Lock — 2026-03-13
+
+- **RC2-GOV DONE.** Governance/spec decisions for shared Rust core API locked. Code execution deferred to RC2-EXEC.
+- **Adoption vs extraction lock:** Adoption-first for existing crates (`bolt-core`, `bolt-btr`, `bolt-transfer-core`, `bolt-transfer-policy-wasm`). Extraction only for missing seams or duplication.
+- **Integration topology lock:** Direct multi-crate dependency policy (LOCKED). No facade/umbrella crate. Consumers import specific crates directly. Established pattern confirmed from codebase audit (bolt-daemon already uses this model).
+- **Canonical authority + adapter contracts:**
+  - Rust core crates are protocol/security authority. No TS/platform reimplementation permitted.
+  - Platform adapters (TS/Tauri/Swift) are thin I/O + UI shells. Must not duplicate protocol logic.
+  - Adapter violations are RC2-EXEC review findings.
+- **Compatibility/versioning policy:** Semver for all shared core crates. One minor version deprecation window. Breaking changes require major bump + migration note. Cross-crate breaks coordinated as workspace-wide bump.
+- **SEC-CORE2 absorption mapping (PROVISIONAL, pending PM-RC-07):**
+  - AC-SC-01 → AC-RC-08, AC-SC-02 → AC-RC-09, AC-SC-03 → AC-RC-10, AC-SC-04 → AC-RC-11
+- **AC scope split:**
+  - AC-RC-05: PARTIAL (spec lock GOV-DONE; code verification in EXEC)
+  - AC-RC-06: PARTIAL (boundary contracts GOV-DONE; codegen/impl in EXEC)
+  - AC-RC-07..11: DEFERRED to RC2-EXEC
+  - AC-RC-03: confirmed DONE (PM-RC-01 approved)
+- **RC2 status:** GOV-DONE, EXEC-READY (no blockers for RC2-EXEC)
+- **RC3 status:** unchanged (blocked on PM-RC-01A per existing DAG)
+- **DAG verified:** RC3→RC2, RC4→RC2, RC5→RC3+RC4 (unchanged)
+
+**Files changed:**
+- `docs/GOVERNANCE_WORKSTREAMS.md`
+- `docs/FORWARD_BACKLOG.md`
+- `docs/STATE.md`
+- `docs/CHANGELOG.md`
+
+**Tag:** `ecosystem-v0.1.122-rustify-core1-rc2gov-executed`
+
+---
+
 ## PM-RC-01 Resolved — QUIC Confirmed, RC2 READY — 2026-03-13
 
 - **PM-RC-01 APPROVED:** Native transport protocol confirmed as **QUIC** for `app↔app` primary path in RUSTIFY-CORE-1.
