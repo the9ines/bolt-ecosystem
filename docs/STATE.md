@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-12 (EGUI-NATIVE-1 codified — ecosystem-v0.1.115-egui-native1-codify)
+> **Last Updated:** 2026-03-12 (CBTR-3 P3 executed — localbolt-app BTR enabled, CBTR-2 burn-in PASSED)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -713,7 +713,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem | **DONE** (`daemon-v0.2.38-relarch1-multiarch-matrix`, `ab56606`) |
 | SEC-DR1 | Double Ratchet pre-ByteBolt gate (DR-STREAM-1) | ~~NEXT~~ | bolt-core-sdk + bolt-protocol | **SUPERSEDED-BY: SEC-BTR1** (frozen, `ecosystem-v0.1.99-sec-dr1-p0-codify`) |
 | SEC-BTR1 | Bolt Transfer Ratchet pre-ByteBolt gate (BTR-STREAM-1) | ~~NEXT~~ DONE | bolt-core-sdk + bolt-protocol | **BTR-STREAM-1 COMPLETE.** BTR-0–5 DONE. Approved policy: Option C (default-on fail-open, downgrade-with-warning). PM-BTR-08/09/11 approved 2026-03-11. Tags: sdk-v0.5.36–v0.5.39, ecosystem-v0.1.100–v0.1.107. |
-| CONSUMER-BTR1 | Consumer app BTR rollout (CONSUMER-BTR-1) | NOW | localbolt-v3, localbolt, localbolt-app | IN-PROGRESS. CBTR-1 DONE (burn-in PASSED). CBTR-2 P2 DONE (`localbolt-v1.0.36`, `e75271a`), burn-in active. CBTR-3 awaiting CBTR-2 burn-in. |
+| CONSUMER-BTR1 | Consumer app BTR rollout (CONSUMER-BTR-1) | NOW | localbolt-v3, localbolt, localbolt-app | IN-PROGRESS. CBTR-1 DONE (burn-in PASSED). CBTR-2 DONE (burn-in PASSED, 24h02m). CBTR-3 P3 DONE (`localbolt-app-v1.2.24`, `ff33747`), burn-in active. |
 | T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | New crate + daemon | NOT-STARTED |
 | SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk | Provisionally SUPERSEDED-BY RUSTIFY-CORE-1 (pending PM-RC-07) |
 | T-STREAM-1 | Browser selective WASM integration | LATER | bolt-core-sdk + WASM + consumers | **SDK DONE, CONSUMERS ADOPTED** (`sdk-v0.5.32`, `localbolt-v1.0.29`, `localbolt-app-v1.2.17`, `v3.0.82`) — manual runtime evidence pending |
@@ -722,6 +722,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC2 (pending PM-RC-07) |
 | RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **CODIFIED** (`ecosystem-v0.1.113-rustify-core1-codify`). 7 phases (RC1–RC7), 33 ACs, 7 PM decisions. Blocked until CONSUMER-BTR1 completes. |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
+| DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem + consumers | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies; DM1 unblocked immediately. |
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** — Phase A: `sdk-v0.5.35-recon-xfer1-phase-a-tests`, `v3.0.88-recon-xfer1-phase-a`. Phase B: `localbolt-v1.0.35-recon-xfer1-phase-b`, `localbolt-app-v1.2.23-recon-xfer1-phase-b`. AC-RX-01–07 satisfied. AC-RX-08 automated PASS, manual runtime PENDING (RX-EVID-1). All code work closed. |
 
 ---

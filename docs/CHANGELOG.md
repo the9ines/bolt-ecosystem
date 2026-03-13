@@ -5,6 +5,56 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## CBTR-3 P3 Executed + CBTR-2 Burn-in PASSED — 2026-03-12
+
+- **CBTR-2 burn-in PASSED:** Start 2026-03-12 04:16:44 UTC, passed at 2026-03-13 04:18:54 UTC (24h 02m 10s).
+- **CBTR-3 P3 DONE:** BTR enabled in localbolt-app (`btrEnabled: true`).
+- **SDK publishes:** `@the9ines/bolt-core@0.5.2` (BTR negotiation exports), `@the9ines/bolt-transport-web@0.6.8` (BTR wire integration + CBTR-F1 fix).
+- **Tests:** 74 web + 82 Rust = 156 total in localbolt-app (10 new CBTR-3 tests).
+- **All AC satisfied:** AC-CBTR-14 through AC-CBTR-20.
+- **CONSUMER-BTR1 status:** IN-PROGRESS — CBTR-3 burn-in active, 24h gate required before stream closure.
+- **Rollback:** `btrEnabled: false` in `web/src/components/peer-connection.ts`.
+
+**Files changed:**
+- docs/GOVERNANCE_WORKSTREAMS.md
+- docs/STATE.md
+- docs/CHANGELOG.md
+
+**Tags:**
+- localbolt-app: `localbolt-app-v1.2.24-consumer-btr1-p3` (`ff33747`)
+- bolt-core-sdk: `fd04721` (transport-web 0.6.8 publish), `01eca1c` (bolt-core 0.5.2 publish)
+
+**Tag:** `ecosystem-v0.1.117-cbtr3-p3-executed`
+
+---
+
+## DISCOVERY-MODE-1 — Stream Codified (Dual Discovery Mode Policy) — 2026-03-12
+
+- **DISCOVERY-MODE-1 CODIFIED:** New governance stream for explicit discovery mode policy codification.
+- **P0 audit confirmed:** Dual-signaling behavior correct but undocumented at governance level. 5 ambiguities identified (no UI mode indicator, no peer origin in UI, inconsistent env vars, undocumented dedup, CLOUD_ONLY not possible).
+- **Mode definitions:**
+  - `LAN_ONLY` (required): Local signaling only, cloud disabled/absent
+  - `HYBRID` (required, recommended default): Local + cloud merged, first-discovery-wins dedup
+  - `CLOUD_ONLY` (deferred): Reserved as future extension pending PM-DM-04
+- **5 dedup invariants codified:** DM-DEDUP-01 through DM-DEDUP-05
+- **4 phases defined:** DM1 (PM policy lock) → DM2 (mode indicators) → DM3 (test harness) → DM4 (env var harmonization + closure)
+- **16 acceptance criteria:** AC-DM-01 through AC-DM-16
+- **4 PM decisions opened:** PM-DM-01 through PM-DM-04
+- **5 scope guardrails:** DM-G1 through DM-G5
+- **Priority:** NEXT (no upstream dependencies; orthogonal to all active streams)
+- **Risk register:** No material risks identified
+
+**Files changed:**
+- `docs/GOVERNANCE_WORKSTREAMS.md`
+- `docs/FORWARD_BACKLOG.md`
+- `docs/STATE.md`
+- `docs/CHANGELOG.md`
+- `docs/AUDIT_TRACKER.md`
+
+**Tag:** `ecosystem-v0.1.116-discovery-mode1-codify`
+
+---
+
 ## EGUI-NATIVE-1 — Stream Codified (Native Desktop UI Consolidation) — 2026-03-12
 
 - **EGUI-NATIVE-1 CODIFIED:** New governance stream for desktop UI migration from Tauri WebView to egui (Rust-native GUI).

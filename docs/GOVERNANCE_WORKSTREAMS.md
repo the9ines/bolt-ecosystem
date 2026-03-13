@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-12 (EGUI-NATIVE-1 stream codified)
-> **Tag:** ecosystem-v0.1.115-egui-native1-codify
+> **Updated:** 2026-03-12 (DISCOVERY-MODE-1 stream codified)
+> **Tag:** ecosystem-v0.1.116-discovery-mode1-codify
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -4045,8 +4045,8 @@ CONSUMER-BTR-1 is a rollout stream, not a feature stream. No protocol or SDK cha
 | Phase | Description | Repo | Dependencies | Status |
 |-------|-------------|------|--------------|--------|
 | **CBTR-1** | localbolt-v3 (localbolt.app) BTR rollout | localbolt-v3 | BTR-STREAM-1 complete | **DONE** — `v3.0.89-consumer-btr1-p1` (`e34e617`). Burn-in PASSED. |
-| **CBTR-2** | localbolt (web) BTR rollout | localbolt | BTR-STREAM-1 complete + CBTR-F1 fixed | **P2 DONE** — `localbolt-v1.0.36-consumer-btr1-p2` (`e75271a`). Burn-in active. |
-| **CBTR-3** | localbolt-app (Tauri native) BTR rollout | localbolt-app | BTR-STREAM-1 complete + CBTR-F1 fixed | UNBLOCKED — awaiting CBTR-2 24h burn-in |
+| **CBTR-2** | localbolt (web) BTR rollout | localbolt | BTR-STREAM-1 complete + CBTR-F1 fixed | **DONE** — `localbolt-v1.0.36-consumer-btr1-p2` (`e75271a`). Burn-in PASSED (24h02m). |
+| **CBTR-3** | localbolt-app (Tauri native) BTR rollout | localbolt-app | BTR-STREAM-1 complete + CBTR-F1 fixed | **P3 DONE** — `localbolt-app-v1.2.24-consumer-btr1-p3` (`ff33747`). Burn-in active. |
 
 **Parallelization:** CBTR-1, CBTR-2, CBTR-3 are fully independent and MAY run in parallel. Each operates in a separate repo with no shared code changes. Recommended sequencing: CBTR-1 first (primary reproducer for prior BTR testing), then CBTR-2 and CBTR-3 in parallel.
 
@@ -4646,6 +4646,219 @@ These are governance reservations only. No phases, ACs, or PM decisions are defi
 
 ---
 
+## DISCOVERY-MODE-1 — Dual Discovery Mode Policy Codification
+
+> **Stream ID:** DISCOVERY-MODE-1
+> **Backlog Item:** New (discovery mode policy)
+> **Priority:** NEXT (no upstream dependencies; orthogonal to all active streams)
+> **Repos:** bolt-ecosystem (governance only — no runtime code)
+> **Codified:** ecosystem-v0.1.116-discovery-mode1-codify (2026-03-12)
+> **Status:** CODIFIED (DM1 PM gate unblocked immediately)
+
+---
+
+### Context & Motivation
+
+Current consumer apps (localbolt, localbolt-v3, localbolt-app) implement dual discovery via the `DualSignaling` class in bolt-transport-web. Behavior is:
+
+- **Cloud URL configured** → merged local + cloud peer discovery (HYBRID)
+- **Cloud URL absent** → local-only peer discovery (LAN_ONLY)
+
+This works correctly at runtime, but:
+
+1. **No governance-level mode policy** — mode is implicit from URL presence/absence, not codified
+2. **No user-visible mode indicator** — only console `[SIGNALING]` warning for local-only mode
+3. **No peer origin exposed to UI** — `DiscoveredDevice` has no source field; origin tracking is internal
+4. **Inconsistent env var naming** — localbolt-v3 uses `VITE_SIGNAL_URL` for cloud; localbolt/localbolt-app use `VITE_CLOUD_SIGNAL_URL`
+5. **Dedup policy undocumented** — first-discovery-wins semantics work but are not codified at governance level
+6. **CLOUD_ONLY not possible** — no mechanism to disable local signaling while keeping cloud
+
+This stream codifies explicit mode definitions so expected peer visibility is unambiguous and testable.
+
+### P0 Audit Results (2026-03-12)
+
+**Discovery architecture (confirmed across all 3 consumers):**
+
+| Consumer | Cloud URL Var | Local URL Var | Local Server Type |
+|----------|--------------|---------------|-------------------|
+| localbolt-v3 | `VITE_SIGNAL_URL` | `VITE_LOCAL_SIGNAL_URL` | Cargo git dep (embedded) |
+| localbolt | `VITE_CLOUD_SIGNAL_URL` | `VITE_SIGNAL_URL` | Vendored subtree |
+| localbolt-app | `VITE_CLOUD_SIGNAL_URL` | `VITE_SIGNAL_URL` | Embedded Rust thread (Tauri) |
+
+**Dedup behavior (confirmed consistent):**
+- `DualSignaling.allPeers` Map keyed by `peerCode` — first-discovery-wins
+- `DualSignaling.peerSource` Map tracks origin (`'local'` | `'cloud'`)
+- App-level double-guard: `peers.some(p => p.peerCode === peer.peerCode)`
+- Loss is source-aware: peer removed only if originating source reports loss
+- Tests in `DualSignaling.test.ts` cover merge, dedup, source-aware loss
+
+**IP-based room grouping (local server):**
+- Peers grouped by source IP address — same IP = same room = mutual discovery
+- No manual pairing required for LAN discovery
+- Cloud server has no room isolation (flat peer registry)
+
+---
+
+### Mode Definitions
+
+#### `LAN_ONLY` (Required)
+
+| Property | Definition |
+|----------|-----------|
+| **Description** | Local signaling only. Cloud signaling disabled or unconfigured. |
+| **Configuration source of truth** | Cloud URL env var absent, empty, or explicitly set to disable |
+| **Expected peer visibility** | MUST contain only peers discovered via local signaling server (same IP room) |
+| **Allowed fallback** | None — if local server unreachable, peer list is empty |
+| **User-facing status label** | `LAN Only` (or equivalent) — MUST be visible in UI when active |
+| **Trigger condition** | Cloud URL not configured OR explicitly disabled |
+
+#### `HYBRID` (Required — Recommended Default)
+
+| Property | Definition |
+|----------|-----------|
+| **Description** | Local + cloud signaling active simultaneously. Merged peer list. |
+| **Configuration source of truth** | Both local URL and cloud URL configured and reachable |
+| **Expected peer visibility** | MAY contain LAN peers (local server) AND internet peers (cloud server). Deduplicated. |
+| **Deduplication policy** | First-discovery-wins by `peerCode`. Source tracked internally for signal routing. Peer removed only when originating source reports loss. |
+| **Allowed fallback** | If one server unreachable, operates as effective LAN_ONLY or effective CLOUD_ONLY. MUST indicate degraded state. |
+| **User-facing status label** | `Online` or `Hybrid` (or equivalent) — MUST be visible in UI when active |
+| **Trigger condition** | Both local and cloud URLs configured; at least one connected |
+
+#### `CLOUD_ONLY` (Optional Extension — Deferred)
+
+| Property | Definition |
+|----------|-----------|
+| **Description** | Cloud signaling only. Local signaling unavailable or intentionally disabled. |
+| **Status** | **DEFERRED** — reserved as future extension. Not codified for implementation in this stream. |
+| **Trigger condition** | TBD — no current mechanism to disable local signaling while keeping cloud |
+| **PM gate** | PM-DM-04 must approve before codification proceeds |
+
+### Deduplication Policy (HYBRID Mode)
+
+The following deduplication invariants apply when both local and cloud signaling are active:
+
+| ID | Invariant |
+|----|-----------|
+| DM-DEDUP-01 | Each unique `peerCode` MUST appear at most once in the merged peer list |
+| DM-DEDUP-02 | First source to discover a peer wins origin assignment |
+| DM-DEDUP-03 | Signal routing MUST use recorded origin source for known peers |
+| DM-DEDUP-04 | Peer removal MUST be source-aware — only the originating source can remove a peer |
+| DM-DEDUP-05 | If a peer is discovered via both sources, subsequent discovery events for the same `peerCode` MUST be silently dropped |
+
+### Deferred / Out of Scope
+
+| Item | Rationale |
+|------|-----------|
+| Runtime implementation changes | DM-G1; governance/policy only |
+| Transport/protocol changes | DM-G2; discovery is signaling-layer, not transport |
+| CLOUD_ONLY implementation | DM-G4; deferred to future extension |
+| Env var naming harmonization | Implementation concern; may be addressed in a future execution phase |
+| Peer origin field in `DiscoveredDevice` | Implementation concern; AC defines the requirement, not the implementation |
+
+---
+
+### Scope Guardrails
+
+| ID | Guardrail |
+|----|-----------|
+| DM-G1 | No runtime code changes in this stream |
+| DM-G2 | No transport/protocol changes |
+| DM-G3 | LAN_ONLY and HYBRID must be fully specified now |
+| DM-G4 | CLOUD_ONLY may be codified only as optional future extension |
+| DM-G5 | Existing dual-signaling intent must remain intact |
+
+---
+
+### DISCOVERY-MODE-1 Phase Table
+
+| Phase | Description | Type | Serial Gate | Dependencies | Status |
+|-------|-------------|------|-------------|--------------|--------|
+| **DM1** | PM mode policy lock (default mode, UI requirements, CLOUD_ONLY disposition) | PM gate | YES — gates DM2 | None | NOT-STARTED |
+| **DM2** | Mode indicator implementation across consumers | Engineering gate | YES — gates DM3 | DM1 complete | NOT-STARTED |
+| **DM3** | Mode-aware acceptance test harness | Engineering gate | YES — gates DM4 | DM2 complete | NOT-STARTED |
+| **DM4** | Env var harmonization + documentation alignment | Engineering gate | YES — closes stream | DM3 complete | NOT-STARTED |
+
+#### Dependency DAG
+
+```
+DM1 (PM mode policy lock — no upstream dependencies)
+  │
+  ▼
+DM2 (mode indicator implementation)
+  │
+  ▼
+DM3 (acceptance test harness)
+  │
+  ▼
+DM4 (env var harmonization + doc alignment + closure)
+```
+
+No upstream stream dependencies. DISCOVERY-MODE-1 is orthogonal to RUSTIFY-CORE-1, CONSUMER-BTR1, EGUI-NATIVE-1, and all other active streams.
+
+---
+
+### Acceptance Criteria
+
+#### DM1 — PM Mode Policy Lock
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-DM-01 | Default discovery mode confirmed (HYBRID vs LAN_ONLY) — PM-DM-01 resolved | PM decision recorded |
+| AC-DM-02 | User-facing mode toggle requirement confirmed — PM-DM-02 resolved | PM decision recorded |
+| AC-DM-03 | Mode/origin UX wording requirements confirmed — PM-DM-03 resolved | PM decision recorded |
+| AC-DM-04 | CLOUD_ONLY disposition confirmed (codify now vs defer) — PM-DM-04 resolved | PM decision recorded |
+
+#### DM2 — Mode Indicator Implementation
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-DM-05 | Active discovery mode visible in UI for all 3 consumers | Screenshot per consumer |
+| AC-DM-06 | Mode selection is deterministic: given configuration, mode is unambiguous | Config → mode mapping test |
+| AC-DM-07 | LAN_ONLY enforced when cloud URL absent/disabled — peer list contains only local peers | Unit test + integration test |
+| AC-DM-08 | HYBRID degraded state indicated when one server unreachable | Integration test |
+| AC-DM-09 | No regressions in existing discovery/connect flows | Existing test suites pass |
+
+#### DM3 — Acceptance Test Harness
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-DM-10 | Peer-list composition test per mode (LAN_ONLY: local-only; HYBRID: merged) | Test suite |
+| AC-DM-11 | Deduplication correctness in HYBRID: same peer via both sources → single entry | Dedup test |
+| AC-DM-12 | Source-aware loss correctness: peer removed only by originating source | Loss handling test |
+| AC-DM-13 | Signal routing uses recorded origin source | Routing test |
+
+#### DM4 — Env Var Harmonization + Closure
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-DM-14 | Env var naming consistent across all 3 consumers (or documented rationale for differences) | Config audit doc |
+| AC-DM-15 | Mode semantics documented in each consumer's README/docs | Doc review |
+| AC-DM-16 | No non-doc files changed in governance codification pass (this pass) | `git diff --name-only` audit |
+
+---
+
+### PM Open Decisions Table
+
+| ID | Decision | Blocks | Priority | Status |
+|----|----------|--------|----------|--------|
+| PM-DM-01 | Default discovery mode: HYBRID (recommended) vs LAN_ONLY | DM2 | DM1 | PENDING |
+| PM-DM-02 | User-facing mode toggle required? (toggle UI vs config-only) | DM2 | DM1 | PENDING |
+| PM-DM-03 | Wording/UX for mode indicator and peer origin display | DM2 | DM1 | PENDING |
+| PM-DM-04 | CLOUD_ONLY: codify now as optional mode, or defer entirely? | DM4 (if codified) | DM1 | PENDING |
+
+---
+
+### Risk Register
+
+No material discovery-policy risks identified at codification. Rationale:
+
+- Governance-only stream — no runtime changes in this pass
+- Existing dual-signaling behavior is correct and tested
+- Mode codification makes implicit behavior explicit without altering it
+- No transport, security, or protocol implications
+
+---
+
 ## Tag Naming Rules
 
 | Workstream | Repo | Format | Example |
@@ -4673,6 +4886,8 @@ These are governance reservations only. No phases, ACs, or PM decisions are defi
 | RUSTIFY-CORE-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-rustify-core1-<slug>` | `ecosystem-v0.1.113-rustify-core1-codify` |
 | EGUI-NATIVE-1 (app) | localbolt-app | `localbolt-app-vX.Y.Z-en<phase>-<slug>` | `localbolt-app-v1.3.0-en1-framework-lock` |
 | EGUI-NATIVE-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-egui-native1-<slug>` | `ecosystem-v0.1.115-egui-native1-codify` |
+| DISCOVERY-MODE-1 (consumers) | localbolt-v3, localbolt, localbolt-app | `<repo-prefix>-dm<phase>-<slug>` | `v3.0.90-dm2-mode-indicator` |
+| DISCOVERY-MODE-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-discovery-mode1-<slug>` | `ecosystem-v0.1.116-discovery-mode1-codify` |
 | Governance | bolt-ecosystem | `ecosystem-v0.1.X-workstreams-N` | `ecosystem-v0.1.30-workstreams-1` |
 
 **Rules:**
@@ -4706,6 +4921,7 @@ These are governance reservations only. No phases, ACs, or PM decisions are defi
 | ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC2 (pending PM-RC-07) |
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
+| DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 
@@ -4744,6 +4960,7 @@ These are governance reservations only. No phases, ACs, or PM decisions are defi
 - **N-STREAM-1** is independent of A-stream, C-stream, D-stream, and S-STREAM-R1. N-STREAM-1 consumes B-STREAM API surface but does not modify B-STREAM deliverables. N-STREAM-1 N2 (IPC contract) has an implicit dependency on B-STREAM maturity — it stabilizes only the currently available daemon API surface.
 - **Within N-stream:** N0 gates all. N1 ∥ N2 after N0. N3 after N2. N4 after N1+N2. N5 after N2+N3. N6 after N4+N5. N7 after N6.
 - **EGUI-NATIVE-1** depends on RUSTIFY-CORE-1 RC4 for EN2+ execution. EN1 (PM framework lock) is a governance-only gate and may open in parallel with RUSTIFY-CORE-1 RC1–RC4. Within EN-stream: EN1 → EN2 → EN3 → EN4 → EN5 (fully serial). Independent of CONSUMER-BTR1, N-STREAM-1, and all other streams except RUSTIFY-CORE-1.
+- **DISCOVERY-MODE-1** has no upstream stream dependencies. Fully orthogonal to RUSTIFY-CORE-1, CONSUMER-BTR1, EGUI-NATIVE-1, and all other streams. Within DM-stream: DM1 → DM2 → DM3 → DM4 (fully serial). DM1 (PM gate) unblocked immediately.
 
 ---
 
