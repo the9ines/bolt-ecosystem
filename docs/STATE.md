@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-13 (RC2-EXEC-D — unified API surface + FFI boundary lock: AC-RC-05 DONE, AC-RC-06 DONE, sdk-v0.5.44-rc2exec-d-api-ffi)
+> **Last Updated:** 2026-03-13 (RC2-EXEC-E — session authority migration: AC-RC-07 DONE, RC2 COMPLETE. sdk-v0.5.45-rc2exec-e-session-authority, daemon-v0.2.39-rc2exec-e-session-rewire)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---

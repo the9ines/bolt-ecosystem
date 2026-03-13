@@ -5,6 +5,61 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## RC2-EXEC-E — Session Authority Migration + RC2 Completion (AC-RC-07) — 2026-03-13
+
+- **AC-RC-07 DONE:** Handshake/session authority primitives migrated from daemon to shared Rust core.
+  - New `bolt_core::session` module: `SessionState` enum, `SessionContext`, `HelloState` exactly-once guard, `HelloError` with wire codes, `negotiate_capabilities()` set-intersection
+  - Daemon rewired: `session.rs` and `web_hello.rs` now re-export from `bolt_core::session`
+  - Daemon `CANONICAL_ERROR_CODES` consolidated to `bolt_core::errors::WIRE_ERROR_CODES` (22→26 codes, adds 4 BTR codes)
+  - **ARCH-01 compliant:** shared core module contains zero transport/profile/serde references
+  - **Profile codecs retained in daemon:** `WebHelloOuter/Inner`, `ProfileEnvelopeV1`, `DcMessage` serde, `build_hello_message`, `parse_hello_typed` — intentionally not migrated (profile-level)
+  - **TS delegation deferred to ARCH-WASM1:** TS session state (WebRTCService) remains TS-owned; parity via vectors/tests only
+  - 22 new `bolt_core::session` tests + 84 bolt-core total + 27 conformance + 353 daemon tests = all green
+- **RC2-EXEC status:** **DONE** (7 of 7 RC2 ACs complete). RC2 COMPLETE.
+- **RC2 status:** **DONE**. All acceptance criteria AC-RC-05 through AC-RC-11 satisfied.
+- **Next:** RC3 blocked on PM-RC-01A (QUIC library selection).
+
+**Authority migration map:**
+| Primitive | Old Location (daemon-local) | New Location (shared core) |
+|-----------|---------------------------|---------------------------|
+| `SessionState` | N/A (new) | `bolt_core::session::SessionState` |
+| `SessionContext` | `bolt_daemon::session::SessionContext` | `bolt_core::session::SessionContext` |
+| `HelloState` | `bolt_daemon::web_hello::HelloState` | `bolt_core::session::HelloState` |
+| `HelloError` | `bolt_daemon::web_hello::HelloError` | `bolt_core::session::HelloError` |
+| `negotiate_capabilities()` | `bolt_daemon::web_hello::negotiate_capabilities` | `bolt_core::session::negotiate_capabilities` |
+| `CANONICAL_ERROR_CODES` | `bolt_daemon::envelope::CANONICAL_ERROR_CODES` (22) | `bolt_core::errors::WIRE_ERROR_CODES` (26, re-exported) |
+
+**Retained in daemon (ARCH-01 boundary proof):**
+- `WebHelloOuter`, `WebHelloInner` (serde wire structs)
+- `build_hello_message()`, `parse_hello_typed()`, `parse_hello_message()` (JSON codec)
+- `ProfileEnvelopeV1`, `DcErrorMessage` (serde wire structs)
+- `encode_envelope()`, `decode_envelope()`, `route_inner_message()` (NaCl+JSON codec)
+- `InteropHelloMode`, `DAEMON_CAPABILITIES`, `daemon_capabilities()` (daemon config)
+- `web_signal.rs` entire module (web schema adapter)
+- `dc_messages.rs` entire module (serde codec)
+
+**bolt-core-sdk files changed:**
+- `rust/bolt-core/src/session.rs` (NEW: session authority primitives)
+- `rust/bolt-core/src/lib.rs` (add `pub mod session`, update module map)
+
+**bolt-daemon files changed:**
+- `src/session.rs` (rewired: re-exports from `bolt_core::session`)
+- `src/web_hello.rs` (rewired: `HelloState`, `HelloError`, `negotiate_capabilities` from `bolt_core::session`)
+- `src/envelope.rs` (rewired: `CANONICAL_ERROR_CODES` → `bolt_core::errors::WIRE_ERROR_CODES`, `validate_inbound_error` uses `is_valid_wire_error_code`)
+- `src/lib.rs` (test_support: add `SessionState` re-export)
+
+**bolt-ecosystem files changed:**
+- `docs/GOVERNANCE_WORKSTREAMS.md` (AC-RC-07 → DONE, RC2 → DONE, evidence scope note)
+- `docs/FORWARD_BACKLOG.md` (RUSTIFY-CORE-1 status: RC2 DONE)
+- `docs/STATE.md` (last updated)
+- `docs/CHANGELOG.md` (this entry)
+
+**SDK Tag:** `sdk-v0.5.45-rc2exec-e-session-authority`
+**Daemon Tag:** `daemon-v0.2.39-rc2exec-e-session-rewire`
+**Ecosystem Tag:** `ecosystem-v0.1.127-rustify-core1-rc2-complete`
+
+---
+
 ## RC2-EXEC-D — Unified API Surface + FFI Boundary Lock (AC-RC-05, AC-RC-06) — 2026-03-13
 
 - **AC-RC-05 DONE:** Unified Rust core API surface verified and documented.

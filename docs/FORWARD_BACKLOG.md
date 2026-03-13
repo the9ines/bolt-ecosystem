@@ -416,7 +416,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 13: RUSTIFY-CORE-1 — Native-First Transport + Core Consolidation
 
 **Priority:** NEXT
-**Status:** **RC1 DONE** (`ecosystem-v0.1.120-rustify-core1-rc1-executed`, 2026-03-13). RC2 **GOV-DONE, EXEC-IN-PROGRESS** (`ecosystem-v0.1.122-rustify-core1-rc2gov-executed`, 2026-03-13). RC2-EXEC-A completed: AC-RC-08 DONE, AC-RC-09 DONE (`sdk-v0.5.41-rc2exec-a-vector-authority`, 2026-03-13). RC2-EXEC-B completed: AC-RC-11 DONE (`sdk-v0.5.42-rc2exec-b-s1-conformance`, 2026-03-13). RC2-EXEC-C completed: AC-RC-10 DONE (`sdk-v0.5.43-rc2exec-c-state-authority`, 2026-03-13). RC2-EXEC-D completed: AC-RC-05 DONE, AC-RC-06 DONE (`sdk-v0.5.44-rc2exec-d-api-ffi`, 2026-03-13).
+**Status:** **RC1 DONE**, **RC2 DONE** (`ecosystem-v0.1.127-rustify-core1-rc2-complete`, 2026-03-13). All 7 RC2 ACs (AC-RC-05 through AC-RC-11) complete. RC2-EXEC-E (AC-RC-07): session authority primitives migrated to `bolt_core::session`, daemon rewired. Profile codecs retained in daemon (ARCH-01 compliant). TS delegation deferred to ARCH-WASM1. RC3 blocked on PM-RC-01A (QUIC library selection).
 **Routing:** bolt-core-sdk (Rust primary), bolt-daemon, bolt-protocol (spec amendments)
 **Category:** Architecture — native transport + Rust core consolidation
 **Stream:** RUSTIFY-CORE-1 (phased, 7 phases RC1–RC7)

@@ -4264,7 +4264,7 @@ RC7 (CLI reservation) — parallel, no dependencies
 
 #### RC2 Entry Criteria (RC1 Artifact)
 
-> **Status:** RC2 **GOV-DONE, EXEC-IN-PROGRESS**. All entry criteria satisfied (PM-RC-01 APPROVED — QUIC confirmed, 2026-03-13). RC2-GOV locked (`ecosystem-v0.1.122-rustify-core1-rc2gov-executed`). RC2-EXEC-A completed (AC-RC-08, AC-RC-09 DONE, 2026-03-13). RC2-EXEC-B completed (AC-RC-11 DONE, 2026-03-13). RC2-EXEC-C completed (AC-RC-10 DONE, 2026-03-13). RC2-EXEC-D completed (AC-RC-05, AC-RC-06 DONE, 2026-03-13). Remaining: AC-RC-07.
+> **Status:** RC2 **DONE**. All entry criteria satisfied. RC2-GOV locked (`ecosystem-v0.1.122-rustify-core1-rc2gov-executed`). RC2-EXEC-A (AC-RC-08, AC-RC-09 DONE, 2026-03-13). RC2-EXEC-B (AC-RC-11 DONE, 2026-03-13). RC2-EXEC-C (AC-RC-10 DONE, 2026-03-13). RC2-EXEC-D (AC-RC-05, AC-RC-06 DONE, 2026-03-13). RC2-EXEC-E (AC-RC-07 DONE, 2026-03-13). All 7 RC2 ACs complete.
 
 RC2 (Shared Rust Core API Design/Extraction Lock) starts only when ALL of the following are satisfied:
 
@@ -4383,11 +4383,30 @@ RC7 produces governance-only artifacts. No runtime code. Concrete deliverables:
 |----|-----------|------------------|-------|--------|
 | AC-RC-05 | Unified Rust core API surface defined (facade or re-export) | Crate with public API + docs | **DONE** (RC2-EXEC-D, 2026-03-13) | **DONE** — Direct multi-crate dependency policy verified. 4-crate API surface documented in `docs/API_SURFACE.md`. Consumer matrix locked. 338 Rust tests pass. Tag: `sdk-v0.5.44-rc2exec-d-api-ffi`. |
 | AC-RC-06 | FFI boundary for Tauri/native consumers defined | FFI interface spec or UniFFI/cbindgen output | **DONE** (RC2-EXEC-D, 2026-03-13, verification closure) | **DONE** — Verification closure: 3 boundary types (Rust-direct, WASM, Tauri IPC) documented as canonical contract in `docs/BOUNDARY_CONTRACT.md`. No UniFFI/cbindgen needed (Rust-to-Rust, WASM, IPC — no C FFI consumers). Tag: `sdk-v0.5.44-rc2exec-d-api-ffi`. |
-| AC-RC-07 | Protocol authority migrated: handshake + envelope canonical in Rust | Rust implementation + TS delegation tests | **DEFERRED** to RC2-EXEC | NOT-STARTED |
+| AC-RC-07 | Protocol authority migrated: handshake + envelope canonical in Rust | Rust implementation + TS delegation tests | **DONE** (RC2-EXEC-E, 2026-03-13) | **DONE** — Session authority primitives (`SessionState`, `SessionContext`, `HelloState`, `HelloError`, `negotiate_capabilities`) extracted to `bolt_core::session`. Daemon rewired to consume shared module. 22 new Rust session tests + 84 bolt-core total + 353 daemon tests pass. Profile codecs intentionally retained in daemon adapter layer (ARCH-01 compliant). TS delegation deferred to ARCH-WASM1 (documented). Tag: `sdk-v0.5.45-rc2exec-e-session-authority`. |
 | AC-RC-08 | Golden vectors generated from Rust, consumed by both Rust and TS (absorbs AC-SC-01) | Rust vector generator + TS consumer tests | **DONE** (RC2-EXEC-A, 2026-03-13) | **DONE** — 5 core + 10 BTR vectors canonical from Rust. 115 Rust tests + 232 TS tests pass. Tag: `sdk-v0.5.41-rc2exec-a-vector-authority`. |
 | AC-RC-09 | TS vector generation deprecated (absorbs AC-SC-02) | Migration plan documented | **DONE** (RC2-EXEC-A, 2026-03-13) | **DONE** — `@deprecated` JSDoc on both TS generators, runtime warnings, `VECTOR_AUTHORITY.md` migration doc. TS scripts retained for reference only. |
 | AC-RC-10 | Protocol state machine canonical in Rust (absorbs AC-SC-03) | Rust crate with state machine + invariants | **DONE** (RC2-EXEC-C, 2026-03-13) | **DONE** — Transfer SM (bolt-transfer-core), BTR SM (bolt-btr), backpressure/policy all Rust-canonical. 11 authority conformance tests added. Session/handshake lifecycle remains AC-RC-07 scope. Tag: `sdk-v0.5.43-rc2exec-c-state-authority`. |
 | AC-RC-11 | S1 conformance tests pass against Rust-generated vectors (absorbs AC-SC-04) | CI gate | **DONE** (RC2-EXEC-B, 2026-03-13) | **DONE** — S1 conformance suite (32 tests) rewired to `test-vectors/core/`. 115 Rust + 232 TS tests pass. CI paths updated. Tag: `sdk-v0.5.42-rc2exec-b-s1-conformance`. |
+
+##### AC-RC-07 Evidence Scope Note (RC2-EXEC-E, 2026-03-13)
+
+**Scope delivered:**
+- Transport-agnostic handshake/session authority primitives (`SessionState`, `SessionContext`, `HelloState`, `HelloError`, `negotiate_capabilities`) extracted to `bolt_core::session`.
+- Daemon rewired to consume shared module (re-exports for backward compatibility).
+- Error code registry consolidated (daemon's 22-code `CANONICAL_ERROR_CODES` → bolt_core's 26-code `WIRE_ERROR_CODES`).
+
+**Scope explicitly retained in daemon (ARCH-01 boundary proof):**
+- Profile wire structs (`WebHelloOuter`, `WebHelloInner`, `ProfileEnvelopeV1`, `DcErrorMessage`) — serde/JSON encoding.
+- Profile codec functions (`build_hello_message`, `parse_hello_typed`, `encode_envelope`, `decode_envelope`) — NaCl+JSON.
+- Web signal adapter (`web_signal.rs`) — 100% web schema plumbing.
+- DC message codec (`dc_messages.rs`) — serde/JSON encoding.
+
+**TS delegation deferred to ARCH-WASM1:**
+- TS session state (`WebRTCService.sessionState`, `HandshakeManager`) remains TS-owned.
+- No literal TS→Rust delegation in this pass.
+- TS parity obligation via golden vectors/conformance tests only.
+- Full TS session delegation is ARCH-WASM1 scope (requires WASM/FFI bridge for browser consumption).
 
 #### RC3 — Native Transport Reference Path
 
@@ -5222,7 +5241,7 @@ No upstream stream dependencies. COMPLEMENTS SEC-BTR1, CONSUMER-BTR1, RUSTIFY-CO
 | MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD | Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC4 (pending PM-RC-07) |
 | ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC2 (pending PM-RC-07) |
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** |
-| RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE** (`ecosystem-v0.1.120-rustify-core1-rc1-executed`). RC2 **GOV-DONE, EXEC-READY** (`ecosystem-v0.1.122-rustify-core1-rc2gov-executed`, 2026-03-13). 7 phases (RC1–RC7), 33 ACs, 8 PM decisions. |
+| RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE**, **RC2 DONE** (`ecosystem-v0.1.127-rustify-core1-rc2-complete`, 2026-03-13). 7 phases (RC1–RC7), 33 ACs, 8 PM decisions. RC3 blocked on PM-RC-01A (QUIC library selection). |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **CODIFIED** (`ecosystem-v0.1.118-btr-spec1-codify`). 5 phases (BS1–BS5), 22 ACs, 6 PM decisions. BS1 unblocked now. COMPLEMENTS SEC-BTR1/CONSUMER-BTR1/RUSTIFY-CORE-1. |
