@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-11 (CBTR-F1 FIXED — sdk-v0.5.40-cbtr-f1-receiver-pause)
+**Last updated:** 2026-03-12 (EGUI-NATIVE-1 codified — EN-F series reserved)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -576,3 +576,19 @@ No execution findings in this pass. Findings will be registered here with `BTR-F
 - **Code touch area:** `bolt-core-sdk/ts/bolt-transport-web/src/services/webrtc/TransferManager.ts` — add `isReceiver` parameter to `pauseTransfer()` and `resumeTransfer()`, mirror `cancelTransfer()` dual-lookup pattern.
 - **Tests:** `bolt-core-sdk/ts/bolt-transport-web/src/__tests__/` — receiver pause sends canonical `pause`, receiver resume sends canonical `resume`, sender behavior unchanged, regression suite green.
 - **Blocker:** Blocks CBTR-2/3 advancement. CBTR-1 burn-in continues (sender pause works, BTR protocol unaffected).
+
+---
+
+## EGUI-NATIVE-1 — Native Desktop UI Consolidation (egui)
+
+> **Finding series reservation:** `EN-F*`
+> **Codified:** ecosystem-v0.1.115-egui-native1-codify (2026-03-12)
+> **Status:** CODIFIED (no phases executing yet)
+> **Full specification:** `docs/GOVERNANCE_WORKSTREAMS.md` § EGUI-NATIVE-1
+> **Depends on:** RUSTIFY-CORE-1 RC4 (for EN2+)
+
+**Audit ID reservation:** `EN-F1` through `EN-F99` reserved for findings discovered during EGUI-NATIVE-1 phase execution (EN1 through EN5). IDs are non-colliding with all existing series (S, I, Q, A, M, N, AC, DP, NF, RX, DR-F, BTR-F, CBTR-F).
+
+| ID | Finding | Severity | Classification | Status | Evidence |
+|----|---------|----------|----------------|--------|----------|
+| — | No findings yet (stream not executing) | — | — | — | — |

@@ -5,6 +5,30 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## EGUI-NATIVE-1 — Stream Codified (Native Desktop UI Consolidation) — 2026-03-12
+
+- **EGUI-NATIVE-1 CODIFIED:** New governance stream for desktop UI migration from Tauri WebView to egui (Rust-native GUI).
+- **Scope:** Desktop-only (macOS/Windows/Linux). Browser and mobile UI migration explicitly deferred to EGUI-WASM-1 and EGUI-MOBILE-1 (governance reservations only).
+- **5 phases defined:** EN1 (PM framework lock) → EN2 (bolt-ui scaffold + theme) → EN3 (feature parity) → EN4 (rollback/packaging gate) → EN5 (closure + handoff)
+- **24 acceptance criteria:** AC-EN-01 through AC-EN-24
+- **5 PM decisions opened:** PM-EN-01 through PM-EN-05
+- **8 scope guardrails:** EN-G1 through EN-G8
+- **6 risks identified:** EN-R1 through EN-R6
+- **Dependency:** EN1 (PM gate) openable in parallel with RUSTIFY-CORE-1 RC1–RC4. EN2+ blocked on RUSTIFY-CORE-1 RC4 (shared Rust core API).
+- **Priority:** LATER
+- **Deferred streams reserved:** EGUI-WASM-1 (browser, after EN3), EGUI-MOBILE-1 (mobile, after EN4)
+
+**Files changed:**
+- `docs/GOVERNANCE_WORKSTREAMS.md`
+- `docs/FORWARD_BACKLOG.md`
+- `docs/STATE.md`
+- `docs/CHANGELOG.md`
+- `docs/AUDIT_TRACKER.md`
+
+**Tag:** `ecosystem-v0.1.115-egui-native1-codify`
+
+---
+
 ## RUSTIFY-CORE-1 — Stream Codified (Native-First Transport + Core Consolidation) — 2026-03-12
 
 - **RUSTIFY-CORE-1 CODIFIED:** New governance stream for native-first transport and Rust core consolidation.

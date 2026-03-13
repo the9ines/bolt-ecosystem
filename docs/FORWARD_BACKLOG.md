@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-12 (consistency fix — CONSUMER-BTR1 IN-PROGRESS, SEC-CORE2/PLAT-CORE1 provisional status aligned)
-> **Codified:** ecosystem-v0.1.107-btr5-pm-resolved
+> **Updated:** 2026-03-12 (EGUI-NATIVE-1 codified — desktop UI migration to egui)
+> **Codified:** ecosystem-v0.1.115-egui-native1-codify
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
 ---
@@ -43,9 +43,11 @@ LATER:
   PLAT-CORE1 (shared Rust core + thin UIs) ────── provisionally SUPERSEDED-BY RUSTIFY-CORE-1 (pending PM-RC-07)
   MOB-RUNTIME1 (mobile embedded runtime) ─────── depends on RUSTIFY-CORE-1 RC4 (pending PM-RC-07)
   ARCH-WASM1 (WASM protocol engine) ──────────── depends on RUSTIFY-CORE-1 RC2 (pending PM-RC-07)
+  EGUI-NATIVE-1 (desktop UI → egui) ──────────── EN1 openable now; EN2+ depends on RUSTIFY-CORE-1 RC4
 
 Priority constraint: MOB-RUNTIME1 ≤ PLAT-CORE1 (mobile cannot exceed shared core priority).
 Priority constraint: RUSTIFY-CORE-1 execution blocked until CONSUMER-BTR1 closes.
+Priority constraint: EGUI-NATIVE-1 EN2+ blocked until RUSTIFY-CORE-1 RC4 completes.
 ```
 
 ---
@@ -433,6 +435,44 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 ---
 
+## Item 14: EGUI-NATIVE-1 — Native Desktop UI Consolidation (egui)
+
+**Priority:** LATER
+**Status:** CODIFIED (EN1 PM gate openable in parallel with RUSTIFY-CORE-1 RC1–RC2; EN2+ blocked on RC4)
+**Routing:** localbolt-app (primary), bolt-ecosystem (governance)
+**Category:** UI architecture — desktop WebView→egui migration
+**Stream:** EGUI-NATIVE-1 (phased, 5 phases EN1–EN5)
+**Dependencies:** RUSTIFY-CORE-1 RC4 (shared Rust core adoption) for EN2+
+
+**Context:** Current desktop app (localbolt-app) uses Tauri v2 with React/TypeScript/Tailwind WebView UI. EGUI-NATIVE-1 migrates desktop UI to egui (Rust-native immediate-mode GUI) for unified Rust desktop application. Browser and mobile UI migration are explicitly deferred to separate future streams (EGUI-WASM-1, EGUI-MOBILE-1).
+
+**Phased Plan (EGUI-NATIVE-1):**
+
+| Phase | Description | Serial Gate | Status |
+|-------|-------------|-------------|--------|
+| EN1 | PM framework lock gate (egui vs alternatives) | YES (gates EN2) | NOT-STARTED |
+| EN2 | Desktop `bolt-ui` scaffold + theme baseline | YES (gates EN3) | NOT-STARTED |
+| EN3 | Desktop feature parity migration (core screens/workflows) | YES (gates EN4) | NOT-STARTED |
+| EN4 | Rollback/compatibility gate + packaging impact verification | YES (gates EN5) | NOT-STARTED |
+| EN5 | Closure + handoff to optional EGUI-WASM-1 / EGUI-MOBILE-1 proposals | YES (closes stream) | NOT-STARTED |
+
+**Acceptance Criteria:** 24 ACs defined (AC-EN-01 through AC-EN-24). See `docs/GOVERNANCE_WORKSTREAMS.md` § EGUI-NATIVE-1 for full list.
+
+**PM Decisions:** 5 open (PM-EN-01 through PM-EN-05). See `docs/GOVERNANCE_WORKSTREAMS.md` § EGUI-NATIVE-1 for full table.
+
+**Scope guardrails:**
+- EN-G1: No protocol/transport changes
+- EN-G2: Desktop only; browser/mobile deferred
+- EN-G3: Rollback to pre-egui path required during migration window
+- EN-G4: `bolt-ui` must be transport-independent
+- EN-G5: No CLI deliverables
+
+**Deferred streams (governance reservation only):**
+- EGUI-WASM-1: Browser UI migration to egui via WASM (trigger: PM-EN-04 after EN3)
+- EGUI-MOBILE-1: Mobile UI via egui (trigger: PM-EN-05 after EN4)
+
+---
+
 ## Routing Summary
 
 | Item | Routing | Certainty |
@@ -450,6 +490,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | RECON-XFER-1 | bolt-core-sdk (TS primary) + consumers (verification) | Confirmed |
 | CONSUMER-BTR1 | localbolt-v3 + localbolt + localbolt-app | Confirmed |
 | RUSTIFY-CORE-1 | bolt-core-sdk (Rust) + bolt-daemon + bolt-protocol | Confirmed |
+| EGUI-NATIVE-1 | localbolt-app + bolt-ecosystem | Confirmed |
 
 ---
 
@@ -479,3 +520,8 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-RC-05 | RUSTIFY-CORE-1: Legacy TS-path deprecation policy/timeline | RC6 | NEXT |
 | PM-RC-06 | RUSTIFY-CORE-1: CLI stream trigger condition | RC7 | NEXT |
 | PM-RC-07 | RUSTIFY-CORE-1: Relationship mode to SEC-CORE2/PLAT-CORE1/MOB-RUNTIME1/ARCH-WASM1 | All RC phases | NEXT |
+| PM-EN-01 | EGUI-NATIVE-1: Confirm egui as desktop UI framework (vs iced, Slint, Dioxus) | EN2 | LATER |
+| PM-EN-02 | EGUI-NATIVE-1: Visual direction scope (minimal parity vs custom theme) | EN2 | LATER |
+| PM-EN-03 | EGUI-NATIVE-1: Rollback window duration before legacy UI removal | EN5 | LATER |
+| PM-EN-04 | EGUI-NATIVE-1: Whether to open EGUI-WASM-1 after EN3 results | Post-stream | LATER |
+| PM-EN-05 | EGUI-NATIVE-1: Whether to open EGUI-MOBILE-1 after EN4 results | Post-stream | LATER |

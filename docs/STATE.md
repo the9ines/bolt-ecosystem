@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-12 (RUSTIFY-CORE-1 codified — ecosystem-v0.1.113-rustify-core1-codify)
+> **Last Updated:** 2026-03-12 (EGUI-NATIVE-1 codified — ecosystem-v0.1.115-egui-native1-codify)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -721,6 +721,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD | Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC4 (pending PM-RC-07) |
 | ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC2 (pending PM-RC-07) |
 | RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **CODIFIED** (`ecosystem-v0.1.113-rustify-core1-codify`). 7 phases (RC1–RC7), 33 ACs, 7 PM decisions. Blocked until CONSUMER-BTR1 completes. |
+| EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** — Phase A: `sdk-v0.5.35-recon-xfer1-phase-a-tests`, `v3.0.88-recon-xfer1-phase-a`. Phase B: `localbolt-v1.0.35-recon-xfer1-phase-b`, `localbolt-app-v1.2.23-recon-xfer1-phase-b`. AC-RX-01–07 satisfied. AC-RX-08 automated PASS, manual runtime PENDING (RX-EVID-1). All code work closed. |
 
 ---
