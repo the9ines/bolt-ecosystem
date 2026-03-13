@@ -4264,7 +4264,7 @@ RC7 (CLI reservation) — parallel, no dependencies
 
 #### RC2 Entry Criteria (RC1 Artifact)
 
-> **Status:** RC2 **GOV-DONE, EXEC-IN-PROGRESS**. All entry criteria satisfied (PM-RC-01 APPROVED — QUIC confirmed, 2026-03-13). RC2-GOV locked (`ecosystem-v0.1.122-rustify-core1-rc2gov-executed`). RC2-EXEC-A completed (AC-RC-08, AC-RC-09 DONE, 2026-03-13). RC2-EXEC-B completed (AC-RC-11 DONE, 2026-03-13). RC2-EXEC-C completed (AC-RC-10 DONE, 2026-03-13). Remaining: AC-RC-05 (verify), AC-RC-06 (impl), AC-RC-07.
+> **Status:** RC2 **GOV-DONE, EXEC-IN-PROGRESS**. All entry criteria satisfied (PM-RC-01 APPROVED — QUIC confirmed, 2026-03-13). RC2-GOV locked (`ecosystem-v0.1.122-rustify-core1-rc2gov-executed`). RC2-EXEC-A completed (AC-RC-08, AC-RC-09 DONE, 2026-03-13). RC2-EXEC-B completed (AC-RC-11 DONE, 2026-03-13). RC2-EXEC-C completed (AC-RC-10 DONE, 2026-03-13). RC2-EXEC-D completed (AC-RC-05, AC-RC-06 DONE, 2026-03-13). Remaining: AC-RC-07.
 
 RC2 (Shared Rust Core API Design/Extraction Lock) starts only when ALL of the following are satisfied:
 
@@ -4381,8 +4381,8 @@ RC7 produces governance-only artifacts. No runtime code. Concrete deliverables:
 
 | ID | Criterion | Evidence Required | Scope | Status |
 |----|-----------|------------------|-------|--------|
-| AC-RC-05 | Unified Rust core API surface defined (facade or re-export) | Crate with public API + docs | **PARTIAL** — spec lock in RC2-GOV (topology: direct multi-crate dependency policy LOCKED); code verification in RC2-EXEC | **RC2-GOV: DONE** (topology locked). RC2-EXEC: NOT-STARTED. |
-| AC-RC-06 | FFI boundary for Tauri/native consumers defined | FFI interface spec or UniFFI/cbindgen output | **PARTIAL** — interface contract spec in RC2-GOV (adapter boundary contracts LOCKED); codegen/impl in RC2-EXEC | **RC2-GOV: DONE** (boundary contracts locked). RC2-EXEC: NOT-STARTED. |
+| AC-RC-05 | Unified Rust core API surface defined (facade or re-export) | Crate with public API + docs | **DONE** (RC2-EXEC-D, 2026-03-13) | **DONE** — Direct multi-crate dependency policy verified. 4-crate API surface documented in `docs/API_SURFACE.md`. Consumer matrix locked. 338 Rust tests pass. Tag: `sdk-v0.5.44-rc2exec-d-api-ffi`. |
+| AC-RC-06 | FFI boundary for Tauri/native consumers defined | FFI interface spec or UniFFI/cbindgen output | **DONE** (RC2-EXEC-D, 2026-03-13, verification closure) | **DONE** — Verification closure: 3 boundary types (Rust-direct, WASM, Tauri IPC) documented as canonical contract in `docs/BOUNDARY_CONTRACT.md`. No UniFFI/cbindgen needed (Rust-to-Rust, WASM, IPC — no C FFI consumers). Tag: `sdk-v0.5.44-rc2exec-d-api-ffi`. |
 | AC-RC-07 | Protocol authority migrated: handshake + envelope canonical in Rust | Rust implementation + TS delegation tests | **DEFERRED** to RC2-EXEC | NOT-STARTED |
 | AC-RC-08 | Golden vectors generated from Rust, consumed by both Rust and TS (absorbs AC-SC-01) | Rust vector generator + TS consumer tests | **DONE** (RC2-EXEC-A, 2026-03-13) | **DONE** — 5 core + 10 BTR vectors canonical from Rust. 115 Rust tests + 232 TS tests pass. Tag: `sdk-v0.5.41-rc2exec-a-vector-authority`. |
 | AC-RC-09 | TS vector generation deprecated (absorbs AC-SC-02) | Migration plan documented | **DONE** (RC2-EXEC-A, 2026-03-13) | **DONE** — `@deprecated` JSDoc on both TS generators, runtime warnings, `VECTOR_AUTHORITY.md` migration doc. TS scripts retained for reference only. |

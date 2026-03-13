@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-13 (RC2-EXEC-C — protocol SM authority in Rust: AC-RC-10 DONE, sdk-v0.5.43-rc2exec-c-state-authority)
+> **Last Updated:** 2026-03-13 (RC2-EXEC-D — unified API surface + FFI boundary lock: AC-RC-05 DONE, AC-RC-06 DONE, sdk-v0.5.44-rc2exec-d-api-ffi)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---

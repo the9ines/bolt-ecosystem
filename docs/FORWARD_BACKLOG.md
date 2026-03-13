@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-13 (RC2-EXEC-C — protocol SM authority in Rust: AC-RC-10 DONE)
+> **Updated:** 2026-03-13 (RC2-EXEC-D — unified API surface + FFI boundary lock: AC-RC-05, AC-RC-06 DONE)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -34,7 +34,7 @@ NEXT:
   SEC-CORE2 (Rust-first security consolidation) ── depends on S1 (DONE)
 
 NEXT:
-  RUSTIFY-CORE-1 (native-first transport + core) ── RC1 DONE; RC2 GOV-DONE, EXEC-IN-PROGRESS (AC-RC-08/09/10/11 DONE, 2026-03-13)
+  RUSTIFY-CORE-1 (native-first transport + core) ── RC1 DONE; RC2 GOV-DONE, EXEC-IN-PROGRESS (AC-RC-05/06/08/09/10/11 DONE; AC-RC-07 remaining, 2026-03-13)
     Provisionally SUPERSEDES: SEC-CORE2, PLAT-CORE1 (pending PM-RC-07)
     Provisionally REFACTORS/DEPENDS-ON: MOB-RUNTIME1, ARCH-WASM1 (pending PM-RC-07)
 
@@ -416,7 +416,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 13: RUSTIFY-CORE-1 — Native-First Transport + Core Consolidation
 
 **Priority:** NEXT
-**Status:** **RC1 DONE** (`ecosystem-v0.1.120-rustify-core1-rc1-executed`, 2026-03-13). RC2 **GOV-DONE, EXEC-IN-PROGRESS** (`ecosystem-v0.1.122-rustify-core1-rc2gov-executed`, 2026-03-13). RC2-EXEC-A completed: AC-RC-08 DONE, AC-RC-09 DONE (`sdk-v0.5.41-rc2exec-a-vector-authority`, 2026-03-13). RC2-EXEC-B completed: AC-RC-11 DONE (`sdk-v0.5.42-rc2exec-b-s1-conformance`, 2026-03-13). RC2-EXEC-C completed: AC-RC-10 DONE (`sdk-v0.5.43-rc2exec-c-state-authority`, 2026-03-13).
+**Status:** **RC1 DONE** (`ecosystem-v0.1.120-rustify-core1-rc1-executed`, 2026-03-13). RC2 **GOV-DONE, EXEC-IN-PROGRESS** (`ecosystem-v0.1.122-rustify-core1-rc2gov-executed`, 2026-03-13). RC2-EXEC-A completed: AC-RC-08 DONE, AC-RC-09 DONE (`sdk-v0.5.41-rc2exec-a-vector-authority`, 2026-03-13). RC2-EXEC-B completed: AC-RC-11 DONE (`sdk-v0.5.42-rc2exec-b-s1-conformance`, 2026-03-13). RC2-EXEC-C completed: AC-RC-10 DONE (`sdk-v0.5.43-rc2exec-c-state-authority`, 2026-03-13). RC2-EXEC-D completed: AC-RC-05 DONE, AC-RC-06 DONE (`sdk-v0.5.44-rc2exec-d-api-ffi`, 2026-03-13).
 **Routing:** bolt-core-sdk (Rust primary), bolt-daemon, bolt-protocol (spec amendments)
 **Category:** Architecture — native transport + Rust core consolidation
 **Stream:** RUSTIFY-CORE-1 (phased, 7 phases RC1–RC7)

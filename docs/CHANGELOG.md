@@ -5,6 +5,40 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## RC2-EXEC-D — Unified API Surface + FFI Boundary Lock (AC-RC-05, AC-RC-06) — 2026-03-13
+
+- **AC-RC-05 DONE:** Unified Rust core API surface verified and documented.
+  - Direct multi-crate dependency policy confirmed as canonical integration model (no facade/umbrella crate)
+  - 4-crate API surface registry: `bolt-core` (v0.4.0), `bolt-btr` (v0.1.0), `bolt-transfer-core` (v0.1.0), `bolt-transfer-policy-wasm` (v0.1.0)
+  - Full public API entrypoints documented in `docs/API_SURFACE.md`
+  - Consumer matrix: bolt-daemon (Rust-direct), localbolt-v3 (WASM), localbolt-app (Tauri IPC)
+  - 338 Rust tests pass (58 bolt-core + 63 bolt-btr + 93 bolt-transfer-core + 36 BTR vectors + 14 WASM parity + conformance)
+- **AC-RC-06 DONE (verification closure):** Consumer boundary contract documented.
+  - Closure mode: **verification** — existing boundaries ARE the canonical contract
+  - Three boundary types: Rust-direct (bolt-daemon), WASM/wasm-bindgen (browser), Tauri IPC/NDJSON (native app)
+  - No UniFFI/cbindgen needed — no non-Rust native consumers exist
+  - Boundary contract documented in `docs/BOUNDARY_CONTRACT.md`
+  - Ad-hoc path audit: no duplicate bridge paths found; session/handshake lifecycle deferred to AC-RC-07
+  - `docs/SDK_AUTHORITY.md` updated: version correction (bolt-core 0.1.0→0.4.0), vector authority now Rust-canonical, cross-references to new docs
+- **AC-RC-07 boundary:** Session/handshake lifecycle (pre_hello/post_hello/closed, verification state, capability dispatch) remains TS-owned in bolt-daemon's web_hello.rs/session.rs. Explicitly deferred to AC-RC-07 in a dedicated RC2-EXEC-E pass.
+- **RC2-EXEC status:** IN-PROGRESS (6 of 7 RC2 ACs complete: AC-RC-05, AC-RC-06, AC-RC-08, AC-RC-09, AC-RC-10, AC-RC-11). Only AC-RC-07 remains.
+
+**bolt-core-sdk files changed:**
+- `docs/API_SURFACE.md` (NEW: unified Rust API surface registry)
+- `docs/BOUNDARY_CONTRACT.md` (NEW: consumer boundary contract, 3 boundary types)
+- `docs/SDK_AUTHORITY.md` (updated: version correction, vector authority, cross-references)
+
+**bolt-ecosystem files changed:**
+- `docs/GOVERNANCE_WORKSTREAMS.md` (AC-RC-05 → DONE, AC-RC-06 → DONE)
+- `docs/FORWARD_BACKLOG.md` (RUSTIFY-CORE-1 status updated)
+- `docs/STATE.md` (last updated)
+- `docs/CHANGELOG.md` (this entry)
+
+**SDK Tag:** `sdk-v0.5.44-rc2exec-d-api-ffi`
+**Ecosystem Tag:** `ecosystem-v0.1.126-rustify-core1-rc2exec-d-recorded`
+
+---
+
 ## RC2-EXEC-C — Protocol State-Machine Authority in Rust (AC-RC-10) — 2026-03-13
 
 - **AC-RC-10 DONE:** Protocol state machines verified as Rust-canonical.
