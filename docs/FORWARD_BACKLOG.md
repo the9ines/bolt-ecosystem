@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-13 (BTR-SPEC-1 codified — algorithm-grade BTR specification)
-> **Codified:** ecosystem-v0.1.118-btr-spec1-codify
+> **Updated:** 2026-03-13 (RUSTIFY-CORE-1 RC1 executed — transport matrix + boundary lock)
+> **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
 ---
@@ -34,7 +34,7 @@ NEXT:
   SEC-CORE2 (Rust-first security consolidation) ── depends on S1 (DONE)
 
 NEXT:
-  RUSTIFY-CORE-1 (native-first transport + core) ── depends on CONSUMER-BTR1 completion
+  RUSTIFY-CORE-1 (native-first transport + core) ── RC1 DONE (2026-03-13); RC2 BLOCKED (PM-RC-01)
     Provisionally SUPERSEDES: SEC-CORE2, PLAT-CORE1 (pending PM-RC-07)
     Provisionally REFACTORS/DEPENDS-ON: MOB-RUNTIME1, ARCH-WASM1 (pending PM-RC-07)
 
@@ -416,27 +416,33 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 13: RUSTIFY-CORE-1 — Native-First Transport + Core Consolidation
 
 **Priority:** NEXT
-**Status:** CODIFIED (RC1 **UNBLOCKED** — CONSUMER-BTR1 complete via `PM-CBTR-EX-01`)
+**Status:** **RC1 DONE** (`ecosystem-v0.1.120-rustify-core1-rc1-executed`, 2026-03-13). RC2 **BLOCKED (PM-RC-01)**.
 **Routing:** bolt-core-sdk (Rust primary), bolt-daemon, bolt-protocol (spec amendments)
 **Category:** Architecture — native transport + Rust core consolidation
 **Stream:** RUSTIFY-CORE-1 (phased, 7 phases RC1–RC7)
-**Dependencies:** CONSUMER-BTR1 complete
+**Dependencies:** CONSUMER-BTR1 complete (satisfied)
 **Full specification:** `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1
 
 **Context:** Current ecosystem has split protocol authority (TS owns wire orchestration, Rust owns reference crypto + transfer SM). Native app paths route through IPC to Rust daemon but depend on TS for session lifecycle in Tauri WebView. RUSTIFY-CORE-1 consolidates protocol authority in Rust and introduces native transport for app↔app while retaining WebRTC for browser↔browser.
 
-**Transport matrix (policy draft, pending PM-RC-01):**
-- browser↔browser: WebRTC (retained)
-- app↔app: Rust native transport (QUIC recommended)
-- browser↔app: browser client transport + Rust endpoint/core
+**Transport matrix (RC1 LOCKED, 2026-03-13):**
+- browser↔browser: WebRTC (LOCKED — retained baseline, invariant)
+- app↔app: Rust native transport (QUIC recommended, PROVISIONAL — pending PM-RC-01)
+- browser↔app: browser client transport + Rust endpoint/core (PROVISIONAL — pending PM-RC-02)
+- app↔relay/cloud: DEFERRED (out of scope RC1–RC4, ByteBolt scope per ARCH-05/ARCH-07)
 
-**Stream relationship (provisional, pending PM-RC-07):**
+**Rustification boundary (RC1 LOCKED, 2026-03-13):**
+- Rust owns: shared protocol/security core, transfer SM integrity/policy authority, lifecycle invariants
+- Platform adapters (TS/Swift/Tauri): thin shells for I/O binding, UI routing, platform persistence
+
+**Stream relationship (PROVISIONAL, pending PM-RC-07):**
 - Provisionally SUPERSEDES: SEC-CORE2, PLAT-CORE1
 - Provisionally REFACTORS/DEPENDS-ON: MOB-RUNTIME1, ARCH-WASM1
+- No silent supersession until PM-RC-07 confirms
 
-**Acceptance Criteria:** 33 ACs defined (AC-RC-01 through AC-RC-33). See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1 for full list.
+**Acceptance Criteria:** 33 ACs defined (AC-RC-01 through AC-RC-33). RC1 ACs: AC-RC-01 DONE, AC-RC-02 DONE, AC-RC-03 PROVISIONAL, AC-RC-04 DONE. See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1 for full list.
 
-**PM Decisions:** 7 open (PM-RC-01 through PM-RC-07). See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1 for full table.
+**PM Decisions:** 7 open (PM-RC-01 through PM-RC-07). All PENDING. PM-RC-02 non-blocking for RC2. See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1 for full table.
 
 ---
 

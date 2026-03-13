@@ -5,6 +5,36 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## RUSTIFY-CORE-1 RC1 Executed — Transport Matrix + Boundary Lock — 2026-03-13
+
+- **RUSTIFY-CORE-1 RC1 DONE.** Transport matrix, rustification boundary, and relationship mapping locked.
+- **Transport matrix (RC1 LOCKED):**
+  - `browser↔browser` = WebRTC DataChannel (**LOCKED** — retained baseline, invariant)
+  - `app↔app` = Rust native transport, QUIC recommended (**PROVISIONAL** — pending PM-RC-01)
+  - `browser↔app` = browser client transport + Rust endpoint/core (**PROVISIONAL** — pending PM-RC-02)
+  - `app↔relay/cloud` = **DEFERRED** (out of scope RC1–RC4, ByteBolt scope per ARCH-05/ARCH-07)
+- **Rustification boundary (RC1 LOCKED):**
+  - Rust owns: shared protocol/security core, transfer SM integrity/policy authority, lifecycle invariants
+  - Platform adapters (TS/Swift/Tauri): thin I/O/UI shells over unified Rust backend
+  - RC1 is boundary/spec lock only — no extraction or adoption execution
+- **Relationship mapping (PROVISIONAL, pending PM-RC-07):**
+  - SUPERSEDES (provisional): SEC-CORE2, PLAT-CORE1
+  - REFACTORS/DEPENDS-ON (provisional): MOB-RUNTIME1, ARCH-WASM1
+  - No silent supersession until PM-RC-07 confirms
+- **RC1 ACs:** AC-RC-01 DONE, AC-RC-02 DONE, AC-RC-03 PROVISIONAL (PM-RC-01 pending), AC-RC-04 DONE
+- **RC2 state:** **BLOCKED (PM-RC-01)** — PM-RC-01 unresolved, no approved fallback. PM-RC-02 non-blocking for RC2.
+- **RC2 entry criteria codified:** RC1 lock (satisfied), PM-RC-01 explicit (not satisfied), PM-RC-02 impact explicit (satisfied, non-blocking), PM-RC-07 handling explicit (satisfied, provisional accepted).
+
+**Files changed:**
+- `docs/GOVERNANCE_WORKSTREAMS.md`
+- `docs/FORWARD_BACKLOG.md`
+- `docs/STATE.md`
+- `docs/CHANGELOG.md`
+
+**Tag:** `ecosystem-v0.1.120-rustify-core1-rc1-executed`
+
+---
+
 ## CONSUMER-BTR1 Closed — CBTR-3 Burn-in Waiver (PM-CBTR-EX-01) — 2026-03-13
 
 - **CONSUMER-BTR1 DONE.** All three consumer BTR rollout phases complete.
