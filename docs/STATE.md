@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-13 (RC2-EXEC-B — S1 conformance on Rust vectors: AC-RC-11 DONE, sdk-v0.5.42-rc2exec-b-s1-conformance)
+> **Last Updated:** 2026-03-13 (RC2-EXEC-C — protocol SM authority in Rust: AC-RC-10 DONE, sdk-v0.5.43-rc2exec-c-state-authority)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---

@@ -5,6 +5,35 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## RC2-EXEC-C — Protocol State-Machine Authority in Rust (AC-RC-10) — 2026-03-13
+
+- **AC-RC-10 DONE:** Protocol state machines verified as Rust-canonical.
+  - **Transfer SM** (TransferState, SendSession, ReceiveSession): canonical in `bolt-transfer-core`
+  - **BTR SM** (BtrEngine, BtrTransferContext, ReplayGuard, negotiate_btr): canonical in `bolt-btr`
+  - **Backpressure/Policy** (BackpressureController, StallClassification): canonical in `bolt-transfer-core`, WASM-exported
+  - TS implementations are parity copies validated by 15 cross-language vector files (10 BTR + 5 core)
+  - 11 new authority conformance tests in `state_machine_authority.rs`
+  - Conformance harness: 43 tests (was 32)
+- **AC-RC-07 boundary:** Session/handshake lifecycle (pre_hello/post_hello/closed, verification state, capability dispatch) remains TS-owned. Explicitly out of AC-RC-10 scope — deferred to AC-RC-07 in a future RC2-EXEC pass.
+- **SEC-CORE2 absorption:** AC-SC-03 → AC-RC-10: **DONE**
+- **RC2-EXEC status:** IN-PROGRESS (4 of 7 RC2 ACs complete: AC-RC-08, AC-RC-09, AC-RC-10, AC-RC-11)
+
+**bolt-core-sdk files changed:**
+- `rust/bolt-core/tests/conformance/state_machine_authority.rs` (NEW: 11 authority tests)
+- `rust/bolt-core/tests/conformance/main.rs` (register new module, update doc comment)
+- `rust/bolt-core/Cargo.toml` (dev-dependencies: bolt-transfer-core, bolt-btr)
+
+**bolt-ecosystem files changed:**
+- `docs/GOVERNANCE_WORKSTREAMS.md` (AC-RC-10 → DONE, AC-SC-03 → DONE)
+- `docs/FORWARD_BACKLOG.md` (RUSTIFY-CORE-1 status updated, AC-SC-03 → DONE)
+- `docs/STATE.md` (last updated)
+- `docs/CHANGELOG.md` (this entry)
+
+**SDK Tag:** `sdk-v0.5.43-rc2exec-c-state-authority`
+**Ecosystem Tag:** `ecosystem-v0.1.125-rustify-core1-rc2exec-c-recorded`
+
+---
+
 ## RC2-EXEC-B — S1 Conformance on Rust-Canonical Vectors (AC-RC-11) — 2026-03-13
 
 - **AC-RC-11 DONE:** S1 conformance test harness passes against Rust-generated vectors.
