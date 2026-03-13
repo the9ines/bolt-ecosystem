@@ -4423,14 +4423,14 @@ RC7 produces governance-only artifacts. No runtime code. Concrete deliverables:
 | REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem | **DONE** (`daemon-v0.2.38-relarch1-multiarch-matrix`, `ab56606`) |
 | SEC-DR1 | Double Ratchet pre-ByteBolt security gate (DR-STREAM-1) | ~~NEXT~~ | bolt-core-sdk + bolt-protocol | **SUPERSEDED-BY: SEC-BTR1** (frozen) |
 | SEC-BTR1 | Bolt Transfer Ratchet pre-ByteBolt security gate (BTR-STREAM-1) | NEXT | bolt-core-sdk + bolt-protocol | **BTR-STREAM-1 COMPLETE** (BTR-0–5 DONE. Option C approved: default-on fail-open. PM-BTR-08/09/11 approved 2026-03-11) |
-| CONSUMER-BTR1 | Consumer app BTR rollout (CONSUMER-BTR-1) | NOW | localbolt-v3, localbolt, localbolt-app | NOT-STARTED (20 ACs, 3 phases: CBTR-1/2/3) |
+| CONSUMER-BTR1 | Consumer app BTR rollout (CONSUMER-BTR-1) | NOW | localbolt-v3, localbolt, localbolt-app | IN-PROGRESS. CBTR-1 DONE (burn-in PASSED). CBTR-2 P2 DONE (`localbolt-v1.0.36`, `e75271a`), burn-in active. CBTR-3 awaiting CBTR-2 burn-in. |
 | T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | `bolt-transfer-core` (bolt-core-sdk workspace) + daemon consumer | **DONE** (`sdk-v0.5.30-tstream0-transfer-core-v1`) |
-| SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk | NOT-STARTED |
+| SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk | Provisionally SUPERSEDED-BY RUSTIFY-CORE-1 (pending PM-RC-07) |
 | T-STREAM-1 | Browser selective WASM integration | LATER | bolt-core-sdk (TS) + WASM | NOT-STARTED |
-| PLAT-CORE1 | Shared Rust core + thin platform UIs | LATER | TBD | NOT-STARTED |
-| MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD | NOT-STARTED |
-| ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | NOT-STARTED |
-| RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | NOT-STARTED |
+| PLAT-CORE1 | Shared Rust core + thin platform UIs | LATER | TBD | Provisionally SUPERSEDED-BY RUSTIFY-CORE-1 (pending PM-RC-07) |
+| MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD | Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC4 (pending PM-RC-07) |
+| ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC2 (pending PM-RC-07) |
+| RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 

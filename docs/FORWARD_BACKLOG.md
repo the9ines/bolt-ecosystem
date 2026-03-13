@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-11 (BTR-5 PM resolved — BTR-STREAM-1 complete, Option C approved)
+> **Updated:** 2026-03-12 (consistency fix — CONSUMER-BTR1 IN-PROGRESS, SEC-CORE2/PLAT-CORE1 provisional status aligned)
 > **Codified:** ecosystem-v0.1.107-btr5-pm-resolved
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -185,6 +185,7 @@ DR-0 through DR-5, AC-DR-01 through AC-DR-38, DR-F1–F99 tracker series — all
 ## Item 6: SEC-CORE2 — Rust-First Security/Protocol Consolidation
 
 **Priority:** NEXT
+**Status:** Provisionally SUPERSEDED-BY RUSTIFY-CORE-1 (pending PM-RC-07)
 **Routing:** bolt-core-sdk (Rust crate primary), bolt-core-sdk (TS secondary)
 **Category:** Security — protocol authority migration
 **Dependencies:** S1 conformance harness (DONE)
@@ -208,6 +209,7 @@ DR-0 through DR-5, AC-DR-01 through AC-DR-38, DR-F1–F99 tracker series — all
 ## Item 7: PLAT-CORE1 — Shared Rust Core + Thin Platform UIs
 
 **Priority:** LATER
+**Status:** Provisionally SUPERSEDED-BY RUSTIFY-CORE-1 (pending PM-RC-07)
 **Routing:** Architecture decision required — new crate structure TBD
 **Category:** Platform convergence
 **Dependencies:** T-STREAM-0 (transfer core), SEC-CORE2 (Rust protocol authority)
@@ -223,6 +225,7 @@ DR-0 through DR-5, AC-DR-01 through AC-DR-38, DR-F1–F99 tracker series — all
 ## Item 8: MOB-RUNTIME1 — Mobile Embedded Runtime Model
 
 **Priority:** LATER
+**Status:** Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC4 (pending PM-RC-07)
 **Routing:** TBD — architecture decision required
 **Category:** Mobile platform support
 **Dependencies:** PLAT-CORE1 (shared Rust core surface must be defined first)
@@ -243,6 +246,7 @@ DR-0 through DR-5, AC-DR-01 through AC-DR-38, DR-F1–F99 tracker series — all
 ## Item 9: ARCH-WASM1 — WASM Protocol Engine
 
 **Priority:** LATER
+**Status:** Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC2 (pending PM-RC-07)
 **Routing:** bolt-core-sdk (Rust → WASM), bolt-core-sdk (TS adapter)
 **Category:** Architecture — WASM protocol engine (medium risk)
 **Dependencies:** T-STREAM-0 (transfer core), S4 gate (S2 must demonstrate viable WASM-in-browser)
@@ -376,7 +380,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 12: CONSUMER-BTR1 — Consumer App BTR Rollout
 
 **Priority:** NOW
-**Status:** NOT-STARTED
+**Status:** IN-PROGRESS. CBTR-1 DONE (burn-in PASSED). CBTR-2 P2 DONE (`localbolt-v1.0.36`, `e75271a`), burn-in active. CBTR-3 awaiting CBTR-2 burn-in.
 **Routing:** localbolt-v3, localbolt, localbolt-app
 **Category:** Rollout — BTR consumer adoption
 **Stream:** CONSUMER-BTR-1 (phased)
@@ -388,9 +392,9 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 | Phase | Description | Repo | Status |
 |-------|-------------|------|--------|
-| CBTR-1 | localbolt-v3 (localbolt.app) BTR rollout | localbolt-v3 | NOT-STARTED |
-| CBTR-2 | localbolt (web) BTR rollout | localbolt | NOT-STARTED |
-| CBTR-3 | localbolt-app (Tauri native) BTR rollout | localbolt-app | NOT-STARTED |
+| CBTR-1 | localbolt-v3 (localbolt.app) BTR rollout | localbolt-v3 | **DONE** — `v3.0.89-consumer-btr1-p1` (`e34e617`). Burn-in PASSED. |
+| CBTR-2 | localbolt (web) BTR rollout | localbolt | **P2 DONE** — `localbolt-v1.0.36-consumer-btr1-p2` (`e75271a`). Burn-in active. |
+| CBTR-3 | localbolt-app (Tauri native) BTR rollout | localbolt-app | UNBLOCKED — awaiting CBTR-2 24h burn-in |
 
 **Acceptance Criteria:** 20 ACs defined (AC-CBTR-01 through AC-CBTR-20). See `docs/GOVERNANCE_WORKSTREAMS.md` § CONSUMER-BTR-1 for full list.
 
