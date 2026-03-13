@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-12 (EGUI-NATIVE-1 codified — desktop UI migration to egui)
-> **Codified:** ecosystem-v0.1.115-egui-native1-codify
+> **Updated:** 2026-03-12 (DISCOVERY-MODE-1 codified — dual discovery mode policy)
+> **Codified:** ecosystem-v0.1.116-discovery-mode1-codify
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
 ---
@@ -45,9 +45,13 @@ LATER:
   ARCH-WASM1 (WASM protocol engine) ──────────── depends on RUSTIFY-CORE-1 RC2 (pending PM-RC-07)
   EGUI-NATIVE-1 (desktop UI → egui) ──────────── EN1 openable now; EN2+ depends on RUSTIFY-CORE-1 RC4
 
+NEXT (independent):
+  DISCOVERY-MODE-1 (discovery mode policy) ───── no upstream dependencies; DM1 unblocked immediately
+
 Priority constraint: MOB-RUNTIME1 ≤ PLAT-CORE1 (mobile cannot exceed shared core priority).
 Priority constraint: RUSTIFY-CORE-1 execution blocked until CONSUMER-BTR1 closes.
 Priority constraint: EGUI-NATIVE-1 EN2+ blocked until RUSTIFY-CORE-1 RC4 completes.
+No dependency constraints for DISCOVERY-MODE-1 (orthogonal to all other streams).
 ```
 
 ---
@@ -473,6 +477,46 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 ---
 
+## Item 15: DISCOVERY-MODE-1 — Dual Discovery Mode Policy Codification
+
+**Priority:** NEXT
+**Status:** CODIFIED (DM1 PM gate unblocked immediately; no upstream dependencies)
+**Routing:** bolt-ecosystem (governance), localbolt-v3 + localbolt + localbolt-app (implementation phases)
+**Category:** Policy — discovery mode semantics
+**Stream:** DISCOVERY-MODE-1 (phased, 4 phases DM1–DM4)
+**Dependencies:** None (orthogonal to all active streams)
+
+**Context:** Current consumer apps implement dual discovery via `DualSignaling` class. Mode is implicit from URL configuration (cloud URL present → HYBRID; absent → LAN_ONLY). No governance-level mode policy exists, no user-visible mode indicator, no codified dedup invariants. P0 audit confirmed behavior is correct but undocumented at governance level.
+
+**P0 Audit findings (2026-03-12):**
+1. No user-visible mode indicator (console-only warning)
+2. No peer origin exposed to UI (`DiscoveredDevice` has no source field)
+3. Inconsistent env var naming across consumers
+4. Dedup policy works but is not codified
+5. CLOUD_ONLY not possible (no mechanism to disable local while keeping cloud)
+
+**Mode definitions:**
+- **LAN_ONLY** (required): Local signaling only. Cloud disabled/absent. Peers from local server only.
+- **HYBRID** (required, recommended default): Local + cloud active. Merged deduplicated peer list. First-discovery-wins, source-aware loss.
+- **CLOUD_ONLY** (deferred): Reserved as future extension. PM-DM-04 must approve before codification.
+
+**Phased Plan (DISCOVERY-MODE-1):**
+
+| Phase | Description | Serial Gate | Status |
+|-------|-------------|-------------|--------|
+| DM1 | PM mode policy lock (default mode, UI reqs, CLOUD_ONLY disposition) | YES (gates DM2) | NOT-STARTED |
+| DM2 | Mode indicator implementation across consumers | YES (gates DM3) | NOT-STARTED |
+| DM3 | Mode-aware acceptance test harness | YES (gates DM4) | NOT-STARTED |
+| DM4 | Env var harmonization + documentation alignment + closure | YES (closes stream) | NOT-STARTED |
+
+**Acceptance Criteria:** 16 ACs defined (AC-DM-01 through AC-DM-16). See `docs/GOVERNANCE_WORKSTREAMS.md` § DISCOVERY-MODE-1 for full list.
+
+**PM Decisions:** 4 open (PM-DM-01 through PM-DM-04). See `docs/GOVERNANCE_WORKSTREAMS.md` § DISCOVERY-MODE-1 for full table.
+
+**Risk register:** No material discovery-policy risks identified at codification.
+
+---
+
 ## Routing Summary
 
 | Item | Routing | Certainty |
@@ -491,6 +535,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | CONSUMER-BTR1 | localbolt-v3 + localbolt + localbolt-app | Confirmed |
 | RUSTIFY-CORE-1 | bolt-core-sdk (Rust) + bolt-daemon + bolt-protocol | Confirmed |
 | EGUI-NATIVE-1 | localbolt-app + bolt-ecosystem | Confirmed |
+| DISCOVERY-MODE-1 | bolt-ecosystem + localbolt-v3 + localbolt + localbolt-app | Confirmed |
 
 ---
 
@@ -525,3 +570,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-EN-03 | EGUI-NATIVE-1: Rollback window duration before legacy UI removal | EN5 | LATER |
 | PM-EN-04 | EGUI-NATIVE-1: Whether to open EGUI-WASM-1 after EN3 results | Post-stream | LATER |
 | PM-EN-05 | EGUI-NATIVE-1: Whether to open EGUI-MOBILE-1 after EN4 results | Post-stream | LATER |
+| PM-DM-01 | DISCOVERY-MODE-1: Default discovery mode (HYBRID recommended vs LAN_ONLY) | DM2 | NEXT |
+| PM-DM-02 | DISCOVERY-MODE-1: User-facing mode toggle required? (toggle UI vs config-only) | DM2 | NEXT |
+| PM-DM-03 | DISCOVERY-MODE-1: Wording/UX for mode indicator and peer origin display | DM2 | NEXT |
+| PM-DM-04 | DISCOVERY-MODE-1: CLOUD_ONLY — codify now as optional mode, or defer entirely? | DM4 | NEXT |

@@ -4,7 +4,7 @@
 > This is the single authoritative audit tracker for all repos under the9ines/bolt-ecosystem.
 > Relocated from `bolt-core-sdk/docs/AUDIT_TRACKER.md` on 2026-02-26 (DOC-GOV-2).
 
-**Last updated:** 2026-03-12 (EGUI-NATIVE-1 codified — EN-F series reserved)
+**Last updated:** 2026-03-12 (DISCOVERY-MODE-1 codified — DM-F series reserved)
 **Scope:** All repos under the9ines/bolt-ecosystem
 
 ---
@@ -588,6 +588,22 @@ No execution findings in this pass. Findings will be registered here with `BTR-F
 > **Depends on:** RUSTIFY-CORE-1 RC4 (for EN2+)
 
 **Audit ID reservation:** `EN-F1` through `EN-F99` reserved for findings discovered during EGUI-NATIVE-1 phase execution (EN1 through EN5). IDs are non-colliding with all existing series (S, I, Q, A, M, N, AC, DP, NF, RX, DR-F, BTR-F, CBTR-F).
+
+| ID | Finding | Severity | Classification | Status | Evidence |
+|----|---------|----------|----------------|--------|----------|
+| — | No findings yet (stream not executing) | — | — | — | — |
+
+---
+
+## DISCOVERY-MODE-1 — Dual Discovery Mode Policy Codification
+
+> **Finding series reservation:** `DM-F*`
+> **Codified:** ecosystem-v0.1.116-discovery-mode1-codify (2026-03-12)
+> **Status:** CODIFIED (no phases executing yet)
+> **Full specification:** `docs/GOVERNANCE_WORKSTREAMS.md` § DISCOVERY-MODE-1
+> **Depends on:** None (orthogonal)
+
+**Audit ID reservation:** `DM-F1` through `DM-F99` reserved for findings discovered during DISCOVERY-MODE-1 phase execution (DM1 through DM4). IDs are non-colliding with all existing series (S, I, Q, A, M, N, AC, DP, NF, RX, DR-F, BTR-F, CBTR-F, EN-F).
 
 | ID | Finding | Severity | Classification | Status | Evidence |
 |----|---------|----------|----------------|--------|----------|

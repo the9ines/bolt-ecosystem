@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-12 (CBTR-3 P3 executed — localbolt-app BTR enabled, CBTR-2 burn-in PASSED)
+> **Last Updated:** 2026-03-12 (DISCOVERY-MODE-1 codified — ecosystem-v0.1.116-discovery-mode1-codify)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
