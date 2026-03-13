@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-13 (RC2-GOV executed — shared core API governance lock, RC2 EXEC-READY)
+> **Updated:** 2026-03-13 (RC2-EXEC-A — vector authority migration: AC-RC-08, AC-RC-09 DONE)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -34,7 +34,7 @@ NEXT:
   SEC-CORE2 (Rust-first security consolidation) ── depends on S1 (DONE)
 
 NEXT:
-  RUSTIFY-CORE-1 (native-first transport + core) ── RC1 DONE; RC2 GOV-DONE, EXEC-READY (2026-03-13)
+  RUSTIFY-CORE-1 (native-first transport + core) ── RC1 DONE; RC2 GOV-DONE, EXEC-IN-PROGRESS (AC-RC-08/09 DONE, 2026-03-13)
     Provisionally SUPERSEDES: SEC-CORE2, PLAT-CORE1 (pending PM-RC-07)
     Provisionally REFACTORS/DEPENDS-ON: MOB-RUNTIME1, ARCH-WASM1 (pending PM-RC-07)
 
@@ -206,8 +206,8 @@ DR-0 through DR-5, AC-DR-01 through AC-DR-38, DR-F1–F99 tracker series — all
 
 | ID | Criterion | Evidence Required |
 |----|-----------|------------------|
-| AC-SC-01 | Golden vectors generated from Rust, consumed by both Rust and TS | Rust vector generator + TS consumer tests |
-| AC-SC-02 | TS vector generation deprecated (frozen, then removed) | Migration plan documented |
+| AC-SC-01 | Golden vectors generated from Rust, consumed by both Rust and TS | Rust vector generator + TS consumer tests | **DONE** (absorbed by AC-RC-08, RC2-EXEC-A, 2026-03-13) |
+| AC-SC-02 | TS vector generation deprecated (frozen, then removed) | Migration plan documented | **DONE** (absorbed by AC-RC-09, RC2-EXEC-A, 2026-03-13) |
 | AC-SC-03 | Protocol state machine canonical in Rust | Rust crate with state machine + invariants |
 | AC-SC-04 | S1 conformance tests pass against Rust-generated vectors | CI gate |
 
@@ -416,7 +416,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 13: RUSTIFY-CORE-1 — Native-First Transport + Core Consolidation
 
 **Priority:** NEXT
-**Status:** **RC1 DONE** (`ecosystem-v0.1.120-rustify-core1-rc1-executed`, 2026-03-13). RC2 **GOV-DONE, EXEC-READY** (`ecosystem-v0.1.122-rustify-core1-rc2gov-executed`, 2026-03-13).
+**Status:** **RC1 DONE** (`ecosystem-v0.1.120-rustify-core1-rc1-executed`, 2026-03-13). RC2 **GOV-DONE, EXEC-IN-PROGRESS** (`ecosystem-v0.1.122-rustify-core1-rc2gov-executed`, 2026-03-13). RC2-EXEC-A completed: AC-RC-08 DONE, AC-RC-09 DONE (`sdk-v0.5.41-rc2exec-a-vector-authority`, 2026-03-13).
 **Routing:** bolt-core-sdk (Rust primary), bolt-daemon, bolt-protocol (spec amendments)
 **Category:** Architecture — native transport + Rust core consolidation
 **Stream:** RUSTIFY-CORE-1 (phased, 7 phases RC1–RC7)

@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-13 (RC2-GOV executed — shared core API governance lock, ecosystem-v0.1.122-rustify-core1-rc2gov-executed)
+> **Last Updated:** 2026-03-13 (RC2-EXEC-A — vector authority migration: AC-RC-08 DONE, AC-RC-09 DONE, sdk-v0.5.41-rc2exec-a-vector-authority)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---

@@ -4264,7 +4264,7 @@ RC7 (CLI reservation) — parallel, no dependencies
 
 #### RC2 Entry Criteria (RC1 Artifact)
 
-> **Status:** RC2 **GOV-DONE, EXEC-READY**. All entry criteria satisfied (PM-RC-01 APPROVED — QUIC confirmed, 2026-03-13). RC2-GOV locked (`ecosystem-v0.1.122-rustify-core1-rc2gov-executed`). RC2-EXEC ready for engineering execution.
+> **Status:** RC2 **GOV-DONE, EXEC-IN-PROGRESS**. All entry criteria satisfied (PM-RC-01 APPROVED — QUIC confirmed, 2026-03-13). RC2-GOV locked (`ecosystem-v0.1.122-rustify-core1-rc2gov-executed`). RC2-EXEC-A completed (AC-RC-08, AC-RC-09 DONE, 2026-03-13). Remaining: AC-RC-05 (verify), AC-RC-06 (impl), AC-RC-07, AC-RC-10, AC-RC-11.
 
 RC2 (Shared Rust Core API Design/Extraction Lock) starts only when ALL of the following are satisfied:
 
@@ -4333,8 +4333,8 @@ Rationale from codebase audit:
 
 | SEC-CORE2 AC | Absorbed By | RC2 Deliverable |
 |-------------|-------------|-----------------|
-| AC-SC-01 (Golden vectors from Rust) | AC-RC-08 | Rust vector generator + TS consumer tests |
-| AC-SC-02 (TS vector generation deprecated) | AC-RC-09 | Migration plan documented |
+| AC-SC-01 (Golden vectors from Rust) | AC-RC-08 | Rust vector generator + TS consumer tests | **DONE** (RC2-EXEC-A, 2026-03-13) |
+| AC-SC-02 (TS vector generation deprecated) | AC-RC-09 | Migration plan documented | **DONE** (RC2-EXEC-A, 2026-03-13) |
 | AC-SC-03 (Protocol SM canonical in Rust) | AC-RC-10 | Rust crate with SM + invariants |
 | AC-SC-04 (S1 conformance against Rust vectors) | AC-RC-11 | CI gate |
 
@@ -4384,8 +4384,8 @@ RC7 produces governance-only artifacts. No runtime code. Concrete deliverables:
 | AC-RC-05 | Unified Rust core API surface defined (facade or re-export) | Crate with public API + docs | **PARTIAL** — spec lock in RC2-GOV (topology: direct multi-crate dependency policy LOCKED); code verification in RC2-EXEC | **RC2-GOV: DONE** (topology locked). RC2-EXEC: NOT-STARTED. |
 | AC-RC-06 | FFI boundary for Tauri/native consumers defined | FFI interface spec or UniFFI/cbindgen output | **PARTIAL** — interface contract spec in RC2-GOV (adapter boundary contracts LOCKED); codegen/impl in RC2-EXEC | **RC2-GOV: DONE** (boundary contracts locked). RC2-EXEC: NOT-STARTED. |
 | AC-RC-07 | Protocol authority migrated: handshake + envelope canonical in Rust | Rust implementation + TS delegation tests | **DEFERRED** to RC2-EXEC | NOT-STARTED |
-| AC-RC-08 | Golden vectors generated from Rust, consumed by both Rust and TS (absorbs AC-SC-01) | Rust vector generator + TS consumer tests | **DEFERRED** to RC2-EXEC | NOT-STARTED |
-| AC-RC-09 | TS vector generation deprecated (absorbs AC-SC-02) | Migration plan documented | **DEFERRED** to RC2-EXEC | NOT-STARTED |
+| AC-RC-08 | Golden vectors generated from Rust, consumed by both Rust and TS (absorbs AC-SC-01) | Rust vector generator + TS consumer tests | **DONE** (RC2-EXEC-A, 2026-03-13) | **DONE** — 5 core + 10 BTR vectors canonical from Rust. 115 Rust tests + 232 TS tests pass. Tag: `sdk-v0.5.41-rc2exec-a-vector-authority`. |
+| AC-RC-09 | TS vector generation deprecated (absorbs AC-SC-02) | Migration plan documented | **DONE** (RC2-EXEC-A, 2026-03-13) | **DONE** — `@deprecated` JSDoc on both TS generators, runtime warnings, `VECTOR_AUTHORITY.md` migration doc. TS scripts retained for reference only. |
 | AC-RC-10 | Protocol state machine canonical in Rust (absorbs AC-SC-03) | Rust crate with state machine + invariants | **DEFERRED** to RC2-EXEC | NOT-STARTED |
 | AC-RC-11 | S1 conformance tests pass against Rust-generated vectors (absorbs AC-SC-04) | CI gate | **DEFERRED** to RC2-EXEC | NOT-STARTED |
 
