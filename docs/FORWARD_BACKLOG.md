@@ -33,13 +33,19 @@ NEXT:
   T-STREAM-0 (Rust transfer core) ────────────── depends on B-XFER-1 completion
   SEC-CORE2 (Rust-first security consolidation) ── depends on S1 (DONE)
 
+NEXT:
+  RUSTIFY-CORE-1 (native-first transport + core) ── depends on CONSUMER-BTR1 completion
+    Provisionally SUPERSEDES: SEC-CORE2, PLAT-CORE1 (pending PM-RC-07)
+    Provisionally REFACTORS/DEPENDS-ON: MOB-RUNTIME1, ARCH-WASM1 (pending PM-RC-07)
+
 LATER:
   T-STREAM-1 (browser selective WASM) ────────── depends on T-STREAM-0
-  PLAT-CORE1 (shared Rust core + thin UIs) ────── depends on T-STREAM-0 + SEC-CORE2
-  MOB-RUNTIME1 (mobile embedded runtime) ─────── depends on PLAT-CORE1
-  ARCH-WASM1 (WASM protocol engine) ──────────── depends on T-STREAM-0
+  PLAT-CORE1 (shared Rust core + thin UIs) ────── provisionally SUPERSEDED-BY RUSTIFY-CORE-1 (pending PM-RC-07)
+  MOB-RUNTIME1 (mobile embedded runtime) ─────── depends on RUSTIFY-CORE-1 RC4 (pending PM-RC-07)
+  ARCH-WASM1 (WASM protocol engine) ──────────── depends on RUSTIFY-CORE-1 RC2 (pending PM-RC-07)
 
 Priority constraint: MOB-RUNTIME1 ≤ PLAT-CORE1 (mobile cannot exceed shared core priority).
+Priority constraint: RUSTIFY-CORE-1 execution blocked until CONSUMER-BTR1 closes.
 ```
 
 ---
@@ -48,7 +54,7 @@ Priority constraint: MOB-RUNTIME1 ≤ PLAT-CORE1 (mobile cannot exceed shared co
 
 | ID | Guardrail | Applies To |
 |----|-----------|-----------|
-| G1 | Browser retains native WebRTC transport — no browser webrtc-rs swap | T-STREAM-0, T-STREAM-1, ARCH-WASM1 |
+| G1 | Browser retains native WebRTC transport — no browser webrtc-rs swap | T-STREAM-0, T-STREAM-1, ARCH-WASM1, RUSTIFY-CORE-1 |
 | G2 | No UDP in transfer-core v1 | T-STREAM-0 |
 | G3 | No ownership/topology reversal from A0 Option A (app owns signal) | All items |
 | G4 | No protocol semantic changes without PM approval | All items |
@@ -396,6 +402,33 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 ---
 
+## Item 13: RUSTIFY-CORE-1 — Native-First Transport + Core Consolidation
+
+**Priority:** NEXT
+**Status:** CODIFIED (execution blocked until CONSUMER-BTR1 completes)
+**Routing:** bolt-core-sdk (Rust primary), bolt-daemon, bolt-protocol (spec amendments)
+**Category:** Architecture — native transport + Rust core consolidation
+**Stream:** RUSTIFY-CORE-1 (phased, 7 phases RC1–RC7)
+**Dependencies:** CONSUMER-BTR1 complete
+**Full specification:** `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1
+
+**Context:** Current ecosystem has split protocol authority (TS owns wire orchestration, Rust owns reference crypto + transfer SM). Native app paths route through IPC to Rust daemon but depend on TS for session lifecycle in Tauri WebView. RUSTIFY-CORE-1 consolidates protocol authority in Rust and introduces native transport for app↔app while retaining WebRTC for browser↔browser.
+
+**Transport matrix (policy draft, pending PM-RC-01):**
+- browser↔browser: WebRTC (retained)
+- app↔app: Rust native transport (QUIC recommended)
+- browser↔app: browser client transport + Rust endpoint/core
+
+**Stream relationship (provisional, pending PM-RC-07):**
+- Provisionally SUPERSEDES: SEC-CORE2, PLAT-CORE1
+- Provisionally REFACTORS/DEPENDS-ON: MOB-RUNTIME1, ARCH-WASM1
+
+**Acceptance Criteria:** 33 ACs defined (AC-RC-01 through AC-RC-33). See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1 for full list.
+
+**PM Decisions:** 7 open (PM-RC-01 through PM-RC-07). See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1 for full table.
+
+---
+
 ## Routing Summary
 
 | Item | Routing | Certainty |
@@ -412,6 +445,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | ARCH-WASM1 | bolt-core-sdk + WASM | Confirmed |
 | RECON-XFER-1 | bolt-core-sdk (TS primary) + consumers (verification) | Confirmed |
 | CONSUMER-BTR1 | localbolt-v3 + localbolt + localbolt-app | Confirmed |
+| RUSTIFY-CORE-1 | bolt-core-sdk (Rust) + bolt-daemon + bolt-protocol | Confirmed |
 
 ---
 
@@ -434,3 +468,10 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-RX-03 | RECON-XFER-1: Confirm daemon investigation is escalation-only | Phase A scope | **APPROVED** |
 | PM-CBTR-01 | CONSUMER-BTR1: Confirm CBTR-1 first (localbolt-v3 as primary rollout target) | Phase sequencing | **APPROVED** — localbolt-v3 → localbolt → localbolt-app |
 | PM-CBTR-02 | CONSUMER-BTR1: Dark launch burn-in per-consumer or shared across stream? | Rollout timing | **APPROVED** — 24h clean run per phase before promoting |
+| PM-RC-01 | RUSTIFY-CORE-1: Native transport protocol (QUIC recommended vs alternative) | RC3 | NEXT |
+| PM-RC-02 | RUSTIFY-CORE-1: Browser↔app transport mode default | RC5 | NEXT |
+| PM-RC-03 | RUSTIFY-CORE-1: Rollout order (app first, browser↔app second) | RC6 | NEXT |
+| PM-RC-04 | RUSTIFY-CORE-1: Performance SLO thresholds for migration gates | RC3 | NEXT |
+| PM-RC-05 | RUSTIFY-CORE-1: Legacy TS-path deprecation policy/timeline | RC6 | NEXT |
+| PM-RC-06 | RUSTIFY-CORE-1: CLI stream trigger condition | RC7 | NEXT |
+| PM-RC-07 | RUSTIFY-CORE-1: Relationship mode to SEC-CORE2/PLAT-CORE1/MOB-RUNTIME1/ARCH-WASM1 | All RC phases | NEXT |

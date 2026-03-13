@@ -5,6 +5,32 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## RUSTIFY-CORE-1 — Stream Codified (Native-First Transport + Core Consolidation) — 2026-03-12
+
+- **RUSTIFY-CORE-1 CODIFIED:** New governance stream for native-first transport and Rust core consolidation.
+- **Transport matrix (policy draft):**
+  - browser↔browser: WebRTC (retained baseline)
+  - app↔app: Rust native transport (QUIC recommended, PM-RC-01 pending)
+  - browser↔app: browser client transport + Rust endpoint/core
+- **7 phases defined:** RC1 (transport matrix lock) → RC2 (shared Rust core API) → RC3 (native transport) ∥ RC4 (core adoption) → RC5 (browser↔app) → RC6 (rollout) + RC7 (CLI reservation, parallel)
+- **33 acceptance criteria:** AC-RC-01 through AC-RC-33
+- **7 PM decisions opened:** PM-RC-01 through PM-RC-07
+- **Stream relationships (provisional, pending PM-RC-07):**
+  - Provisionally SUPERSEDES: SEC-CORE2, PLAT-CORE1
+  - Provisionally REFACTORS/DEPENDS-ON: MOB-RUNTIME1, ARCH-WASM1
+- **Priority:** NEXT (blocked until CONSUMER-BTR1 completes)
+- **Deferred:** CLI implementation (RC7 produces governance reservation artifacts only)
+
+**Files changed:**
+- `docs/GOVERNANCE_WORKSTREAMS.md`
+- `docs/FORWARD_BACKLOG.md`
+- `docs/STATE.md`
+- `docs/CHANGELOG.md`
+
+**Tag:** `ecosystem-v0.1.113-rustify-core1-codify`
+
+---
+
 ## CONSUMER-BTR-1 — CBTR-2 P2 Executed (localbolt BTR Enabled) — 2026-03-11
 
 - **CBTR-1 burn-in PASSED:** 24h gate completed. Multiple real transfers, zero BTR protocol errors.

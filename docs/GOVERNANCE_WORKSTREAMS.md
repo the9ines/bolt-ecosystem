@@ -4113,6 +4113,267 @@ CONSUMER-BTR-1 is a rollout stream, not a feature stream. No protocol or SDK cha
 
 ---
 
+## RUSTIFY-CORE-1 — Native-First Transport + Core Consolidation
+
+> **Stream ID:** RUSTIFY-CORE-1
+> **Backlog Items:** SEC-CORE2, PLAT-CORE1 (provisionally superseded), MOB-RUNTIME1, ARCH-WASM1 (provisionally refactored/dependent)
+> **Priority:** NEXT (execution blocked until CONSUMER-BTR1 completes)
+> **Repos:** bolt-core-sdk (Rust primary), bolt-daemon, bolt-protocol (spec amendments)
+> **Codified:** ecosystem-v0.1.113-rustify-core1-codify (2026-03-12)
+> **Status:** CODIFIED (RC1 unblocked after CONSUMER-BTR1 closes)
+
+---
+
+### Context & Motivation
+
+Current Bolt ecosystem has split authority: TS owns transport orchestration (handshake, envelope, transfer wire flow) while Rust owns reference crypto and transfer state machine. Native app paths (localbolt-app/bolt-daemon) route through IPC to a Rust daemon but still depend on TS for session lifecycle in the Tauri WebView layer. This split:
+
+- Limits native app performance (IPC boundary, JS event loop overhead)
+- Prevents pure-Rust transport paths (app↔app without browser involvement)
+- Blocks mobile runtime (no TS available in native mobile contexts)
+- Duplicates protocol authority (TS and Rust both implement envelope/handshake logic)
+
+RUSTIFY-CORE-1 consolidates protocol authority in Rust and introduces native transport for app↔app paths while explicitly retaining WebRTC for browser↔browser.
+
+### Product Priority Order
+
+1. **Native app reliability + speed** — app↔app via Rust native transport
+2. **Browser↔app** — browser client transport + Rust endpoint/core
+3. **Browser↔browser** — retained on WebRTC (no change)
+
+---
+
+### Transport Matrix
+
+> **Status:** Policy draft. Final lock depends on PM-RC-01 (transport protocol) and PM-RC-07 (stream relationship mode).
+
+| Endpoint Pair | Transport | Authority | Status |
+|---------------|-----------|-----------|--------|
+| browser↔browser | WebRTC DataChannel | TS (`bolt-transport-web`) | **Retained baseline** — no change |
+| app↔app | Rust native transport (QUIC recommended) | Rust (new crate) | PM-RC-01 PENDING |
+| browser↔app | Browser client transport + Rust endpoint/core | Hybrid (TS browser-side, Rust server-side) | PM-RC-02 PENDING |
+
+### Rustification Targets
+
+| Target | Current State | RUSTIFY-CORE-1 Goal |
+|--------|--------------|---------------------|
+| Protocol/security core (BTR, transfer SM, policy, integrity) | Rust crates exist (`bolt-core`, `bolt-btr`, `bolt-transfer-core`) but TS still owns wire orchestration | Rust canonical for all protocol logic; TS becomes thin I/O adapter |
+| Native transport engine (app↔app) | No native transport — app routes through IPC + daemon | Direct Rust transport (QUIC recommended) |
+| Session lifecycle + control-plane invariants | Split: TS owns handshake/envelope in browser, Rust owns daemon session | Rust canonical; platform adapters delegate to shared core |
+| Platform adapters | Tauri app has Rust daemon + TS WebView; browser is pure TS | Thin TS/Swift/Tauri shells over unified Rust backend |
+
+### Deferred / Out of Scope
+
+| Item | Rationale |
+|------|-----------|
+| CLI runtime implementation | CLI does not exist yet; reserved hooks only (RC7) |
+| Replacing browser↔browser WebRTC | Working, battle-tested; no business case for replacement |
+| Full browser runtime rewrite | Browser retains TS transport adapter; WASM for logic only (ARCH-WASM1 scope) |
+| Fail-closed migration | Separate PM gate after adoption metrics available |
+
+---
+
+### Relationship to Existing Streams
+
+> **Status:** Provisional pending PM-RC-07. Recommended mode: hybrid (SUPERSEDES for SEC-CORE2/PLAT-CORE1, REFACTORS for MOB-RUNTIME1/ARCH-WASM1).
+
+| Existing Stream | Recommended Mode | Rationale |
+|-----------------|-----------------|-----------|
+| **SEC-CORE2** (Rust-first security/protocol consolidation) | **SUPERSEDES** | RC2 (shared Rust core API design) absorbs AC-SC-01 through AC-SC-04 entirely. Protocol authority migration is a core deliverable of RUSTIFY-CORE-1. |
+| **PLAT-CORE1** (Shared Rust core + thin platform UIs) | **SUPERSEDES** | RC2+RC4 (core API + adoption in app boundaries) absorb PLAT-CORE1's full scope. Crate topology, FFI surface, and platform adapter model are RUSTIFY-CORE-1 deliverables. |
+| **MOB-RUNTIME1** (Mobile embedded runtime model) | **REFACTORS/DEPENDS-ON** | MOB-RUNTIME1 retains its own stream identity but becomes dependent on RC4 completion (shared Rust core adoption). Mobile-specific concerns (FFI, background execution, app store policies) remain MOB-RUNTIME1 scope. |
+| **ARCH-WASM1** (WASM protocol engine) | **REFACTORS/DEPENDS-ON** | ARCH-WASM1 retains its own stream identity but becomes dependent on RC2 completion (shared core API). Browser WASM integration concerns remain ARCH-WASM1 scope. |
+
+If PM-RC-07 confirms SUPERSEDES for SEC-CORE2 and PLAT-CORE1, those items should be updated to `SUPERSEDED-BY: RUSTIFY-CORE-1` (matching DR-STREAM-1 → BTR-STREAM-1 precedent).
+
+---
+
+### Scope Guardrails
+
+| ID | Guardrail |
+|----|-----------|
+| RC-G1 | Browser↔browser retains WebRTC — no browser WebRTC replacement in this stream |
+| RC-G2 | Native transport choice (QUIC/other) requires PM-RC-01 confirmation before RC3 execution |
+| RC-G3 | Shared Rust core API must be transport-independent (logic boundary, not I/O) |
+| RC-G4 | CLI implementation is OUT OF SCOPE — RC7 produces governance reservation artifacts only |
+| RC-G5 | No protocol semantic changes without PM approval (inherited from G4/G5) |
+| RC-G6 | Existing test suites (all repos) must remain green at every phase gate |
+| RC-G7 | Platform adapters must provide kill-switch rollback to current TS paths |
+| RC-G8 | Consumer app changes in this stream are limited to Rust core adoption wiring — no feature scope creep |
+
+---
+
+### RUSTIFY-CORE-1 Phase Table
+
+| Phase | Description | Type | Serial Gate | Dependencies | Status |
+|-------|-------------|------|-------------|--------------|--------|
+| **RC1** | Transport matrix + boundary lock (spec-level) | PM/Spec gate | YES — gates RC2, RC3 | CONSUMER-BTR1 complete, PM-RC-01 confirmed | NOT-STARTED |
+| **RC2** | Shared Rust core API design/extraction lock | Engineering + PM gate | YES — gates RC4, RC5 | RC1 complete | NOT-STARTED |
+| **RC3** | Native transport reference path (app↔app) | Engineering gate | NO (parallel with RC4) | RC1 complete, PM-RC-01 confirmed | NOT-STARTED |
+| **RC4** | Shared Rust core adoption in app/runtime boundaries | Engineering gate | NO (parallel with RC3) | RC2 complete | NOT-STARTED |
+| **RC5** | Browser↔app endpoint integration gates | Engineering gate | YES — gates RC6 | RC3 + RC4 complete | NOT-STARTED |
+| **RC6** | Rollout + compatibility + rollback policy | PM/Engineering gate | YES — gates close | RC5 complete | NOT-STARTED |
+| **RC7** | CLI reservation hooks (governance artifacts only) | Governance gate | NO (parallel with RC1–RC6) | None | NOT-STARTED |
+
+#### Dependency DAG
+
+```
+CONSUMER-BTR1 (must complete)
+      │
+      ▼
+RC1 (transport matrix + boundary lock)
+      │
+      ├──────────────┐
+      ▼              ▼
+RC2 (core API)    RC3 (native transport)    ← RC3 requires PM-RC-01
+      │
+      ├──────────────┐
+      ▼              │
+RC4 (core adoption)  │
+      │              │
+      └──────┬───────┘
+             ▼
+RC5 (browser↔app integration)
+             │
+             ▼
+RC6 (rollout + rollback)
+
+RC7 (CLI reservation) — parallel, no dependencies
+```
+
+#### RC2 API Status Clarification
+
+Existing Rust crates that form the shared core foundation:
+- `bolt-core` (v0.4.0) — crypto, identity, SAS, peer code, error codes
+- `bolt-btr` — BTR state machine, ratchet, KDF
+- `bolt-transfer-core` (v0.1.0) — transfer SM, backpressure
+- `bolt-transfer-policy-wasm` — WASM policy layer
+
+**RC2 is primarily an integration/facade phase**, not a greenfield extraction. The crates exist. RC2 must:
+1. Define the unified API surface (facade crate or re-export strategy)
+2. Define FFI boundary for Tauri/native consumers
+3. Migrate protocol authority from TS to Rust for remaining paths (handshake, envelope orchestration)
+4. Absorb SEC-CORE2 ACs (AC-SC-01–04): Rust vector authority, TS generation deprecated, canonical Rust state machine
+
+#### RC7 CLI Reservation Artifacts
+
+RC7 produces governance-only artifacts. No runtime code. Concrete deliverables:
+- Reserved API extension points (trait/interface boundaries the CLI must satisfy)
+- Reserved config schema keys (CLI-specific configuration namespace)
+- Reserved capability/version namespace (CLI capability strings)
+- Architecture constraints document (what the CLI stream inherits from RUSTIFY-CORE-1)
+
+---
+
+### Acceptance Criteria
+
+#### RC1 — Transport Matrix + Boundary Lock
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-RC-01 | Transport matrix codified with explicit endpoint-pair → transport mapping | Published spec section |
+| AC-RC-02 | Browser↔browser WebRTC retention explicitly codified as invariant | Spec invariant + test reference |
+| AC-RC-03 | Native transport protocol confirmed (PM-RC-01 resolved) | PM decision recorded |
+| AC-RC-04 | Boundary between Rust core and platform adapters formally defined | Architecture doc with API surface |
+
+#### RC2 — Shared Rust Core API Design/Extraction Lock
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-RC-05 | Unified Rust core API surface defined (facade or re-export) | Crate with public API + docs |
+| AC-RC-06 | FFI boundary for Tauri/native consumers defined | FFI interface spec or UniFFI/cbindgen output |
+| AC-RC-07 | Protocol authority migrated: handshake + envelope canonical in Rust | Rust implementation + TS delegation tests |
+| AC-RC-08 | Golden vectors generated from Rust, consumed by both Rust and TS (absorbs AC-SC-01) | Rust vector generator + TS consumer tests |
+| AC-RC-09 | TS vector generation deprecated (absorbs AC-SC-02) | Migration plan documented |
+| AC-RC-10 | Protocol state machine canonical in Rust (absorbs AC-SC-03) | Rust crate with state machine + invariants |
+| AC-RC-11 | S1 conformance tests pass against Rust-generated vectors (absorbs AC-SC-04) | CI gate |
+
+#### RC3 — Native Transport Reference Path
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-RC-12 | Native transport crate compiles and passes unit tests | `cargo test` green |
+| AC-RC-13 | App↔app file transfer completes over native transport | Integration test |
+| AC-RC-14 | BTR operates correctly over native transport | BTR conformance suite pass |
+| AC-RC-15 | Performance meets PM-RC-04 SLO thresholds | Benchmark results |
+| AC-RC-16 | No regression in existing daemon/app test suites | CI gate |
+
+#### RC4 — Shared Rust Core Adoption
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-RC-17 | bolt-daemon consumes unified Rust core API | Daemon tests pass |
+| AC-RC-18 | localbolt-app Tauri layer delegates to Rust core via FFI | App tests pass |
+| AC-RC-19 | TS transport-web delegates protocol logic to Rust core (where feasible) | Integration tests |
+| AC-RC-20 | Kill-switch rollback to pre-RUSTIFY TS paths verified | Rollback test |
+
+#### RC5 — Browser↔App Endpoint Integration
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-RC-21 | Browser client connects to Rust endpoint (app) successfully | Integration test |
+| AC-RC-22 | File transfer completes browser→app and app→browser | Round-trip tests |
+| AC-RC-23 | BTR negotiation works across transport boundary | BTR capability test |
+| AC-RC-24 | Downgrade to WebRTC fallback when native transport unavailable | Fallback test |
+
+#### RC6 — Rollout + Compatibility + Rollback
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-RC-25 | Rollout policy codified (staged, per-consumer) | Spec document |
+| AC-RC-26 | Rollback from native transport to current paths verified per consumer | Rollback tests |
+| AC-RC-27 | Compatibility matrix: all endpoint-pair combinations work | Matrix test suite |
+| AC-RC-28 | No-regression gate: all existing test suites across all repos pass | CI evidence |
+
+#### RC7 — CLI Reservation
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-RC-29 | CLI API extension points documented (traits/interfaces) | Architecture doc |
+| AC-RC-30 | CLI config schema keys reserved | Schema doc |
+| AC-RC-31 | CLI capability namespace reserved | Capability registry entry |
+| AC-RC-32 | No runtime code produced in this phase | Code review |
+| AC-RC-33 | CLI stream trigger condition defined (PM-RC-06 resolved) | PM decision recorded |
+
+---
+
+### PM Open Decisions Table
+
+| ID | Decision | Blocks | Priority | Status |
+|----|----------|--------|----------|--------|
+| PM-RC-01 | Native transport protocol confirmation: QUIC (recommended) vs alternative. If QUIC, sub-decision: library (quinn / s2n-quic / etc.) | RC3 | RC1 | PENDING |
+| PM-RC-02 | Browser↔app transport mode default (WebSocket upgrade? WebRTC retained? Hybrid?) | RC5 | RC1 | PENDING |
+| PM-RC-03 | Rollout order confirmation: app-first, browser↔app second | RC6 | RC1 | PENDING |
+| PM-RC-04 | Performance SLO thresholds for native transport migration gates (latency, throughput, overhead) | RC3 (AC-RC-15) | RC1 | PENDING |
+| PM-RC-05 | Legacy TS-path deprecation policy/timeline after Rust core adoption | RC6 | RC6 | PENDING |
+| PM-RC-06 | CLI stream trigger condition: when to start CLI-specific execution stream | RC7 (AC-RC-33) | RC7 | PENDING |
+| PM-RC-07 | Relationship mode to existing streams. Recommended: SUPERSEDES SEC-CORE2 + PLAT-CORE1; REFACTORS/DEPENDS-ON MOB-RUNTIME1 + ARCH-WASM1 | All phases | RC1 | PENDING (recommended: hybrid) |
+
+---
+
+### Risk Register
+
+| ID | Risk | Severity | Mitigation |
+|----|------|----------|------------|
+| RC-R1 | QUIC library maturity/maintenance risk | MEDIUM | PM-RC-01 evaluates alternatives; quinn is actively maintained with production users |
+| RC-R2 | FFI boundary complexity (Tauri + potential mobile) | HIGH | RC2 designs FFI surface before RC4 adoption; UniFFI evaluated for cross-platform |
+| RC-R3 | TS→Rust authority migration breaks existing consumers | HIGH | Kill-switch rollback (RC-G7); phased migration; no-regression gates (AC-RC-28) |
+| RC-R4 | Browser↔app transport mode selection complexity | MEDIUM | PM-RC-02 locks choice before RC5; fallback to WebRTC always available |
+| RC-R5 | Shared core API surface too large or leaky | MEDIUM | RC2 spec gate locks API before adoption; transport-independent invariant (RC-G3) |
+| RC-R6 | CONSUMER-BTR1 delayed → RUSTIFY-CORE-1 blocked | LOW | CONSUMER-BTR1 in progress (CBTR-1 done, CBTR-2 burn-in); hard dependency is explicit |
+
+### Explicit Non-Goals
+
+| ID | Non-Goal | Rationale |
+|----|----------|-----------|
+| RC-NG1 | Replace browser↔browser WebRTC | Working baseline; no business case |
+| RC-NG2 | Implement CLI runtime | CLI doesn't exist; reserved hooks only |
+| RC-NG3 | Full browser runtime rewrite to WASM | ARCH-WASM1 scope (dependent stream) |
+| RC-NG4 | Mobile platform implementation | MOB-RUNTIME1 scope (dependent stream) |
+| RC-NG5 | Fail-closed legacy deprecation | Separate PM gate post-adoption |
+
+---
+
 ## Tag Naming Rules
 
 | Workstream | Repo | Format | Example |
@@ -4136,6 +4397,8 @@ CONSUMER-BTR-1 is a rollout stream, not a feature stream. No protocol or SDK cha
 | DR-STREAM-1 (governance) [SUPERSEDED] | bolt-ecosystem | `ecosystem-v0.1.X-sec-dr1-<slug>` | `ecosystem-v0.1.99-sec-dr1-p0-codify` |
 | BTR-STREAM-1 (SDK) | bolt-core-sdk | `sdk-vX.Y.Z-btr<phase>-<slug>` | `sdk-v0.6.0-btr0-spec-lock` |
 | BTR-STREAM-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-sec-btr1-<slug>` | `ecosystem-v0.1.100-sec-btr1-replaces-dr` |
+| RUSTIFY-CORE-1 (SDK/daemon) | bolt-core-sdk, bolt-daemon | `sdk-vX.Y.Z-rc<phase>-<slug>` / `daemon-vX.Y.Z-rc<phase>-<slug>` | `sdk-v0.6.0-rc1-transport-matrix` |
+| RUSTIFY-CORE-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-rustify-core1-<slug>` | `ecosystem-v0.1.113-rustify-core1-codify` |
 | Governance | bolt-ecosystem | `ecosystem-v0.1.X-workstreams-N` | `ecosystem-v0.1.30-workstreams-1` |
 
 **Rules:**
