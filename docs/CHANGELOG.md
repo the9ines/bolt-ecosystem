@@ -5,6 +5,26 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## PM-RC-01A Resolved — Quinn Approved as QUIC Library, RC3 Unblocked — 2026-03-13
+
+- **PM-RC-01A APPROVED:** QUIC runtime/library selection resolved. Primary: `quinn`. Fallback 1: `s2n-quic`. Fallback 2: `msquic-rs`.
+- **Rationale:** quinn selected based on weighted evaluation of 6 criteria: cross-platform maturity (macOS/Windows/Linux tested, pure Rust), Rust API ergonomics (AsyncRead/AsyncWrite, tokio-native), ecosystem adoption (133M crates.io downloads vs 407K s2n-quic vs 31K msquic-rs), supply chain posture (pure Rust, audited crypto deps, no C toolchain), mobile path viability (community-validated iOS/Android), and operational debuggability.
+- **Fallback order revised from pre-fill:** s2n-quic promoted above msquic-rs (proper async Rust API, biweekly releases, AWS backing vs msquic-rs perpetual beta, callback-based C FFI).
+- **Fallback trigger policy:** AC-RC-12/13 failure after ≥2 weeks engineering effort → PM-approved switch. No autonomous library switch by agents.
+- **ARCH-01 verified:** quinn wraps behind `bolt_transfer_core::TransportQuery` trait — zero type leakage into shared core.
+- **RC3 blocker cleared:** RC3 status moved from NOT-STARTED (blocked on PM-RC-01A) to READY.
+- **Risk register updated:** RC-R1 narrowed from "library selection pending" to "quinn execution risk" with explicit mitigations (interop checks, perf/SLO gate, fallback switch criteria, ownership/escalation).
+
+**Files changed:**
+- `docs/GOVERNANCE_WORKSTREAMS.md` (PM-RC-01A → APPROVED, RC3 → READY, RC-G2 updated, transport matrix updated, RC3 AC section annotated with library/fallback policy, DAG annotation updated, RC-R1 risk updated, summary table updated)
+- `docs/FORWARD_BACKLOG.md` (RUSTIFY-CORE-1 status updated, PM-RC-01A → APPROVED, dependency matrix updated)
+- `docs/STATE.md` (last-updated line)
+- `docs/CHANGELOG.md` (this entry)
+
+**Ecosystem Tag:** `ecosystem-v0.1.128-rustify-core1-pmrc01a-resolved`
+
+---
+
 ## RC2-EXEC-E — Session Authority Migration + RC2 Completion (AC-RC-07) — 2026-03-13
 
 - **AC-RC-07 DONE:** Handshake/session authority primitives migrated from daemon to shared Rust core.
