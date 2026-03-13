@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-13 (BTR-SPEC-1 codified — ecosystem-v0.1.118-btr-spec1-codify)
+> **Last Updated:** 2026-03-13 (CONSUMER-BTR1 closed — burn-in waived via PM-CBTR-EX-01, ecosystem-v0.1.119-consumer-btr1-burnin-waiver-close)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -713,14 +713,14 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem | **DONE** (`daemon-v0.2.38-relarch1-multiarch-matrix`, `ab56606`) |
 | SEC-DR1 | Double Ratchet pre-ByteBolt gate (DR-STREAM-1) | ~~NEXT~~ | bolt-core-sdk + bolt-protocol | **SUPERSEDED-BY: SEC-BTR1** (frozen, `ecosystem-v0.1.99-sec-dr1-p0-codify`) |
 | SEC-BTR1 | Bolt Transfer Ratchet pre-ByteBolt gate (BTR-STREAM-1) | ~~NEXT~~ DONE | bolt-core-sdk + bolt-protocol | **BTR-STREAM-1 COMPLETE.** BTR-0–5 DONE. Approved policy: Option C (default-on fail-open, downgrade-with-warning). PM-BTR-08/09/11 approved 2026-03-11. Tags: sdk-v0.5.36–v0.5.39, ecosystem-v0.1.100–v0.1.107. |
-| CONSUMER-BTR1 | Consumer app BTR rollout (CONSUMER-BTR-1) | NOW | localbolt-v3, localbolt, localbolt-app | IN-PROGRESS. CBTR-1 DONE (burn-in PASSED). CBTR-2 DONE (burn-in PASSED, 24h02m). CBTR-3 P3 DONE (`localbolt-app-v1.2.24`, `ff33747`), burn-in active. |
+| CONSUMER-BTR1 | Consumer app BTR rollout (CONSUMER-BTR-1) | ~~NOW~~ DONE | localbolt-v3, localbolt, localbolt-app | **DONE** (burn-in waived via `PM-CBTR-EX-01`, 2026-03-13). CBTR-1 DONE (burn-in PASSED). CBTR-2 DONE (burn-in PASSED, 24h02m). CBTR-3 DONE (`localbolt-app-v1.2.24`, `ff33747`; burn-in started 2026-03-13 04:54 UTC, waived). Residual risk: enhanced monitoring 24h post-close; rollback via `btrEnabled: false`. |
 | T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | New crate + daemon | NOT-STARTED |
 | SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk | Provisionally SUPERSEDED-BY RUSTIFY-CORE-1 (pending PM-RC-07) |
 | T-STREAM-1 | Browser selective WASM integration | LATER | bolt-core-sdk + WASM + consumers | **SDK DONE, CONSUMERS ADOPTED** (`sdk-v0.5.32`, `localbolt-v1.0.29`, `localbolt-app-v1.2.17`, `v3.0.82`) — manual runtime evidence pending |
 | PLAT-CORE1 | Shared Rust core + thin platform UIs | LATER | TBD | Provisionally SUPERSEDED-BY RUSTIFY-CORE-1 (pending PM-RC-07) |
 | MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD | Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC4 (pending PM-RC-07) |
 | ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC2 (pending PM-RC-07) |
-| RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **CODIFIED** (`ecosystem-v0.1.113-rustify-core1-codify`). 7 phases (RC1–RC7), 33 ACs, 7 PM decisions. Blocked until CONSUMER-BTR1 completes. |
+| RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **CODIFIED** (`ecosystem-v0.1.113-rustify-core1-codify`). 7 phases (RC1–RC7), 33 ACs, 7 PM decisions. **RC1 UNBLOCKED** (CONSUMER-BTR1 complete). |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem + consumers | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies; DM1 unblocked immediately. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **CODIFIED** (`ecosystem-v0.1.118-btr-spec1-codify`). 5 phases (BS1–BS5), 22 ACs, 6 PM decisions. BS1 unblocked now. COMPLEMENTS SEC-BTR1/CONSUMER-BTR1/RUSTIFY-CORE-1. |

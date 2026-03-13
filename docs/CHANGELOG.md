@@ -5,6 +5,31 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## CONSUMER-BTR1 Closed — CBTR-3 Burn-in Waiver (PM-CBTR-EX-01) — 2026-03-13
+
+- **CONSUMER-BTR1 DONE.** All three consumer BTR rollout phases complete.
+- **CBTR-1:** DONE, burn-in PASSED (localbolt-v3).
+- **CBTR-2:** DONE, burn-in PASSED, 24h02m (localbolt).
+- **CBTR-3:** DONE, burn-in **waived** via `PM-CBTR-EX-01` (localbolt-app).
+- **Waiver rationale:** CBTR-3 test matrix passed (74 web + 82 Rust = 156 total); CBTR-2 completed full 24h soak; CBTR-3 is identical low-delta config change; schedule benefit outweighs residual risk.
+- **Non-precedent:** This waiver does not automatically waive burn-in for future runtime streams.
+- **Residual risk:** CBTR-3 full 24h soak not completed. Enhanced monitoring required for 24h post-close.
+  - Rollback trigger: error spikes, transfer integrity failures, pause/resume regressions.
+  - Rollback path: `btrEnabled: false` in `localbolt-app/web/src/components/peer-connection.ts`.
+  - Owner: PM. Response SLA: immediate rollback on P0/P1 regression.
+- **Burn-in audit trail:** CBTR-3 burn-in started 2026-03-13 04:54 UTC; waived 2026-03-13 (PM-CBTR-EX-01).
+- **Downstream unblocked:** RUSTIFY-CORE-1 RC1 is now unblocked.
+
+**Files changed:**
+- `docs/GOVERNANCE_WORKSTREAMS.md`
+- `docs/STATE.md`
+- `docs/FORWARD_BACKLOG.md`
+- `docs/CHANGELOG.md`
+
+**Tag:** `ecosystem-v0.1.119-consumer-btr1-burnin-waiver-close`
+
+---
+
 ## BTR-SPEC-1 — Stream Codified (Algorithm-Grade BTR Protocol Specification) — 2026-03-13
 
 - **BTR-SPEC-1 CODIFIED:** New governance stream for formal BTR protocol specification.

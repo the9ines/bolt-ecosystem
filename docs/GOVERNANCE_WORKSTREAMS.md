@@ -4046,7 +4046,7 @@ CONSUMER-BTR-1 is a rollout stream, not a feature stream. No protocol or SDK cha
 |-------|-------------|------|--------------|--------|
 | **CBTR-1** | localbolt-v3 (localbolt.app) BTR rollout | localbolt-v3 | BTR-STREAM-1 complete | **DONE** — `v3.0.89-consumer-btr1-p1` (`e34e617`). Burn-in PASSED. |
 | **CBTR-2** | localbolt (web) BTR rollout | localbolt | BTR-STREAM-1 complete + CBTR-F1 fixed | **DONE** — `localbolt-v1.0.36-consumer-btr1-p2` (`e75271a`). Burn-in PASSED (24h02m). |
-| **CBTR-3** | localbolt-app (Tauri native) BTR rollout | localbolt-app | BTR-STREAM-1 complete + CBTR-F1 fixed | **P3 DONE** — `localbolt-app-v1.2.24-consumer-btr1-p3` (`ff33747`). Burn-in active. |
+| **CBTR-3** | localbolt-app (Tauri native) BTR rollout | localbolt-app | BTR-STREAM-1 complete + CBTR-F1 fixed | **DONE** — `localbolt-app-v1.2.24-consumer-btr1-p3` (`ff33747`). Burn-in waived (`PM-CBTR-EX-01`). |
 
 **Parallelization:** CBTR-1, CBTR-2, CBTR-3 are fully independent and MAY run in parallel. Each operates in a separate repo with no shared code changes. Recommended sequencing: CBTR-1 first (primary reproducer for prior BTR testing), then CBTR-2 and CBTR-3 in parallel.
 
@@ -4101,6 +4101,7 @@ CONSUMER-BTR-1 is a rollout stream, not a feature stream. No protocol or SDK cha
 |----|----------|--------|----------|--------|
 | PM-CBTR-01 | Confirm CBTR-1 first (localbolt-v3 as primary rollout target) | Phase sequencing | NOW | **APPROVED** — rollout order: localbolt-v3 → localbolt → localbolt-app |
 | PM-CBTR-02 | Dark launch burn-in: per-consumer or shared across stream? | Rollout timing | NOW | **APPROVED** — 24h clean run per phase before promoting to next consumer |
+| PM-CBTR-EX-01 | CBTR-3 24h burn-in waiver | Stream closure | NOW | **APPROVED** (2026-03-13) — Waive CBTR-3 residual burn-in; accept CBTR-3 test matrix (74 web + 82 Rust pass) + CBTR-2 completed 24h soak + low-delta scope (identical config change to CBTR-2). Scope: CONSUMER-BTR1/CBTR-3 only. **Non-precedent:** does not waive burn-in for future runtime streams. **Risk acceptance:** reduced soak for CBTR-3; enhanced monitoring 24h post-close; rollback via `btrEnabled: false`. |
 
 ### Risk Register
 
@@ -4360,7 +4361,7 @@ RC7 produces governance-only artifacts. No runtime code. Concrete deliverables:
 | RC-R3 | TS→Rust authority migration breaks existing consumers | HIGH | Kill-switch rollback (RC-G7); phased migration; no-regression gates (AC-RC-28) |
 | RC-R4 | Browser↔app transport mode selection complexity | MEDIUM | PM-RC-02 locks choice before RC5; fallback to WebRTC always available |
 | RC-R5 | Shared core API surface too large or leaky | MEDIUM | RC2 spec gate locks API before adoption; transport-independent invariant (RC-G3) |
-| RC-R6 | CONSUMER-BTR1 delayed → RUSTIFY-CORE-1 blocked | LOW | CONSUMER-BTR1 in progress (CBTR-1 done, CBTR-2 burn-in); hard dependency is explicit |
+| RC-R6 | CONSUMER-BTR1 delayed → RUSTIFY-CORE-1 blocked | LOW | **RESOLVED** — CONSUMER-BTR1 DONE (burn-in waived via `PM-CBTR-EX-01`). RUSTIFY-CORE-1 RC1 unblocked. |
 
 ### Explicit Non-Goals
 
@@ -5112,7 +5113,7 @@ No upstream stream dependencies. COMPLEMENTS SEC-BTR1, CONSUMER-BTR1, RUSTIFY-CO
 | REL-ARCH1 | Multi-arch daemon build/package matrix | NOW | bolt-daemon + ecosystem | **DONE** (`daemon-v0.2.38-relarch1-multiarch-matrix`, `ab56606`) |
 | SEC-DR1 | Double Ratchet pre-ByteBolt security gate (DR-STREAM-1) | ~~NEXT~~ | bolt-core-sdk + bolt-protocol | **SUPERSEDED-BY: SEC-BTR1** (frozen) |
 | SEC-BTR1 | Bolt Transfer Ratchet pre-ByteBolt security gate (BTR-STREAM-1) | NEXT | bolt-core-sdk + bolt-protocol | **BTR-STREAM-1 COMPLETE** (BTR-0–5 DONE. Option C approved: default-on fail-open. PM-BTR-08/09/11 approved 2026-03-11) |
-| CONSUMER-BTR1 | Consumer app BTR rollout (CONSUMER-BTR-1) | NOW | localbolt-v3, localbolt, localbolt-app | IN-PROGRESS. CBTR-1 DONE (burn-in PASSED). CBTR-2 P2 DONE (`localbolt-v1.0.36`, `e75271a`), burn-in active. CBTR-3 awaiting CBTR-2 burn-in. |
+| CONSUMER-BTR1 | Consumer app BTR rollout (CONSUMER-BTR-1) | ~~NOW~~ DONE | localbolt-v3, localbolt, localbolt-app | **DONE** (burn-in waived via `PM-CBTR-EX-01`). CBTR-1 DONE (burn-in PASSED). CBTR-2 DONE (burn-in PASSED, 24h02m). CBTR-3 DONE (`localbolt-app-v1.2.24`, `ff33747`; burn-in waived). |
 | T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | `bolt-transfer-core` (bolt-core-sdk workspace) + daemon consumer | **DONE** (`sdk-v0.5.30-tstream0-transfer-core-v1`) |
 | SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk | Provisionally SUPERSEDED-BY RUSTIFY-CORE-1 (pending PM-RC-07) |
 | T-STREAM-1 | Browser selective WASM integration | LATER | bolt-core-sdk (TS) + WASM | NOT-STARTED |

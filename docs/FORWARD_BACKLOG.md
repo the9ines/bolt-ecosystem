@@ -386,8 +386,8 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 ## Item 12: CONSUMER-BTR1 — Consumer App BTR Rollout
 
-**Priority:** NOW
-**Status:** IN-PROGRESS. CBTR-1 DONE (burn-in PASSED). CBTR-2 P2 DONE (`localbolt-v1.0.36`, `e75271a`), burn-in active. CBTR-3 awaiting CBTR-2 burn-in.
+**Priority:** ~~NOW~~ DONE
+**Status:** **DONE** (burn-in waived via `PM-CBTR-EX-01`, 2026-03-13). CBTR-1 DONE (burn-in PASSED). CBTR-2 DONE (burn-in PASSED, 24h02m). CBTR-3 DONE (`localbolt-app-v1.2.24`, `ff33747`; burn-in waived).
 **Routing:** localbolt-v3, localbolt, localbolt-app
 **Category:** Rollout — BTR consumer adoption
 **Stream:** CONSUMER-BTR-1 (phased)
@@ -400,8 +400,8 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | Phase | Description | Repo | Status |
 |-------|-------------|------|--------|
 | CBTR-1 | localbolt-v3 (localbolt.app) BTR rollout | localbolt-v3 | **DONE** — `v3.0.89-consumer-btr1-p1` (`e34e617`). Burn-in PASSED. |
-| CBTR-2 | localbolt (web) BTR rollout | localbolt | **P2 DONE** — `localbolt-v1.0.36-consumer-btr1-p2` (`e75271a`). Burn-in active. |
-| CBTR-3 | localbolt-app (Tauri native) BTR rollout | localbolt-app | UNBLOCKED — awaiting CBTR-2 24h burn-in |
+| CBTR-2 | localbolt (web) BTR rollout | localbolt | **DONE** — `localbolt-v1.0.36-consumer-btr1-p2` (`e75271a`). Burn-in PASSED (24h02m). |
+| CBTR-3 | localbolt-app (Tauri native) BTR rollout | localbolt-app | **DONE** — `localbolt-app-v1.2.24-consumer-btr1-p3` (`ff33747`). Burn-in waived (`PM-CBTR-EX-01`). |
 
 **Acceptance Criteria:** 20 ACs defined (AC-CBTR-01 through AC-CBTR-20). See `docs/GOVERNANCE_WORKSTREAMS.md` § CONSUMER-BTR-1 for full list.
 
@@ -416,7 +416,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 13: RUSTIFY-CORE-1 — Native-First Transport + Core Consolidation
 
 **Priority:** NEXT
-**Status:** CODIFIED (execution blocked until CONSUMER-BTR1 completes)
+**Status:** CODIFIED (RC1 **UNBLOCKED** — CONSUMER-BTR1 complete via `PM-CBTR-EX-01`)
 **Routing:** bolt-core-sdk (Rust primary), bolt-daemon, bolt-protocol (spec amendments)
 **Category:** Architecture — native transport + Rust core consolidation
 **Stream:** RUSTIFY-CORE-1 (phased, 7 phases RC1–RC7)
