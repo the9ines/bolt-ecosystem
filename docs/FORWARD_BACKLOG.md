@@ -34,7 +34,7 @@ NEXT:
   SEC-CORE2 (Rust-first security consolidation) ── depends on S1 (DONE)
 
 NEXT:
-  RUSTIFY-CORE-1 (native-first transport + core) ── RC1 DONE; RC2 DONE; RC3 DONE; RC4 DONE (2026-03-14, AC-RC-12–20 PASS); PM-RC-02 APPROVED (WebSocket-direct, 2026-03-14); RC5 READY
+  RUSTIFY-CORE-1 (native-first transport + core) ── RC1 DONE; RC2 DONE; RC3 DONE; RC4 DONE (2026-03-14, AC-RC-12–20 PASS); PM-RC-02 APPROVED (WebSocket-direct, 2026-03-14); RC5 DONE (2026-03-14, AC-RC-21–24 PASS)
     Provisionally SUPERSEDES: SEC-CORE2, PLAT-CORE1 (pending PM-RC-07)
     Provisionally REFACTORS/DEPENDS-ON: MOB-RUNTIME1, ARCH-WASM1 (pending PM-RC-07)
 
@@ -416,7 +416,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 13: RUSTIFY-CORE-1 — Native-First Transport + Core Consolidation
 
 **Priority:** NEXT
-**Status:** **RC1 DONE**, **RC2 DONE**, **RC3 DONE** (`daemon-v0.2.40`, 2026-03-14), **RC4 DONE** (`ecosystem-v0.1.130`, 2026-03-14). AC-RC-12–20 all PASS. Daemon shared-core authority verified. App IPC-mediated delegation confirmed. TS delegation boundary documented. Feature-gate rollback verified. **PM-RC-02 APPROVED** (WebSocket-direct, 2026-03-14). **RC5 READY**.
+**Status:** **RC1 DONE**, **RC2 DONE**, **RC3 DONE** (`daemon-v0.2.40`, 2026-03-14), **RC4 DONE** (`ecosystem-v0.1.130`, 2026-03-14), **RC5 DONE** (`daemon-v0.2.39-rustify-core1-rc5-ws-endpoint`, `ecosystem-v0.1.131-rustify-core1-rc5-executed`, 2026-03-14). AC-RC-12–24 all PASS. Browser↔app WebSocket-direct integration verified. WS fallback to WebRTC confirmed. **PM-RC-02 APPROVED** (WebSocket-direct, 2026-03-14).
 **Routing:** bolt-core-sdk (Rust primary), bolt-daemon, bolt-protocol (spec amendments)
 **Category:** Architecture — native transport + Rust core consolidation
 **Stream:** RUSTIFY-CORE-1 (phased, 7 phases RC1–RC7)
@@ -440,7 +440,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 - Provisionally REFACTORS/DEPENDS-ON: MOB-RUNTIME1, ARCH-WASM1
 - No silent supersession until PM-RC-07 confirms
 
-**Acceptance Criteria:** 33 ACs defined (AC-RC-01 through AC-RC-33). RC1 ACs: AC-RC-01 DONE, AC-RC-02 DONE, AC-RC-03 PROVISIONAL, AC-RC-04 DONE. See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1 for full list.
+**Acceptance Criteria:** 33 ACs defined (AC-RC-01 through AC-RC-33). RC1–RC5: AC-RC-01–24 all PASS/DONE (24 of 33 ACs delivered). See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1 for full list.
 
 **PM Decisions:** 8 total (PM-RC-01 through PM-RC-07 + PM-RC-01A). PM-RC-01 APPROVED (QUIC confirmed). PM-RC-01A PENDING (library selection, blocks RC3 only). PM-RC-02–07 PENDING. See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1 for full table.
 

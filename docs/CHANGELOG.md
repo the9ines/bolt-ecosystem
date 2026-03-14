@@ -5,6 +5,33 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-14 — RUSTIFY-CORE-1 RC5 DONE: Browser↔App WebSocket-direct integration
+
+**Decision**: PM-RC-02 APPROVED (WebSocket-direct primary, WebRTC automatic fallback)
+
+**Delivered (AC-RC-21..24)**:
+- AC-RC-21: Browser connects to daemon WS endpoint, encrypted HELLO handshake
+- AC-RC-22: Bidirectional file transfer over WS (ProfileEnvelopeV1)
+- AC-RC-23: BTR negotiation propagates across WS transport boundary
+- AC-RC-24: WS failure (refused/timeout) triggers automatic WebRTC fallback
+
+**Implementation**:
+- bolt-daemon: `ws_endpoint.rs` — WS server, feature-gated (`transport-ws`), 4 tests
+- bolt-transport-web: `WsDataTransport`, `BrowserAppTransport` — WS client + fallback orchestrator, 20 tests
+- DataTransport interface abstraction in EnvelopeCodec (backward-compatible)
+
+**Security**: Session/protocol authority remains in daemon/bolt_core. No protocol reimplementation in browser TS. Fallback path preserves full integrity/BTR enforcement.
+
+**Scope**: RC5 WS is localhost/LAN reference path. ws:// acceptable. wss:// self-signed for test. HTTPS mixed-content caveat documented. Production TLS deferred to RC6.
+
+**Regression**: 357 daemon tests (with ws), 353 (without ws), 364 browser tests — zero failures. G1 (browser↔browser WebRTC) unchanged.
+
+**Tags**: `daemon-v0.2.39-rustify-core1-rc5-ws-endpoint`, `ecosystem-v0.1.131-rustify-core1-rc5-executed`
+
+**Next**: RC6 — rollout policy, production TLS, WAN exposure strategy (requires PM-RC-03/05)
+
+---
+
 ## PM-RC-02 Resolved — WebSocket-Direct Browser↔App Transport, RC5 Unblocked — 2026-03-14
 
 - **PM-RC-02 APPROVED:** Browser↔app primary transport mode resolved as **Option B: WebSocket-direct**.
