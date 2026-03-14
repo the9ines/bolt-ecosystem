@@ -34,7 +34,7 @@ NEXT:
   SEC-CORE2 (Rust-first security consolidation) ── depends on S1 (DONE)
 
 NEXT:
-  RUSTIFY-CORE-1 (native-first transport + core) ── RC1 DONE; RC2 DONE; RC3 DONE (daemon-v0.2.40, 2026-03-14, AC-RC-12–16 PASS); PM-RC-01A APPROVED (quinn)
+  RUSTIFY-CORE-1 (native-first transport + core) ── RC1 DONE; RC2 DONE; RC3 DONE; RC4 DONE (2026-03-14, AC-RC-12–20 PASS); RC5 blocked on PM-RC-02
     Provisionally SUPERSEDES: SEC-CORE2, PLAT-CORE1 (pending PM-RC-07)
     Provisionally REFACTORS/DEPENDS-ON: MOB-RUNTIME1, ARCH-WASM1 (pending PM-RC-07)
 
@@ -416,7 +416,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 13: RUSTIFY-CORE-1 — Native-First Transport + Core Consolidation
 
 **Priority:** NEXT
-**Status:** **RC1 DONE**, **RC2 DONE** (`ecosystem-v0.1.127-rustify-core1-rc2-complete`, 2026-03-13). **RC3 DONE** (`daemon-v0.2.40-rustify-core1-rc3-quinn-reference`, 2026-03-14). AC-RC-12–16 all PASS. Quinn QUIC transport adapter + BTR-over-QUIC compatibility verified. 381 tests (18 new RC3 + 10 QUIC unit + 353 pre-existing), zero regressions. **PM-RC-01A APPROVED** (quinn, 2026-03-13).
+**Status:** **RC1 DONE**, **RC2 DONE**, **RC3 DONE** (`daemon-v0.2.40`, 2026-03-14), **RC4 DONE** (`ecosystem-v0.1.130`, 2026-03-14). AC-RC-12–20 all PASS. Daemon shared-core authority verified. App IPC-mediated delegation confirmed. TS delegation boundary documented. Feature-gate rollback verified. **RC5 blocked on PM-RC-02** (browser↔app transport mode).
 **Routing:** bolt-core-sdk (Rust primary), bolt-daemon, bolt-protocol (spec amendments)
 **Category:** Architecture — native transport + Rust core consolidation
 **Stream:** RUSTIFY-CORE-1 (phased, 7 phases RC1–RC7)

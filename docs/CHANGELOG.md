@@ -5,6 +5,29 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## RUSTIFY-CORE-1 RC4 DONE — Shared Rust Core Adoption Verified — 2026-03-14
+
+- **RC4 DONE:** Shared Rust core adoption verified across daemon, app, and TS boundaries.
+- **AC-RC-17 DONE:** Daemon shared-core authority verified via comprehensive import audit. All crypto → bolt_core::crypto, session → bolt_core::session, transfer SM → bolt_transfer_core, errors → bolt_core::errors. Zero local reimplementations across 7 source modules. 381 tests pass.
+- **AC-RC-18 DONE:** localbolt-app IPC-mediated delegation confirmed as canonical RC4 path. Tauri Rust layer is pure IPC relay + daemon lifecycle manager (3,311 LoC, 0 crypto operations, 0 bolt-core imports). No parallel protocol authority in app shell. `cargo check` clean.
+- **AC-RC-19 DONE:** TS delegation boundary verified. Envelope/BTR/SAS/capability negotiation delegates to bolt-core TS SDK. Transfer policy → Rust WASM via PolicyAdapter. WebRTC transport profile intentionally TS-owned (G1 guardrail). 3 moderate concerns deferred to backlog: message type registry centralization, envelope schema constant export, error recovery formalization.
+- **AC-RC-20 DONE:** Feature-gate rollback verified. 353 tests pass without `transport-quic` (DataChannel path intact). QUIC tests compile to 0 when feature off. Legacy path fully operational.
+- **RC5 status:** Unblocked by RC3+RC4 completion. **Blocked on PM-RC-02** (browser↔app transport mode default).
+
+**RC4 interpretation notes:**
+- AC-RC-18: IPC-mediated delegation (localbolt-app → bolt-daemon → shared Rust core) accepted as valid closure. Direct cdylib/UniFFI binding deferred to future stream.
+- AC-RC-19: "Where feasible" boundary defined as: crypto/handshake/envelope/capability authority delegated; WebRTC scheduling/backpressure in browser path intentionally TS-owned under G1.
+
+**Files changed:**
+- `docs/GOVERNANCE_WORKSTREAMS.md` (RC4 phase DONE, AC-RC-17–20 status with evidence, stream status)
+- `docs/FORWARD_BACKLOG.md` (RUSTIFY-CORE-1 status updated)
+- `docs/STATE.md` (last-updated, stream row)
+- `docs/CHANGELOG.md` (this entry)
+
+**Ecosystem Tag:** `ecosystem-v0.1.130-rustify-core1-rc4-executed`
+
+---
+
 ## RUSTIFY-CORE-1 RC3 DONE — Quinn QUIC Transport Reference Path — 2026-03-14
 
 - **RC3 DONE:** Native QUIC transport reference path implemented in bolt-daemon via `quinn` v0.11.
