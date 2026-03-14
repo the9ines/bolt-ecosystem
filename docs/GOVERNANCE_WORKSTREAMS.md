@@ -4121,7 +4121,7 @@ CONSUMER-BTR-1 is a rollout stream, not a feature stream. No protocol or SDK cha
 > **Priority:** NEXT (execution blocked until CONSUMER-BTR1 completes)
 > **Repos:** bolt-core-sdk (Rust primary), bolt-daemon, bolt-protocol (spec amendments)
 > **Codified:** ecosystem-v0.1.113-rustify-core1-codify (2026-03-12)
-> **Status:** RC1 DONE. RC2 DONE. RC3 DONE (`daemon-v0.2.40-rustify-core1-rc3-quinn-reference`, 2026-03-14). RC4 DONE (`ecosystem-v0.1.130-rustify-core1-rc4-executed`, 2026-03-14). AC-RC-12–20 all PASS. RC5 unblocked (requires PM-RC-02).
+> **Status:** RC1 DONE. RC2 DONE. RC3 DONE (`daemon-v0.2.40-rustify-core1-rc3-quinn-reference`, 2026-03-14). RC4 DONE (`ecosystem-v0.1.130-rustify-core1-rc4-executed`, 2026-03-14). AC-RC-12–20 all PASS. PM-RC-02 APPROVED (WebSocket-direct, 2026-03-14). RC5 READY.
 
 ---
 
@@ -4152,7 +4152,7 @@ RUSTIFY-CORE-1 consolidates protocol authority in Rust and introduces native tra
 |---------------|-----------|-----------|--------|
 | browser↔browser | WebRTC DataChannel | TS (`bolt-transport-web`) | **LOCKED — retained baseline** (invariant: no browser WebRTC replacement in RUSTIFY-CORE-1) |
 | app↔app | Rust native transport (QUIC/quinn) | Rust (new crate) | **LOCKED (QUIC/quinn)** — PM-RC-01 APPROVED (QUIC, 2026-03-13). PM-RC-01A APPROVED (quinn, 2026-03-13). Fallback: s2n-quic → msquic-rs. |
-| browser↔app | Browser client transport + Rust endpoint/core | Hybrid (TS browser-side, Rust server-side) | **PROVISIONAL** — default mode pending PM-RC-02 confirmation. |
+| browser↔app | WebSocket to app daemon (primary) + WebRTC fallback | Hybrid (TS browser-side WS client, Rust server-side WS listener → shared core) | **LOCKED (WebSocket-direct)** — PM-RC-02 APPROVED (2026-03-14). Primary: browser opens WS to app daemon endpoint; daemon terminates WS, bridges frames to shared Rust core pipeline. Fallback: WebRTC via signaling server (current behavior). Fallback trigger: WS connection failure/timeout → automatic fall-through to WebRTC. Session authority: app daemon / shared Rust core (RC4-consistent). |
 | app↔relay/cloud | ByteBolt relay infrastructure | Commercial (bytebolt-relay) | **DEFERRED** — out of scope for RC1–RC4. Relay architecture governed by ARCH-05 (relay optional/commercial) and ARCH-07 (infrastructure monetizable). ByteBolt-specific transport binding deferred to bytebolt-relay stream. |
 
 ### Rustification Targets
@@ -4232,7 +4232,7 @@ If PM-RC-07 confirms SUPERSEDES for SEC-CORE2 and PLAT-CORE1, those items should
 | **RC2** | Shared Rust core API design/extraction lock | Engineering + PM gate | YES — gates RC4, RC5 | RC1 complete | **GOV-DONE, EXEC-READY** (`ecosystem-v0.1.122-rustify-core1-rc2gov-executed`, 2026-03-13) |
 | **RC3** | Native transport reference path (app↔app, QUIC/quinn) | Engineering gate | NO (parallel with RC4) | RC1 complete, PM-RC-01 APPROVED (QUIC), PM-RC-01A APPROVED (quinn) | **DONE** (`daemon-v0.2.40-rustify-core1-rc3-quinn-reference`, 2026-03-14). AC-RC-12–16 all PASS. Quinn transport adapter + BTR-over-QUIC verified. |
 | **RC4** | Shared Rust core adoption in app/runtime boundaries | Engineering gate | NO (parallel with RC3) | RC2 complete | **DONE** (`ecosystem-v0.1.130-rustify-core1-rc4-executed`, 2026-03-14). AC-RC-17–20 all PASS. Adoption verified via audit; IPC-mediated delegation confirmed as canonical path. |
-| **RC5** | Browser↔app endpoint integration gates | Engineering gate | YES — gates RC6 | RC3 + RC4 complete | NOT-STARTED |
+| **RC5** | Browser↔app endpoint integration gates (WebSocket-direct) | Engineering gate | YES — gates RC6 | RC3 + RC4 complete, PM-RC-02 APPROVED (WebSocket-direct) | **READY** — PM-RC-02 resolved (2026-03-14). Primary: WS to app daemon. Fallback: WebRTC. |
 | **RC6** | Rollout + compatibility + rollback policy | PM/Engineering gate | YES — gates close | RC5 complete | NOT-STARTED |
 | **RC7** | CLI reservation hooks (governance artifacts only) | Governance gate | NO (parallel with RC1–RC6) | None | NOT-STARTED |
 
@@ -4438,14 +4438,27 @@ RC7 produces governance-only artifacts. No runtime code. Concrete deliverables:
 | AC-RC-19 | TS transport-web delegates protocol logic to Rust core (where feasible) | Integration tests | **DONE** — Envelope/BTR/SAS/capability negotiation delegated to bolt-core TS SDK. Transfer policy → Rust WASM via PolicyAdapter. WebRTC transport profile intentionally TS-owned (G1). 3 moderate concerns (message registry, envelope constants, error recovery) deferred to backlog. |
 | AC-RC-20 | Kill-switch rollback to pre-RUSTIFY TS paths verified | Rollback test | **DONE** — 353 tests pass without `transport-quic` feature (DataChannel path intact). QUIC tests compile to 0 when feature off. Feature-gate rollback verified. |
 
-#### RC5 — Browser↔App Endpoint Integration
+#### RC5 — Browser↔App Endpoint Integration (WebSocket-direct, PM-RC-02 APPROVED)
+
+**Transport decision (PM-RC-02):** WebSocket-direct. Browser opens WS/WSS to app daemon endpoint. Daemon terminates WebSocket, deserializes Bolt protocol frames, delegates to shared Rust core for crypto/session/transfer operations. Session authority: app daemon / shared Rust core (RC4-consistent per AC-RC-18).
+
+**Fallback policy (AC-RC-24 interpretation):**
+
+| Order | Transport | Trigger to next | Override authority |
+|-------|-----------|-----------------|-------------------|
+| 1 (primary) | WebSocket to app daemon endpoint | WS connection failure (timeout / refused / TLS error) | Automatic client-side |
+| 2 (fallback) | WebRTC via signaling server (current behavior) | N/A (terminal fallback) | N/A |
+
+Fallback is automatic and transparent to user. G1 preserved: WebRTC fallback IS the current browser↔browser baseline path.
+
+**Session-authority boundary:** App daemon remains protocol and session authority for browser↔app path. Browser-side WS client is a new parallel transport binding in `bolt-transport-web`. Transport-specific auth (e.g., connection token, origin validation) deferred to RC5 implementation.
 
 | ID | Criterion | Evidence Required |
 |----|-----------|------------------|
-| AC-RC-21 | Browser client connects to Rust endpoint (app) successfully | Integration test |
-| AC-RC-22 | File transfer completes browser→app and app→browser | Round-trip tests |
-| AC-RC-23 | BTR negotiation works across transport boundary | BTR capability test |
-| AC-RC-24 | Downgrade to WebRTC fallback when native transport unavailable | Fallback test |
+| AC-RC-21 | Browser client connects to Rust endpoint (app) via WebSocket successfully | Integration test |
+| AC-RC-22 | File transfer completes browser→app and app→browser over WebSocket | Round-trip tests |
+| AC-RC-23 | BTR negotiation works across WebSocket transport boundary | BTR capability test |
+| AC-RC-24 | Downgrade to WebRTC fallback when WebSocket to app daemon unavailable | Fallback test: WS failure → automatic WebRTC fall-through |
 
 #### RC6 — Rollout + Compatibility + Rollback
 
@@ -4474,7 +4487,7 @@ RC7 produces governance-only artifacts. No runtime code. Concrete deliverables:
 |----|----------|--------|----------|--------|
 | PM-RC-01 | Native transport protocol confirmation: QUIC (recommended) vs alternative. If QUIC, sub-decision: library (quinn / s2n-quic / etc.) | RC3 | RC1 | **APPROVED (QUIC confirmed, 2026-03-13)**. Library selection split to PM-RC-01A. |
 | PM-RC-01A | QUIC runtime/library selection. **APPROVED (2026-03-13):** Primary: `quinn`. Fallback 1: `s2n-quic`. Fallback 2: `msquic-rs`. Rationale: quinn dominates on cross-platform maturity (macOS/Windows/Linux tested, pure Rust, no C toolchain), Rust API ergonomics (AsyncRead/AsyncWrite streams, tokio-native), ecosystem adoption (133M crates.io downloads), supply chain posture (pure Rust, audited crypto deps), and mobile path viability (community-validated iOS/Android compilation). s2n-quic ranked above msquic-rs as fallback due to proper async Rust API and active biweekly release cadence vs msquic-rs perpetual beta status and callback-based C FFI requiring async bridge. ARCH-01 verified: quinn wraps behind `TransportQuery` trait with zero type leakage into shared core. | RC3 only (non-blocking for RC2) | RC3 | **APPROVED (2026-03-13)** |
-| PM-RC-02 | Browser↔app transport mode default (WebSocket upgrade? WebRTC retained? Hybrid?) | RC5 | RC1 | PENDING |
+| PM-RC-02 | Browser↔app transport mode default. **APPROVED (2026-03-14):** Option B — WebSocket-direct. Primary: browser opens WebSocket to app daemon endpoint; daemon terminates WS and bridges frames to shared Rust core pipeline (RC4-consistent session authority). Fallback: WebRTC via signaling server (current behavior). Fallback trigger: WS connection failure/timeout → automatic client-side fall-through to WebRTC. Fallback override authority: PM can adjust timeout/ordering via future decision. Options rejected: (A) WebRTC-mediated — collapses primary/fallback distinction, AC-RC-24 becomes tautological; (C) WebTransport — Safari unsupported, experimental API, unnecessary scope risk. G1 preserved: WebRTC fallback IS current browser↔browser baseline. | RC5 | RC1 | **APPROVED (WebSocket-direct, 2026-03-14)** |
 | PM-RC-03 | Rollout order confirmation: app-first, browser↔app second | RC6 | RC1 | PENDING |
 | PM-RC-04 | Performance SLO thresholds for native transport migration gates (latency, throughput, overhead) | RC3 (AC-RC-15) | RC1 | PENDING |
 | PM-RC-05 | Legacy TS-path deprecation policy/timeline after Rust core adoption | RC6 | RC6 | PENDING |
@@ -4490,7 +4503,7 @@ RC7 produces governance-only artifacts. No runtime code. Concrete deliverables:
 | RC-R1 | QUIC library (`quinn`) execution risk | MEDIUM | **Library selection RESOLVED** (PM-RC-01A: quinn approved, 2026-03-13). Residual risk: quinn 0.x semver (widely used but pre-1.0), Darwin EPIPE edge case (open upstream), Android >100KB issue on some devices (community-reported). Mitigations: RC3 interop checks (AC-RC-13), perf/SLO gate (AC-RC-15), explicit fallback order (s2n-quic → msquic-rs) with PM-approved switch criteria (≥2 weeks engineering effort + AC-RC-12/13 failure evidence). Ownership: RC3 executor. Escalation: PM (human) for fallback switch approval. |
 | RC-R2 | FFI boundary complexity (Tauri + potential mobile) | HIGH | RC2 designs FFI surface before RC4 adoption; UniFFI evaluated for cross-platform |
 | RC-R3 | TS→Rust authority migration breaks existing consumers | HIGH | Kill-switch rollback (RC-G7); phased migration; no-regression gates (AC-RC-28) |
-| RC-R4 | Browser↔app transport mode selection complexity | MEDIUM | PM-RC-02 locks choice before RC5; fallback to WebRTC always available |
+| RC-R4 | Browser↔app transport mode selection complexity | MEDIUM | **RESOLVED** — PM-RC-02 APPROVED (WebSocket-direct, 2026-03-14). Primary: WS to app daemon. Fallback: WebRTC (automatic on WS failure). Residual risk: WS listener in daemon requires TLS cert management for wss://; deferred to RC5 implementation. |
 | RC-R5 | Shared core API surface too large or leaky | MEDIUM | RC2 spec gate locks API before adoption; transport-independent invariant (RC-G3) |
 | RC-R6 | CONSUMER-BTR1 delayed → RUSTIFY-CORE-1 blocked | LOW | **RESOLVED** — CONSUMER-BTR1 DONE (burn-in waived via `PM-CBTR-EX-01`). RUSTIFY-CORE-1 RC1 unblocked. |
 

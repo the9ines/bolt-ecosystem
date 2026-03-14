@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## PM-RC-02 Resolved — WebSocket-Direct Browser↔App Transport, RC5 Unblocked — 2026-03-14
+
+- **PM-RC-02 APPROVED:** Browser↔app primary transport mode resolved as **Option B: WebSocket-direct**.
+- **Primary path:** Browser opens WebSocket (WS/WSS) to app daemon endpoint. Daemon terminates WebSocket, deserializes Bolt protocol frames, delegates to shared Rust core for crypto/session/transfer operations.
+- **Fallback path (AC-RC-24):** WebRTC via signaling server (current behavior). Trigger: WS connection failure/timeout → automatic client-side fall-through. No manual override required.
+- **Session authority:** App daemon / shared Rust core (RC4-consistent per AC-RC-18). Transport-specific auth (connection token, origin validation) deferred to RC5 implementation.
+- **Options rejected:** (A) WebRTC-mediated — collapses primary/fallback distinction, makes AC-RC-24 tautological; (C) WebTransport — Safari unsupported, experimental API, unnecessary scope risk.
+- **G1 preserved:** WebRTC fallback IS the current browser↔browser baseline path — fully operational.
+- **RC5 status:** `NOT-STARTED` → `READY`. All RC5 dependencies satisfied (RC3 DONE, RC4 DONE, PM-RC-02 APPROVED).
+- **RC-R4 risk updated:** RESOLVED. Residual: WS TLS cert management deferred to RC5 implementation.
+- **DISCOVERY-MODE-1 boundary:** Discovery/signaling policy details remain owned by DISCOVERY-MODE-1 stream. No transport dependency overlap.
+
+**Files changed:**
+- `docs/GOVERNANCE_WORKSTREAMS.md` (PM-RC-02 → APPROVED, transport matrix row LOCKED, RC5 phase → READY, AC-RC-21–24 annotated with WS context, fallback policy table added, RC-R4 risk → RESOLVED)
+- `docs/FORWARD_BACKLOG.md` (RUSTIFY-CORE-1 status updated, PM-RC-02 → APPROVED, dependency matrix updated)
+- `docs/STATE.md` (last-updated line, RUSTIFY-CORE-1 stream row)
+- `docs/CHANGELOG.md` (this entry)
+
+**Ecosystem Tag:** `ecosystem-v0.1.131-rustify-core1-pmrc02-resolved`
+
+---
+
 ## RUSTIFY-CORE-1 RC4 DONE — Shared Rust Core Adoption Verified — 2026-03-14
 
 - **RC4 DONE:** Shared Rust core adoption verified across daemon, app, and TS boundaries.
