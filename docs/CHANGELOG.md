@@ -5,15 +5,15 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
-## 2026-03-14 — RUSTIFY-CORE-1 RC5 DONE: Browser↔App WebSocket-direct integration
+## 2026-03-14 — RUSTIFY-CORE-1 RC5 IN-PROGRESS: Browser↔App WebSocket-direct integration
 
 **Decision**: PM-RC-02 APPROVED (WebSocket-direct primary, WebRTC automatic fallback)
 
-**Delivered (AC-RC-21..24)**:
-- AC-RC-21: Browser connects to daemon WS endpoint, encrypted HELLO handshake
-- AC-RC-22: Bidirectional file transfer over WS (ProfileEnvelopeV1)
-- AC-RC-23: BTR negotiation propagates across WS transport boundary
-- AC-RC-24: WS failure (refused/timeout) triggers automatic WebRTC fallback
+**AC Status (RC5)**:
+- AC-RC-21: **PASS** — Browser connects to daemon WS endpoint, encrypted HELLO handshake
+- AC-RC-22: **PASS** — Bidirectional file transfer over WS (ProfileEnvelopeV1)
+- AC-RC-23: **PARTIAL** — WS transport boundary is BTR-transparent (browser propagates BTR fields correctly, 40 BTR wire integration tests pass). Daemon `DAEMON_CAPABILITIES` does not yet include `bolt.transfer-ratchet-v1`, so full end-to-end BTR negotiation browser↔daemon over WS is not yet possible. Blocker: add BTR capability to daemon HELLO.
+- AC-RC-24: **PASS** — WS failure (refused/timeout) triggers automatic WebRTC fallback
 
 **Implementation**:
 - bolt-daemon: `ws_endpoint.rs` — WS server, feature-gated (`transport-ws`), 4 tests
@@ -26,9 +26,11 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 **Regression**: 357 daemon tests (with ws), 353 (without ws), 364 browser tests — zero failures. G1 (browser↔browser WebRTC) unchanged.
 
-**Tags**: `daemon-v0.2.39-rustify-core1-rc5-ws-endpoint`, `ecosystem-v0.1.131-rustify-core1-rc5-executed`
+**Tags**: `daemon-v0.2.41-rustify-core1-rc5-ws-endpoint`, `sdk-v0.6.9-rustify-core1-rc5-ws-transport`, `ecosystem-v0.1.132-rustify-core1-rc5-executed`
 
-**Next**: RC6 — rollout policy, production TLS, WAN exposure strategy (requires PM-RC-03/05)
+**Governance note**: Two pushed tags (`daemon-v0.2.39-rustify-core1-rc5-ws-endpoint`, `ecosystem-v0.1.131-rustify-core1-rc5-executed`) were deleted in violation of immutable-tag policy. Corrective action: new forward-only tags created (`daemon-v0.2.41`, `ecosystem-v0.1.132`). No history rewrite performed. Existing commits with prohibited `Co-Authored-By` trailers left as historical violations.
+
+**Next**: Close AC-RC-23 (add `bolt.transfer-ratchet-v1` to daemon capabilities), then RC5 → DONE. After: RC6 — rollout policy, production TLS, WAN exposure strategy (requires PM-RC-03/05)
 
 ---
 
