@@ -5,6 +5,27 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-14 — RUSTIFY-CORE-1 RC5 DONE: AC-RC-23 Closure (BTR Capability over WS)
+
+**AC-RC-23 closed**: Daemon now advertises `bolt.transfer-ratchet-v1` in `DAEMON_CAPABILITIES`. Five new integration tests in `tests/rc5_btr_over_ws.rs`:
+- `ac_rc_23_ws_hello_negotiates_btr_capability` — HELLO negotiation over WS includes BTR in intersection
+- `ac_rc_23_btr_sealed_chunk_over_ws` — single BTR-sealed chunk survives WS round-trip
+- `ac_rc_23_btr_multi_chunk_transfer_over_ws` — 4-chunk BTR transfer over WS
+- `ac_rc_23_btr_tampered_chunk_detected_over_ws` — tamper detection preserved over WS
+- `ac_rc_23_ws_framing_preserves_sealed_bytes` — byte-level fidelity at 1B/100B/16KiB/64KiB
+
+**RC5 status**: IN-PROGRESS → **DONE**. All 4 ACs (AC-RC-21–24) now PASS.
+
+**Regression**: 362 daemon tests (with ws, 0 failed), 353 daemon (without ws, 0 failed), 364 browser tests (0 failed).
+
+**Tags**: `daemon-v0.2.42-rustify-core1-rc5-btr-ws`, `ecosystem-v0.1.133-rustify-core1-rc5-done`
+
+**Incident continuity**: Prior immutable-tag deletions and Co-Authored-By trailer violations (see entry below) are historical. This commit is fully policy-compliant: forward-only tags, no trailers, no history rewrite.
+
+**Next**: RC6 — rollout policy, production TLS, WAN exposure strategy (requires PM-RC-03/05)
+
+---
+
 ## 2026-03-14 — RUSTIFY-CORE-1 RC5 IN-PROGRESS: Browser↔App WebSocket-direct integration
 
 **Decision**: PM-RC-02 APPROVED (WebSocket-direct primary, WebRTC automatic fallback)
