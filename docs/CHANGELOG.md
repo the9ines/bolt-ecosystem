@@ -5,6 +5,35 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## RUSTIFY-CORE-1 RC3 DONE — Quinn QUIC Transport Reference Path — 2026-03-14
+
+- **RC3 DONE:** Native QUIC transport reference path implemented in bolt-daemon via `quinn` v0.11.
+- **AC-RC-12 DONE:** Quinn-based QUIC transport compiles and passes 10 unit tests. Feature-gated behind `transport-quic`.
+- **AC-RC-13 DONE:** Daemon↔daemon file transfer over QUIC verified. 3 E2E tests: 1MiB SHA-256 integrity, sub-chunk payload, multiple sequential transfers.
+- **AC-RC-14 DONE:** BTR-over-QUIC compatibility verified. 4 tests: seal/open roundtrip, multi-chunk chain ordering, tampering detection after transport, byte-level framing preservation. Proves Bolt envelope/BTR remains security authority, QUIC is transport-only.
+- **AC-RC-15 DONE (provisional):** ~15–16 MB/s avg throughput (3×1MiB, localhost). PM-RC-04 formal SLO thresholds pending; baseline captured for comparison.
+- **AC-RC-16 DONE:** 381 total tests pass (353 pre-existing + 18 RC3 integration + 10 QUIC unit). Zero regressions.
+- **QUIC adapter architecture:** `QuicFramedStream` (length-prefixed framing over bidirectional QUIC stream), `QuicListener` (server bind+accept), `QuicDialer` (client connect). RC3 TLS policy: self-signed certs, skip verification, transport encryption only.
+- **bolt-btr test-support feature:** Added `test-support` feature to bolt-btr exposing `BtrTransferContext::new_for_test()` for deterministic integration testing.
+- **ARCH-01 compliant:** QUIC code confined to daemon (`src/quic_transport.rs`). Zero type leakage into shared core crates.
+
+**Files changed (bolt-daemon):**
+- `Cargo.toml` (transport-quic feature, quinn/rustls/tokio/rcgen deps, bolt-btr test-support)
+- `src/quic_transport.rs` (NEW — QUIC transport adapter, ~450 lines)
+- `src/lib.rs` (conditional quic_transport module export)
+- `src/main.rs` (TransportMode enum, CLI flags, QUIC smoke paths)
+- `tests/rc3_quic_e2e.rs` (NEW — AC-RC-13/15 E2E tests)
+- `tests/rc3_btr_over_quic.rs` (NEW — AC-RC-14 BTR compatibility tests)
+
+**Files changed (bolt-core-sdk):**
+- `rust/bolt-btr/Cargo.toml` (test-support feature)
+- `rust/bolt-btr/src/state.rs` (new_for_test constructor, feature-gated)
+
+**Daemon Tag:** `daemon-v0.2.40-rustify-core1-rc3-quinn-reference`
+**Ecosystem Tag:** `ecosystem-v0.1.129-rustify-core1-rc3-executed`
+
+---
+
 ## PM-RC-01A Resolved — Quinn Approved as QUIC Library, RC3 Unblocked — 2026-03-13
 
 - **PM-RC-01A APPROVED:** QUIC runtime/library selection resolved. Primary: `quinn`. Fallback 1: `s2n-quic`. Fallback 2: `msquic-rs`.

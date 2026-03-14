@@ -34,7 +34,7 @@ NEXT:
   SEC-CORE2 (Rust-first security consolidation) ── depends on S1 (DONE)
 
 NEXT:
-  RUSTIFY-CORE-1 (native-first transport + core) ── RC1 DONE; RC2 DONE; PM-RC-01A APPROVED (quinn, 2026-03-13); RC3 READY
+  RUSTIFY-CORE-1 (native-first transport + core) ── RC1 DONE; RC2 DONE; RC3 DONE (daemon-v0.2.40, 2026-03-14, AC-RC-12–16 PASS); PM-RC-01A APPROVED (quinn)
     Provisionally SUPERSEDES: SEC-CORE2, PLAT-CORE1 (pending PM-RC-07)
     Provisionally REFACTORS/DEPENDS-ON: MOB-RUNTIME1, ARCH-WASM1 (pending PM-RC-07)
 
@@ -416,7 +416,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 13: RUSTIFY-CORE-1 — Native-First Transport + Core Consolidation
 
 **Priority:** NEXT
-**Status:** **RC1 DONE**, **RC2 DONE** (`ecosystem-v0.1.127-rustify-core1-rc2-complete`, 2026-03-13). All 7 RC2 ACs (AC-RC-05 through AC-RC-11) complete. **PM-RC-01A APPROVED** (quinn, 2026-03-13): primary `quinn`, fallback `s2n-quic` → `msquic-rs`. **RC3 READY** (unblocked).
+**Status:** **RC1 DONE**, **RC2 DONE** (`ecosystem-v0.1.127-rustify-core1-rc2-complete`, 2026-03-13). **RC3 DONE** (`daemon-v0.2.40-rustify-core1-rc3-quinn-reference`, 2026-03-14). AC-RC-12–16 all PASS. Quinn QUIC transport adapter + BTR-over-QUIC compatibility verified. 381 tests (18 new RC3 + 10 QUIC unit + 353 pre-existing), zero regressions. **PM-RC-01A APPROVED** (quinn, 2026-03-13).
 **Routing:** bolt-core-sdk (Rust primary), bolt-daemon, bolt-protocol (spec amendments)
 **Category:** Architecture — native transport + Rust core consolidation
 **Stream:** RUSTIFY-CORE-1 (phased, 7 phases RC1–RC7)
