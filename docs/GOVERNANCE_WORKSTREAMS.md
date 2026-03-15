@@ -5175,7 +5175,7 @@ No material discovery-policy risks identified at codification. Rationale:
 > **Priority:** NEXT (BS1 unblocked now; no hard dependency on CONSUMER-BTR1 since spec is gap-fill, not greenfield)
 > **Repos:** bolt-protocol (primary — spec text), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.118-btr-spec1-codify (2026-03-13)
-> **Status:** BS1 DONE (`ecosystem-v0.1.136-btr-spec1-bs1-taxonomy`, 2026-03-14). BS2 READY.
+> **Status:** BS1 DONE. BS2 DONE (`ecosystem-v0.1.137-btr-spec1-bs2-state-crypto-lock`, 2026-03-14). BS3 READY.
 
 ---
 
@@ -5254,8 +5254,8 @@ No SUPERSEDES or REFACTORS relationships. BTR-SPEC-1 is additive formalization.
 | Phase | Description | Type | Serial Gate | Dependencies | Status |
 |-------|-------------|------|-------------|--------------|--------|
 | **BS1** | Module taxonomy + boundary lock (confirm P0 modules) | Spec gate | YES — gates BS2 | None | **DONE** (`ecosystem-v0.1.136-btr-spec1-bs1-taxonomy`, 2026-03-14). AC-BS-01–03 all PASS. 7-module taxonomy locked with §16 mapping, per-module artifact checklist confirmed, SEC-BTR1 cross-reference audit clean. |
-| **BS2** | State machines + crypto/key-schedule canonicalization lock | Spec gate | YES — gates BS3 | BS1 complete | **READY** (BS1 DONE, unblocked) |
-| **BS3** | Wire format + failure/recovery semantics lock (fill BTR-FC, BTR-RSM gaps) | Spec gate | YES — gates BS4 | BS2 complete | NOT-STARTED |
+| **BS2** | State machines + crypto/key-schedule canonicalization lock | Spec gate | YES — gates BS3 | BS1 complete | **DONE** (`ecosystem-v0.1.137-btr-spec1-bs2-state-crypto-lock`, 2026-03-14). AC-BS-04–08 all PASS. KS+HS state machines locked. PM-BS-01/02 APPROVED. |
+| **BS3** | Wire format + failure/recovery semantics lock (fill BTR-FC, BTR-RSM gaps) | Spec gate | YES — gates BS4 | BS2 complete | **READY** (BS2 DONE, unblocked) |
 | **BS4** | Conformance vectors + negative-test matrix lock | Spec gate | YES — gates BS5 | BS3 complete | NOT-STARTED |
 | **BS5** | Versioning/change-control + external review readiness lock | PM/Spec gate | YES — closes stream | BS4 complete | NOT-STARTED |
 
@@ -5297,7 +5297,7 @@ No upstream stream dependencies. COMPLEMENTS SEC-BTR1, CONSUMER-BTR1, RUSTIFY-CO
 
 | Module ID | Name | Primary Spec Sections | Scope Boundary |
 |-----------|------|-----------------------|----------------|
-| BTR-HS | Handshake + Capability Negotiation | §4.2, §16.0 | Capability string `bolt.transfer-ratchet-v1`. HELLO intersection. Kill-switch. Downgrade-with-warning. 6-cell negotiation matrix. |
+| BTR-HS | Handshake + Capability Negotiation | §4.2, §16.0 | Capability string `bolt.transfer-ratchet-v1`. HELLO intersection. Kill-switch. Downgrade-with-warning. 6-row negotiation matrix. |
 | BTR-KS | Key Schedule + Ratchet Lifecycle | §16.3, §16.5 | Session root derivation (HKDF). Transfer root derivation (HKDF, transfer_id salt). Per-chunk symmetric chain. Inter-transfer DH ratchet. Key material lifecycle + zeroization. ~164B state. |
 | BTR-INT | Chunk Integrity + Replay/Ordering | §11, §16.6 | Per-chunk message key → NaCl secretbox. Chain index gap rejection (BTR-INV-07). Tamper detection. No skipped-key buffer. |
 | BTR-FC | Flow Control + Backpressure | NEW (§16 gap) | Implemented but not in §16. BS3 gap-fill scope. Chunk pacing, backpressure signals, sender/receiver flow coordination. |
@@ -5355,13 +5355,126 @@ Each module requires the following 6 artifacts for algorithm-grade specification
 
 #### BS2 — State Machines + Crypto Lock
 
-| ID | Criterion | Evidence Required |
-|----|-----------|------------------|
-| AC-BS-04 | BTR-KS state machine formally defined (session root → transfer root → chain → message key → DH ratchet) | State diagram + pseudocode |
-| AC-BS-05 | BTR-HS capability negotiation state machine formally defined (6-cell matrix) | State diagram |
-| AC-BS-06 | All 11 security invariants (BTR-INV-01–11) verified against formal SM definitions | Invariant-to-SM mapping |
-| AC-BS-07 | Crypto primitive baseline confirmed (PM-BS-01 resolved) | PM decision recorded |
-| AC-BS-08 | Rekey thresholds/lifecycle policy confirmed (PM-BS-02 resolved) | PM decision recorded |
+| ID | Criterion | Evidence Required | Status |
+|----|-----------|------------------|--------|
+| AC-BS-04 | BTR-KS state machine formally defined (session root → transfer root → chain → message key → DH ratchet) | State diagram + pseudocode | **PASS** — 5-state SM with 7 transitions and error edges codified below. Maps to §16.3/16.5. |
+| AC-BS-05 | BTR-HS capability negotiation state machine formally defined (6-row negotiation matrix) | State diagram | **PASS** — 4-state SM with 6 transitions derived from §4.2 6-row matrix. Error edges map to §16.7 RATCHET_DOWNGRADE_REJECTED. |
+| AC-BS-06 | All 11 security invariants (BTR-INV-01–11) verified against formal SM definitions | Invariant-to-SM mapping | **PASS** — All 11 invariants mapped to specific states/transitions. Zero orphans. |
+| AC-BS-07 | Crypto primitive baseline confirmed (PM-BS-01 resolved) | PM decision recorded | **PASS** — PM-BS-01 APPROVED (2026-03-14). NaCl box + HKDF-SHA256 + X25519 ratified as canonical baseline. |
+| AC-BS-08 | Rekey thresholds/lifecycle policy confirmed (PM-BS-02 resolved) | PM decision recorded | **PASS** — PM-BS-02 APPROVED (2026-03-14). Per-transfer DH + per-chunk chain + memory-only lifecycle ratified. |
+
+##### AC-BS-04 — BTR-KS Key Schedule State Machine (LOCKED)
+
+**States:**
+
+| State | Description | Key Material Held |
+|-------|-------------|-------------------|
+| `KS_UNINIT` | No BTR session. Pre-handshake or non-BTR session. | None |
+| `KS_SESSION_ROOTED` | Session root derived from ephemeral DH. Ready for first transfer. | `session_root_key`, `ratchet_keypair`, `ratchet_generation` |
+| `KS_TRANSFER_ACTIVE` | Transfer root derived. Chunk chain advancing. | `session_root_key`, `ratchet_keypair`, `transfer_root_key`, `chain_key` |
+| `KS_CHAIN_STEP` | Transient: message key derived, chunk encrypted/decrypted. | `message_key` (single-use, zeroized immediately) |
+| `KS_DH_RATCHET` | Transient: inter-transfer DH step in progress. | New `ratchet_keypair`, `dh_output` (transient) |
+
+**Transitions:**
+
+| # | From | Event | To | Actions | Error Edge |
+|---|------|-------|----|---------|------------|
+| T1 | `KS_UNINIT` | BTR negotiated in HELLO (both peers advertise `bolt.transfer-ratchet-v1`) | `KS_SESSION_ROOTED` | Derive `session_root_key` via HKDF(ephemeral_shared_secret, "bolt-btr-session-root-v1"). Generate initial `ratchet_keypair`. Set `ratchet_generation = 0`. | If HELLO fails → remain `KS_UNINIT` |
+| T2 | `KS_SESSION_ROOTED` | FILE_OFFER sent/received | `KS_TRANSFER_ACTIVE` | DH ratchet step (T6 first if not initial transfer). Derive `transfer_root_key` via HKDF(session_root_key, transfer_id). Set `chain_key = transfer_root_key`. | `RATCHET_STATE_ERROR` if generation mismatch (§16.7) |
+| T3 | `KS_TRANSFER_ACTIVE` | Chunk N to encrypt/decrypt | `KS_CHAIN_STEP` | Derive `message_key` via HKDF(chain_key, "bolt-btr-message-key-v1"). Derive `next_chain_key` via HKDF(chain_key, "bolt-btr-chain-advance-v1"). Zeroize old `chain_key`. | `RATCHET_CHAIN_ERROR` if chain_index gap (§16.7) |
+| T4 | `KS_CHAIN_STEP` | Encrypt/decrypt complete | `KS_TRANSFER_ACTIVE` | Zeroize `message_key`. Set `chain_key = next_chain_key`. | `RATCHET_DECRYPT_FAIL` if secretbox open fails (§16.7) |
+| T5 | `KS_TRANSFER_ACTIVE` | FILE_FINISH or CANCEL | `KS_SESSION_ROOTED` | Zeroize `transfer_root_key`, `chain_key`. Retain `session_root_key`, `ratchet_keypair`. | — |
+| T6 | `KS_SESSION_ROOTED` | Transfer boundary (FILE_OFFER at non-initial transfer) | `KS_DH_RATCHET` | Generate fresh X25519 keypair. DH with remote ratchet pub. Derive new `session_root_key` via HKDF(dh_output, "bolt-btr-dh-ratchet-v1", salt=old_session_root_key). Increment `ratchet_generation`. Zeroize old keypair + old session root. | `RATCHET_STATE_ERROR` if unexpected DH key (§16.7) |
+| T7 | `KS_DH_RATCHET` | DH step complete | `KS_SESSION_ROOTED` | Store new `session_root_key`, new `ratchet_keypair`, new `ratchet_generation`. Proceed to T2. | — |
+| Tε | Any | Disconnect | `KS_UNINIT` | Zeroize ALL BTR state (§16.5 cleanup). | — |
+
+##### AC-BS-05 — BTR-HS Handshake Negotiation State Machine (LOCKED)
+
+Derived from PROTOCOL.md §4.2 canonical 6-row negotiation matrix.
+
+**States:**
+
+| State | Description |
+|-------|-------------|
+| `HS_PENDING` | HELLO exchange in progress. Local capabilities known, remote not yet received. |
+| `HS_BTR_ACTIVE` | Both peers advertised `bolt.transfer-ratchet-v1`. Full BTR session. |
+| `HS_DOWNGRADED` | One-sided support. Static ephemeral (v1 behavior). Warning logged. |
+| `HS_REJECTED` | Malformed BTR metadata detected. Connection terminated. |
+
+**Transitions (derived from §4.2 6-row matrix):**
+
+| # | From | Condition (Local × Remote) | To | Actions | Error Edge |
+|---|------|---------------------------|----|---------|------------|
+| H1 | `HS_PENDING` | YES × YES | `HS_BTR_ACTIVE` | Proceed to BTR key schedule (→ KS T1). Full per-chunk FS. | — |
+| H2 | `HS_PENDING` | YES × NO | `HS_DOWNGRADED` | Log `[BTR_DOWNGRADE]`. Surface user warning. Continue with static ephemeral. | — |
+| H3 | `HS_PENDING` | NO × YES | `HS_DOWNGRADED` | Log `[BTR_DOWNGRADE]`. Surface user warning. Continue with static ephemeral. | — |
+| H4 | `HS_PENDING` | NO × NO | (no BTR SM) | No BTR activation. Standard v1 session. BTR SM not entered. | — |
+| H5 | `HS_PENDING` | YES × MALFORMED | `HS_REJECTED` | Send `RATCHET_DOWNGRADE_REJECTED` (§16.7). Disconnect immediately. | `RATCHET_DOWNGRADE_REJECTED` |
+| H6 | `HS_PENDING` | MALFORMED × YES | `HS_REJECTED` | Send `RATCHET_DOWNGRADE_REJECTED` (§16.7). Disconnect immediately. | `RATCHET_DOWNGRADE_REJECTED` |
+
+**Matrix dimensions:** 6 rows. Dimensions are Local Support {YES, NO, MALFORMED} × Remote Support {YES, NO, MALFORMED} with 3 omitted cells (NO×MALFORMED, MALFORMED×NO, MALFORMED×MALFORMED — MALFORMED requires advertising the capability, so local support must be YES for remote MALFORMED to be detectable, and vice versa).
+
+**Downgrade policy:** MUST NOT refuse connection for missing BTR. MUST warn user. MUST log `[BTR_DOWNGRADE]`. (§4.2 normative requirements.)
+
+##### AC-BS-06 — Invariant-to-State-Machine Mapping (LOCKED)
+
+| Invariant | Statement (summary) | SM State/Transition | Enforcement Point |
+|-----------|---------------------|--------------------|--------------------|
+| BTR-INV-01 | Session root via HKDF, not raw DH | KS T1 (`KS_UNINIT` → `KS_SESSION_ROOTED`) | Derivation step in T1 uses HKDF with info string |
+| BTR-INV-02 | Transfer root binds to transfer_id via HKDF salt | KS T2 (`KS_SESSION_ROOTED` → `KS_TRANSFER_ACTIVE`) | Derivation step in T2 uses transfer_id as salt |
+| BTR-INV-03 | Chain key advances per chunk; old zeroized | KS T3 (`KS_TRANSFER_ACTIVE` → `KS_CHAIN_STEP`) | Old chain_key zeroized in T3 before T4 |
+| BTR-INV-04 | Message key single-use; zeroized after use | KS T4 (`KS_CHAIN_STEP` → `KS_TRANSFER_ACTIVE`) | message_key zeroized in T4 |
+| BTR-INV-05 | Fresh X25519 keypair per transfer boundary | KS T6 (`KS_SESSION_ROOTED` → `KS_DH_RATCHET`) | Fresh keypair generated in T6 |
+| BTR-INV-06 | Ratchet generation monotonically increasing | KS T6 | ratchet_generation incremented in T6 |
+| BTR-INV-07 | Chain index gap rejected | KS T3 error edge | `RATCHET_CHAIN_ERROR` on gap (§16.7) |
+| BTR-INV-08 | All key material memory-only | All KS states | §16.5 memory-only policy; no state persisted to disk |
+| BTR-INV-09 | All BTR state zeroized on disconnect | KS Tε (any → `KS_UNINIT`) | Full zeroization on disconnect |
+| BTR-INV-10 | BTR must not alter SAS inputs | HS H1 (`HS_BTR_ACTIVE`) | SAS uses ephemeral keys, not ratchet keys (§4.2) |
+| BTR-INV-11 | BTR envelopes use NaCl secretbox keyed by message_key | KS T3/T4 (encrypt/decrypt) | NaCl secretbox in T3; verified in T4 |
+
+**Coverage:** 11/11 invariants mapped. Zero orphans. All error edges reference §16.7 codes.
+
+##### AC-BS-07 — Crypto Primitive Baseline (PM-BS-01 APPROVED)
+
+**PM-BS-01 APPROVED (2026-03-14):** Ratify current crypto primitive stack as canonical baseline.
+
+| Primitive | Usage | Spec Reference | Status |
+|-----------|-------|----------------|--------|
+| X25519 | Ephemeral DH (session setup + inter-transfer ratchet) | §3, §16.3 | Ratified |
+| HKDF-SHA256 | Key derivation (session root, transfer root, chain advance, message key) | §16.3 (4 info strings) | Ratified |
+| NaCl secretbox (XSalsa20-Poly1305) | Chunk encryption with BTR message keys | §16.4 | Ratified |
+| NaCl box (Curve25519-XSalsa20-Poly1305) | HELLO envelope encryption (unchanged by BTR) | §3 | Ratified |
+
+**Constraints:**
+- No new cryptographic primitives may be introduced without a new PM decision (BS-G6)
+- Primitive changes require a spec amendment stream (not BTR-SPEC-1 scope)
+- HKDF info strings are locked: `bolt-btr-session-root-v1`, `bolt-btr-transfer-root-v1`, `bolt-btr-message-key-v1`, `bolt-btr-chain-advance-v1`, `bolt-btr-dh-ratchet-v1`
+
+##### AC-BS-08 — Rekey Thresholds / Lifecycle Policy (PM-BS-02 APPROVED)
+
+**PM-BS-02 APPROVED (2026-03-14):** Ratify current rekey and lifecycle policy as canonical baseline.
+
+**Rekey model (two tiers):**
+
+| Tier | Scope | Trigger | Mechanism | Spec Reference |
+|------|-------|---------|-----------|----------------|
+| Per-chunk symmetric chain | Within a transfer | Every chunk (chain_index increment) | HKDF chain advance: old chain_key → (message_key, next_chain_key) | §16.3 symmetric chain |
+| Per-transfer DH ratchet | Across transfers | Every transfer boundary (FILE_OFFER) | Fresh X25519 DH → HKDF → new session_root_key | §16.3 inter-transfer DH |
+
+**No additional rekey thresholds.** There is no time-based, byte-count-based, or chunk-count-based forced ratchet. The per-chunk chain and per-transfer DH provide continuous key rotation without configurable thresholds.
+
+**Lifecycle policy (ratified):**
+
+| Policy | Rule | Spec Reference |
+|--------|------|----------------|
+| Storage | Memory-only. No disk persistence. | §16.5, BTR-INV-08 |
+| Zeroization | At defined cleanup points (§16.5 table). Chain key: immediate on advance. Message key: immediate after use. Session state: on disconnect. | §16.5 |
+| Session resume | Not supported in v1. Fresh handshake → fresh session root on every reconnect. | §16.5, BTR-NG1 |
+| State carryover | Prohibited across sessions. | §16.5 prohibited operations |
+
+**Constraints:**
+- Lifecycle changes require a new PM decision
+- Session resumption (persistent ratchet state) is an explicit non-goal for v1 (BTR-NG1)
 
 #### BS3 — Wire Format + Failure/Recovery Lock
 
@@ -5380,7 +5493,7 @@ Each module requires the following 6 artifacts for algorithm-grade specification
 | AC-BS-14 | All 10 existing vector categories verified against formal spec | Vector-to-spec mapping |
 | AC-BS-15 | Negative-test obligations codified per module (what MUST fail and how) | Negative-test matrix |
 | AC-BS-16 | Cross-language conformance requirements formalized (Rust authority, TS consumer) | Conformance policy update |
-| AC-BS-17 | Downgrade/compatibility vectors cover all 6 negotiation cells | Vector audit |
+| AC-BS-17 | Downgrade/compatibility vectors cover all 6 negotiation rows | Vector audit |
 
 #### BS5 — Versioning + Review Readiness Lock
 
@@ -5398,8 +5511,8 @@ Each module requires the following 6 artifacts for algorithm-grade specification
 
 | ID | Decision | Blocks | Priority | Status |
 |----|----------|--------|----------|--------|
-| PM-BS-01 | Crypto primitive baseline confirmation (NaCl box + HKDF-SHA256 — expected: ratify current) | BS2 (AC-BS-07) | BS2 | PENDING |
-| PM-BS-02 | Rekey thresholds/lifecycle policy (per-chunk chain + per-transfer DH — expected: ratify current) | BS2 (AC-BS-08) | BS2 | PENDING |
+| PM-BS-01 | Crypto primitive baseline confirmation. **APPROVED (2026-03-14):** NaCl box + HKDF-SHA256 + X25519 ratified as canonical baseline. No new primitives without new PM decision. 5 HKDF info strings locked. | BS2 (AC-BS-07) | BS2 | **APPROVED (2026-03-14)** |
+| PM-BS-02 | Rekey thresholds/lifecycle policy. **APPROVED (2026-03-14):** Per-chunk symmetric chain + per-transfer DH ratchet ratified. No time/byte/chunk-count forced ratchet. Memory-only lifecycle. No session resume in v1. | BS2 (AC-BS-08) | BS2 | **APPROVED (2026-03-14)** |
 | PM-BS-03 | Wire format versioning policy (how §16.2 fields evolve across protocol versions) | BS3 (AC-BS-11) | BS3 | PENDING |
 | PM-BS-04 | Compatibility contract: strict vs tolerant parsing of BTR envelope fields | BS3 (AC-BS-12) | BS3 | PENDING |
 | PM-BS-05 | External review gate: scope (full spec vs BTR-only), reviewer profile, acceptance bar | BS5 (AC-BS-20) | BS5 | PENDING |
@@ -5494,7 +5607,7 @@ Each module requires the following 6 artifacts for algorithm-grade specification
 | RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE**, **RC2 DONE** (`ecosystem-v0.1.127-rustify-core1-rc2-complete`, 2026-03-13). PM-RC-01A APPROVED (quinn, 2026-03-13). 7 phases (RC1–RC7), 33 ACs, 8 PM decisions. **RC3 READY** (unblocked). |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies. |
-| BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **BS1 DONE** (`ecosystem-v0.1.136-btr-spec1-bs1-taxonomy`, 2026-03-14). AC-BS-01–03 all PASS. 7-module taxonomy locked. BS2 READY. |
+| BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **BS1 DONE**. **BS2 DONE** (`ecosystem-v0.1.137`, 2026-03-14). AC-BS-01–08 all PASS. PM-BS-01/02 APPROVED. BS3 READY. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 

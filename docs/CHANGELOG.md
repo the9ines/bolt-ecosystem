@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-14 — BTR-SPEC-1 BS2 DONE: State Machines + Crypto/Key-Schedule Lock
+
+**BS2 status**: READY → **DONE**. All 5 ACs (AC-BS-04–08) PASS. Two PM decisions resolved.
+
+**AC-BS-04 (BTR-KS state machine):** 5-state key schedule SM locked: `KS_UNINIT` → `KS_SESSION_ROOTED` → `KS_TRANSFER_ACTIVE` ⟷ `KS_CHAIN_STEP` + `KS_DH_RATCHET`. 7 transitions (T1–T7) + disconnect transition (Tε). Error edges map to §16.7: `RATCHET_STATE_ERROR` (T2, T6), `RATCHET_CHAIN_ERROR` (T3), `RATCHET_DECRYPT_FAIL` (T4).
+
+**AC-BS-05 (BTR-HS negotiation SM):** 4-state handshake SM locked: `HS_PENDING` → `HS_BTR_ACTIVE` / `HS_DOWNGRADED` / `HS_REJECTED`. 6 transitions (H1–H6) derived from §4.2 6-row negotiation matrix. Error edge: `RATCHET_DOWNGRADE_REJECTED` (H5, H6). Wording corrected: "6-row matrix" (not "6-cell").
+
+**AC-BS-06 (invariant mapping):** All 11 invariants (BTR-INV-01–11) mapped to specific SM states/transitions. Zero orphans. Error edges cross-referenced to §16.7 codes.
+
+**PM-BS-01 APPROVED (2026-03-14):** Crypto baseline ratified — NaCl box + HKDF-SHA256 + X25519. 5 HKDF info strings locked. No new primitives without new PM decision.
+
+**PM-BS-02 APPROVED (2026-03-14):** Rekey/lifecycle ratified — per-chunk symmetric chain + per-transfer DH ratchet. No time/byte/count forced ratchet. Memory-only lifecycle. No session resume in v1.
+
+**BS3 status**: NOT-STARTED → **READY** (BS2 DONE, unblocked). BS3 scope: wire format + failure/recovery semantics (BTR-FC, BTR-RSM gap-fill). Requires PM-BS-03/04.
+
+**Tags**: `ecosystem-v0.1.137-btr-spec1-bs2-state-crypto-lock`
+
+**Next**: BS3 — wire format + failure/recovery semantics lock (BTR-FC, BTR-RSM gap-fill; PM-BS-03/04 needed).
+
+---
+
 ## 2026-03-14 — BTR-SPEC-1 BS1 DONE: Module Taxonomy + Boundary Lock
 
 **BS1 status**: NOT-STARTED → **DONE**. All 3 ACs (AC-BS-01–03) PASS.
