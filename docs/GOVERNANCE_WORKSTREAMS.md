@@ -6020,7 +6020,7 @@ BTR-SPEC-1 BS1–BS5 commits touched only `docs/` files across all 5 phases:
 > **Priority:** NEXT (depends on RUSTIFY-CORE-1 RC5 WS baseline being operational)
 > **Repos:** bolt-daemon (primary — WebTransport endpoint), bolt-core-sdk (browser adapter), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.139-webtransport-browser-app1-codify (2026-03-14)
-> **Status:** WT1 DONE. WT2 DONE (`ecosystem-v0.1.144-webtransport-browser-app1-wt2-executed`, 2026-03-15). WT3 READY.
+> **Status:** WT1–WT3 DONE (`ecosystem-v0.1.145-webtransport-browser-app1-wt3-orchestration-lock`, 2026-03-15). WT4 READY.
 
 ---
 
@@ -6077,8 +6077,8 @@ No SUPERSEDES or REFACTORS relationships. WEBTRANSPORT-BROWSER-APP-1 is additive
 |-------|-------------|------|-------------|--------------|--------|
 | **WT1** | Policy lock + capability/browser support matrix | PM/Spec gate | YES — gates WT2 | None | **DONE** (`ecosystem-v0.1.141-webtransport-browser-app1-wt1-executed`, 2026-03-15). AC-WT-01–04 all PASS. PM-WT-01/02 APPROVED. Browser matrix, capability string, fallback policy, TLS requirements locked. |
 | **WT2** | Daemon WebTransport endpoint contract + auth/origin/TLS policy lock | Engineering + PM gate | YES — gates WT3 | WT1 complete | **DONE** (`ecosystem-v0.1.144-webtransport-browser-app1-wt2-executed`, 2026-03-15). AC-WT-05–08 all PASS. PM-WT-03 APPROVED (C2 local CA primary, C1 dev fallback). |
-| **WT3** | Browser adapter contract + three-tier fallback orchestration lock | Engineering gate | YES — gates WT4 | WT2 complete | **READY** (WT2 DONE, unblocked) |
-| **WT4** | Conformance/compatibility matrix + rollout/rollback gate lock | Engineering + PM gate | YES — gates WT5 | WT3 complete | NOT-STARTED |
+| **WT3** | Browser adapter contract + three-tier fallback orchestration lock | Engineering gate | YES — gates WT4 | WT2 complete | **DONE** (`ecosystem-v0.1.145-webtransport-browser-app1-wt3-orchestration-lock`, 2026-03-15). AC-WT-09–12 all PASS. Adapter contract, fallback orchestrator SM, BTR transparency plan, DataTransport compliance matrix codified. |
+| **WT4** | Conformance/compatibility matrix + rollout/rollback gate lock | Engineering + PM gate | YES — gates WT5 | WT3 complete | **READY** (WT3 DONE, unblocked) |
 | **WT5** | Closure criteria + WS role disposition after WebTransport adoption | PM/Spec gate | YES — closes stream | WT4 complete | NOT-STARTED |
 
 #### Dependency DAG
@@ -6314,12 +6314,152 @@ All three are independent. Any combination is valid. Browser↔browser remains W
 
 #### WT3 — Browser Adapter + Fallback Orchestration
 
-| ID | Criterion | Evidence Required |
-|----|-----------|------------------|
-| AC-WT-09 | Browser `WebTransportDataTransport` adapter contract specified | Adapter interface spec |
-| AC-WT-10 | Three-tier fallback orchestrator contract specified (WT → WS → WebRTC, with timeout/error triggers) | Orchestrator spec |
-| AC-WT-11 | BTR transparency verified — BTR operates identically over WebTransport as over WS/WebRTC | Cross-transport BTR test plan |
-| AC-WT-12 | DataTransport abstraction compatibility verified — WebTransport adapter implements same interface as WS/WebRTC | Interface compliance spec |
+| ID | Criterion | Evidence Required | Status |
+|----|-----------|------------------|--------|
+| AC-WT-09 | Browser `WebTransportDataTransport` adapter contract specified | Adapter interface spec | **PASS** — Adapter contract codified below: interface, lifecycle states, responsibilities, non-responsibilities. |
+| AC-WT-10 | Three-tier fallback orchestrator contract specified (WT → WS → WebRTC, with timeout/error triggers) | Orchestrator spec | **PASS** — Orchestrator SM codified below: 5 states, deterministic transitions, failure taxonomy, no-loop/no-flap invariants. |
+| AC-WT-11 | BTR transparency verified — BTR operates identically over WebTransport as over WS/WebRTC | Cross-transport BTR test plan | **PASS** — BTR transparency test plan codified below: 6 verification obligations across all 3 transports. Inherits BTR-FC layering principle. |
+| AC-WT-12 | DataTransport abstraction compatibility verified — WebTransport adapter implements same interface as WS/WebRTC | Interface compliance spec | **PASS** — DataTransport compliance matrix codified below: method-by-method mapping across WT/WS/WebRTC adapters. |
+
+**Invariant:** browser↔browser WebRTC (G1) is unchanged. WT3 specifies browser↔app adapter contracts only. Runtime implementation deferred.
+
+##### AC-WT-09 — Browser `WebTransportDataTransport` Adapter Contract (LOCKED)
+
+**Responsibilities:**
+
+| Responsibility | Description | Authority |
+|----------------|-------------|-----------|
+| Transport binding | Open WebTransport session to daemon endpoint, manage bidirectional stream | Adapter owns |
+| Envelope relay | Send/receive encrypted envelopes between browser protocol layer and daemon | Adapter owns (relay only) |
+| Connection lifecycle | Manage CONNECTING → CONNECTED → DISCONNECTED states | Adapter owns |
+| Error surfacing | Report transport-level errors (TLS, timeout, connection refused) to fallback orchestrator | Adapter owns |
+
+**Non-responsibilities (daemon/shared Rust core retains authority):**
+
+| Non-Responsibility | Why | Authority |
+|--------------------|-----|-----------|
+| Protocol/session authority | WT-G4 guardrail | Daemon/bolt_core |
+| BTR key schedule | BTR-FC layering — BTR is transport-transparent | BTR layer |
+| Envelope encryption/decryption | Shared core via SDK | SDK/bolt_core |
+| Capability negotiation | HELLO exchange in shared core | SDK/bolt_core |
+| SAS computation | §4.2 — unchanged by transport | SDK/bolt_core |
+
+**Lifecycle states:**
+
+| State | Description | Transitions |
+|-------|-------------|-------------|
+| `WT_CONNECTING` | HTTP/3 CONNECT + TLS handshake in progress | → `WT_CONNECTED` (success) or → `WT_DISCONNECTED` (failure/timeout) |
+| `WT_CONNECTED` | WebTransport session active, bidirectional stream open | → `WT_DISCONNECTED` (close, error, or disconnect) |
+| `WT_DISCONNECTED` | Session closed or failed. Terminal for this adapter instance. | No further transitions. New connection = new adapter instance. |
+
+**Interface contract (implements `DataTransport`):**
+
+| Method/Event | Signature (conceptual) | Notes |
+|-------------|----------------------|-------|
+| `connect(url)` | Open WebTransport session to daemon | URL includes `https://` (TLS mandatory) |
+| `send(envelope)` | Send encrypted envelope over bidirectional stream | Binary framing over WebTransport stream |
+| `onMessage(callback)` | Register envelope receive handler | Same callback signature as WS/WebRTC adapters |
+| `close()` | Clean session shutdown | Zeroize adapter state |
+| `onDisconnect(callback)` | Register disconnect/error handler | Triggers fallback orchestrator if in probe phase |
+| `isConnected()` | Return current connection state | Boolean |
+
+##### AC-WT-10 — Three-Tier Fallback Orchestrator Contract (LOCKED)
+
+**Orchestrator state machine:**
+
+| State | Description |
+|-------|-------------|
+| `PROBE_WT` | Attempting WebTransport connection to daemon |
+| `PROBE_WS` | WebTransport failed/unavailable; attempting WebSocket-direct |
+| `PROBE_WEBRTC` | WS failed; attempting WebRTC via signaling server |
+| `CONNECTED` | Successfully connected on one tier. Session active. |
+| `FAILED` | All 3 tiers exhausted. No connection established. |
+
+**Transitions:**
+
+| # | From | Trigger | To | Action |
+|---|------|---------|----|--------|
+| F1 | `PROBE_WT` | WT connect succeeds | `CONNECTED` | Log tier: WebTransport. Session proceeds. |
+| F2 | `PROBE_WT` | WT unavailable (feature detection) | `PROBE_WS` | Log `[WT_FALLBACK] browser lacks WebTransport`. Immediate (no timeout). |
+| F3 | `PROBE_WT` | WT connect timeout (configurable, recommended 5s) | `PROBE_WS` | Log `[WT_FALLBACK] connect timeout`. |
+| F4 | `PROBE_WT` | WT TLS error / connection refused / UDP blocked | `PROBE_WS` | Log `[WT_FALLBACK] <specific error>`. |
+| F5 | `PROBE_WS` | WS connect succeeds | `CONNECTED` | Log tier: WebSocket. Session proceeds. |
+| F6 | `PROBE_WS` | WS connect timeout / refused | `PROBE_WEBRTC` | Log `[WS_FALLBACK] <reason>`. |
+| F7 | `PROBE_WEBRTC` | WebRTC signaling + ICE succeeds | `CONNECTED` | Log tier: WebRTC. Session proceeds. |
+| F8 | `PROBE_WEBRTC` | WebRTC connection fails | `FAILED` | Log `[ALL_TRANSPORTS_FAILED]`. Surface error to user. |
+| F9 | `CONNECTED` | Session disconnect (any tier) | (end) | Zeroize session state. New connection attempt starts from `PROBE_WT`. |
+
+**Fallback invariants (LOCKED):**
+
+| Invariant | Rule |
+|-----------|------|
+| **Ordering** | WT → WS → WebRTC. Canonical order. No reordering. |
+| **No-loop** | Each tier attempted at most once per connection attempt. No cycling back to a previously failed tier. |
+| **No-flap** | Once connected on a tier, no mid-session tier switch. Tier is locked for the session lifetime. |
+| **Terminal** | If all 3 tiers fail → `FAILED` state. Surface error to user. No automatic retry without user action. |
+| **G1 preserved** | browser↔browser = WebRTC. This fallback chain applies only to browser↔app connections. |
+| **Feature-gate respect** | If `transport-webtransport` is OFF (daemon side), WT probe fails immediately (connection refused). Orchestrator advances to WS. |
+
+**Failure taxonomy (deterministic trigger → action mapping):**
+
+| # | Trigger Class | Detection | Fallback Action | Log Token |
+|---|--------------|-----------|-----------------|-----------|
+| TF-01 | Browser lacks WebTransport API | `typeof WebTransport === 'undefined'` (synchronous) | Skip WT → `PROBE_WS` (immediate, no timeout) | `[WT_FALLBACK]` |
+| TF-02 | WT connect timeout | No session within timeout (recommended 5s) | → `PROBE_WS` | `[WT_FALLBACK]` |
+| TF-03 | WT TLS handshake failure | TLS error event (cert rejected, protocol mismatch) | → `PROBE_WS` | `[WT_FALLBACK]` |
+| TF-04 | WT connection refused | HTTP/3 CONNECT rejected by daemon (port closed, feature gate OFF) | → `PROBE_WS` | `[WT_FALLBACK]` |
+| TF-05 | UDP blocked (QUIC unreachable) | Manifests as connect timeout (TF-02) | → `PROBE_WS` | `[WT_FALLBACK]` |
+| TF-06 | WS connect refused | TCP RST or connection refused | → `PROBE_WEBRTC` | `[WS_FALLBACK]` |
+| TF-07 | WS connect timeout | No WS handshake within timeout (existing RC5 behavior) | → `PROBE_WEBRTC` | `[WS_FALLBACK]` |
+| TF-08 | WebRTC signaling failure | Signaling server unreachable or ICE failure | → `FAILED` | `[ALL_TRANSPORTS_FAILED]` |
+| TF-09 | WebRTC ICE timeout | No ICE candidates gathered within timeout | → `FAILED` | `[ALL_TRANSPORTS_FAILED]` |
+
+**No ambiguous behavior.** Every trigger class maps to exactly one deterministic action. No implementation-defined branching.
+
+##### AC-WT-11 — BTR Transparency Verification Plan (LOCKED)
+
+BTR operates identically over all three transports per the BTR-FC layering principle (BS3 AC-BS-09). This plan defines the verification obligations for implementation.
+
+**Verification obligations:**
+
+| # | Obligation | What Must Be Identical | Transport Combinations | Evidence Type |
+|---|-----------|----------------------|----------------------|---------------|
+| BT-01 | Key schedule derivation | session_root_key, transfer_root_key, chain_key, message_key — same values for same inputs regardless of transport | WT vs WS vs WebRTC | Deterministic: same conformance vectors pass on all transports |
+| BT-02 | Chain advance per chunk | chain_index increments identically; old chain_key zeroized at same point | WT vs WS vs WebRTC | Unit test: chain state after N chunks is identical |
+| BT-03 | Envelope encryption/decryption | Same plaintext + same message_key → same ciphertext (given same nonce) | WT vs WS | Conformance vectors (btr-encrypt-decrypt) pass identically |
+| BT-04 | BTR capability negotiation | `bolt.transport-webtransport-v1` and `bolt.transfer-ratchet-v1` are independent capabilities; both appear in HELLO intersection when both supported | WT sessions | HELLO test: both capabilities negotiated simultaneously |
+| BT-05 | Error behavior | Same §16.7 error codes for same violation regardless of transport | WT vs WS vs WebRTC | Negative test: RATCHET_CHAIN_ERROR on gap over WT = same as over WS |
+| BT-06 | Lifecycle zeroization | BTR state zeroized on disconnect regardless of transport layer | All transports | Lifecycle test: disconnect on WT/WS/WebRTC all trigger KS Tε |
+
+**Layering guarantee:** The `DataTransport` abstraction (AC-WT-12) ensures BTR never sees the transport layer. BTR calls `send(envelope)` and receives `onMessage(envelope)`. The adapter handles framing. BTR-FC rules FC-01 through FC-05 apply identically.
+
+##### AC-WT-12 — DataTransport Interface Compliance Matrix (LOCKED)
+
+All three transport adapters MUST implement the same `DataTransport` interface. This ensures BTR, envelope, and protocol layers are transport-agnostic.
+
+**Interface compliance matrix:**
+
+| Method/Event | WebTransport Adapter | WebSocket Adapter (RC5) | WebRTC Adapter (baseline) | Notes |
+|-------------|---------------------|------------------------|--------------------------|-------|
+| `connect(url/config)` | `new WebTransport(url)` → session → stream | `new WebSocket(url)` → open | ICE + signaling → DataChannel | Different setup, same post-connect interface |
+| `send(envelope: Uint8Array)` | Write to bidirectional stream | `ws.send(data)` | `dc.send(data)` | Binary envelope, same format |
+| `onMessage(cb: (data) => void)` | Read from bidirectional stream | `ws.onmessage` | `dc.onmessage` | Same callback signature |
+| `close()` | `session.close()` | `ws.close()` | `dc.close()` + `pc.close()` | Clean shutdown |
+| `onDisconnect(cb)` | Session closed/error event | `ws.onclose` / `ws.onerror` | `dc.onclose` / ICE failure | Triggers orchestrator or session cleanup |
+| `isConnected(): boolean` | Session state check | ReadyState check | DataChannel state check | Boolean |
+| **Backpressure** | HTTP/3 stream flow control (native) | `bufferedAmount` + `onbufferedamountlow` | `bufferedAmount` + `onbufferedamountlow` | Transport-specific mechanism, same policy interface |
+
+**Compliance invariant:** Any code that calls `DataTransport.send()` or registers `DataTransport.onMessage()` MUST work identically regardless of which adapter is backing the transport. The orchestrator selects the adapter; the protocol layer does not know which transport is active.
+
+**Rollback/kill-switch cross-link to RC6:**
+
+The WT transport path adds a new rollback lever to the RC6 framework:
+
+| Lever | Scope | Reversibility | How | RC6 Cross-Link |
+|-------|-------|---------------|-----|----------------|
+| **RB-L5** (new) | browser↔app WebTransport path | Full — falls back to WS (Tier 2) → WebRTC (Tier 3) | Set `transport-webtransport` feature gate OFF → rebuild daemon → deploy. Browser orchestrator skips WT probe (TF-04). | Extends RC6 AC-RC-26 lever framework. Same ownership (PM decides, Engineering executes). Same SLA (≤4h P0 decision, ≤1h execution). |
+
+**RC6 alignment:** RB-L5 follows the same pattern as RB-L1 (QUIC kill-switch) and RB-L2 (WS kill-switch). The three-tier fallback is the safety net — disabling any tier automatically promotes the next tier. No protocol semantic drift on rollback because all tiers use the same `DataTransport` interface and the same BTR/envelope/session semantics.
 
 #### WT4 — Conformance + Rollout/Rollback
 
@@ -6449,7 +6589,7 @@ All three are independent. Any combination is valid. Browser↔browser remains W
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | ~~NEXT~~ COMPLETE | bolt-protocol + ecosystem | **COMPLETE** (`ecosystem-v0.1.143-btr-spec1-bs5-closeout`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED. BS1–BS5 DONE. |
-| WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | NEXT | bolt-daemon + bolt-core-sdk + ecosystem | **WT1–WT2 DONE** (`ecosystem-v0.1.144`, 2026-03-15). AC-WT-01–08 PASS. PM-WT-01–03 APPROVED. WT3 READY. |
+| WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | NEXT | bolt-daemon + bolt-core-sdk + ecosystem | **WT1–WT3 DONE** (`ecosystem-v0.1.145`, 2026-03-15). AC-WT-01–12 PASS. PM-WT-01–03 APPROVED. WT4 READY. |
 | EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | LATER | localbolt-v3 + localbolt + ecosystem | **CODIFIED** (`ecosystem-v0.1.142-egui-wasm1-codify`, 2026-03-15). 5 phases (EW1–EW5), 19 ACs, 5 PM decisions. PM-EN-04 early approval. EW1 unblocked. Experimental — ABANDON is valid outcome. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].

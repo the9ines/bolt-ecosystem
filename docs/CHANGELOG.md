@@ -5,6 +5,26 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-15 — WEBTRANSPORT-BROWSER-APP-1 WT3 DONE: Browser Adapter + Fallback Orchestration Lock
+
+**WT3 status**: READY → **DONE**. All 4 ACs (AC-WT-09–12) PASS.
+
+**AC-WT-09 (browser adapter contract):** `WebTransportDataTransport` adapter specified. 3 lifecycle states (WT_CONNECTING → WT_CONNECTED → WT_DISCONNECTED). 6 interface methods/events. Responsibilities: transport binding + envelope relay. Non-responsibilities: protocol/session authority stays in daemon/bolt_core (WT-G4).
+
+**AC-WT-10 (fallback orchestrator):** 5-state orchestrator SM (PROBE_WT → PROBE_WS → PROBE_WEBRTC → CONNECTED → FAILED). 9 transitions (F1–F9). 9-entry failure taxonomy (TF-01–TF-09) with deterministic trigger → action mapping. Fallback invariants locked: ordering (WT→WS→WebRTC), no-loop, no-flap, terminal FAILED, G1 preserved.
+
+**AC-WT-11 (BTR transparency):** 6 verification obligations (BT-01–BT-06) confirming BTR operates identically over all 3 transports: key schedule, chain advance, encryption, capability negotiation, error behavior, lifecycle zeroization. Inherits BTR-FC layering principle (BS3).
+
+**AC-WT-12 (DataTransport compliance):** Method-by-method compliance matrix across WT/WS/WebRTC adapters (connect, send, onMessage, close, onDisconnect, isConnected, backpressure). New rollback lever RB-L5 cross-linked to RC6 framework (same ownership, same SLA).
+
+**WT4 status**: NOT-STARTED → **READY** (WT3 DONE, unblocked). WT4 scope: conformance + rollout/rollback gates (PM-WT-04 needed).
+
+**Tags**: `ecosystem-v0.1.145-webtransport-browser-app1-wt3-orchestration-lock`
+
+**Next**: WT4 — conformance/compatibility matrix + rollout/rollback gate lock (PM-WT-04 needed for perf SLO).
+
+---
+
 ## 2026-03-15 — WEBTRANSPORT-BROWSER-APP-1 WT2 DONE: Daemon Endpoint + TLS Policy Lock
 
 **WT2 status**: READY → **DONE**. All 4 ACs (AC-WT-05–08) PASS. One PM decision resolved.

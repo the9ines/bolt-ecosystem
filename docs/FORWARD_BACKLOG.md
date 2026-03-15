@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-15 (WEBTRANSPORT-BROWSER-APP-1 WT2 DONE: daemon endpoint + TLS policy locked. PM-WT-03 APPROVED. WT3 READY.)
+> **Updated:** 2026-03-15 (WEBTRANSPORT-BROWSER-APP-1 WT3 DONE: browser adapter + fallback orchestration locked. AC-WT-01–12 PASS. WT4 READY.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -557,7 +557,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 17: WEBTRANSPORT-BROWSER-APP-1 — Browser↔App WebTransport Migration
 
 **Priority:** NEXT
-**Status:** **WT1–WT2 DONE** (`ecosystem-v0.1.144-webtransport-browser-app1-wt2-executed`, 2026-03-15). AC-WT-01–08 PASS. PM-WT-01–03 APPROVED. WT3 READY.
+**Status:** **WT1–WT3 DONE** (`ecosystem-v0.1.145-webtransport-browser-app1-wt3-orchestration-lock`, 2026-03-15). AC-WT-01–12 PASS. PM-WT-01–03 APPROVED. WT4 READY.
 **Routing:** bolt-daemon (WebTransport endpoint), bolt-core-sdk (browser adapter), bolt-ecosystem (governance)
 **Category:** Architecture — browser↔app transport evolution
 **Stream:** WEBTRANSPORT-BROWSER-APP-1 (phased, 5 phases WT1–WT5)
@@ -578,11 +578,11 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 |-------|-------------|-------------|--------|
 | WT1 | Policy lock + browser support matrix | YES (gates WT2) | **DONE** (AC-WT-01–04 PASS, PM-WT-01/02 APPROVED, 2026-03-15) |
 | WT2 | Daemon endpoint + TLS policy lock | YES (gates WT3) | **DONE** (AC-WT-05–08 PASS, PM-WT-03 APPROVED, 2026-03-15) |
-| WT3 | Browser adapter + fallback orchestration lock | YES (gates WT4) | **READY** (WT2 DONE, unblocked) |
-| WT4 | Conformance + rollout/rollback gate lock | YES (gates WT5) | NOT-STARTED |
+| WT3 | Browser adapter + fallback orchestration lock | YES (gates WT4) | **DONE** (AC-WT-09–12 PASS, 2026-03-15) |
+| WT4 | Conformance + rollout/rollback gate lock | YES (gates WT5) | **READY** (WT3 DONE, unblocked) |
 | WT5 | Closure + WS disposition | YES (closes stream) | NOT-STARTED |
 
-**Acceptance Criteria:** 20 ACs defined (AC-WT-01 through AC-WT-20). WT1–WT2: AC-WT-01–08 all PASS (8 of 20 delivered). PM-WT-01–03 APPROVED. See `docs/GOVERNANCE_WORKSTREAMS.md` § WEBTRANSPORT-BROWSER-APP-1.
+**Acceptance Criteria:** 20 ACs defined (AC-WT-01 through AC-WT-20). WT1–WT3: AC-WT-01–12 all PASS (12 of 20 delivered). PM-WT-01–03 APPROVED. See `docs/GOVERNANCE_WORKSTREAMS.md` § WEBTRANSPORT-BROWSER-APP-1.
 
 **PM Decisions:** 5 open (PM-WT-01 through PM-WT-05). See `docs/GOVERNANCE_WORKSTREAMS.md` § WEBTRANSPORT-BROWSER-APP-1.
 
