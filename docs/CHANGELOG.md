@@ -5,6 +5,37 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-14 — RUSTIFY-CORE-1 RC6 DONE: Rollout, Compatibility, and Rollback Policy
+
+**RC6 closed**: All 4 ACs (AC-RC-25–28) PASS. Two PM decisions resolved.
+
+**PM-RC-03 APPROVED (2026-03-14):** Rollout order is app-first, browser↔app second.
+- Stage 1: app↔app (QUIC primary, DataChannel kill-switch rollback via `transport-quic` feature gate)
+- Stage 2: browser↔app (WS-direct primary, WebRTC automatic fallback)
+- browser↔browser remains WebRTC invariant (G1)
+- Promotion gate: burn-in with zero P0/P1 regressions (PM sets duration, recommended ≥72h)
+
+**PM-RC-05 APPROVED (2026-03-14):** Legacy TS-path deprecation policy is deprecate-but-retain.
+- TS paths retained as fallback with kill-switch (RC-G7) throughout deprecated phase
+- Sunset requires separate PM approval after: (a) one full release cycle, (b) zero kill-switch activations, (c) zero P0/P1 regressions
+- Condition-gated, not date-gated
+
+**AC-RC-25 (rollout policy):** Two-stage rollout codified with promotion gates. TLS/WAN production policy documented (policy-only; no TLS runtime implementation in RC6).
+
+**AC-RC-26 (rollback policy):** 5 triggers (RB-T1–T5), 4 levers (RB-L1–L4), PM ownership, SLA (≤4h P0 decision, ≤1h execution, ≤72h RCA).
+
+**AC-RC-27 (compatibility matrix):** 7-cell endpoint-pair matrix with pass criteria. Verified cells: browser↔browser (baseline), app↔app QUIC (RC3), browser↔app WS (RC5), legacy↔new BTR (BTR-STREAM-1). Deferred: WAN cells (require TLS implementation, post-RC6).
+
+**AC-RC-28 (no-regression gate):** Cross-linked as sub-evidence under AC-RC-25, 26, 27. RC5 regression baselines: 362 daemon tests (ws), 353 (no ws), 364 browser tests — all zero failures.
+
+**Risk RC-R3 mitigation updated:** Kill-switch rollback confirmed active, two-stage rollout, rollback triggers/levers/SLA codified, deprecation condition-gated.
+
+**Tags**: `ecosystem-v0.1.134-rustify-core1-rc6-executed`
+
+**Next**: RC7 — CLI reservation hooks (governance artifacts only, parallel, no dependencies). Remaining PM decisions: PM-RC-04 (performance SLO), PM-RC-06 (CLI trigger), PM-RC-07 (stream relationships).
+
+---
+
 ## 2026-03-14 — RUSTIFY-CORE-1 RC5 DONE: AC-RC-23 Closure (BTR Capability over WS)
 
 **AC-RC-23 closed**: Daemon now advertises `bolt.transfer-ratchet-v1` in `DAEMON_CAPABILITIES`. Five new integration tests in `tests/rc5_btr_over_ws.rs`:

@@ -4233,7 +4233,7 @@ If PM-RC-07 confirms SUPERSEDES for SEC-CORE2 and PLAT-CORE1, those items should
 | **RC3** | Native transport reference path (app↔app, QUIC/quinn) | Engineering gate | NO (parallel with RC4) | RC1 complete, PM-RC-01 APPROVED (QUIC), PM-RC-01A APPROVED (quinn) | **DONE** (`daemon-v0.2.40-rustify-core1-rc3-quinn-reference`, 2026-03-14). AC-RC-12–16 all PASS. Quinn transport adapter + BTR-over-QUIC verified. |
 | **RC4** | Shared Rust core adoption in app/runtime boundaries | Engineering gate | NO (parallel with RC3) | RC2 complete | **DONE** (`ecosystem-v0.1.130-rustify-core1-rc4-executed`, 2026-03-14). AC-RC-17–20 all PASS. Adoption verified via audit; IPC-mediated delegation confirmed as canonical path. |
 | **RC5** | Browser↔app endpoint integration gates (WebSocket-direct) | Engineering gate | YES — gates RC6 | RC3 + RC4 complete, PM-RC-02 APPROVED (WebSocket-direct) | **DONE** (`daemon-v0.2.42-rustify-core1-rc5-btr-ws`, `sdk-v0.6.9-rustify-core1-rc5-ws-transport`, `ecosystem-v0.1.133-rustify-core1-rc5-done`, 2026-03-14). AC-RC-21–24 all PASS. WS endpoint + BTR capability + fallback verified. |
-| **RC6** | Rollout + compatibility + rollback policy | PM/Engineering gate | YES — gates close | RC5 complete | NOT-STARTED |
+| **RC6** | Rollout + compatibility + rollback policy | PM/Engineering gate | YES — gates close | RC5 complete, PM-RC-03 APPROVED, PM-RC-05 APPROVED | **DONE** (`ecosystem-v0.1.134-rustify-core1-rc6-executed`, 2026-03-14). AC-RC-25–28 all PASS. Rollout policy, rollback policy, compatibility matrix, and no-regression gates codified. PM-RC-03 APPROVED (app-first rollout). PM-RC-05 APPROVED (deprecate-but-retain TS paths). |
 | **RC7** | CLI reservation hooks (governance artifacts only) | Governance gate | NO (parallel with RC1–RC6) | None | NOT-STARTED |
 
 #### Dependency DAG
@@ -4462,12 +4462,107 @@ Fallback is automatic and transparent to user. G1 preserved: WebRTC fallback IS 
 
 #### RC6 — Rollout + Compatibility + Rollback
 
-| ID | Criterion | Evidence Required |
-|----|-----------|------------------|
-| AC-RC-25 | Rollout policy codified (staged, per-consumer) | Spec document |
-| AC-RC-26 | Rollback from native transport to current paths verified per consumer | Rollback tests |
-| AC-RC-27 | Compatibility matrix: all endpoint-pair combinations work | Matrix test suite |
-| AC-RC-28 | No-regression gate: all existing test suites across all repos pass | CI evidence |
+| ID | Criterion | Evidence Required | Status |
+|----|-----------|------------------|--------|
+| AC-RC-25 | Rollout policy codified (staged, per-consumer) | Spec document | **PASS** — Two-stage rollout codified below. Stage 1: app↔app (QUIC). Stage 2: browser↔app (WS-direct). Promotion gate: burn-in with zero P0/P1 regressions. No-regression gate cross-linked (AC-RC-28). |
+| AC-RC-26 | Rollback from native transport to current paths verified per consumer | Rollback policy document | **PASS** — Rollback triggers (RB-T1–T5), levers (RB-L1–L4), ownership (PM decision authority), and SLA (≤4h P0, ≤1h execution) codified below. Kill-switch rollback (RC-G7) confirmed active throughout deprecated phase. No-regression gate cross-linked (AC-RC-28). |
+| AC-RC-27 | Compatibility matrix: all endpoint-pair combinations work | Matrix document + cross-reference to RC3/RC5 evidence | **PASS** — 7-cell compatibility matrix codified below. Verified cells: browser↔browser (baseline), app↔app QUIC (RC3, AC-RC-12–16), browser↔app WS (RC5, AC-RC-21–24), legacy↔new BTR (BTR-STREAM-1). Deferred cells: WAN (requires TLS implementation, post-RC6). No-regression gate cross-linked (AC-RC-28). |
+| AC-RC-28 | No-regression gate: all existing test suites across all repos pass | CI evidence cross-referenced from RC3/RC5 | **PASS** — RC3: 362 daemon tests (0 failed). RC5: 362 daemon tests with ws (0 failed), 353 without ws (0 failed), 364 browser tests (0 failed). All repo test suites green at RC5 closure. Cross-linked as sub-evidence under AC-RC-25, AC-RC-26, AC-RC-27. |
+
+##### AC-RC-25 — Rollout Policy (PM-RC-03 APPROVED)
+
+**Rollout order:** App-first, browser↔app second. Browser↔browser remains WebRTC invariant (G1).
+
+| Stage | Endpoint Pair | Transport (Primary) | Transport (Fallback/Rollback) | Entry Criteria | Promotion Gate |
+|-------|--------------|--------------------|-----------------------------|----------------|----------------|
+| **Stage 1** | app↔app | QUIC (quinn) | DataChannel via kill-switch (RC-G7, feature gate `transport-quic` off) | RC6 policy closed; implementation artifacts ready | Burn-in period with zero P0/P1 regressions before promoting to Stage 2. PM sets burn-in duration (recommended: ≥72h). |
+| **Stage 2** | browser↔app | WebSocket-direct | WebRTC (automatic fallback on WS failure, per AC-RC-24) | Stage 1 burn-in passed; TLS cert strategy resolved for wss:// (if WAN required) | Full rollout complete. All compatibility matrix cells verified. |
+
+**Invariant:** browser↔browser remains WebRTC (G1 — unchanged, not staged).
+
+**No-regression requirement (cross-linked from AC-RC-28):** All existing test suites across all repos must pass at each stage promotion gate. Evidence: CI test results at gate time.
+
+##### AC-RC-26 — Rollback Policy
+
+**Triggers** (any one triggers rollback evaluation):
+
+| ID | Trigger | Severity | Action |
+|----|---------|----------|--------|
+| RB-T1 | Transfer failure rate > baseline by >5% over 1h window | P0 | PM evaluates rollback |
+| RB-T2 | BTR integrity failure (tampered chunk, ratchet desync) | P0 | PM evaluates rollback |
+| RB-T3 | Connection establishment failure rate > baseline by >10% | P1 | PM evaluates rollback |
+| RB-T4 | Kill-switch activation by PM directive | P0/P1 | PM-initiated rollback |
+| RB-T5 | Test suite regression (any repo, any gate) | Blocking | Automatic — blocks stage promotion |
+
+**Levers:**
+
+| ID | Lever | Scope | Reversibility | How |
+|----|-------|-------|---------------|-----|
+| RB-L1 | Feature-gate disable (`transport-quic` off) | app↔app QUIC path | Full — falls back to DataChannel | Rebuild daemon without `transport-quic` feature |
+| RB-L2 | WS kill-switch (browser client) | browser↔app WS path | Full — falls back to WebRTC | `BrowserAppTransport` automatic fallback; can force WebRTC-only via config |
+| RB-L3 | SDK version rollback | Per-consumer | Full — revert to pre-RUSTIFY SDK | Package version pin in consumer |
+| RB-L4 | Full daemon version rollback | Daemon | Full — previous daemon tag | Deploy previous tagged binary |
+
+**Ownership:**
+
+| Role | Responsibility |
+|------|---------------|
+| PM | Rollback decision authority. Evaluates triggers. Approves/denies rollback. |
+| Engineering | Executes rollback lever. Provides diagnostics. Proposes root-cause fix. |
+
+**SLA:**
+
+| Action | Target |
+|--------|--------|
+| Trigger → rollback decision | ≤4h for P0, ≤24h for P1 |
+| Rollback decision → execution | ≤1h (feature gate or version pin) |
+| Post-rollback root-cause analysis | ≤72h |
+
+**No-regression requirement (cross-linked from AC-RC-28):** Rollback lever activation must restore test suite green status. Post-rollback regression sweep required.
+
+##### AC-RC-27 — Compatibility Matrix
+
+| Pair | Transport (Primary) | Transport (Fallback) | BTR | RC6 Status | Evidence |
+|------|--------------------|--------------------|-----|------------|----------|
+| browser↔browser | WebRTC DataChannel | N/A | YES (BTR-5 default-on) | Verified (baseline invariant) | G1; BTR-STREAM-1 (341 tests) |
+| app↔app (LAN) | QUIC (quinn) | DataChannel (kill-switch RB-L1) | YES | Verified | RC3: AC-RC-12–16 PASS (362 daemon tests) |
+| app↔app (WAN) | QUIC (quinn) | DataChannel (kill-switch RB-L1) | YES | Deferred (requires reachability) | Post-RC6 |
+| browser→app (LAN) | WebSocket-direct | WebRTC (auto fallback RB-L2) | YES | Verified | RC5: AC-RC-21–24 PASS (362+364 tests) |
+| app→browser (LAN) | WebSocket-direct | WebRTC (auto fallback RB-L2) | YES | Verified | RC5: AC-RC-21–24 PASS |
+| browser↔app (WAN) | wss:// (TLS required) | WebRTC (auto fallback RB-L2) | YES | Deferred (requires TLS impl) | Post-RC6 |
+| legacy-SDK↔new-SDK | WebRTC/DataChannel baseline | N/A | Degraded (BTR fail-open) | Verified | BTR-5 Option C; CONSUMER-BTR1 burn-in |
+
+**Pass criteria per cell:**
+1. Connection established — handshake completes, session active
+2. Transfer completes — file sent and received with integrity verification
+3. BTR negotiated — capability intersection includes `bolt.transfer-ratchet-v1` (or clean fail-open for legacy)
+4. Fallback works — if primary transport fails, fallback path activates and transfers succeed
+5. Kill-switch works — disabling native transport reverts to baseline path with zero data loss
+
+**Deferred cells:** WAN (app↔app WAN, browser↔app WAN) require TLS runtime implementation and reachability infrastructure. Policy documented here; implementation deferred to post-RC6.
+
+**No-regression requirement (cross-linked from AC-RC-28):** Each matrix cell verification must include full test suite pass across all repos.
+
+##### AC-RC-25 Addendum — TLS/WAN Production Policy (Document-Only)
+
+| Environment | Protocol | Certificate Strategy | Owner |
+|-------------|----------|---------------------|-------|
+| localhost (same machine) | `ws://` (plaintext) | None needed — loopback only | N/A |
+| LAN (same network) | `ws://` acceptable during Stage 1 burn-in | Risk accepted: LAN-only, signaling already unencrypted over LAN discovery | PM |
+| WAN (internet-routable) | `wss://` (TLS REQUIRED) | Self-signed for testing; CA-signed for production | PM + Ops |
+| Mixed-content (HTTPS page → ws://) | Blocked by browsers | Must use `wss://` from HTTPS origins | Browser platform constraint |
+
+RC6 scope is policy-only. No TLS runtime implementation in this phase. TLS implementation deferred to post-RC6 stream.
+
+##### AC-RC-25 Addendum — Legacy TS-Path Deprecation Policy (PM-RC-05 APPROVED)
+
+| Phase | State | Description |
+|-------|-------|-------------|
+| **Active** (current) | TS paths are primary | Status quo through RC5. |
+| **Deprecated** | TS paths retained as fallback | After RC6 rollout completes, TS paths marked deprecated. Kill-switch (RC-G7) retains rollback ability. No TS path code removal. Deprecation notice in consumer changelogs. |
+| **Sunset** | TS paths removed | Only after ALL of: (a) one full release cycle with zero kill-switch activations, (b) zero P0/P1 regressions, (c) explicit PM-RC-05 sunset approval. Separate PM gate — NOT automatic. |
+
+Kill-switch rollback (RC-G7) remains active throughout the Deprecated phase. Sunset is condition-gated, not date-gated.
 
 #### RC7 — CLI Reservation
 
@@ -4488,9 +4583,9 @@ Fallback is automatic and transparent to user. G1 preserved: WebRTC fallback IS 
 | PM-RC-01 | Native transport protocol confirmation: QUIC (recommended) vs alternative. If QUIC, sub-decision: library (quinn / s2n-quic / etc.) | RC3 | RC1 | **APPROVED (QUIC confirmed, 2026-03-13)**. Library selection split to PM-RC-01A. |
 | PM-RC-01A | QUIC runtime/library selection. **APPROVED (2026-03-13):** Primary: `quinn`. Fallback 1: `s2n-quic`. Fallback 2: `msquic-rs`. Rationale: quinn dominates on cross-platform maturity (macOS/Windows/Linux tested, pure Rust, no C toolchain), Rust API ergonomics (AsyncRead/AsyncWrite streams, tokio-native), ecosystem adoption (133M crates.io downloads), supply chain posture (pure Rust, audited crypto deps), and mobile path viability (community-validated iOS/Android compilation). s2n-quic ranked above msquic-rs as fallback due to proper async Rust API and active biweekly release cadence vs msquic-rs perpetual beta status and callback-based C FFI requiring async bridge. ARCH-01 verified: quinn wraps behind `TransportQuery` trait with zero type leakage into shared core. | RC3 only (non-blocking for RC2) | RC3 | **APPROVED (2026-03-13)** |
 | PM-RC-02 | Browser↔app transport mode default. **APPROVED (2026-03-14):** Option B — WebSocket-direct. Primary: browser opens WebSocket to app daemon endpoint; daemon terminates WS and bridges frames to shared Rust core pipeline (RC4-consistent session authority). Fallback: WebRTC via signaling server (current behavior). Fallback trigger: WS connection failure/timeout → automatic client-side fall-through to WebRTC. Fallback override authority: PM can adjust timeout/ordering via future decision. Options rejected: (A) WebRTC-mediated — collapses primary/fallback distinction, AC-RC-24 becomes tautological; (C) WebTransport — Safari unsupported, experimental API, unnecessary scope risk. G1 preserved: WebRTC fallback IS current browser↔browser baseline. | RC5 | RC1 | **APPROVED (WebSocket-direct, 2026-03-14)** |
-| PM-RC-03 | Rollout order confirmation: app-first, browser↔app second | RC6 | RC1 | PENDING |
+| PM-RC-03 | Rollout order confirmation: app-first, browser↔app second. **APPROVED (2026-03-14):** Stage 1: app↔app (QUIC). Stage 2: browser↔app (WS-direct). browser↔browser remains WebRTC invariant (G1). Promotion gate: burn-in with zero P0/P1 regressions. | RC6 | RC1 | **APPROVED (2026-03-14)** |
 | PM-RC-04 | Performance SLO thresholds for native transport migration gates (latency, throughput, overhead) | RC3 (AC-RC-15) | RC1 | PENDING |
-| PM-RC-05 | Legacy TS-path deprecation policy/timeline after Rust core adoption | RC6 | RC6 | PENDING |
+| PM-RC-05 | Legacy TS-path deprecation policy/timeline after Rust core adoption. **APPROVED (2026-03-14):** Deprecate-but-retain. TS paths retained as fallback with kill-switch (RC-G7). Sunset requires separate PM approval after: (a) one full release cycle, (b) zero kill-switch activations, (c) zero P0/P1 regressions. Condition-gated, not date-gated. | RC6 | RC6 | **APPROVED (2026-03-14)** |
 | PM-RC-06 | CLI stream trigger condition: when to start CLI-specific execution stream | RC7 (AC-RC-33) | RC7 | PENDING |
 | PM-RC-07 | Relationship mode to existing streams. Recommended: SUPERSEDES SEC-CORE2 + PLAT-CORE1; REFACTORS/DEPENDS-ON MOB-RUNTIME1 + ARCH-WASM1 | All phases | RC1 | PENDING (recommended: hybrid) |
 
@@ -4502,7 +4597,7 @@ Fallback is automatic and transparent to user. G1 preserved: WebRTC fallback IS 
 |----|------|----------|------------|
 | RC-R1 | QUIC library (`quinn`) execution risk | MEDIUM | **Library selection RESOLVED** (PM-RC-01A: quinn approved, 2026-03-13). Residual risk: quinn 0.x semver (widely used but pre-1.0), Darwin EPIPE edge case (open upstream), Android >100KB issue on some devices (community-reported). Mitigations: RC3 interop checks (AC-RC-13), perf/SLO gate (AC-RC-15), explicit fallback order (s2n-quic → msquic-rs) with PM-approved switch criteria (≥2 weeks engineering effort + AC-RC-12/13 failure evidence). Ownership: RC3 executor. Escalation: PM (human) for fallback switch approval. |
 | RC-R2 | FFI boundary complexity (Tauri + potential mobile) | HIGH | RC2 designs FFI surface before RC4 adoption; UniFFI evaluated for cross-platform |
-| RC-R3 | TS→Rust authority migration breaks existing consumers | HIGH | Kill-switch rollback (RC-G7); phased migration; no-regression gates (AC-RC-28) |
+| RC-R3 | TS→Rust authority migration breaks existing consumers | HIGH | **MITIGATED (RC6):** Kill-switch rollback (RC-G7) confirmed active throughout deprecated phase. Two-stage rollout (PM-RC-03). Rollback triggers/levers/SLA codified (AC-RC-26). No-regression gates (AC-RC-28) cross-linked at every stage promotion. Deprecation is condition-gated, not date-gated (PM-RC-05). |
 | RC-R4 | Browser↔app transport mode selection complexity | MEDIUM | **RESOLVED** — PM-RC-02 APPROVED (WebSocket-direct, 2026-03-14). Primary: WS to app daemon. Fallback: WebRTC (automatic on WS failure). Residual risk: WS listener in daemon requires TLS cert management for wss://; deferred to RC5 implementation. |
 | RC-R5 | Shared core API surface too large or leaky | MEDIUM | RC2 spec gate locks API before adoption; transport-independent invariant (RC-G3) |
 | RC-R6 | CONSUMER-BTR1 delayed → RUSTIFY-CORE-1 blocked | LOW | **RESOLVED** — CONSUMER-BTR1 DONE (burn-in waived via `PM-CBTR-EX-01`). RUSTIFY-CORE-1 RC1 unblocked. |

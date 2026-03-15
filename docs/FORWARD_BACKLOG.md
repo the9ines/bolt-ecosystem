@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-14 (PM-RC-02 resolved: WebSocket-direct approved, RC5 unblocked)
+> **Updated:** 2026-03-14 (RC6 DONE: rollout/rollback/compatibility policy codified. PM-RC-03, PM-RC-05 APPROVED.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -34,7 +34,7 @@ NEXT:
   SEC-CORE2 (Rust-first security consolidation) ── depends on S1 (DONE)
 
 NEXT:
-  RUSTIFY-CORE-1 (native-first transport + core) ── RC1 DONE; RC2 DONE; RC3 DONE; RC4 DONE (2026-03-14, AC-RC-12–20 PASS); PM-RC-02 APPROVED (WebSocket-direct, 2026-03-14); RC5 DONE (2026-03-14, AC-RC-21–24 PASS)
+  RUSTIFY-CORE-1 (native-first transport + core) ── RC1 DONE; RC2 DONE; RC3 DONE; RC4 DONE (2026-03-14, AC-RC-12–20 PASS); PM-RC-02 APPROVED (WebSocket-direct, 2026-03-14); RC5 DONE (2026-03-14, AC-RC-21–24 PASS); PM-RC-03 APPROVED (app-first rollout, 2026-03-14); PM-RC-05 APPROVED (deprecate-but-retain, 2026-03-14); RC6 DONE (2026-03-14, AC-RC-25–28 PASS)
     Provisionally SUPERSEDES: SEC-CORE2, PLAT-CORE1 (pending PM-RC-07)
     Provisionally REFACTORS/DEPENDS-ON: MOB-RUNTIME1, ARCH-WASM1 (pending PM-RC-07)
 
@@ -416,7 +416,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 13: RUSTIFY-CORE-1 — Native-First Transport + Core Consolidation
 
 **Priority:** NEXT
-**Status:** **RC1 DONE**, **RC2 DONE**, **RC3 DONE** (`daemon-v0.2.40`, 2026-03-14), **RC4 DONE** (`ecosystem-v0.1.130`, 2026-03-14), **RC5 DONE** (`daemon-v0.2.42-rustify-core1-rc5-btr-ws`, `sdk-v0.6.9-rustify-core1-rc5-ws-transport`, `ecosystem-v0.1.133-rustify-core1-rc5-done`, 2026-03-14). AC-RC-21–24 all PASS. **PM-RC-02 APPROVED** (WebSocket-direct, 2026-03-14).
+**Status:** **RC1 DONE**, **RC2 DONE**, **RC3 DONE** (`daemon-v0.2.40`, 2026-03-14), **RC4 DONE** (`ecosystem-v0.1.130`, 2026-03-14), **RC5 DONE** (`daemon-v0.2.42-rustify-core1-rc5-btr-ws`, `sdk-v0.6.9-rustify-core1-rc5-ws-transport`, `ecosystem-v0.1.133-rustify-core1-rc5-done`, 2026-03-14). AC-RC-21–24 all PASS. **PM-RC-02 APPROVED** (WebSocket-direct, 2026-03-14). **RC6 DONE** (`ecosystem-v0.1.134-rustify-core1-rc6-executed`, 2026-03-14). AC-RC-25–28 all PASS. **PM-RC-03 APPROVED** (app-first rollout, 2026-03-14). **PM-RC-05 APPROVED** (deprecate-but-retain TS paths, 2026-03-14).
 **Routing:** bolt-core-sdk (Rust primary), bolt-daemon, bolt-protocol (spec amendments)
 **Category:** Architecture — native transport + Rust core consolidation
 **Stream:** RUSTIFY-CORE-1 (phased, 7 phases RC1–RC7)
@@ -440,9 +440,9 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 - Provisionally REFACTORS/DEPENDS-ON: MOB-RUNTIME1, ARCH-WASM1
 - No silent supersession until PM-RC-07 confirms
 
-**Acceptance Criteria:** 33 ACs defined (AC-RC-01 through AC-RC-33). RC1–RC5: AC-RC-01–24 all PASS/DONE (24 of 33 ACs delivered). See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1 for full list.
+**Acceptance Criteria:** 33 ACs defined (AC-RC-01 through AC-RC-33). RC1–RC6: AC-RC-01–28 all PASS/DONE (28 of 33 ACs delivered). See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1 for full list.
 
-**PM Decisions:** 8 total (PM-RC-01 through PM-RC-07 + PM-RC-01A). PM-RC-01 APPROVED (QUIC confirmed). PM-RC-01A PENDING (library selection, blocks RC3 only). PM-RC-02–07 PENDING. See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1 for full table.
+**PM Decisions:** 8 total (PM-RC-01 through PM-RC-07 + PM-RC-01A). PM-RC-01 APPROVED (QUIC). PM-RC-01A APPROVED (quinn). PM-RC-02 APPROVED (WebSocket-direct). PM-RC-03 APPROVED (app-first rollout). PM-RC-05 APPROVED (deprecate-but-retain). PM-RC-04, PM-RC-06, PM-RC-07 PENDING. See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1 for full table.
 
 ---
 
@@ -598,9 +598,9 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-RC-01 | RUSTIFY-CORE-1: Native transport protocol — **APPROVED (QUIC confirmed, 2026-03-13)** | ~~RC3~~ | **APPROVED** |
 | PM-RC-01A | RUSTIFY-CORE-1: QUIC runtime/library selection — **APPROVED (quinn, 2026-03-13)**. Fallback: `s2n-quic` → `msquic-rs`. | ~~RC3~~ | **APPROVED** |
 | PM-RC-02 | RUSTIFY-CORE-1: Browser↔app transport mode default | RC5 | **APPROVED (WebSocket-direct, 2026-03-14)** |
-| PM-RC-03 | RUSTIFY-CORE-1: Rollout order (app first, browser↔app second) | RC6 | NEXT |
+| PM-RC-03 | RUSTIFY-CORE-1: Rollout order (app first, browser↔app second) | RC6 | **APPROVED** (app-first, 2026-03-14) |
 | PM-RC-04 | RUSTIFY-CORE-1: Performance SLO thresholds for migration gates | RC3 | NEXT |
-| PM-RC-05 | RUSTIFY-CORE-1: Legacy TS-path deprecation policy/timeline | RC6 | NEXT |
+| PM-RC-05 | RUSTIFY-CORE-1: Legacy TS-path deprecation policy/timeline | RC6 | **APPROVED** (deprecate-but-retain, 2026-03-14) |
 | PM-RC-06 | RUSTIFY-CORE-1: CLI stream trigger condition | RC7 | NEXT |
 | PM-RC-07 | RUSTIFY-CORE-1: Relationship mode to SEC-CORE2/PLAT-CORE1/MOB-RUNTIME1/ARCH-WASM1 | All RC phases | NEXT |
 | PM-EN-01 | EGUI-NATIVE-1: Confirm egui as desktop UI framework (vs iced, Slint, Dioxus) | EN2 | LATER |

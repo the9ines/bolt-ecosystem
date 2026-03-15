@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-14 (RUSTIFY-CORE-1 RC5 DONE: Browser↔app WebSocket-direct integration. AC-RC-21–24 all PASS. BTR capability negotiated over WS. WS primary + WebRTC automatic fallback verified.)
+> **Last Updated:** 2026-03-14 (RUSTIFY-CORE-1 RC6 DONE: Rollout, compatibility, and rollback policy codified. AC-RC-25–28 all PASS. PM-RC-03 APPROVED (app-first rollout). PM-RC-05 APPROVED (deprecate-but-retain TS paths). Two-stage rollout, rollback triggers/levers/SLA, 7-cell compatibility matrix, and TLS/WAN production policy documented.)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -720,7 +720,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | PLAT-CORE1 | Shared Rust core + thin platform UIs | LATER | TBD | Provisionally SUPERSEDED-BY RUSTIFY-CORE-1 (pending PM-RC-07) |
 | MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD | Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC4 (pending PM-RC-07) |
 | ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC2 (pending PM-RC-07) |
-| RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE**. **RC2 DONE**. **RC3 DONE** (`daemon-v0.2.40`). **RC4 DONE** (`ecosystem-v0.1.130`, 2026-03-14). **RC5 DONE** (`daemon-v0.2.42`, `sdk-v0.6.9`, `ecosystem-v0.1.133`, 2026-03-14). AC-RC-01–24 all PASS. **PM-RC-02 APPROVED** (WebSocket-direct, 2026-03-14). |
+| RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE**. **RC2 DONE**. **RC3 DONE** (`daemon-v0.2.40`). **RC4 DONE** (`ecosystem-v0.1.130`, 2026-03-14). **RC5 DONE** (`daemon-v0.2.42`, `sdk-v0.6.9`, `ecosystem-v0.1.133`, 2026-03-14). **RC6 DONE** (`ecosystem-v0.1.134`, 2026-03-14). AC-RC-01–28 all PASS. **PM-RC-02 APPROVED** (WebSocket-direct). **PM-RC-03 APPROVED** (app-first rollout). **PM-RC-05 APPROVED** (deprecate-but-retain TS paths). |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem + consumers | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies; DM1 unblocked immediately. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **CODIFIED** (`ecosystem-v0.1.118-btr-spec1-codify`). 5 phases (BS1–BS5), 22 ACs, 6 PM decisions. BS1 unblocked now. COMPLEMENTS SEC-BTR1/CONSUMER-BTR1/RUSTIFY-CORE-1. |
