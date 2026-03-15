@@ -6020,7 +6020,7 @@ BTR-SPEC-1 BS1–BS5 commits touched only `docs/` files across all 5 phases:
 > **Priority:** NEXT (depends on RUSTIFY-CORE-1 RC5 WS baseline being operational)
 > **Repos:** bolt-daemon (primary — WebTransport endpoint), bolt-core-sdk (browser adapter), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.139-webtransport-browser-app1-codify (2026-03-14)
-> **Status:** WT1–WT3 DONE (`ecosystem-v0.1.145-webtransport-browser-app1-wt3-orchestration-lock`, 2026-03-15). WT4 READY.
+> **Status:** WT1–WT4 DONE (`ecosystem-v0.1.146-webtransport-browser-app1-wt4-gate-lock`, 2026-03-15). WT5 READY.
 
 ---
 
@@ -6078,8 +6078,8 @@ No SUPERSEDES or REFACTORS relationships. WEBTRANSPORT-BROWSER-APP-1 is additive
 | **WT1** | Policy lock + capability/browser support matrix | PM/Spec gate | YES — gates WT2 | None | **DONE** (`ecosystem-v0.1.141-webtransport-browser-app1-wt1-executed`, 2026-03-15). AC-WT-01–04 all PASS. PM-WT-01/02 APPROVED. Browser matrix, capability string, fallback policy, TLS requirements locked. |
 | **WT2** | Daemon WebTransport endpoint contract + auth/origin/TLS policy lock | Engineering + PM gate | YES — gates WT3 | WT1 complete | **DONE** (`ecosystem-v0.1.144-webtransport-browser-app1-wt2-executed`, 2026-03-15). AC-WT-05–08 all PASS. PM-WT-03 APPROVED (C2 local CA primary, C1 dev fallback). |
 | **WT3** | Browser adapter contract + three-tier fallback orchestration lock | Engineering gate | YES — gates WT4 | WT2 complete | **DONE** (`ecosystem-v0.1.145-webtransport-browser-app1-wt3-orchestration-lock`, 2026-03-15). AC-WT-09–12 all PASS. Adapter contract, fallback orchestrator SM, BTR transparency plan, DataTransport compliance matrix codified. |
-| **WT4** | Conformance/compatibility matrix + rollout/rollback gate lock | Engineering + PM gate | YES — gates WT5 | WT3 complete | **READY** (WT3 DONE, unblocked) |
-| **WT5** | Closure criteria + WS role disposition after WebTransport adoption | PM/Spec gate | YES — closes stream | WT4 complete | NOT-STARTED |
+| **WT4** | Conformance/compatibility matrix + rollout/rollback gate lock | Engineering + PM gate | YES — gates WT5 | WT3 complete | **DONE** (`ecosystem-v0.1.146-webtransport-browser-app1-wt4-gate-lock`, 2026-03-15). AC-WT-13–16 all PASS. PM-WT-04 APPROVED (Option B). Compatibility matrix, rollout gates, rollback gates, SLO thresholds codified. |
+| **WT5** | Closure criteria + WS role disposition after WebTransport adoption | PM/Spec gate | YES — closes stream | WT4 complete | **READY** (WT4 DONE, unblocked) |
 
 #### Dependency DAG
 
@@ -6463,12 +6463,107 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 
 #### WT4 — Conformance + Rollout/Rollback
 
-| ID | Criterion | Evidence Required |
-|----|-----------|------------------|
-| AC-WT-13 | Compatibility matrix: all browser↔app endpoint pairs verified (WT primary, WS fallback, WebRTC fallback) | Matrix test plan |
-| AC-WT-14 | Rollout policy codified (staged, per-consumer, with burn-in gates) | Rollout policy doc |
-| AC-WT-15 | Rollback levers documented (feature gate off → WS, WS off → WebRTC) | Rollback policy doc |
-| AC-WT-16 | Performance SLO thresholds for WebTransport defined (latency, throughput vs WS baseline) | SLO doc |
+| ID | Criterion | Evidence Required | Status |
+|----|-----------|------------------|--------|
+| AC-WT-13 | Compatibility matrix: all browser↔app endpoint pairs verified (WT primary, WS fallback, WebRTC fallback) | Matrix test plan | **PASS** — 12-cell compatibility matrix codified below with pass/fail criteria. Safari fallback handling explicit. |
+| AC-WT-14 | Rollout policy codified (staged, per-consumer, with burn-in gates) | Rollout policy doc | **PASS** — 3-stage rollout codified below (canary → staged → GA). Promotion gates with burn-in and SLO checks. |
+| AC-WT-15 | Rollback levers documented (feature gate off → WS, WS off → WebRTC) | Rollback policy doc | **PASS** — Rollback policy codified below. Triggers (RB-WT-T1–T5), levers (RB-L5 + existing RB-L2), ownership/SLA aligned with RC6. |
+| AC-WT-16 | Performance SLO thresholds for WebTransport defined (latency, throughput vs WS baseline) | SLO doc | **PASS** — PM-WT-04 APPROVED (2026-03-15, Option B). 5 thresholds locked. |
+
+**Invariant:** browser↔browser WebRTC (G1) unchanged. Runtime implementation deferred.
+
+##### AC-WT-13 — Compatibility Matrix (LOCKED)
+
+**Dimensions:** Browser class (WT-capable vs non-WT) × Transport tier × Expected behavior.
+
+| # | Browser Class | Transport Attempted | Expected Behavior | Pass Criteria | Fallback Path |
+|---|--------------|--------------------|--------------------|---------------|---------------|
+| 1 | Chrome 97+ | WebTransport (Tier 1) | Full WT session to daemon | Connection established, HELLO exchanged, transfer completes | — |
+| 2 | Chrome 97+ | WS-direct (Tier 2, if WT fails) | WS session to daemon | Same as RC5 AC-RC-21/22 | — |
+| 3 | Chrome 97+ | WebRTC (Tier 3, if WS fails) | WebRTC via signaling | Baseline behavior | — |
+| 4 | Firefox 115+ | WebTransport (Tier 1) | Full WT session to daemon | Connection established, HELLO exchanged, transfer completes | — |
+| 5 | Firefox 115+ | WS-direct (Tier 2, if WT fails) | WS session to daemon | Same as RC5 | — |
+| 6 | Firefox 115+ | WebRTC (Tier 3, if WS fails) | WebRTC via signaling | Baseline | — |
+| 7 | Edge 97+ | WebTransport (Tier 1) | Full WT session (Chromium-based) | Same as Chrome | — |
+| 8 | Safari (no WT) | WS-direct (Tier 2, auto) | Orchestrator skips WT (TF-01), connects WS | WS session, no WT probe delay | WebRTC if WS fails |
+| 9 | Safari (no WT) | WebRTC (Tier 3, if WS fails) | WebRTC via signaling | Baseline | — |
+| 10 | Any browser, daemon WT gate OFF | WS-direct (Tier 2, auto) | WT probe → connection refused (TF-04) → WS | WS session, minimal WT probe delay | WebRTC if WS fails |
+| 11 | Any browser, daemon WS+WT gates OFF | WebRTC (Tier 3, auto) | Both WT and WS fail → WebRTC | WebRTC session | — |
+| 12 | Any browser, all gates OFF / no daemon | FAILED | All 3 tiers exhausted | Error surfaced to user | None |
+
+**Pass criteria per cell:**
+1. Connection established within tier-appropriate timeout
+2. HELLO handshake completes with capability intersection
+3. BTR negotiated (if both peers support, per AC-WT-11 transparency)
+4. File transfer completes with integrity verification
+5. Fallback path activates correctly when primary tier fails
+
+**Safari handling:** Safari enters orchestrator at `PROBE_WS` (TF-01 skips WT immediately via feature detection). No WT probe delay. Full WS/WebRTC functionality preserved.
+
+##### AC-WT-14 — Rollout Policy (LOCKED)
+
+**3-stage rollout for WebTransport adoption:**
+
+| Stage | Scope | Entry Criteria | Promotion Gate | Duration |
+|-------|-------|----------------|----------------|----------|
+| **Canary** | Single consumer app (recommended: localbolt-v3) with WT feature gate ON for opt-in users | WT4 policy closed. Implementation artifacts ready. PM approval. | All SLO thresholds met (PM-WT-04). Zero P0/P1 regressions. Fallback success ≥98%. No-regression suites green. | PM-set (recommended ≥72h) |
+| **Staged** | All consumer apps with WT feature gate ON (default OFF for users, opt-in toggle) | Canary promotion gate passed. | SLO sustained across all consumers. Zero P0/P1 over extended burn-in. | PM-set (recommended ≥1 week) |
+| **GA** | WT feature gate ON by default for all supported browsers | Staged promotion gate passed. PM approval for default-on. | Continuous SLO compliance. No active RB-WT triggers. | — (ongoing) |
+
+**Per-stage no-regression requirement:** All existing test suites across all repos must pass at each promotion gate. WT-specific tests must also pass. Cross-referenced with AC-RC-28 pattern.
+
+**Consumer rollout order (recommended):**
+1. localbolt-v3 (primary web consumer, Netlify-deployed)
+2. localbolt (secondary web consumer)
+3. localbolt-app (Tauri desktop — WT used in embedded WebView context)
+
+##### AC-WT-15 — Rollback Policy (LOCKED)
+
+**Triggers (any one triggers rollback evaluation):**
+
+| ID | Trigger | Severity | Action |
+|----|---------|----------|--------|
+| RB-WT-T1 | WT connection success rate < 99% (combined WT+fallback) over 1h window | P0 | PM evaluates rollback |
+| RB-WT-T2 | Transfer failure rate over WT > WS baseline by >5% | P0 | PM evaluates rollback |
+| RB-WT-T3 | Fallback success rate < 98% (when WT fails, WS/WebRTC don't recover) | P1 | PM evaluates rollback |
+| RB-WT-T4 | WT setup latency > 1.5× WS baseline sustained over 1h | P1 | PM evaluates rollback |
+| RB-WT-T5 | Test suite regression (any repo, any gate) | Blocking | Automatic — blocks stage promotion |
+
+**Levers:**
+
+| Lever | Scope | How | Reversibility |
+|-------|-------|-----|---------------|
+| **RB-L5** | browser↔app WT path | `transport-webtransport` feature gate OFF → rebuild daemon → deploy | Full — browser falls to WS (Tier 2) → WebRTC (Tier 3) |
+| **RB-L2** (existing) | browser↔app WS path | Force WebRTC-only via config | Full — browser uses WebRTC baseline |
+| **SDK version rollback** | Per-consumer | Pin pre-WT SDK version | Full |
+| **Daemon version rollback** | Daemon | Deploy previous tagged binary | Full |
+
+**Ownership and SLA (aligned with RC6 AC-RC-26):**
+
+| Role | Responsibility |
+|------|---------------|
+| PM | Rollback decision authority |
+| Engineering | Execute lever, provide diagnostics, propose fix |
+
+| Action | Target |
+|--------|--------|
+| Trigger → rollback decision | ≤4h for P0, ≤24h for P1 |
+| Rollback decision → execution | ≤1h |
+| Post-rollback RCA | ≤72h |
+
+##### AC-WT-16 — Performance SLO Thresholds (PM-WT-04 APPROVED)
+
+**PM-WT-04 APPROVED (2026-03-15): Option B (Balanced).**
+
+| Metric | Threshold | Measurement | Rationale |
+|--------|-----------|-------------|-----------|
+| Transport setup latency | WT ≤ 1.5× WS baseline | Time from connection initiation to HELLO exchange complete | QUIC+TLS handshake adds overhead vs TCP-only WS on localhost; 1.5× allows for this |
+| Transfer throughput | WT ≥ 90% of WS throughput | Average over 3×1MiB localhost transfers (matches PM-RC-04 methodology) | QUIC flow control may introduce marginal overhead; 90% prevents noticeable regression |
+| Connection success rate | ≥99% (WT + fallback combined) | Percentage of connection attempts that establish a session on any tier | Three-tier fallback should cover nearly all failure modes |
+| Fallback success | If WT fails, WS/WebRTC succeeds in ≥98% of cases | Percentage of WT failures that recover via Tier 2/3 | Fallback is the safety net; must be reliable |
+| No-regression gate | All existing test suites green + WT-specific tests pass | CI evidence at each promotion gate | Inherited from RC6 AC-RC-28 pattern |
+
+**Failure action:** If any threshold fails persistently (sustained over rollout burn-in), hold promotion and evaluate via RB-WT triggers (AC-WT-15). PM decides: fix, rollback, or adjust threshold.
 
 #### WT5 — Closure + WS Disposition
 
@@ -6488,7 +6583,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | PM-WT-01 | Browser support matrix. **APPROVED (2026-03-15): Option B.** Ship WebTransport on Chrome 97+, Edge 97+, Firefox 115+. Safari/iOS Safari fallback to WS → WebRTC. Re-evaluate when Safari ships WebTransport (Interop 2026). | WT1 (AC-WT-01) | WT1 | **APPROVED (2026-03-15)** |
 | PM-WT-02 | WebTransport capability string. **APPROVED (2026-03-15): Option A.** `bolt.transport-webtransport-v1`. Follows existing `bolt.*` namespace. Transport-level, no protocol impact. | WT1 (AC-WT-02) | WT1 | **APPROVED (2026-03-15)** |
 | PM-WT-03 | TLS certificate provisioning strategy. **APPROVED (2026-03-15):** Primary: C2 local CA (mkcert-style) for localhost/LAN. Dev fallback: C1 self-signed. Out of scope: C3 ACME/Let's Encrypt (WAN, deferred). | WT2 (AC-WT-07) | WT2 | **APPROVED (2026-03-15)** |
-| PM-WT-04 | Performance SLO thresholds for WebTransport (latency improvement target vs WS) | WT4 (AC-WT-16) | WT4 | PENDING |
+| PM-WT-04 | Performance SLO thresholds. **APPROVED (2026-03-15, Option B):** Setup latency ≤1.5× WS. Throughput ≥90% WS. Connection ≥99% combined. Fallback ≥98%. No-regression green + WT tests. | WT4 (AC-WT-16) | WT4 | **APPROVED (2026-03-15)** |
 | PM-WT-05 | WS disposition after WebTransport adoption (permanent fallback vs deprecate-with-sunset) | WT5 (AC-WT-18) | WT5 | PENDING |
 
 ---
@@ -6589,7 +6684,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | ~~NEXT~~ COMPLETE | bolt-protocol + ecosystem | **COMPLETE** (`ecosystem-v0.1.143-btr-spec1-bs5-closeout`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED. BS1–BS5 DONE. |
-| WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | NEXT | bolt-daemon + bolt-core-sdk + ecosystem | **WT1–WT3 DONE** (`ecosystem-v0.1.145`, 2026-03-15). AC-WT-01–12 PASS. PM-WT-01–03 APPROVED. WT4 READY. |
+| WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | NEXT | bolt-daemon + bolt-core-sdk + ecosystem | **WT1–WT4 DONE** (`ecosystem-v0.1.146`, 2026-03-15). AC-WT-01–16 PASS. PM-WT-01–04 APPROVED. WT5 READY. |
 | EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | LATER | localbolt-v3 + localbolt + ecosystem | **CODIFIED** (`ecosystem-v0.1.142-egui-wasm1-codify`, 2026-03-15). 5 phases (EW1–EW5), 19 ACs, 5 PM decisions. PM-EN-04 early approval. EW1 unblocked. Experimental — ABANDON is valid outcome. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].

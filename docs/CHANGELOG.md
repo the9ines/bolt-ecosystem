@@ -5,6 +5,26 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-15 — WEBTRANSPORT-BROWSER-APP-1 WT4 DONE: Conformance + Rollout/Rollback Gate Lock
+
+**WT4 status**: READY → **DONE**. All 4 ACs (AC-WT-13–16) PASS. One PM decision resolved.
+
+**AC-WT-13 (compatibility matrix):** 12-cell matrix covering browser classes (Chrome/Firefox/Edge/Safari) × transport tiers (WT/WS/WebRTC) × daemon gate states. 5 pass criteria per cell. Safari handling: orchestrator enters at PROBE_WS (TF-01), no WT probe delay.
+
+**AC-WT-14 (rollout policy):** 3-stage rollout: Canary (single consumer, opt-in) → Staged (all consumers, opt-in) → GA (default-on). Promotion gates: SLO thresholds + zero P0/P1 + fallback ≥98% + suites green. Consumer order: localbolt-v3 → localbolt → localbolt-app.
+
+**AC-WT-15 (rollback policy):** 5 triggers (RB-WT-T1–T5), 4 levers (RB-L5, RB-L2, SDK pin, daemon rollback). PM ownership, ≤4h P0 / ≤1h execution / ≤72h RCA. Aligned with RC6 AC-RC-26 framework.
+
+**PM-WT-04 APPROVED (2026-03-15, Option B):** Latency ≤1.5× WS. Throughput ≥90% WS. Connection ≥99% combined. Fallback ≥98%. No-regression green + WT tests.
+
+**WT5 status**: NOT-STARTED → **READY** (WT4 DONE, unblocked). WT5 scope: closure + WS disposition (PM-WT-05).
+
+**Tags**: `ecosystem-v0.1.146-webtransport-browser-app1-wt4-gate-lock`
+
+**Next**: WT5 — closure criteria + WS disposition decision (PM-WT-05 needed).
+
+---
+
 ## 2026-03-15 — WEBTRANSPORT-BROWSER-APP-1 WT3 DONE: Browser Adapter + Fallback Orchestration Lock
 
 **WT3 status**: READY → **DONE**. All 4 ACs (AC-WT-09–12) PASS.
