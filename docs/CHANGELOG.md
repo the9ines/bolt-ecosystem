@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-15 — EGUI-NATIVE-1 EN1 DONE: PM Framework Lock (egui Confirmed)
+
+**EN1 status**: NOT-STARTED → **DONE**. All 4 ACs (AC-EN-01–04) PASS. Two PM decisions resolved.
+
+**PM-EN-01 APPROVED (2026-03-15):** egui confirmed as desktop UI framework. eframe 0.33+. Immediate-mode rendering. WASM-capable (EGUI-WASM-1 alignment). Build verified on aarch64-apple-darwin (Rust 1.93.1).
+
+**PM-EN-02 APPROVED (2026-03-15):** Minimal parity first. Match current Tauri WebView desktop UX. No custom design language in EN2/EN3.
+
+**AC-EN-03 (framework evaluation):** 4 frameworks assessed (egui, iced, Slint, Dioxus). egui selected for WASM viability, immediate-mode simplicity, largest ecosystem, single-binary support.
+
+**AC-EN-04 (RC4 compatibility):** Assessed compatible. egui app consumes `bolt-core` via Cargo, uses daemon IPC (N-STREAM-1), delegates protocol authority to daemon. Same architectural model as Tauri backend, minus the WebView/JS bridge.
+
+**EN2 repo recommendation:** Preferred: new `bolt-ui` crate in `bolt-core-sdk/rust/` workspace (clean separation, mirrors `bolt-btr` pattern). Alternative: `localbolt-app/src-tauri/` integration.
+
+**EN2 status**: NOT-STARTED → **READY** (EN1 DONE + RC4 DONE, both dependencies satisfied).
+
+**Tags**: `ecosystem-v0.1.149-egui-native1-en1-baseline`
+
+**Next**: EN2 — desktop `bolt-ui` scaffold + theme baseline.
+
+---
+
 ## 2026-03-15 — BTR Runtime Verification: Full Stack Validation Pass
 
 **BTR runtime adoption verification complete.** No runtime code changes — BTR was already fully implemented and enabled across all layers.

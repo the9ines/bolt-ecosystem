@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-15 (WEBTRANSPORT-BROWSER-APP-1 COMPLETE: WT5 DONE, all 20 ACs PASS, all 5 PM decisions APPROVED. Stream closed.)
+> **Updated:** 2026-03-15 (EGUI-NATIVE-1 EN1 DONE: PM framework lock. egui confirmed. Minimal parity. EN2 READY.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -450,7 +450,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 14: EGUI-NATIVE-1 — Native Desktop UI Consolidation (egui)
 
 **Priority:** LATER
-**Status:** CODIFIED (EN1 PM gate openable in parallel with RUSTIFY-CORE-1 RC1–RC2; EN2+ blocked on RC4)
+**Status:** **EN1 DONE** (`ecosystem-v0.1.149-egui-native1-en1-baseline`, 2026-03-15). PM-EN-01 APPROVED (egui). PM-EN-02 APPROVED (minimal parity). EN2 READY.
 **Routing:** localbolt-app (primary), bolt-ecosystem (governance)
 **Category:** UI architecture — desktop WebView→egui migration
 **Stream:** EGUI-NATIVE-1 (phased, 5 phases EN1–EN5)
@@ -462,15 +462,15 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 | Phase | Description | Serial Gate | Status |
 |-------|-------------|-------------|--------|
-| EN1 | PM framework lock gate (egui vs alternatives) | YES (gates EN2) | NOT-STARTED |
-| EN2 | Desktop `bolt-ui` scaffold + theme baseline | YES (gates EN3) | NOT-STARTED |
+| EN1 | PM framework lock gate (egui vs alternatives) | YES (gates EN2) | **DONE** (AC-EN-01–04 PASS, PM-EN-01/02 APPROVED, 2026-03-15) |
+| EN2 | Desktop `bolt-ui` scaffold + theme baseline | YES (gates EN3) | **READY** (EN1 DONE + RC4 DONE, unblocked) |
 | EN3 | Desktop feature parity migration (core screens/workflows) | YES (gates EN4) | NOT-STARTED |
 | EN4 | Rollback/compatibility gate + packaging impact verification | YES (gates EN5) | NOT-STARTED |
 | EN5 | Closure + handoff to optional EGUI-WASM-1 / EGUI-MOBILE-1 proposals | YES (closes stream) | NOT-STARTED |
 
-**Acceptance Criteria:** 24 ACs defined (AC-EN-01 through AC-EN-24). See `docs/GOVERNANCE_WORKSTREAMS.md` § EGUI-NATIVE-1 for full list.
+**Acceptance Criteria:** 24 ACs defined (AC-EN-01 through AC-EN-24). EN1: AC-EN-01–04 all PASS (4 of 24 delivered). PM-EN-01/02 APPROVED.
 
-**PM Decisions:** 5 open (PM-EN-01 through PM-EN-05). See `docs/GOVERNANCE_WORKSTREAMS.md` § EGUI-NATIVE-1 for full table.
+**PM Decisions:** 5 total. PM-EN-01 APPROVED (egui). PM-EN-02 APPROVED (minimal parity). PM-EN-04 APPROVED (early, EGUI-WASM-1 opened). PM-EN-03, PM-EN-05 PENDING.
 
 **Scope guardrails:**
 - EN-G1: No protocol/transport changes
@@ -673,8 +673,8 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-RC-05 | RUSTIFY-CORE-1: Legacy TS-path deprecation policy/timeline | RC6 | **APPROVED** (deprecate-but-retain, 2026-03-14) |
 | PM-RC-06 | RUSTIFY-CORE-1: CLI stream trigger condition | RC7 | **APPROVED** (RC4 + Stage 1 burn-in, 2026-03-14) |
 | PM-RC-07 | RUSTIFY-CORE-1: Relationship mode to SEC-CORE2/PLAT-CORE1/MOB-RUNTIME1/ARCH-WASM1 | All RC phases | **APPROVED** (hybrid: SUPERSEDES + REFACTORS, 2026-03-14) |
-| PM-EN-01 | EGUI-NATIVE-1: Confirm egui as desktop UI framework (vs iced, Slint, Dioxus) | EN2 | LATER |
-| PM-EN-02 | EGUI-NATIVE-1: Visual direction scope (minimal parity vs custom theme) | EN2 | LATER |
+| PM-EN-01 | EGUI-NATIVE-1: Desktop UI framework | EN2 | **APPROVED** (egui, 2026-03-15) |
+| PM-EN-02 | EGUI-NATIVE-1: Visual direction scope | EN2 | **APPROVED** (minimal parity, 2026-03-15) |
 | PM-EN-03 | EGUI-NATIVE-1: Rollback window duration before legacy UI removal | EN5 | LATER |
 | PM-EN-04 | EGUI-NATIVE-1: Whether to open EGUI-WASM-1 after EN3 results | Post-stream | LATER |
 | PM-EN-05 | EGUI-NATIVE-1: Whether to open EGUI-MOBILE-1 after EN4 results | Post-stream | LATER |

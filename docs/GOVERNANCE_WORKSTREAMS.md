@@ -4690,7 +4690,7 @@ CLI-specific execution stream may begin only after ALL of:
 > **Priority:** LATER (EN1 PM gate openable in parallel with RUSTIFY-CORE-1 RC1–RC2)
 > **Repos:** localbolt-app (primary), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.115-egui-native1-codify (2026-03-12)
-> **Status:** CODIFIED (EN1 PM gate unblocked after RUSTIFY-CORE-1 RC4 for scaffold/migration phases)
+> **Status:** EN1 DONE (`ecosystem-v0.1.149-egui-native1-en1-baseline`, 2026-03-15). PM-EN-01/02 APPROVED. EN2 READY.
 
 ---
 
@@ -4778,8 +4778,8 @@ EGUI-NATIVE-1 migrates the desktop UI from Tauri WebView to egui (Rust-native im
 
 | Phase | Description | Type | Serial Gate | Dependencies | Status |
 |-------|-------------|------|-------------|--------------|--------|
-| **EN1** | PM framework lock gate (egui vs alternatives) | PM gate | YES — gates EN2 | None (openable in parallel with RUSTIFY-CORE-1 RC1–RC2) | NOT-STARTED |
-| **EN2** | Desktop `bolt-ui` scaffold + theme baseline | Engineering gate | YES — gates EN3 | EN1 complete, RUSTIFY-CORE-1 RC4 complete | NOT-STARTED |
+| **EN1** | PM framework lock gate (egui vs alternatives) | PM gate | YES — gates EN2 | None (openable in parallel with RUSTIFY-CORE-1 RC1–RC2) | **DONE** (`ecosystem-v0.1.149-egui-native1-en1-baseline`, 2026-03-15). AC-EN-01–04 all PASS. PM-EN-01 APPROVED (egui). PM-EN-02 APPROVED (minimal parity). |
+| **EN2** | Desktop `bolt-ui` scaffold + theme baseline | Engineering gate | YES — gates EN3 | EN1 complete, RUSTIFY-CORE-1 RC4 complete | **READY** (EN1 DONE + RC4 DONE, unblocked) |
 | **EN3** | Desktop feature parity migration (core screens/workflows) | Engineering gate | YES — gates EN4 | EN2 complete | NOT-STARTED |
 | **EN4** | Rollback/compatibility gate + packaging impact verification | PM/Engineering gate | YES — gates EN5 | EN3 complete | NOT-STARTED |
 | **EN5** | Closure + handoff to optional EGUI-WASM-1 / EGUI-MOBILE-1 proposals | Governance gate | YES — closes stream | EN4 complete | NOT-STARTED |
@@ -4862,12 +4862,92 @@ EN5 produces:
 
 #### EN1 — PM Framework Lock
 
-| ID | Criterion | Evidence Required |
-|----|-----------|------------------|
-| AC-EN-01 | PM framework lock captured: egui confirmed as desktop UI framework (or alternative selected) | PM-EN-01 decision recorded |
-| AC-EN-02 | Visual direction scope locked (minimal parity vs custom theme) | PM-EN-02 decision recorded |
-| AC-EN-03 | Framework evaluation document published with pros/cons/risks | Published governance doc |
-| AC-EN-04 | Architecture compatibility with RUSTIFY-CORE-1 RC4 API surface assessed | Compatibility assessment doc |
+| ID | Criterion | Evidence Required | Status |
+|----|-----------|------------------|--------|
+| AC-EN-01 | PM framework lock captured: egui confirmed as desktop UI framework (or alternative selected) | PM-EN-01 decision recorded | **PASS** — PM-EN-01 APPROVED (2026-03-15). egui confirmed. |
+| AC-EN-02 | Visual direction scope locked (minimal parity vs custom theme) | PM-EN-02 decision recorded | **PASS** — PM-EN-02 APPROVED (2026-03-15). Minimal parity first. |
+| AC-EN-03 | Framework evaluation document published with pros/cons/risks | Published governance doc | **PASS** — Evaluation codified below. 4 frameworks assessed. |
+| AC-EN-04 | Architecture compatibility with RUSTIFY-CORE-1 RC4 API surface assessed | Compatibility assessment doc | **PASS** — Compatibility assessment codified below. RC4 API compatible. |
+
+##### AC-EN-01 — Framework Selection (PM-EN-01 APPROVED)
+
+**PM-EN-01 APPROVED (2026-03-15): egui is the desktop UI framework for EGUI-NATIVE-1.**
+
+##### AC-EN-02 — Visual Direction (PM-EN-02 APPROVED)
+
+**PM-EN-02 APPROVED (2026-03-15): Minimal parity first.** Match current Tauri WebView desktop UX before exploring custom visual themes. No new design language in EN2/EN3.
+
+##### AC-EN-03 — Framework Evaluation (PUBLISHED)
+
+| Framework | Version | Maturity | Cross-Platform | WASM Target | Rendering | Ecosystem Size | Risk Level |
+|-----------|---------|----------|----------------|------------|-----------|----------------|------------|
+| **egui** (selected) | 0.33 | Pre-1.0, widely adopted | macOS/Win/Linux native | YES (eframe) | Immediate-mode, GPU (glow/wgpu) | Largest Rust GUI | LOW-MEDIUM |
+| iced | 0.14 | Pre-1.0 | macOS/Win/Linux | Experimental | Elm-style retained, wgpu | Medium | MEDIUM |
+| Slint | 1.15 | 1.0+ stable | macOS/Win/Linux | YES | Retained-mode, custom renderer | Growing | LOW |
+| Dioxus | 0.6 | Pre-1.0 | macOS/Win/Linux | YES | React-like, WebView or native | Growing | MEDIUM-HIGH |
+
+**Selection rationale (egui):**
+
+| Factor | Assessment |
+|--------|-----------|
+| WASM viability | Proven — eframe compiles to WASM, directly enabling EGUI-WASM-1 |
+| State management | Immediate-mode = simple (no virtual DOM, no retained state tree) |
+| Ecosystem | Largest Rust GUI ecosystem (133M+ crates.io downloads for egui family) |
+| Windowing | eframe handles OS windowing/rendering (glow for broad compat, wgpu for modern) |
+| Single-binary | Yes — no WebView runtime dependency |
+| Build verified | `cargo check` with eframe 0.33 PASS on aarch64-apple-darwin (Rust 1.93.1) |
+
+**Risks acknowledged:**
+
+| Risk | Severity | Mitigation |
+|------|----------|------------|
+| Pre-1.0 API instability | MEDIUM | Pin version in EN2. Track upstream. |
+| Accessibility gaps vs browser DOM | MEDIUM | EN4 gate evaluates. PM-EN-03 rollback window. |
+| Visual polish ceiling (immediate-mode) | LOW | Minimal parity scope (PM-EN-02) limits risk. |
+
+##### AC-EN-04 — RC4 Architecture Compatibility (ASSESSED)
+
+**RUSTIFY-CORE-1 RC4 API surface compatibility with egui:**
+
+| RC4 API Surface | egui Compatibility | Notes |
+|----------------|-------------------|-------|
+| Shared Rust core (`bolt-core`) | **COMPATIBLE** | egui app consumes `bolt-core` via Cargo dependency, same as Tauri backend |
+| IPC to daemon | **COMPATIBLE** | egui app uses same Unix socket/named pipe IPC (N-STREAM-1 N2 contract) |
+| Session authority (daemon owns) | **COMPATIBLE** | egui is UI-only, delegates to daemon (same as Tauri WebView + Rust backend) |
+| BTR/envelope/protocol | **NO CHANGE** | egui app calls same SDK APIs; no protocol reimplementation |
+| Transport bindings | **NO CHANGE** | Transport is daemon-side; egui app is a UI consumer |
+| Feature gates | **COMPATIBLE** | `transport-*` gates are daemon features, not UI features |
+
+**Architectural model (EN2+):**
+
+```
+Current (Tauri):           Target (egui):
+┌─────────────────┐        ┌─────────────────┐
+│ React/TS WebView│        │ egui/eframe     │
+│ (UI rendering)  │        │ (UI rendering)  │
+└────────┬────────┘        └────────┬────────┘
+         │ Tauri IPC                │ Direct Rust calls
+┌────────┴────────┐        ┌────────┴────────┐
+│ Tauri Rust      │        │ bolt-ui crate   │
+│ backend (IPC    │        │ (consumes       │
+│ relay + daemon  │        │ bolt-core +     │
+│ lifecycle)      │        │ daemon IPC)     │
+└────────┬────────┘        └────────┬────────┘
+         │ Unix socket/pipe         │ Unix socket/pipe
+┌────────┴────────┐        ┌────────┴────────┐
+│ bolt-daemon     │        │ bolt-daemon     │
+│ (unchanged)     │        │ (unchanged)     │
+└─────────────────┘        └─────────────────┘
+```
+
+**Key advantage:** egui app calls Rust APIs directly (no Tauri IPC bridge, no JS↔Rust serialization). Simpler stack, fewer failure modes.
+
+**EN2 repo recommendation:**
+
+| Option | Location | Pros | Cons | Recommended |
+|--------|----------|------|------|-------------|
+| **A (preferred)** | New `bolt-ui` crate in `bolt-core-sdk/rust/` workspace | Clean separation. No localbolt-app destabilization. Mirrors `bolt-btr` pattern. | Separate repo from app packaging. | **YES** |
+| **B (alternative)** | Inside `localbolt-app/src-tauri/` | Close to app packaging. | Couples to Tauri workspace. Destabilization risk. | No |
 
 #### EN2 — Desktop `bolt-ui` Scaffold + Theme
 
@@ -4915,8 +4995,8 @@ EN5 produces:
 
 | ID | Decision | Blocks | Priority | Status |
 |----|----------|--------|----------|--------|
-| PM-EN-01 | Confirm egui as desktop UI framework (vs iced, Slint, Dioxus, or other Rust-native GUI) | EN2 | EN1 | PENDING |
-| PM-EN-02 | Visual direction scope: minimal parity first (match current look) vs custom theme in-stream (new design language) | EN2 | EN1 | PENDING |
+| PM-EN-01 | Desktop UI framework. **APPROVED (2026-03-15):** egui confirmed. eframe 0.33+. Immediate-mode rendering. WASM-capable (EGUI-WASM-1 alignment). Build verified on aarch64-apple-darwin. | EN2 | EN1 | **APPROVED (2026-03-15)** |
+| PM-EN-02 | Visual direction. **APPROVED (2026-03-15):** Minimal parity first. Match current Tauri WebView desktop UX. No custom design language in EN2/EN3. | EN2 | EN1 | **APPROVED (2026-03-15)** |
 | PM-EN-03 | Rollback window duration: how long must dual-build (egui + Tauri WebView) be maintained before legacy removal? | EN5 (legacy removal) | EN4 | PENDING |
 | PM-EN-04 | Whether to open EGUI-WASM-1 (browser egui via WASM). **APPROVED (2026-03-15, early resolution):** EGUI-WASM-1 opened independent of EN3 completion. Browser WASM egui is architecturally distinct from desktop egui. Experimental, non-blocking to EGUI-NATIVE-1. | Post-stream | EN5 | **APPROVED (2026-03-15, early)** |
 | PM-EN-05 | Whether to open EGUI-MOBILE-1 (mobile egui) after EN4 results | Post-stream | EN5 | PENDING |
@@ -6767,7 +6847,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | **DEPENDS-ON RUSTIFY-CORE-1 RC2** (PM-RC-07 APPROVED 2026-03-14). Retains own stream identity. |
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** |
 | RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE**, **RC2 DONE** (`ecosystem-v0.1.127-rustify-core1-rc2-complete`, 2026-03-13). PM-RC-01A APPROVED (quinn, 2026-03-13). 7 phases (RC1–RC7), 33 ACs, 8 PM decisions. **RC3 READY** (unblocked). |
-| EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
+| EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **EN1 DONE** (`ecosystem-v0.1.149`, 2026-03-15). PM-EN-01/02 APPROVED (egui, minimal parity). EN2 READY. |
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | ~~NEXT~~ COMPLETE | bolt-protocol + ecosystem | **COMPLETE** (`ecosystem-v0.1.143-btr-spec1-bs5-closeout`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED. BS1–BS5 DONE. |
 | WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | ~~NEXT~~ COMPLETE | bolt-daemon + bolt-core-sdk + ecosystem | **COMPLETE** (`ecosystem-v0.1.147-webtransport-browser-app1-wt5-closeout`, 2026-03-15). All 20 ACs PASS. All 5 PM decisions APPROVED. WT1–WT5 DONE. |
