@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-14 (WEBTRANSPORT-BROWSER-APP-1 codified: browser↔app WebTransport migration stream. 5 phases, 20 ACs, 5 PM decisions. WT1 unblocked.)
+> **Updated:** 2026-03-14 (BTR-SPEC-1 BS4 DONE: conformance vectors + negative-test matrix locked. AC-BS-01–17 PASS. BS5 READY.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -528,7 +528,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 16: BTR-SPEC-1 — Algorithm-Grade BTR Protocol Specification
 
 **Priority:** NEXT
-**Status:** **BS1 DONE**. **BS2 DONE**. **BS3 DONE** (`ecosystem-v0.1.138-btr-spec1-bs3-wire-recovery-lock`, 2026-03-14). AC-BS-01–13 all PASS. PM-BS-01–04 APPROVED. BS4 READY.
+**Status:** **BS1–BS4 DONE** (`ecosystem-v0.1.140-btr-spec1-bs4-conformance-lock`, 2026-03-14). AC-BS-01–17 all PASS. PM-BS-01–04 APPROVED. BS5 READY.
 **Routing:** bolt-protocol (primary — spec text), bolt-ecosystem (governance)
 **Category:** Specification — formal BTR protocol documentation
 **Stream:** BTR-SPEC-1 (phased, 5 phases BS1–BS5)
@@ -543,10 +543,10 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | BS1 | Module taxonomy + boundary lock | YES (gates BS2) | **DONE** (AC-BS-01–03 PASS, 2026-03-14) |
 | BS2 | State machines + crypto/key-schedule lock | YES (gates BS3) | **DONE** (AC-BS-04–08 PASS, PM-BS-01/02 APPROVED, 2026-03-14) |
 | BS3 | Wire format + failure/recovery semantics lock | YES (gates BS4) | **DONE** (AC-BS-09–13 PASS, PM-BS-03/04 APPROVED, 2026-03-14) |
-| BS4 | Conformance vectors + negative-test matrix lock | YES (gates BS5) | **READY** (BS3 DONE, unblocked) |
-| BS5 | Versioning/change-control + external review readiness | YES (closes stream) | NOT-STARTED |
+| BS4 | Conformance vectors + negative-test matrix lock | YES (gates BS5) | **DONE** (AC-BS-14–17 PASS, 2026-03-14) |
+| BS5 | Versioning/change-control + external review readiness | YES (closes stream) | **READY** (BS4 DONE, unblocked) |
 
-**Acceptance Criteria:** 22 ACs defined (AC-BS-01 through AC-BS-22). BS1–BS3: AC-BS-01–13 all PASS (13 of 22 delivered). PM-BS-01–04 APPROVED. See `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-SPEC-1.
+**Acceptance Criteria:** 22 ACs defined (AC-BS-01 through AC-BS-22). BS1–BS4: AC-BS-01–17 all PASS (17 of 22 delivered). PM-BS-01–04 APPROVED. See `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-SPEC-1.
 
 **PM Decisions:** 6 open (PM-BS-01 through PM-BS-06). See `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-SPEC-1.
 

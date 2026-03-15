@@ -5,6 +5,26 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-14 — BTR-SPEC-1 BS4 DONE: Conformance Vectors + Negative-Test Matrix Lock
+
+**BS4 status**: READY → **DONE**. All 4 ACs (AC-BS-14–17) PASS.
+
+**AC-BS-14 (vector-to-spec mapping):** All 10 vector files (38 vectors + 1 lifecycle scenario) mapped to spec sections, modules, and invariants. 5 Appendix C required categories + 5 additional (dh-ratchet, dh-sanity, encrypt-decrypt, lifecycle, adversarial).
+
+**AC-BS-15 (negative-test matrix):** 14 negative-test obligations across 5 modules. Each maps to §16.7 error code + BS2 SM transition. Covers generation mismatch, unexpected DH key, missing fields, chain gap, duplicate index, wrong key, truncated ciphertext, downgrade attacks, wire violations.
+
+**AC-BS-16 (cross-language conformance):** Rust authority / TS consumer contract locked. 6 conformance requirements (vector pass, cross-language interop, transfer isolation, adversarial parity, downgrade parity, constants parity). CI integration documented (4 jobs). Change policy per BTR_VECTOR_POLICY.md.
+
+**AC-BS-17 (downgrade coverage):** 6 vectors in `btr-downgrade-negotiate.vectors.json`, one per §4.2 6-row negotiation matrix outcome. Complete coverage.
+
+**BS5 status**: NOT-STARTED → **READY** (BS4 DONE, unblocked). BS5 scope: versioning/change-control + external review readiness (PM-BS-05/06 needed).
+
+**Tags**: `ecosystem-v0.1.140-btr-spec1-bs4-conformance-lock`
+
+**Next**: BS5 — versioning/change-control + external review readiness (PM-BS-05/06 required).
+
+---
+
 ## 2026-03-14 — WEBTRANSPORT-BROWSER-APP-1 Codified: Browser↔App WebTransport Migration Stream
 
 - **New governance stream codified:** WEBTRANSPORT-BROWSER-APP-1 — migrates browser↔app primary transport from WebSocket-direct (RC5) to WebTransport (QUIC/HTTP3).

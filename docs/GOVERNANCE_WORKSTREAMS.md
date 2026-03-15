@@ -5175,7 +5175,7 @@ No material discovery-policy risks identified at codification. Rationale:
 > **Priority:** NEXT (BS1 unblocked now; no hard dependency on CONSUMER-BTR1 since spec is gap-fill, not greenfield)
 > **Repos:** bolt-protocol (primary — spec text), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.118-btr-spec1-codify (2026-03-13)
-> **Status:** BS1 DONE. BS2 DONE. BS3 DONE (`ecosystem-v0.1.138-btr-spec1-bs3-wire-recovery-lock`, 2026-03-14). BS4 READY.
+> **Status:** BS1–BS4 DONE. BS5 READY. (`ecosystem-v0.1.140-btr-spec1-bs4-conformance-lock`, 2026-03-14).
 
 ---
 
@@ -5256,8 +5256,8 @@ No SUPERSEDES or REFACTORS relationships. BTR-SPEC-1 is additive formalization.
 | **BS1** | Module taxonomy + boundary lock (confirm P0 modules) | Spec gate | YES — gates BS2 | None | **DONE** (`ecosystem-v0.1.136-btr-spec1-bs1-taxonomy`, 2026-03-14). AC-BS-01–03 all PASS. 7-module taxonomy locked with §16 mapping, per-module artifact checklist confirmed, SEC-BTR1 cross-reference audit clean. |
 | **BS2** | State machines + crypto/key-schedule canonicalization lock | Spec gate | YES — gates BS3 | BS1 complete | **DONE** (`ecosystem-v0.1.137-btr-spec1-bs2-state-crypto-lock`, 2026-03-14). AC-BS-04–08 all PASS. KS+HS state machines locked. PM-BS-01/02 APPROVED. |
 | **BS3** | Wire format + failure/recovery semantics lock (fill BTR-FC, BTR-RSM gaps) | Spec gate | YES — gates BS4 | BS2 complete | **DONE** (`ecosystem-v0.1.138-btr-spec1-bs3-wire-recovery-lock`, 2026-03-14). AC-BS-09–13 all PASS. BTR-FC/BTR-RSM normative text, wire versioning policy, parsing contract, failure matrix codified. PM-BS-03/04 APPROVED. |
-| **BS4** | Conformance vectors + negative-test matrix lock | Spec gate | YES — gates BS5 | BS3 complete | **READY** (BS3 DONE, unblocked) |
-| **BS5** | Versioning/change-control + external review readiness lock | PM/Spec gate | YES — closes stream | BS4 complete | NOT-STARTED |
+| **BS4** | Conformance vectors + negative-test matrix lock | Spec gate | YES — gates BS5 | BS3 complete | **DONE** (`ecosystem-v0.1.140-btr-spec1-bs4-conformance-lock`, 2026-03-14). AC-BS-14–17 all PASS. 10 vector categories mapped, negative-test matrix, cross-language conformance contract, downgrade coverage verified. |
+| **BS5** | Versioning/change-control + external review readiness lock | PM/Spec gate | YES — closes stream | BS4 complete | **READY** (BS4 DONE, unblocked) |
 
 #### Dependency DAG
 
@@ -5603,12 +5603,100 @@ Transport Layer (DataChannel / WebSocket / QUIC)
 
 #### BS4 — Conformance + Negative Tests Lock
 
-| ID | Criterion | Evidence Required |
-|----|-----------|------------------|
-| AC-BS-14 | All 10 existing vector categories verified against formal spec | Vector-to-spec mapping |
-| AC-BS-15 | Negative-test obligations codified per module (what MUST fail and how) | Negative-test matrix |
-| AC-BS-16 | Cross-language conformance requirements formalized (Rust authority, TS consumer) | Conformance policy update |
-| AC-BS-17 | Downgrade/compatibility vectors cover all 6 negotiation rows | Vector audit |
+| ID | Criterion | Evidence Required | Status |
+|----|-----------|------------------|--------|
+| AC-BS-14 | All 10 existing vector categories verified against formal spec | Vector-to-spec mapping | **PASS** — 10 vector files mapped to spec sections, modules, and invariants below. All categories have sufficient vector counts. |
+| AC-BS-15 | Negative-test obligations codified per module (what MUST fail and how) | Negative-test matrix | **PASS** — Negative-test matrix codified below. 14 negative-test obligations across 5 modules, each mapped to §16.7 error codes and BS2 SM transitions. |
+| AC-BS-16 | Cross-language conformance requirements formalized (Rust authority, TS consumer) | Conformance policy update | **PASS** — Cross-language conformance contract codified below. Rust authority, TS consumer obligations, CI integration, and review requirements formalized. |
+| AC-BS-17 | Downgrade/compatibility vectors cover all 6 negotiation rows | Vector audit | **PASS** — `btr-downgrade-negotiate.vectors.json` contains 6 vectors, one per §4.2 negotiation row. All 6 outcomes covered. |
+
+##### AC-BS-14 — Vector-to-Spec Mapping (LOCKED)
+
+| # | Vector File | Vectors | Module | Spec Section | Invariants Verified | Purpose |
+|---|-------------|---------|--------|-------------|---------------------|---------|
+| 1 | `btr-key-schedule.vectors.json` | 3 | BTR-KS | §16.3 (session root derivation) | BTR-INV-01 | HKDF(ephemeral_shared_secret, "bolt-btr-session-root-v1") → session_root_key |
+| 2 | `btr-transfer-ratchet.vectors.json` | 4 | BTR-KS | §16.3 (transfer root derivation) | BTR-INV-02 | HKDF(session_root_key, transfer_id) → transfer_root_key |
+| 3 | `btr-chain-advance.vectors.json` | 5 | BTR-KS, BTR-INT | §16.3 (symmetric chain) | BTR-INV-03, 04 | chain_key → (message_key, next_chain_key) via HKDF |
+| 4 | `btr-dh-ratchet.vectors.json` | 3 | BTR-KS | §16.3 (inter-transfer DH) | BTR-INV-05, 06 | Fresh X25519 DH → new session_root_key + generation increment |
+| 5 | `btr-dh-sanity.vectors.json` | 4 | BTR-KS | §3 (X25519 DH) | — | Cross-library X25519 agreement sanity check |
+| 6 | `btr-encrypt-decrypt.vectors.json` | 6 | BTR-INT | §16.4 (encryption) | BTR-INV-11 | NaCl secretbox seal/open with message_key |
+| 7 | `btr-replay-reject.vectors.json` | 4 | BTR-INT | §16.6, §11 | BTR-INV-06, 07 | Generation/chain_index replay and gap rejection |
+| 8 | `btr-downgrade-negotiate.vectors.json` | 6 | BTR-HS | §4.2 (negotiation matrix) | BTR-INV-10 | All 6 negotiation rows verified |
+| 9 | `btr-lifecycle.vectors.json` | 1 (multi-transfer) | BTR-KS, BTR-INT | §16.3, §16.5 | BTR-INV-01–06, 08, 09 | Full lifecycle: 2 transfers × 3 chunks, DH ratchet between |
+| 10 | `btr-adversarial.vectors.json` | 2 | BTR-INT | §16.7 | BTR-INV-04, 07 | Wrong-key decrypt failure + chain-index desync rejection |
+
+**Totals:** 10 files, 38 vectors (+ 1 multi-transfer lifecycle scenario). All 5 Appendix C categories covered. 5 additional categories beyond Appendix C minimum (dh-ratchet, dh-sanity, encrypt-decrypt, lifecycle, adversarial).
+
+**Authority:** Rust generates all vectors (`rust/bolt-btr/src/vectors.rs`, feature-gated). TS consumes (`ts/bolt-core/__tests__/btr-*.test.ts`). Golden test ensures determinism. See BTR_VECTOR_POLICY.md.
+
+##### AC-BS-15 — Negative-Test Matrix (LOCKED)
+
+Each entry defines what MUST fail and the required error action, mapped to BS2 SM transitions and §16.7 codes.
+
+| # | Module | Negative Test | Expected Failure | Error Code | SM Transition | Invariant |
+|---|--------|--------------|------------------|------------|---------------|-----------|
+| N1 | BTR-KS | Generation mismatch (ratchet_generation != expected) | Reject | RATCHET_STATE_ERROR | KS T2/T6 error edge | BTR-INV-06 |
+| N2 | BTR-KS | Unexpected DH key (ratchet_public_key in non-boundary message) | Reject | RATCHET_STATE_ERROR | KS T6 error edge | BTR-INV-05 |
+| N3 | BTR-KS | Missing required BTR fields when BTR negotiated | Reject | RATCHET_STATE_ERROR | KS T2 error edge | — |
+| N4 | BTR-INT | Chain index gap (chain_index != expected next sequential) | Reject, cancel transfer | RATCHET_CHAIN_ERROR | KS T3 error edge | BTR-INV-07 |
+| N5 | BTR-INT | Duplicate chain index (same chunk_index replayed) | Reject, cancel transfer | RATCHET_CHAIN_ERROR | KS T3 error edge | BTR-INV-07 |
+| N6 | BTR-INT | Wrong message key (tampered ciphertext or wrong derivation) | Decrypt fails, cancel transfer | RATCHET_DECRYPT_FAIL | KS T4 error edge | BTR-INV-04, 11 |
+| N7 | BTR-INT | Truncated ciphertext (NaCl box too short) | Decrypt fails, cancel transfer | RATCHET_DECRYPT_FAIL | KS T4 error edge | BTR-INV-11 |
+| N8 | BTR-HS | Peer advertises BTR but sends non-BTR envelopes | Reject, disconnect | RATCHET_DOWNGRADE_REJECTED | HS H5/H6 | BTR-INV-10 |
+| N9 | BTR-HS | Peer advertises BTR but sends invalid BTR field types/sizes | Reject, disconnect | RATCHET_DOWNGRADE_REJECTED | HS H5/H6 | BTR-INV-10 |
+| N10 | BTR-HS | Peer advertises BTR but uses static ephemeral for transfer | Reject, disconnect | RATCHET_DOWNGRADE_REJECTED | HS H5/H6 | BTR-INV-10 |
+| N11 | BTR-WIRE | Missing chain_index in FILE_CHUNK when BTR active | Reject | RATCHET_STATE_ERROR | KS T2 error edge | — |
+| N12 | BTR-WIRE | BTR fields in non-transfer messages (ERROR, PING, PONG) | Ignore (tolerant per PM-BS-04) | No error | — | — |
+| N13 | BTR-WIRE | BTR fields present when BTR not negotiated | Ignore (tolerant per PM-BS-04) | No error | — | — |
+| N14 | BTR-KS | Reused message key (same key for two chunks) | Implementation MUST prevent | — (design invariant) | KS T3/T4 | BTR-INV-04 |
+
+**Coverage:** 14 negative tests across 5 modules (BTR-KS: 4, BTR-INT: 4, BTR-HS: 3, BTR-WIRE: 3). BTR-FC and BTR-RSM have no negative-test obligations (BTR-FC has no BTR-specific error paths; BTR-RSM failures map to existing §16.7 codes via AC-BS-13 failure matrix).
+
+##### AC-BS-16 — Cross-Language Conformance Contract (LOCKED)
+
+**Authority model:**
+
+| Role | Implementation | Obligations |
+|------|---------------|-------------|
+| **Rust (authority)** | `bolt-btr` crate | Generates all vectors. Golden test ensures determinism. Any vector output change requires `vectors.rs` modification + golden test pass + human review. |
+| **TypeScript (consumer)** | `ts/bolt-core/__tests__/btr-*.test.ts` | Consumes Rust-generated vectors. MUST pass all 10 vector categories. MUST NOT generate its own vectors. Parity failures block release. |
+
+**Conformance requirements:**
+
+| Requirement | Rule | Evidence |
+|-------------|------|----------|
+| Vector pass | Both Rust and TS MUST pass all 10 vector categories | CI: `cargo test --features vectors` + `npm run test` |
+| Cross-language interop | Rust-encrypted chunks MUST decrypt in TS and vice versa | `btr-encrypt-decrypt.vectors.json` (6 vectors) |
+| Transfer isolation | Same session, different transfer_ids → different transfer_root_keys | `btr-transfer-ratchet.vectors.json` (4 vectors) |
+| Adversarial parity | Same error code for same violation in both implementations | `btr-adversarial.vectors.json` (2 vectors) + negative-test matrix (AC-BS-15) |
+| Downgrade parity | Both implementations agree on all 6 negotiation outcomes | `btr-downgrade-negotiate.vectors.json` (6 vectors) |
+| Constants parity | BTR HKDF info strings identical in Rust and TS | `scripts/verify-btr-constants.sh` (CI gate) |
+
+**CI integration (existing):**
+
+| CI Job | Triggers On | Checks |
+|--------|-------------|--------|
+| Rust CI (`ci-rust.yml`, `ci-gate.yml`) | Rust source changes | Regenerates vectors, runs golden test |
+| TS CI (`ci.yml`, `ci-gate.yml`) | Vector file changes (`rust/bolt-core/test-vectors/btr/**`) | TS consumer tests against Rust-generated vectors |
+| Constants parity (`verify-btr-constants.sh`) | CI gate | HKDF info string match between Rust and TS |
+| Unified runner (`scripts/btr-conformance.sh`) | Manual/local | All 5 checks in sequence |
+
+**Change policy:** Per BTR_VECTOR_POLICY.md — any vector output change must be generated by modifying `vectors.rs`, pass golden test, pass TS consumer tests, and be reviewed by a human before merge.
+
+##### AC-BS-17 — Downgrade/Compatibility Coverage Audit (LOCKED)
+
+`btr-downgrade-negotiate.vectors.json` contains 6 vectors, one per §4.2 negotiation row:
+
+| Vector # | Local | Remote | Expected Mode | Expected Log | §4.2 Row |
+|----------|-------|--------|---------------|-------------|----------|
+| 1 | YES | YES | Full BTR | — | Row 1 |
+| 2 | YES | NO | Downgrade | `[BTR_DOWNGRADE]` | Row 2 |
+| 3 | NO | YES | Downgrade | `[BTR_DOWNGRADE]` | Row 3 |
+| 4 | NO | NO | Static ephemeral | — | Row 4 |
+| 5 | YES | MALFORMED | Reject | `RATCHET_DOWNGRADE_REJECTED` | Row 5 |
+| 6 | MALFORMED | YES | Reject | `RATCHET_DOWNGRADE_REJECTED` | Row 6 |
+
+**Coverage:** 6/6 negotiation rows. Complete. Both Rust and TS implementations must agree on all 6 outcomes (AC-BS-16 cross-language requirement).
 
 #### BS5 — Versioning + Review Readiness Lock
 
@@ -5900,7 +5988,7 @@ No upstream stream dependencies. EXTENDS RUSTIFY-CORE-1 (completed). May run in 
 | RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE**, **RC2 DONE** (`ecosystem-v0.1.127-rustify-core1-rc2-complete`, 2026-03-13). PM-RC-01A APPROVED (quinn, 2026-03-13). 7 phases (RC1–RC7), 33 ACs, 8 PM decisions. **RC3 READY** (unblocked). |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies. |
-| BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **BS1–BS3 DONE** (`ecosystem-v0.1.138`, 2026-03-14). AC-BS-01–13 all PASS. PM-BS-01–04 APPROVED. BS4 READY. |
+| BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **BS1–BS4 DONE** (`ecosystem-v0.1.140`, 2026-03-14). AC-BS-01–17 all PASS. PM-BS-01–04 APPROVED. BS5 READY. |
 | WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | NEXT | bolt-daemon + bolt-core-sdk + ecosystem | **CODIFIED** (`ecosystem-v0.1.139-webtransport-browser-app1-codify`, 2026-03-14). 5 phases (WT1–WT5), 20 ACs, 5 PM decisions. WT1 unblocked. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].

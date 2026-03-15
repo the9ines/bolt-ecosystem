@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-14 (WEBTRANSPORT-BROWSER-APP-1 codified: browser↔app WebTransport migration stream. 5 phases (WT1–WT5), 20 ACs, 5 PM decisions. WT1 unblocked.)
+> **Last Updated:** 2026-03-14 (BTR-SPEC-1 BS4 DONE: conformance vectors + negative-test matrix locked. AC-BS-01–17 PASS. BS5 READY.)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -723,7 +723,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1–RC7 all DONE.** All 33 ACs PASS. **All 8 PM decisions APPROVED.** PM-RC-07: SUPERSEDES SEC-CORE2+PLAT-CORE1, REFACTORS MOB-RUNTIME1+ARCH-WASM1. PM-RC-04: SLO thresholds defined (≥10 MiB/s, 100% integrity, ≥99% connection). CLI execution stream NOT OPEN (Stage 1 burn-in pending). |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem + consumers | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies; DM1 unblocked immediately. |
-| BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **BS1–BS3 DONE** (`ecosystem-v0.1.138`, 2026-03-14). AC-BS-01–13 PASS. PM-BS-01–04 APPROVED. BS4 READY. |
+| BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **BS1–BS4 DONE** (`ecosystem-v0.1.140`, 2026-03-14). AC-BS-01–17 PASS. PM-BS-01–04 APPROVED. BS5 READY. |
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** — Phase A: `sdk-v0.5.35-recon-xfer1-phase-a-tests`, `v3.0.88-recon-xfer1-phase-a`. Phase B: `localbolt-v1.0.35-recon-xfer1-phase-b`, `localbolt-app-v1.2.23-recon-xfer1-phase-b`. AC-RX-01–07 satisfied. AC-RX-08 automated PASS, manual runtime PENDING (RX-EVID-1). All code work closed. |
 | WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | NEXT | bolt-daemon + bolt-core-sdk + ecosystem | **CODIFIED** (`ecosystem-v0.1.139-webtransport-browser-app1-codify`, 2026-03-14). 5 phases (WT1–WT5), 20 ACs, 5 PM decisions. WT1 unblocked. |
 
