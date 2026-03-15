@@ -21,11 +21,13 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 N-STREAM-1 N6 completion is NOT required for CLI stream start.
 
-**AC-RC-33 (CLI stream trigger condition):** BLOCKED → **PASS**. PM-RC-06 resolved with dual-condition trigger (RC4 + Stage 1 burn-in). CLI stream gated on Stage 1 burn-in completion.
+**AC-RC-33 (CLI stream trigger condition):** BLOCKED → **PASS** (trigger condition *defined*; trigger condition *not yet satisfied*). PM-RC-06 resolved with dual-condition trigger (RC4 + Stage 1 burn-in). **CLI execution stream is NOT OPEN** — Stage 1 burn-in evidence not yet produced. Burn-in evidence checkpoint pending.
 
 **AC-RC-29–32:** Unchanged from prior commit (all PASS). Extension points, config keys, capability namespace reserved. No runtime code.
 
 **RUSTIFY-CORE-1 stream:** All 33 ACs delivered (AC-RC-01–33). All 7 phases (RC1–RC7) DONE. Remaining residual PM decisions: PM-RC-04 (performance SLO), PM-RC-07 (stream relationships).
+
+**Deferred validation:** CLI execution stream opening requires Stage 1 burn-in evidence (12h soak, 0 P0/P1, 0 kill-switch, gates green). This is an operational checkpoint, not a governance AC — RC7 is closed.
 
 **Tags**: `ecosystem-v0.1.135-rustify-core1-rc7-executed`
 

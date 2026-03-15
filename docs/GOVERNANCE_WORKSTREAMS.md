@@ -4234,7 +4234,7 @@ If PM-RC-07 confirms SUPERSEDES for SEC-CORE2 and PLAT-CORE1, those items should
 | **RC4** | Shared Rust core adoption in app/runtime boundaries | Engineering gate | NO (parallel with RC3) | RC2 complete | **DONE** (`ecosystem-v0.1.130-rustify-core1-rc4-executed`, 2026-03-14). AC-RC-17–20 all PASS. Adoption verified via audit; IPC-mediated delegation confirmed as canonical path. |
 | **RC5** | Browser↔app endpoint integration gates (WebSocket-direct) | Engineering gate | YES — gates RC6 | RC3 + RC4 complete, PM-RC-02 APPROVED (WebSocket-direct) | **DONE** (`daemon-v0.2.42-rustify-core1-rc5-btr-ws`, `sdk-v0.6.9-rustify-core1-rc5-ws-transport`, `ecosystem-v0.1.133-rustify-core1-rc5-done`, 2026-03-14). AC-RC-21–24 all PASS. WS endpoint + BTR capability + fallback verified. |
 | **RC6** | Rollout + compatibility + rollback policy | PM/Engineering gate | YES — gates close | RC5 complete, PM-RC-03 APPROVED, PM-RC-05 APPROVED | **DONE** (`ecosystem-v0.1.134-rustify-core1-rc6-executed`, 2026-03-14). AC-RC-25–28 all PASS. Rollout policy, rollback policy, compatibility matrix, and no-regression gates codified. PM-RC-03 APPROVED (app-first rollout). PM-RC-05 APPROVED (deprecate-but-retain TS paths). |
-| **RC7** | CLI reservation hooks (governance artifacts only) | Governance gate | NO (parallel with RC1–RC6) | None | **DONE** (`ecosystem-v0.1.135-rustify-core1-rc7-executed`, 2026-03-14). AC-RC-29–33 all PASS. PM-RC-06 APPROVED. CLI stream trigger: RC4 complete + RC6 Stage 1 burn-in passed (12h soak, 0 P0/P1, 0 kill-switch). |
+| **RC7** | CLI reservation hooks (governance artifacts only) | Governance gate | NO (parallel with RC1–RC6) | None | **DONE** (`ecosystem-v0.1.135-rustify-core1-rc7-executed`, 2026-03-14). AC-RC-29–33 all PASS (governance artifacts delivered). PM-RC-06 APPROVED (trigger *defined*). CLI stream trigger: RC4 complete + RC6 Stage 1 burn-in passed (12h soak, 0 P0/P1, 0 kill-switch). **Note:** CLI execution stream NOT OPEN — Stage 1 burn-in not yet started. |
 
 #### Dependency DAG
 
@@ -4572,7 +4572,7 @@ Kill-switch rollback (RC-G7) remains active throughout the Deprecated phase. Sun
 | AC-RC-30 | CLI config schema keys reserved | Schema doc | **PASS** — Reserved `cli.*` config key namespace documented below. |
 | AC-RC-31 | CLI capability namespace reserved | Capability registry entry | **PASS** — Reserved `bolt.cli-*` capability namespace documented below. |
 | AC-RC-32 | No runtime code produced in this phase | Code review / `git diff --name-only` | **PASS** — RC7 commit touches only `docs/` files. No `.rs`, `.ts`, `.toml`, `.json`, or other runtime files modified. |
-| AC-RC-33 | CLI stream trigger condition defined (PM-RC-06 resolved) | PM decision recorded | **PASS** — PM-RC-06 APPROVED (2026-03-14). CLI stream may begin after: (1) RC4 complete [satisfied], AND (2) RC6 Stage 1 burn-in passed [12h continuous soak, 0 P0/P1 incidents, 0 kill-switch activations, no-regression gates green]. N-STREAM-1 N6 NOT required. |
+| AC-RC-33 | CLI stream trigger condition defined (PM-RC-06 resolved) | PM decision recorded | **PASS** (trigger condition *defined*; trigger condition *not yet satisfied*) — PM-RC-06 APPROVED (2026-03-14). CLI stream may begin after: (1) RC4 complete [satisfied], AND (2) RC6 Stage 1 burn-in passed [12h continuous soak, 0 P0/P1 incidents, 0 kill-switch activations, no-regression gates green]. N-STREAM-1 N6 NOT required. **CLI execution stream is NOT OPEN** — Stage 1 burn-in evidence pending. |
 
 ##### AC-RC-29 — Reserved CLI API Extension Points
 

@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-14 (RC7 DONE: CLI reservation hooks closed. PM-RC-06 APPROVED. AC-RC-29–33 all PASS.)
+> **Updated:** 2026-03-14 (RC7 DONE: CLI reservation hooks closed. PM-RC-06 APPROVED (trigger defined). CLI execution stream NOT OPEN — Stage 1 burn-in pending.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -416,7 +416,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 13: RUSTIFY-CORE-1 — Native-First Transport + Core Consolidation
 
 **Priority:** NEXT
-**Status:** **RC1 DONE**, **RC2 DONE**, **RC3 DONE** (`daemon-v0.2.40`, 2026-03-14), **RC4 DONE** (`ecosystem-v0.1.130`, 2026-03-14), **RC5 DONE** (`daemon-v0.2.42-rustify-core1-rc5-btr-ws`, `sdk-v0.6.9-rustify-core1-rc5-ws-transport`, `ecosystem-v0.1.133-rustify-core1-rc5-done`, 2026-03-14). AC-RC-21–24 all PASS. **PM-RC-02 APPROVED** (WebSocket-direct, 2026-03-14). **RC6 DONE** (`ecosystem-v0.1.134-rustify-core1-rc6-executed`, 2026-03-14). AC-RC-25–28 all PASS. **PM-RC-03 APPROVED** (app-first rollout, 2026-03-14). **PM-RC-05 APPROVED** (deprecate-but-retain TS paths, 2026-03-14). **RC7 DONE** (`ecosystem-v0.1.135-rustify-core1-rc7-executed`, 2026-03-14). AC-RC-29–33 all PASS. **PM-RC-06 APPROVED** (CLI trigger: RC4 + Stage 1 burn-in).
+**Status:** **RC1 DONE**, **RC2 DONE**, **RC3 DONE** (`daemon-v0.2.40`, 2026-03-14), **RC4 DONE** (`ecosystem-v0.1.130`, 2026-03-14), **RC5 DONE** (`daemon-v0.2.42-rustify-core1-rc5-btr-ws`, `sdk-v0.6.9-rustify-core1-rc5-ws-transport`, `ecosystem-v0.1.133-rustify-core1-rc5-done`, 2026-03-14). AC-RC-21–24 all PASS. **PM-RC-02 APPROVED** (WebSocket-direct, 2026-03-14). **RC6 DONE** (`ecosystem-v0.1.134-rustify-core1-rc6-executed`, 2026-03-14). AC-RC-25–28 all PASS. **PM-RC-03 APPROVED** (app-first rollout, 2026-03-14). **PM-RC-05 APPROVED** (deprecate-but-retain TS paths, 2026-03-14). **RC7 DONE** (`ecosystem-v0.1.135-rustify-core1-rc7-executed`, 2026-03-14). AC-RC-29–33 all PASS (governance artifacts delivered). **PM-RC-06 APPROVED** (CLI trigger *defined*: RC4 + Stage 1 burn-in). **CLI execution stream NOT OPEN** — Stage 1 burn-in evidence pending.
 **Routing:** bolt-core-sdk (Rust primary), bolt-daemon, bolt-protocol (spec amendments)
 **Category:** Architecture — native transport + Rust core consolidation
 **Stream:** RUSTIFY-CORE-1 (phased, 7 phases RC1–RC7)

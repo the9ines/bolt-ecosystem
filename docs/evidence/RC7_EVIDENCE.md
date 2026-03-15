@@ -137,3 +137,23 @@ Files changed in RC7 commit:
 | **Total** | **All 7 phases DONE** | **33/33 ACs PASS** |
 
 PM decisions: 6 of 8 APPROVED (PM-RC-01, 01A, 02, 03, 05, 06). 2 residual PENDING (PM-RC-04, 07) — non-blocking.
+
+---
+
+## 10. Governance vs Operational Distinction (Clarification, 2026-03-14)
+
+AC-RC-33 asks whether the CLI stream trigger condition is **defined** — not whether the condition is **satisfied**.
+
+| Question | Answer | Governance Impact |
+|----------|--------|-------------------|
+| Is the trigger condition defined? | YES — PM-RC-06 APPROVED | AC-RC-33 PASS, RC7 DONE |
+| Has the trigger condition been met? | NO — Stage 1 burn-in not started | CLI execution stream NOT OPEN |
+| Can CLI stream work begin today? | NO | Gated on burn-in evidence |
+
+**Deferred validation checkpoint:** CLI execution stream opening requires Stage 1 burn-in evidence:
+- 12h continuous automated soak
+- 0 P0/P1 incidents
+- 0 kill-switch activations
+- No-regression gates green
+
+This is an **operational checkpoint**, not a governance AC. RC7 is closed; the burn-in is an RC6 rollout activity that must complete before the CLI stream's PM-RC-06 trigger is satisfied.
