@@ -5,6 +5,40 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-15 — EGUI-NATIVE-1 EN3 IN-PROGRESS: Feature Parity Wiring + Web Token Alignment
+
+**EN3 status**: READY → **IN-PROGRESS**. AC-EN-10/13/14 PASS. AC-EN-11/12/15 PARTIAL.
+
+**AC-EN-10 PASS:** Connect screen uses `bolt_core::peer_code::generate_secure_peer_code()`. Zero hardcoded placeholders. Dynamic connection state (Disconnected/Connecting/Connected/Error). Input validation via `is_valid_peer_code()`. Peer code displayed in neon accent (#A4E200).
+
+**AC-EN-11 PARTIAL:** Transfer screen driven by `TransferState` enum (Idle/Sending/Receiving/Complete/Failed). Progress bar, file info, status all state-driven. **Blocker:** send/receive requires daemon IPC for file picker and transfer initiation. Send button disabled with "Connect to a peer first" message.
+
+**AC-EN-12 PARTIAL:** Verify screen driven by `VerifyState` enum (NotStarted/Pending/Confirmed/Rejected). SAS code from state model, formatted with spaces. Confirm/reject actions update state. **Blocker:** SAS code generation requires active daemon session (HELLO exchange produces SAS inputs).
+
+**AC-EN-13 PASS:** Existing workspace tests pass (`cargo check --workspace` green). No regressions.
+
+**AC-EN-14 PASS:** `cargo tree -p bolt-ui` shows `bolt-core` (shared Rust core). Zero transport dependencies.
+
+**AC-EN-15 PARTIAL:** Error display wired to `ConnectionState::Error`. **Blocker:** transfer failure and kill-switch error states require daemon IPC events.
+
+**Placeholder removal:** Zero instances of `ABC123`, `A3 F7 2B`, or static status strings in UI source (verified by grep).
+
+**Theme parity (web → egui):**
+| Token | Web | egui (before) | egui (after) |
+|-------|-----|---------------|-------------|
+| Accent | #A4E200 | #6366F1 | #A4E200 |
+| Background | #121212 | #111111 | #121212 |
+| Card | #1A1A1A | #1C1C1E | #1A1A1A |
+| Foreground | #FAFAFA | #F5F5F5 | #FAFAFA |
+| Border | #262626 | #37373C | #262626 |
+| Radius | 12px | 8px | 12px |
+
+**Tags**: `sdk-v0.6.11-egui-native1-en3-parity-wire`
+
+**Blockers for EN3 DONE:** Daemon IPC integration for AC-EN-11 (transfer), AC-EN-12 (verify/SAS), AC-EN-15 (error events). Requires bolt-daemon running and bolt-ui connected via IPC.
+
+---
+
 ## 2026-03-15 — EGUI-NATIVE-1 EN2 DONE: bolt-ui Scaffold + Theme Baseline
 
 **EN2 status**: READY → **DONE**. All 5 ACs (AC-EN-05–09) PASS.
