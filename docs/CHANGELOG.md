@@ -5,6 +5,26 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-15 — WEBTRANSPORT-BROWSER-APP-1 WT1 DONE: Policy + Browser Support Matrix Lock
+
+**WT1 status**: NOT-STARTED → **DONE**. All 4 ACs (AC-WT-01–04) PASS. Two PM decisions resolved.
+
+**PM-WT-01 APPROVED (2026-03-15): Option B.** Ship WebTransport on supported browsers (Chrome 97+, Edge 97+, Firefox 115+). Safari/iOS Safari fallback to WS-direct → WebRTC. Re-evaluate when Safari ships (Interop 2026). Runtime detection via `typeof WebTransport !== 'undefined'`.
+
+**PM-WT-02 APPROVED (2026-03-15): Option A.** Capability string `bolt.transport-webtransport-v1`. Transport-level, no protocol impact. Follows `bolt.*` namespace convention.
+
+**AC-WT-03 (fallback policy):** Three-tier fallback locked: WebTransport → WS-direct → WebRTC. 6 deterministic trigger conditions (feature detection, connection timeout, TLS error, UDP block, WS refused, WS timeout). Kill-switch at every tier (WT-G8). G1 invariant preserved (browser↔browser = WebRTC).
+
+**AC-WT-04 (TLS requirement):** WebTransport requires TLS (QUIC mandates TLS 1.3). 4 cert strategy options documented (C1–C4) for PM-WT-03 resolution in WT2.
+
+**WT2 status**: NOT-STARTED → **READY** (WT1 DONE, unblocked). WT2 scope: daemon endpoint contract + TLS cert strategy lock (PM-WT-03).
+
+**Tags**: `ecosystem-v0.1.141-webtransport-browser-app1-wt1-executed`
+
+**Next**: WT2 — daemon WebTransport endpoint + TLS policy lock (PM-WT-03 needed).
+
+---
+
 ## 2026-03-14 — BTR-SPEC-1 BS4 DONE: Conformance Vectors + Negative-Test Matrix Lock
 
 **BS4 status**: READY → **DONE**. All 4 ACs (AC-BS-14–17) PASS.
