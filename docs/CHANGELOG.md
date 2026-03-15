@@ -5,6 +5,24 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-15 — DISCOVERY-MODE-1 COMPLETE: DM4 Env Audit + Stream Closure
+
+**DM4 status**: READY → **DONE**. All 3 ACs (AC-DM-14–16) PASS.
+
+**DISCOVERY-MODE-1 stream: COMPLETE.** All 4 phases (DM1–DM4) DONE. All 16 ACs PASS. All 4 PM decisions APPROVED.
+
+**AC-DM-14 (env var audit):** Env var naming matrix documented. localbolt-v3 uses `VITE_SIGNAL_URL` for cloud / `VITE_LOCAL_SIGNAL_URL` for local. localbolt/app use `VITE_SIGNAL_URL` for local / `VITE_CLOUD_SIGNAL_URL` for cloud. Naming inverted but semantically unambiguous within each app. Rationale: independent development timelines. Migration risk: HIGH (breaking deployed .env files). Forward recommendation: separate future harmonization pass.
+
+**AC-DM-15 (mode docs):** Mode semantics documented across DM1–DM4 governance sections + 4 evidence files.
+
+**AC-DM-16 (docs-only):** Zero runtime files changed. `git diff --name-only` = `docs/` only.
+
+**Stream summary:** LAN_ONLY AirDrop-style discovery as LocalBolt default. "NEARBY" indicator in all 3 consumers. 11 acceptance tests for dedup/loss/routing. Env var audit with forward harmonization note.
+
+**Tags**: `ecosystem-v0.1.160-discovery-mode1-dm4-closeout`
+
+---
+
 ## 2026-03-15 — DISCOVERY-MODE-1 DM3 DONE: Acceptance Test Harness
 
 **DM3 status**: READY → **DONE**. AC-DM-10–13 all PASS. 11 tests added.

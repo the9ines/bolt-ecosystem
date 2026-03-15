@@ -5225,7 +5225,7 @@ These gates are evaluated at EW3 and must all PASS for EW4 ADOPT recommendation.
 > **Priority:** NEXT (no upstream dependencies; orthogonal to all active streams)
 > **Repos:** bolt-ecosystem (governance only — no runtime code)
 > **Codified:** ecosystem-v0.1.116-discovery-mode1-codify (2026-03-12)
-> **Status:** DM1–DM3 DONE (`ecosystem-v0.1.159`, 2026-03-15). DM4 READY.
+> **Status:** **COMPLETE.** DM1–DM4 all DONE (`ecosystem-v0.1.160`, 2026-03-15). All 16 ACs PASS. All 4 PM decisions APPROVED.
 
 ---
 
@@ -5348,7 +5348,7 @@ The following deduplication invariants apply when both local and cloud signaling
 | **DM1** | PM mode policy lock (default mode, UI requirements, CLOUD_ONLY disposition) | PM gate | YES — gates DM2 | None | **DONE** (`ecosystem-v0.1.156-discovery-mode1-dm1-policy-lock`, 2026-03-15). AC-DM-01–04 all PASS. PM-DM-01–04 APPROVED. LAN_ONLY default (AirDrop-style), no cloud/hybrid in LocalBolt discovery. |
 | **DM2** | Mode indicator implementation across consumers | Engineering gate | YES — gates DM3 | DM1 complete | **DONE** (`ecosystem-v0.1.158-discovery-mode1-dm2-nearby`, 2026-03-15). AC-DM-05–08 PASS. "NEARBY" in all 3 consumers. |
 | **DM3** | Mode-aware acceptance test harness | Engineering gate | YES — gates DM4 | DM2 complete | **DONE** (`ecosystem-v0.1.159-discovery-mode1-dm3-harness`, 2026-03-15). AC-DM-10–13 all PASS. 11 tests. |
-| **DM4** | Env var harmonization + documentation alignment | Engineering gate | YES — closes stream | DM3 complete | **READY** (DM3 DONE, unblocked) |
+| **DM4** | Env var harmonization + documentation alignment | Engineering gate | YES — closes stream | DM3 complete | **DONE** (`ecosystem-v0.1.160-discovery-mode1-dm4-closeout`, 2026-03-15). AC-DM-14–16 all PASS. Env var audit documented. DISCOVERY-MODE-1 COMPLETE. |
 
 #### Dependency DAG
 
@@ -5447,11 +5447,65 @@ Cloud signaling (the existing `DualSignaling` with cloud URL) remains functional
 
 #### DM4 — Env Var Harmonization + Closure
 
-| ID | Criterion | Evidence Required |
-|----|-----------|------------------|
-| AC-DM-14 | Env var naming consistent across all 3 consumers (or documented rationale for differences) | Config audit doc |
-| AC-DM-15 | Mode semantics documented in each consumer's README/docs | Doc review |
-| AC-DM-16 | No non-doc files changed in governance codification pass (this pass) | `git diff --name-only` audit |
+| ID | Criterion | Evidence Required | Status |
+|----|-----------|------------------|--------|
+| AC-DM-14 | Env var naming consistent across all 3 consumers (or documented rationale for differences) | Config audit doc | **PASS** — Config audit codified below with explicit rationale for naming differences. |
+| AC-DM-15 | Mode semantics documented in each consumer's README/docs | Doc review | **PASS** — DM1 policy lock + DM2 "NEARBY" indicator + DM3 test harness constitute mode semantics documentation at governance level. |
+| AC-DM-16 | No non-doc files changed in governance codification pass (this pass) | `git diff --name-only` audit | **PASS** — DM4 commit touches only `docs/` files. Zero runtime files modified. |
+
+##### AC-DM-14 — Env Var Config Audit (DOCUMENTED)
+
+**Current naming matrix:**
+
+| Purpose | localbolt-v3 | localbolt | localbolt-app | Consistent? |
+|---------|-------------|-----------|---------------|-------------|
+| Local signaling URL | `VITE_LOCAL_SIGNAL_URL` | `VITE_SIGNAL_URL` | `VITE_SIGNAL_URL` | NO — v3 uses `LOCAL_SIGNAL_URL`, others use `SIGNAL_URL` |
+| Cloud signaling URL | `VITE_SIGNAL_URL` | `VITE_CLOUD_SIGNAL_URL` | `VITE_CLOUD_SIGNAL_URL` | NO — v3 uses `SIGNAL_URL` for cloud, others use `CLOUD_SIGNAL_URL` |
+| Default when absent | Cloud disabled (LAN_ONLY) | Cloud disabled (LAN_ONLY) | Cloud disabled (LAN_ONLY) | YES — all default to LAN_ONLY |
+| Local URL fallback | `ws://${hostname}:3001` | `ws://${hostname}:3001` | `ws://${hostname}:3001` | YES |
+
+**Rationale for naming difference:**
+
+localbolt-v3 was developed as the primary web consumer with cloud signaling (`wss://bolt-rendezvous.fly.dev`) as its "primary" signal path, deployed on localbolt.app (Netlify). The env var `VITE_SIGNAL_URL` was chosen to mean "the signal server URL" — which in v3's context is the cloud server. Local signaling was added later as `VITE_LOCAL_SIGNAL_URL`.
+
+localbolt and localbolt-app were developed after the DualSignaling architecture was established. `VITE_SIGNAL_URL` was chosen to mean "the local signal server" (the default/primary path), with `VITE_CLOUD_SIGNAL_URL` as the explicitly-named cloud addition.
+
+**The naming is inverted between v3 and the others but semantically unambiguous within each app.** Each app resolves its URLs correctly and produces identical DualSignaling behavior.
+
+**Migration risk if renamed:**
+
+| Risk | Impact |
+|------|--------|
+| Breaking deployed .env files | HIGH — localbolt.app (Netlify) has `VITE_SIGNAL_URL` set to cloud URL in production |
+| Consumer confusion | MEDIUM — developers must update env files |
+| CI/CD breakage | MEDIUM — build pipelines reference current names |
+
+**Forward note:** A separate future harmonization pass (not DM4 scope) should standardize all consumers to `VITE_LOCAL_SIGNAL_URL` + `VITE_CLOUD_SIGNAL_URL` with backward-compat aliases during transition. This is a runtime change and is out of DM4 scope per AC-DM-16.
+
+##### AC-DM-15 — Mode Semantics Documentation
+
+Mode semantics are documented at governance level across DM1–DM4:
+
+| Document | Content |
+|----------|---------|
+| GOVERNANCE_WORKSTREAMS.md § DM1 | LAN_ONLY default policy, mode definitions, PM-DM-01–04 decisions |
+| GOVERNANCE_WORKSTREAMS.md § DM2 | "NEARBY" indicator semantics across all consumers |
+| GOVERNANCE_WORKSTREAMS.md § DM3 | 11 acceptance tests codifying composition, dedup, loss, routing |
+| GOVERNANCE_WORKSTREAMS.md § DM4 | Env var audit + naming rationale (this section) |
+| DM1_EVIDENCE.md | Policy summary table |
+| DM2_EVIDENCE.md | Per-app before/after, LAN-only compliance checklist |
+| DM3_EVIDENCE.md | Test-to-AC mapping, test results |
+
+##### AC-DM-16 — Docs-Only Audit
+
+DM4 commit changes only `docs/` files:
+- `docs/GOVERNANCE_WORKSTREAMS.md`
+- `docs/FORWARD_BACKLOG.md`
+- `docs/STATE.md`
+- `docs/CHANGELOG.md`
+- `docs/evidence/DM4_EVIDENCE.md`
+
+Zero `.ts`, `.rs`, `.json`, `.env`, or other runtime files modified.
 
 ---
 
@@ -6895,7 +6949,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** |
 | RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE**, **RC2 DONE** (`ecosystem-v0.1.127-rustify-core1-rc2-complete`, 2026-03-13). PM-RC-01A APPROVED (quinn, 2026-03-13). 7 phases (RC1–RC7), 33 ACs, 8 PM decisions. **RC3 READY** (unblocked). |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + bolt-core-sdk + ecosystem | **EN1–EN3 DONE** (`daemon-v0.2.44`, 2026-03-15). AC-EN-01–15 all PASS. EN4 READY. |
-| DISCOVERY-MODE-1 | Discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **DM1–DM3 DONE** (`ecosystem-v0.1.159`, 2026-03-15). 11 acceptance tests. DM4 READY. |
+| DISCOVERY-MODE-1 | Discovery mode policy codification | ~~NEXT~~ COMPLETE | ecosystem (governance) + consumers (implementation) | **COMPLETE** (`ecosystem-v0.1.160`, 2026-03-15). All 16 ACs PASS. All 4 PM decisions APPROVED. DM1–DM4 DONE. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | ~~NEXT~~ COMPLETE | bolt-protocol + ecosystem | **COMPLETE** (`ecosystem-v0.1.143-btr-spec1-bs5-closeout`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED. BS1–BS5 DONE. |
 | WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | ~~NEXT~~ COMPLETE | bolt-daemon + bolt-core-sdk + ecosystem | **COMPLETE** (`ecosystem-v0.1.147-webtransport-browser-app1-wt5-closeout`, 2026-03-15). All 20 ACs PASS. All 5 PM decisions APPROVED. WT1–WT5 DONE. |
 | EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | LATER | localbolt-v3 + localbolt + ecosystem | **CODIFIED** (`ecosystem-v0.1.142-egui-wasm1-codify`, 2026-03-15). 5 phases (EW1–EW5), 19 ACs, 5 PM decisions. PM-EN-04 early approval. EW1 unblocked. Experimental — ABANDON is valid outcome. |
