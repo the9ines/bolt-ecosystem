@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-15 (WEBTRANSPORT-BROWSER-APP-1 COMPLETE: WT5 DONE, all 20 ACs PASS, all 5 PM decisions APPROVED. Stream closed.)
+> **Last Updated:** 2026-03-15 (BTR runtime verification complete: 1,400+ tests, 0 BTR failures. All invariants covered. No runtime code changes — implementation was already complete. EGUI deferred.)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
