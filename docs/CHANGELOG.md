@@ -5,6 +5,24 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-15 — EGUI-NATIVE-1 EN3e: Daemon IPC Events + bolt-ui IPC Client
+
+**Daemon IPC events added** (`daemon-v0.2.43`): session.connected, session.sas, session.error, session.ended, transfer.started/progress/complete. Both offerer and answerer rendezvous paths emit events via IPC socket.
+
+**bolt-ui IPC client** (`sdk-v0.6.14`): Unix socket NDJSON client connects to daemon, receives structured events, drives UI state transitions. Replaces stderr as primary data path.
+
+**SAS verification via IPC:** Real SAS code (399939) received from daemon session.sas event. Both host and join compute matching SAS. VerifyState::Pending populated from IPC event.
+
+**AC-EN-12 PASS:** SAS code flows from daemon HELLO exchange → IPC event → bolt-ui verify screen.
+**AC-EN-15 PASS:** IPC connect failure, daemon exit, timeout — all surfaced.
+**AC-EN-11 PARTIAL:** Transfer IPC types + bolt-ui processing ready. Daemon transfer emit points pending.
+
+**EN3 status: IN-PROGRESS.** AC-EN-11 requires daemon transfer event emissions in B3 data loop.
+
+**Tags**: `daemon-v0.2.43-en3e-ipc-session-events`, `sdk-v0.6.14-egui-native1-en3e-ipc-client`, `ecosystem-v0.1.154-egui-native1-en3e-ipc`
+
+---
+
 ## 2026-03-15 — EGUI-NATIVE-1 EN3d: Host/Join Launcher — Real Rendezvous Connect
 
 **EN3d status**: Launcher pattern implemented. Real two-daemon rendezvous connection verified.

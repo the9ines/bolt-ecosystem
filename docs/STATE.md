@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-15 (EGUI-NATIVE-1 EN3d: Host/Join launcher with real rendezvous connect. AC-EN-10/13/14/15 PASS. AC-EN-11/12 PARTIAL — IPC client needed.)
+> **Last Updated:** 2026-03-15 (EGUI-NATIVE-1 EN3e: daemon IPC events + bolt-ui IPC client. AC-EN-10/12/13/14/15 PASS. AC-EN-11 PARTIAL — daemon transfer emit points pending.)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
