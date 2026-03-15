@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-15 (EGUI-NATIVE-1 EN3 hotfix: connect hang resolved. 5s timeout + cancel + retry. AC-EN-11/12/15 still PARTIAL — daemon IPC needed.)
+> **Last Updated:** 2026-03-15 (EGUI-NATIVE-1 EN3d: Host/Join launcher with real rendezvous connect. AC-EN-10/13/14/15 PASS. AC-EN-11/12 PARTIAL — IPC client needed.)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---

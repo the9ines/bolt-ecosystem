@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-15 — EGUI-NATIVE-1 EN3d: Host/Join Launcher — Real Rendezvous Connect
+
+**EN3d status**: Launcher pattern implemented. Real two-daemon rendezvous connection verified.
+
+**Host/Join UX:** Host generates room + session + peer code and displays for sharing. Join enters host's details and spawns daemon as offerer. Both sides use `--signal rendezvous` with matching args.
+
+**Verified on localhost:** hello/ack + WebRTC offer/answer + ICE candidates + DataChannel open + encrypted HELLO + BTR negotiated + ping/pong heartbeat (0-1ms RTT).
+
+**AC-EN-10 PASS:** Real peer code, Host/Join mode, rendezvous connect path.
+**AC-EN-13 PASS:** Workspace green, 12 tests pass.
+**AC-EN-14 PASS:** bolt-core only, zero transport deps.
+**AC-EN-15 PASS:** Prerequisite errors surfaced, 30s timeout, cancel/retry, daemon exit detection.
+
+**AC-EN-11 PARTIAL:** TransferState::Ready on connect. File transfer UI requires IPC client integration (daemon IPC socket exists but bolt-ui reads stderr, not structured IPC events).
+**AC-EN-12 PARTIAL:** SAS code in daemon HELLO logs. UI binding via stderr. Needs IPC client for structured pairing.request event.
+
+**EN3 status: IN-PROGRESS.** AC-EN-11/12 require IPC client module to receive structured daemon events via NDJSON socket.
+
+**Tags**: `sdk-v0.6.13-egui-native1-en3d-launcher`, `ecosystem-v0.1.153-egui-native1-en3d-launcher`
+
+---
+
 ## 2026-03-15 — EGUI-NATIVE-1 EN3 Hotfix: Connect Hang Resolved
 
 **Bug:** Two devices entering each other's codes hung on "Connecting..." indefinitely.
