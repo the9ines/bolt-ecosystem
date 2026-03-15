@@ -5656,6 +5656,181 @@ Transport Layer (DataChannel / WebSocket / QUIC)
 
 ---
 
+## WEBTRANSPORT-BROWSER-APP-1 — Browser↔App WebTransport Migration
+
+> **Stream ID:** WEBTRANSPORT-BROWSER-APP-1
+> **Backlog Item:** New (browser↔app transport evolution)
+> **Priority:** NEXT (depends on RUSTIFY-CORE-1 RC5 WS baseline being operational)
+> **Repos:** bolt-daemon (primary — WebTransport endpoint), bolt-core-sdk (browser adapter), bolt-ecosystem (governance)
+> **Codified:** ecosystem-v0.1.139-webtransport-browser-app1-codify (2026-03-14)
+> **Status:** CODIFIED (WT1 unblocked immediately)
+
+---
+
+### Context & Motivation
+
+RUSTIFY-CORE-1 RC5 established WebSocket-direct as the primary browser↔app transport (PM-RC-02 APPROVED), with WebRTC as automatic fallback. This architecture works but has limitations:
+
+1. **WebSocket is TCP-based** — head-of-line blocking on packet loss, no multiplexing, no stream-level flow control
+2. **WebTransport is QUIC/HTTP3-based** — multiplexed streams, no head-of-line blocking, built-in flow control, UDP-based (lower latency)
+3. **App↔app already uses QUIC** (RUSTIFY-CORE-1 RC3, quinn) — WebTransport for browser↔app would unify the transport substrate
+4. **WebTransport requires TLS** — daemon must serve HTTPS/TLS for WebTransport connections, which also resolves the HTTPS mixed-content caveat documented in RC5/RC6
+
+**PM-RC-02 history:** WebTransport was rejected for RC5 as "Option C — Safari unsupported, experimental API, unnecessary scope risk" (2026-03-14). Since then, browser support has expanded and the architecture has matured. This stream re-evaluates WebTransport with WS and WebRTC as explicit fallback layers.
+
+### Transport Matrix (Post-WEBTRANSPORT-BROWSER-APP-1)
+
+| Endpoint Pair | Primary | Fallback 1 | Fallback 2 | Notes |
+|--------------|---------|------------|------------|-------|
+| browser↔browser | WebRTC (G1 invariant) | — | — | Unchanged |
+| app↔app | QUIC/quinn (RC3) | DataChannel (kill-switch) | — | Unchanged |
+| browser↔app | **WebTransport** (new) | WebSocket-direct (RC5) | WebRTC (baseline) | Three-tier fallback |
+
+### Relationship to Existing Streams
+
+| Stream | Mode | Rationale |
+|--------|------|-----------|
+| **RUSTIFY-CORE-1** (DONE) | **EXTENDS** | Builds on RC5 WS endpoint + RC3 QUIC/quinn. Reuses daemon shared core authority (RC4). Does not modify completed RC phases. |
+| **BTR-SPEC-1** (IN-PROGRESS) | **ORTHOGONAL** | BTR operates above transport. WebTransport is transparent to BTR (same layering as WS/WebRTC per BTR-FC). |
+| **EGUI-NATIVE-1** (CODIFIED) | **ORTHOGONAL** | UI layer. No transport dependency. |
+| **DISCOVERY-MODE-1** (CODIFIED) | **ORTHOGONAL** | Discovery layer. No transport dependency. |
+
+No SUPERSEDES or REFACTORS relationships. WEBTRANSPORT-BROWSER-APP-1 is additive.
+
+---
+
+### Scope Guardrails
+
+| ID | Guardrail |
+|----|-----------|
+| WT-G1 | Browser↔browser retains WebRTC — G1 invariant unchanged |
+| WT-G2 | WebSocket-direct (RC5) retained as first fallback — not removed |
+| WT-G3 | WebRTC retained as second fallback — not removed |
+| WT-G4 | BTR/envelope/session authority remains in daemon/shared Rust core — no protocol reimplementation in browser |
+| WT-G5 | No protocol semantic changes — WebTransport is a transport binding, not a protocol change |
+| WT-G6 | Daemon must serve TLS for WebTransport — self-signed acceptable for development, CA-signed for production |
+| WT-G7 | Browser support gating required — WebTransport not available in all browsers (Safari support must be evaluated per WT1) |
+| WT-G8 | Kill-switch rollback from WebTransport → WS → WebRTC must be available at every phase |
+
+---
+
+### WEBTRANSPORT-BROWSER-APP-1 Phase Table
+
+| Phase | Description | Type | Serial Gate | Dependencies | Status |
+|-------|-------------|------|-------------|--------------|--------|
+| **WT1** | Policy lock + capability/browser support matrix | PM/Spec gate | YES — gates WT2 | None | NOT-STARTED |
+| **WT2** | Daemon WebTransport endpoint contract + auth/origin/TLS policy lock | Engineering + PM gate | YES — gates WT3 | WT1 complete | NOT-STARTED |
+| **WT3** | Browser adapter contract + three-tier fallback orchestration lock | Engineering gate | YES — gates WT4 | WT2 complete | NOT-STARTED |
+| **WT4** | Conformance/compatibility matrix + rollout/rollback gate lock | Engineering + PM gate | YES — gates WT5 | WT3 complete | NOT-STARTED |
+| **WT5** | Closure criteria + WS role disposition after WebTransport adoption | PM/Spec gate | YES — closes stream | WT4 complete | NOT-STARTED |
+
+#### Dependency DAG
+
+```
+WT1 (policy + browser support matrix — unblocked now)
+  │
+  ▼
+WT2 (daemon endpoint + TLS policy)
+  │
+  ▼
+WT3 (browser adapter + fallback orchestration)
+  │
+  ▼
+WT4 (conformance + rollout/rollback gates)
+  │
+  ▼
+WT5 (closure + WS disposition — PM gate)
+```
+
+No upstream stream dependencies. EXTENDS RUSTIFY-CORE-1 (completed). May run in parallel with BTR-SPEC-1 and other active streams.
+
+---
+
+### Acceptance Criteria
+
+#### WT1 — Policy + Browser Support Matrix
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-WT-01 | Browser support matrix finalized (which browsers support WebTransport, minimum versions) | Published support matrix |
+| AC-WT-02 | WebTransport capability string defined and registered | Capability registry entry |
+| AC-WT-03 | Three-tier fallback policy codified (WebTransport → WS → WebRTC) with trigger conditions | Fallback policy doc |
+| AC-WT-04 | TLS requirement acknowledged and cert strategy options documented | TLS policy doc |
+
+#### WT2 — Daemon Endpoint + TLS Policy
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-WT-05 | Daemon WebTransport endpoint contract specified (listen address, ALPN, connection lifecycle) | Endpoint spec |
+| AC-WT-06 | Auth/origin validation policy for WebTransport connections defined | Auth policy doc |
+| AC-WT-07 | TLS certificate provisioning strategy locked (self-signed dev, CA-signed prod, rotation policy) | PM decision recorded |
+| AC-WT-08 | WebTransport endpoint feature-gated (kill-switch for rollback to WS) | Feature gate design |
+
+#### WT3 — Browser Adapter + Fallback Orchestration
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-WT-09 | Browser `WebTransportDataTransport` adapter contract specified | Adapter interface spec |
+| AC-WT-10 | Three-tier fallback orchestrator contract specified (WT → WS → WebRTC, with timeout/error triggers) | Orchestrator spec |
+| AC-WT-11 | BTR transparency verified — BTR operates identically over WebTransport as over WS/WebRTC | Cross-transport BTR test plan |
+| AC-WT-12 | DataTransport abstraction compatibility verified — WebTransport adapter implements same interface as WS/WebRTC | Interface compliance spec |
+
+#### WT4 — Conformance + Rollout/Rollback
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-WT-13 | Compatibility matrix: all browser↔app endpoint pairs verified (WT primary, WS fallback, WebRTC fallback) | Matrix test plan |
+| AC-WT-14 | Rollout policy codified (staged, per-consumer, with burn-in gates) | Rollout policy doc |
+| AC-WT-15 | Rollback levers documented (feature gate off → WS, WS off → WebRTC) | Rollback policy doc |
+| AC-WT-16 | Performance SLO thresholds for WebTransport defined (latency, throughput vs WS baseline) | SLO doc |
+
+#### WT5 — Closure + WS Disposition
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-WT-17 | Stream closure criteria met (all prior ACs, burn-in passed, no P0/P1 regressions) | Closure evidence |
+| AC-WT-18 | WS role disposition decided: retain as permanent fallback, or deprecate-with-sunset (separate PM decision) | PM decision recorded |
+| AC-WT-19 | WebRTC fallback role confirmed: retained as last-resort (G1 alignment) | Policy doc |
+| AC-WT-20 | Migration documentation published for consumer app developers | Migration guide |
+
+---
+
+### PM Open Decisions Table
+
+| ID | Decision | Blocks | Priority | Status |
+|----|----------|--------|----------|--------|
+| PM-WT-01 | Browser support minimum matrix (which browsers, which versions, Safari disposition) | WT1 (AC-WT-01) | WT1 | PENDING |
+| PM-WT-02 | WebTransport capability string naming (e.g., `bolt.transport-webtransport-v1`) | WT1 (AC-WT-02) | WT1 | PENDING |
+| PM-WT-03 | TLS certificate provisioning strategy for daemon WebTransport endpoint | WT2 (AC-WT-07) | WT2 | PENDING |
+| PM-WT-04 | Performance SLO thresholds for WebTransport (latency improvement target vs WS) | WT4 (AC-WT-16) | WT4 | PENDING |
+| PM-WT-05 | WS disposition after WebTransport adoption (permanent fallback vs deprecate-with-sunset) | WT5 (AC-WT-18) | WT5 | PENDING |
+
+---
+
+### Risk Register
+
+| ID | Risk | Severity | Mitigation |
+|----|------|----------|------------|
+| WT-R1 | Safari WebTransport support absent or limited | HIGH | Browser support matrix (WT1). Three-tier fallback ensures Safari users fall through to WS → WebRTC. No Safari-only breakage. |
+| WT-R2 | TLS certificate management complexity for local daemon | HIGH | WT2 locks cert strategy before implementation. Self-signed with trust prompts for dev. Potential mDNS + local CA for production. Kill-switch rollback to ws:// (non-TLS). |
+| WT-R3 | WebTransport API instability across browser versions | MEDIUM | WT1 locks minimum browser versions. WT3 adapter wraps API surface for isolation. Feature detection at runtime. |
+| WT-R4 | Three-tier fallback adds connection establishment latency | MEDIUM | WT3 designs parallel probing or fast-fail detection. Timeout tuning per tier. |
+| WT-R5 | QUIC/HTTP3 blocked by corporate firewalls (UDP blocked) | MEDIUM | WS fallback (TCP-based) handles this transparently. WebRTC as last resort. Three-tier design is the mitigation. |
+
+---
+
+### Explicit Non-Goals
+
+| ID | Non-Goal | Rationale |
+|----|----------|-----------|
+| WT-NG1 | Replace browser↔browser WebRTC | G1 invariant — unchanged |
+| WT-NG2 | Replace app↔app QUIC | QUIC is already native; WebTransport is browser-facing only |
+| WT-NG3 | Remove WebSocket or WebRTC paths | Retained as fallback tiers; removal is separate PM gate (PM-WT-05) |
+| WT-NG4 | Implement WebTransport in this codification pass | Governance-only; runtime deferred |
+| WT-NG5 | Modify BTR or protocol semantics | Transport is below BTR; transparent layering (BTR-FC) |
+
+---
+
 ## Tag Naming Rules
 
 | Workstream | Repo | Format | Example |
@@ -5687,6 +5862,9 @@ Transport Layer (DataChannel / WebSocket / QUIC)
 | DISCOVERY-MODE-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-discovery-mode1-<slug>` | `ecosystem-v0.1.116-discovery-mode1-codify` |
 | BTR-SPEC-1 (spec) | bolt-protocol | `v0.1.X-btr-spec1-bs<phase>-<slug>` | `v0.1.7-btr-spec1-bs1-taxonomy` |
 | BTR-SPEC-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-btr-spec1-<slug>` | `ecosystem-v0.1.118-btr-spec1-codify` |
+| WEBTRANSPORT-BROWSER-APP-1 (daemon) | bolt-daemon | `daemon-vX.Y.Z-wt<phase>-<slug>` | — |
+| WEBTRANSPORT-BROWSER-APP-1 (SDK) | bolt-core-sdk | `sdk-vX.Y.Z-wt<phase>-<slug>` | — |
+| WEBTRANSPORT-BROWSER-APP-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-webtransport-browser-app1-<slug>` | `ecosystem-v0.1.139-webtransport-browser-app1-codify` |
 | Governance | bolt-ecosystem | `ecosystem-v0.1.X-workstreams-N` | `ecosystem-v0.1.30-workstreams-1` |
 
 **Rules:**
@@ -5723,6 +5901,7 @@ Transport Layer (DataChannel / WebSocket / QUIC)
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **BS1–BS3 DONE** (`ecosystem-v0.1.138`, 2026-03-14). AC-BS-01–13 all PASS. PM-BS-01–04 APPROVED. BS4 READY. |
+| WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | NEXT | bolt-daemon + bolt-core-sdk + ecosystem | **CODIFIED** (`ecosystem-v0.1.139-webtransport-browser-app1-codify`, 2026-03-14). 5 phases (WT1–WT5), 20 ACs, 5 PM decisions. WT1 unblocked. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 

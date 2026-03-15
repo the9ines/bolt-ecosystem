@@ -5,6 +5,24 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-14 — WEBTRANSPORT-BROWSER-APP-1 Codified: Browser↔App WebTransport Migration Stream
+
+- **New governance stream codified:** WEBTRANSPORT-BROWSER-APP-1 — migrates browser↔app primary transport from WebSocket-direct (RC5) to WebTransport (QUIC/HTTP3).
+- **Transport matrix (post-adoption):** browser↔app primary: WebTransport. Fallback 1: WS-direct (RC5). Fallback 2: WebRTC (baseline). browser↔browser: WebRTC (G1 unchanged). app↔app: QUIC/quinn (RC3 unchanged).
+- **5 phases defined:** WT1 (policy + browser support) → WT2 (daemon endpoint + TLS) → WT3 (browser adapter + fallback) → WT4 (conformance + rollout) → WT5 (closure + WS disposition)
+- **20 acceptance criteria:** AC-WT-01 through AC-WT-20
+- **5 PM decisions opened:** PM-WT-01 (browser support matrix), PM-WT-02 (capability string), PM-WT-03 (TLS strategy), PM-WT-04 (perf SLO), PM-WT-05 (WS disposition)
+- **5 risks identified:** WT-R1 Safari support (HIGH), WT-R2 TLS cert complexity (HIGH), WT-R3 API instability (MEDIUM), WT-R4 fallback latency (MEDIUM), WT-R5 UDP firewall blocking (MEDIUM)
+- **Relationship:** EXTENDS RUSTIFY-CORE-1 (complete). ORTHOGONAL to BTR-SPEC-1, EGUI-NATIVE-1, DISCOVERY-MODE-1. No SUPERSEDES.
+- **Guardrails:** G1 preserved (browser↔browser WebRTC). WS/WebRTC retained as fallback. BTR transparent. No protocol semantic changes. Kill-switch rollback at every phase.
+- **Historical context:** WebTransport was rejected for RC5 (PM-RC-02 Option C, 2026-03-14) due to Safari support and scope risk. This stream re-evaluates with explicit fallback tiers.
+
+**Tags**: `ecosystem-v0.1.139-webtransport-browser-app1-codify`
+
+**Next**: WT1 — policy lock + browser support matrix (PM-WT-01/02 needed).
+
+---
+
 ## 2026-03-14 — BTR-SPEC-1 BS3 DONE: Wire Format + Failure/Recovery Semantics Lock
 
 **BS3 status**: READY → **DONE**. All 5 ACs (AC-BS-09–13) PASS. Two PM decisions resolved.

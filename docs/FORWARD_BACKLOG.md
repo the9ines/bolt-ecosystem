@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-14 (BTR-SPEC-1 BS3 DONE: wire format + failure/recovery semantics locked. BTR-FC/BTR-RSM normative text. PM-BS-03/04 APPROVED. BS4 READY.)
+> **Updated:** 2026-03-14 (WEBTRANSPORT-BROWSER-APP-1 codified: browser↔app WebTransport migration stream. 5 phases, 20 ACs, 5 PM decisions. WT1 unblocked.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -48,11 +48,13 @@ LATER:
 NEXT (independent):
   DISCOVERY-MODE-1 (discovery mode policy) ───── no upstream dependencies; DM1 unblocked immediately
   BTR-SPEC-1 (algorithm-grade BTR spec) ──────── no upstream dependencies; BS1 unblocked immediately
+  WEBTRANSPORT-BROWSER-APP-1 (browser↔app WT) ── extends RUSTIFY-CORE-1 (complete); WT1 unblocked immediately
 
 Priority constraint: MOB-RUNTIME1 ≤ PLAT-CORE1 (mobile cannot exceed shared core priority).
 Priority constraint: RUSTIFY-CORE-1 execution blocked until CONSUMER-BTR1 closes.
 Priority constraint: EGUI-NATIVE-1 EN2+ blocked until RUSTIFY-CORE-1 RC4 completes.
 No dependency constraints for DISCOVERY-MODE-1 (orthogonal to all other streams).
+No dependency constraints for WEBTRANSPORT-BROWSER-APP-1 (extends completed RUSTIFY-CORE-1).
 ```
 
 ---
@@ -552,6 +554,42 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 ---
 
+## Item 17: WEBTRANSPORT-BROWSER-APP-1 — Browser↔App WebTransport Migration
+
+**Priority:** NEXT
+**Status:** **CODIFIED** (`ecosystem-v0.1.139-webtransport-browser-app1-codify`, 2026-03-14). WT1 unblocked.
+**Routing:** bolt-daemon (WebTransport endpoint), bolt-core-sdk (browser adapter), bolt-ecosystem (governance)
+**Category:** Architecture — browser↔app transport evolution
+**Stream:** WEBTRANSPORT-BROWSER-APP-1 (phased, 5 phases WT1–WT5)
+**Dependencies:** RUSTIFY-CORE-1 complete (RC5 WS baseline operational). EXTENDS, does not modify.
+
+**Context:** RC5 established WebSocket-direct as browser↔app primary transport. WebTransport (QUIC/HTTP3) offers multiplexed streams, no head-of-line blocking, built-in flow control, and unifies the transport substrate with app↔app QUIC (RC3). WebTransport was previously rejected for RC5 (PM-RC-02 Option C) due to Safari support concerns and scope risk. This stream re-evaluates with WS and WebRTC as explicit fallback tiers.
+
+**Transport matrix (post-adoption):**
+- browser↔app primary: WebTransport (daemon endpoint)
+- browser↔app fallback 1: WebSocket-direct (RC5)
+- browser↔app fallback 2: WebRTC (baseline)
+- browser↔browser: WebRTC (G1 invariant, unchanged)
+- app↔app: QUIC/quinn (RC3, unchanged)
+
+**Phased Plan (WEBTRANSPORT-BROWSER-APP-1):**
+
+| Phase | Description | Serial Gate | Status |
+|-------|-------------|-------------|--------|
+| WT1 | Policy lock + browser support matrix | YES (gates WT2) | NOT-STARTED |
+| WT2 | Daemon endpoint + TLS policy lock | YES (gates WT3) | NOT-STARTED |
+| WT3 | Browser adapter + fallback orchestration lock | YES (gates WT4) | NOT-STARTED |
+| WT4 | Conformance + rollout/rollback gate lock | YES (gates WT5) | NOT-STARTED |
+| WT5 | Closure + WS disposition | YES (closes stream) | NOT-STARTED |
+
+**Acceptance Criteria:** 20 ACs defined (AC-WT-01 through AC-WT-20). See `docs/GOVERNANCE_WORKSTREAMS.md` § WEBTRANSPORT-BROWSER-APP-1.
+
+**PM Decisions:** 5 open (PM-WT-01 through PM-WT-05). See `docs/GOVERNANCE_WORKSTREAMS.md` § WEBTRANSPORT-BROWSER-APP-1.
+
+**Risk register:** 5 risks (WT-R1–R5). Safari support (HIGH), TLS cert complexity (HIGH), API instability (MEDIUM), fallback latency (MEDIUM), UDP firewall blocking (MEDIUM).
+
+---
+
 ## Routing Summary
 
 | Item | Routing | Certainty |
@@ -572,6 +610,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | EGUI-NATIVE-1 | localbolt-app + bolt-ecosystem | Confirmed |
 | DISCOVERY-MODE-1 | bolt-ecosystem + localbolt-v3 + localbolt + localbolt-app | Confirmed |
 | BTR-SPEC-1 | bolt-protocol + bolt-ecosystem | Confirmed |
+| WEBTRANSPORT-BROWSER-APP-1 | bolt-daemon + bolt-core-sdk + bolt-ecosystem | Confirmed |
 
 ---
 
@@ -617,3 +656,8 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-BS-04 | BTR-SPEC-1: Compatibility contract (strict vs tolerant parsing) | BS3 | NEXT |
 | PM-BS-05 | BTR-SPEC-1: External review gate (scope, reviewer profile, acceptance bar) | BS5 | NEXT |
 | PM-BS-06 | BTR-SPEC-1: Ratify relationship mode (COMPLEMENTS) with SEC-BTR1/CONSUMER-BTR1/RUSTIFY-CORE-1 | BS5 | NEXT |
+| PM-WT-01 | WEBTRANSPORT-BROWSER-APP-1: Browser support minimum matrix (Safari disposition) | WT1 | NEXT |
+| PM-WT-02 | WEBTRANSPORT-BROWSER-APP-1: WebTransport capability string naming | WT1 | NEXT |
+| PM-WT-03 | WEBTRANSPORT-BROWSER-APP-1: TLS certificate provisioning strategy | WT2 | NEXT |
+| PM-WT-04 | WEBTRANSPORT-BROWSER-APP-1: Performance SLO thresholds for WebTransport | WT4 | NEXT |
+| PM-WT-05 | WEBTRANSPORT-BROWSER-APP-1: WS disposition after WebTransport adoption | WT5 | NEXT |
