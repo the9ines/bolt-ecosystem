@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-15 (DISCOVERY-MODE-1 DM1 DONE: LAN_ONLY default (AirDrop-style). PM-DM-01–04 APPROVED. DM2 READY.)
+> **Last Updated:** 2026-03-15 (EGUI-NATIVE-1 EN3 DONE: AC-EN-10–15 all PASS. Transfer IPC events in daemon. EN4 READY.)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -721,7 +721,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD | **DEPENDS-ON RUSTIFY-CORE-1 RC4** (PM-RC-07 APPROVED 2026-03-14). Retains own stream identity. |
 | ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | **DEPENDS-ON RUSTIFY-CORE-1 RC2** (PM-RC-07 APPROVED 2026-03-14). Retains own stream identity. |
 | RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1–RC7 all DONE.** All 33 ACs PASS. **All 8 PM decisions APPROVED.** PM-RC-07: SUPERSEDES SEC-CORE2+PLAT-CORE1, REFACTORS MOB-RUNTIME1+ARCH-WASM1. PM-RC-04: SLO thresholds defined (≥10 MiB/s, 100% integrity, ≥99% connection). CLI execution stream NOT OPEN (Stage 1 burn-in pending). |
-| EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + bolt-core-sdk + ecosystem | **EN1–EN2 DONE. EN3 IN-PROGRESS** (`sdk-v0.6.14`, 2026-03-15). AC-EN-10/12/13/14/15 PASS. AC-EN-11 PARTIAL (daemon transfer emit points). |
+| EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + bolt-core-sdk + ecosystem | **EN1–EN3 DONE** (`daemon-v0.2.44`, 2026-03-15). AC-EN-01–15 all PASS. EN4 READY. |
 | EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | LATER | localbolt-v3 + localbolt + ecosystem | **CODIFIED** (`ecosystem-v0.1.142-egui-wasm1-codify`, 2026-03-15). 5 phases (EW1–EW5), 19 ACs, 5 PM decisions. Experimental — ABANDON is valid outcome. EW1 unblocked. |
 | DISCOVERY-MODE-1 | Discovery mode policy codification | NEXT | ecosystem + consumers | **DM1 DONE** (`ecosystem-v0.1.156`, 2026-03-15). PM-DM-01–04 APPROVED. LAN_ONLY default (AirDrop-style). DM2 READY. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | ~~NEXT~~ COMPLETE | bolt-protocol + ecosystem | **COMPLETE** (`ecosystem-v0.1.143`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED. |

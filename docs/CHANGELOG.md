@@ -5,6 +5,20 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-15 — EGUI-NATIVE-1 EN3 DONE: Transfer IPC Events (EN3f Closure)
+
+**EN3 status**: IN-PROGRESS → **DONE**. All 6 ACs (AC-EN-10–15) now PASS.
+
+**AC-EN-11 PASS:** Transfer IPC events added to daemon rendezvous loop (`daemon-v0.2.44`). 7 emit points: transfer.started (send + receive), transfer.progress (each chunk, both directions), transfer.complete (send + receive), transfer.failed (error + integrity). bolt-ui consumer wired in `sdk-v0.6.14`.
+
+**EN3 delivered:** Real peer code + Host/Join launcher + IPC client + SAS verification + transfer events. All placeholders removed. Web token parity. Timeout/cancel/retry. Prerequisite error surfacing.
+
+**EN4 status**: → **READY** (EN3 DONE, unblocked).
+
+**Tags**: `daemon-v0.2.44-en3f-transfer-ipc-events`, `ecosystem-v0.1.157-egui-native1-en3-done`
+
+---
+
 ## 2026-03-15 — DISCOVERY-MODE-1 DM1 DONE: LAN_ONLY Discovery Policy Lock (AirDrop-Style)
 
 **DM1 status**: NOT-STARTED → **DONE**. All 4 ACs (AC-DM-01–04) PASS. All 4 PM decisions resolved.

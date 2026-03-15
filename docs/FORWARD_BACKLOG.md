@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-15 (DISCOVERY-MODE-1 DM1 DONE: LAN_ONLY default (AirDrop-style). PM-DM-01–04 APPROVED. DM2 READY.)
+> **Updated:** 2026-03-15 (EGUI-NATIVE-1 EN3 DONE: all 6 ACs PASS. Transfer IPC events added. EN4 READY.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -450,7 +450,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 14: EGUI-NATIVE-1 — Native Desktop UI Consolidation (egui)
 
 **Priority:** LATER
-**Status:** **EN1–EN2 DONE. EN3 IN-PROGRESS** (`sdk-v0.6.14`, 2026-03-15). AC-EN-10/12/13/14/15 PASS. AC-EN-11 PARTIAL (daemon transfer IPC emit points pending).
+**Status:** **EN1–EN3 DONE** (`daemon-v0.2.44`, 2026-03-15). AC-EN-01–15 all PASS. EN4 READY.
 **Routing:** localbolt-app (primary), bolt-ecosystem (governance)
 **Category:** UI architecture — desktop WebView→egui migration
 **Stream:** EGUI-NATIVE-1 (phased, 5 phases EN1–EN5)
@@ -464,11 +464,12 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 |-------|-------------|-------------|--------|
 | EN1 | PM framework lock gate (egui vs alternatives) | YES (gates EN2) | **DONE** (AC-EN-01–04 PASS, PM-EN-01/02 APPROVED, 2026-03-15) |
 | EN2 | Desktop `bolt-ui` scaffold + theme baseline | YES (gates EN3) | **DONE** (AC-EN-05–09 PASS, 2026-03-15) |
-| EN3 | Desktop feature parity migration (core screens/workflows) | YES (gates EN4) | **IN-PROGRESS** (AC-EN-10/12/13/14/15 PASS; AC-EN-11 PARTIAL) |
+| EN3 | Desktop feature parity migration (core screens/workflows) | YES (gates EN4) | **DONE** (AC-EN-10–15 PASS, 2026-03-15) |
+| EN4 | Rollback/compatibility gate + packaging | YES (gates EN5) | **READY** (EN3 DONE, unblocked) |
 | EN4 | Rollback/compatibility gate + packaging impact verification | YES (gates EN5) | NOT-STARTED |
 | EN5 | Closure + handoff to optional EGUI-WASM-1 / EGUI-MOBILE-1 proposals | YES (closes stream) | NOT-STARTED |
 
-**Acceptance Criteria:** 24 ACs defined (AC-EN-01 through AC-EN-24). EN1–EN2: 9 PASS. EN3: AC-EN-10/12/13/14/15 PASS, AC-EN-11 PARTIAL (14 of 24 addressed, 1 partial).
+**Acceptance Criteria:** 24 ACs defined (AC-EN-01 through AC-EN-24). EN1–EN3: AC-EN-01–15 all PASS (15 of 24 delivered).
 
 **PM Decisions:** 5 total. PM-EN-01 APPROVED (egui). PM-EN-02 APPROVED (minimal parity). PM-EN-04 APPROVED (early, EGUI-WASM-1 opened). PM-EN-03, PM-EN-05 PENDING.
 
