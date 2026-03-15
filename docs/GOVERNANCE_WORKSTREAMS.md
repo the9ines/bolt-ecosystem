@@ -5175,7 +5175,7 @@ No material discovery-policy risks identified at codification. Rationale:
 > **Priority:** NEXT (BS1 unblocked now; no hard dependency on CONSUMER-BTR1 since spec is gap-fill, not greenfield)
 > **Repos:** bolt-protocol (primary — spec text), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.118-btr-spec1-codify (2026-03-13)
-> **Status:** CODIFIED (BS1 unblocked immediately)
+> **Status:** BS1 DONE (`ecosystem-v0.1.136-btr-spec1-bs1-taxonomy`, 2026-03-14). BS2 READY.
 
 ---
 
@@ -5253,8 +5253,8 @@ No SUPERSEDES or REFACTORS relationships. BTR-SPEC-1 is additive formalization.
 
 | Phase | Description | Type | Serial Gate | Dependencies | Status |
 |-------|-------------|------|-------------|--------------|--------|
-| **BS1** | Module taxonomy + boundary lock (confirm P0 modules) | Spec gate | YES — gates BS2 | None | NOT-STARTED |
-| **BS2** | State machines + crypto/key-schedule canonicalization lock | Spec gate | YES — gates BS3 | BS1 complete | NOT-STARTED |
+| **BS1** | Module taxonomy + boundary lock (confirm P0 modules) | Spec gate | YES — gates BS2 | None | **DONE** (`ecosystem-v0.1.136-btr-spec1-bs1-taxonomy`, 2026-03-14). AC-BS-01–03 all PASS. 7-module taxonomy locked with §16 mapping, per-module artifact checklist confirmed, SEC-BTR1 cross-reference audit clean. |
+| **BS2** | State machines + crypto/key-schedule canonicalization lock | Spec gate | YES — gates BS3 | BS1 complete | **READY** (BS1 DONE, unblocked) |
 | **BS3** | Wire format + failure/recovery semantics lock (fill BTR-FC, BTR-RSM gaps) | Spec gate | YES — gates BS4 | BS2 complete | NOT-STARTED |
 | **BS4** | Conformance vectors + negative-test matrix lock | Spec gate | YES — gates BS5 | BS3 complete | NOT-STARTED |
 | **BS5** | Versioning/change-control + external review readiness lock | PM/Spec gate | YES — closes stream | BS4 complete | NOT-STARTED |
@@ -5285,11 +5285,73 @@ No upstream stream dependencies. COMPLEMENTS SEC-BTR1, CONSUMER-BTR1, RUSTIFY-CO
 
 #### BS1 — Module Taxonomy + Boundary Lock
 
-| ID | Criterion | Evidence Required |
-|----|-----------|------------------|
-| AC-BS-01 | Module taxonomy finalized (7 modules or adjusted set) with §16 mapping | Published module table |
-| AC-BS-02 | Per-module artifact checklist confirmed (SM, invariants, pseudocode, failures, security, vectors) | Checklist doc |
-| AC-BS-03 | No contradiction with SEC-BTR1 completion evidence | Cross-reference audit |
+| ID | Criterion | Evidence Required | Status |
+|----|-----------|------------------|--------|
+| AC-BS-01 | Module taxonomy finalized (7 modules or adjusted set) with §16 mapping | Published module table | **PASS** — 7-module taxonomy confirmed below. Maps to §16 subsections. Matches P0 candidate list. |
+| AC-BS-02 | Per-module artifact checklist confirmed (SM, invariants, pseudocode, failures, security, vectors) | Checklist doc | **PASS** — 6-artifact checklist per module confirmed below. Coverage matrix shows existing vs gap-fill per module. |
+| AC-BS-03 | No contradiction with SEC-BTR1 completion evidence | Cross-reference audit | **PASS** — Cross-reference audit below. Zero contradictions. SEC-BTR1 completion evidence (341 tests, 10 vector files, BTR-INV-01–11) fully consistent with taxonomy. |
+
+##### AC-BS-01 — Module Taxonomy (LOCKED)
+
+7 modules confirmed, matching P0 audit candidate list. Each module maps to one or more §16 subsections in PROTOCOL.md.
+
+| Module ID | Name | Primary Spec Sections | Scope Boundary |
+|-----------|------|-----------------------|----------------|
+| BTR-HS | Handshake + Capability Negotiation | §4.2, §16.0 | Capability string `bolt.transfer-ratchet-v1`. HELLO intersection. Kill-switch. Downgrade-with-warning. 6-cell negotiation matrix. |
+| BTR-KS | Key Schedule + Ratchet Lifecycle | §16.3, §16.5 | Session root derivation (HKDF). Transfer root derivation (HKDF, transfer_id salt). Per-chunk symmetric chain. Inter-transfer DH ratchet. Key material lifecycle + zeroization. ~164B state. |
+| BTR-INT | Chunk Integrity + Replay/Ordering | §11, §16.6 | Per-chunk message key → NaCl secretbox. Chain index gap rejection (BTR-INV-07). Tamper detection. No skipped-key buffer. |
+| BTR-FC | Flow Control + Backpressure | NEW (§16 gap) | Implemented but not in §16. BS3 gap-fill scope. Chunk pacing, backpressure signals, sender/receiver flow coordination. |
+| BTR-RSM | Resume/Recovery/Rollback | §16.7 (extend) | Error codes defined (4 codes). Resume-after-disconnect undefined — BS3 gap-fill. State cleanup on disconnect (BTR-INV-09). |
+| BTR-WIRE | Envelope Framing + Canonicalization | §16.2, §6.1 | 3 conditional fields (ratchet_public_key, ratchet_generation, chain_index). Presence rules per message type. Wire overhead ~100B/message. |
+| BTR-CNF | Conformance + Vectors + Interop | Appendix C | 10 vector JSON files. Rust-authoritative generation. Cross-language (Rust+TS) consumption. BTR_VECTOR_POLICY.md. |
+
+**Module boundary rules:**
+- Each module owns a discrete spec section (or will after BS3 gap-fill)
+- No module may introduce protocol semantic changes (BS-G2)
+- Module taxonomy extends §16 structure, does not restructure (BS-G4)
+- BTR-FC and BTR-RSM are gap-fill modules — codifying existing behavior, not inventing new semantics (BS-G2)
+
+##### AC-BS-02 — Per-Module Artifact Checklist (LOCKED)
+
+Each module requires the following 6 artifacts for algorithm-grade specification completeness:
+
+| Artifact | Description | Mandatory |
+|----------|-------------|-----------|
+| **SM** | State machine diagram or state transition table | YES (if module has states) |
+| **INV** | Security invariants (normative MUST/MUST NOT) | YES |
+| **PSC** | Pseudocode or algorithmic steps (sufficient for independent implementation) | YES |
+| **FAIL** | Failure modes + error codes + normative actions | YES |
+| **SEC** | Security claims mapping (which §17 claims this module satisfies) | YES |
+| **VEC** | Conformance vectors (test inputs/outputs for interop verification) | YES (if module has deterministic computation) |
+
+**Coverage matrix (existing vs gap-fill):**
+
+| Module | SM | INV | PSC | FAIL | SEC | VEC | Gap-Fill Phase |
+|--------|----|----|-----|------|-----|-----|----------------|
+| BTR-HS | §4.2 negotiation matrix | BTR-INV-10 | §16.0 | RATCHET_DOWNGRADE_REJECTED | §17.2 G7 | Appendix C | — (complete) |
+| BTR-KS | §16.3 derivation chain | BTR-INV-01–06, 08 | §16.3 4 HKDF steps | RATCHET_STATE_ERROR | §17.2 G1–G4, G8–G9 | Appendix C | — (complete) |
+| BTR-INT | — (implicit in chain) | BTR-INV-03, 04, 07 | §16.4 | RATCHET_CHAIN_ERROR, RATCHET_DECRYPT_FAIL | §17.2 G2, G5–G6 | Appendix C | — (complete) |
+| BTR-FC | **GAP** | **GAP** | **GAP** | **GAP** | — | — | BS3 |
+| BTR-RSM | — | BTR-INV-09 | **GAP** (error codes exist, resume undefined) | §16.7 partial | — | — | BS3 |
+| BTR-WIRE | §16.2 presence rules | BTR-INV-11 | §16.2 | — (framing errors → RATCHET_STATE_ERROR) | §17.2 G8 | Appendix C | — (complete) |
+| BTR-CNF | — | — | BTR_VECTOR_POLICY.md | — | §17.5 | 10 vector files | — (complete) |
+
+**Gap summary:** BTR-FC and BTR-RSM have artifact gaps. These are BS3 scope (wire format + failure/recovery semantics lock). BS1 confirms the checklist; BS3 fills the gaps.
+
+##### AC-BS-03 — SEC-BTR1 Cross-Reference Audit (CLEAN)
+
+| SEC-BTR1 Evidence | BTR-SPEC-1 Module | Contradiction | Notes |
+|-------------------|-------------------|---------------|-------|
+| BTR-0 spec lock (`v0.1.6-spec-btr0-lock`) | BTR-HS, BTR-WIRE | None | §16.0, §16.2 locked at BTR-0. Taxonomy preserves. |
+| BTR-1 Rust reference (`sdk-v0.5.36-btr1-rust-reference`) | BTR-KS, BTR-INT | None | 4 HKDF derivations match §16.3. Chain advance matches BTR-INV-03/04. |
+| BTR-2 TS parity (`sdk-v0.5.37-btr2-ts-parity`) | BTR-KS, BTR-INT | None | TS implementation mirrors Rust. Same key schedule. |
+| BTR-3 conformance (`sdk-v0.5.38-btr3-conformance-gapfill`) | BTR-CNF | None | 10 vector files. Rust-authoritative. Cross-language pass. |
+| BTR-4 wire integration (`sdk-v0.5.39-btr4-wire-integration`) | BTR-WIRE, BTR-HS | None | Envelope framing verified. Capability negotiation integrated. |
+| BTR-5 default-on (`PM-BTR-08/09/11`) | BTR-HS | None | Option C (default-on fail-open) is capability negotiation policy, not spec contradiction. |
+| 341 tests total | All modules | None | Test coverage spans all 7 module boundaries. |
+| 11 invariants (BTR-INV-01–11) | Mapped in checklist above | None | All 11 invariants assigned to modules. No orphans. |
+
+**Verdict:** Zero contradictions between SEC-BTR1 completion evidence and BTR-SPEC-1 module taxonomy.
 
 #### BS2 — State Machines + Crypto Lock
 
@@ -5432,7 +5494,7 @@ No upstream stream dependencies. COMPLEMENTS SEC-BTR1, CONSUMER-BTR1, RUSTIFY-CO
 | RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE**, **RC2 DONE** (`ecosystem-v0.1.127-rustify-core1-rc2-complete`, 2026-03-13). PM-RC-01A APPROVED (quinn, 2026-03-13). 7 phases (RC1–RC7), 33 ACs, 8 PM decisions. **RC3 READY** (unblocked). |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies. |
-| BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **CODIFIED** (`ecosystem-v0.1.118-btr-spec1-codify`). 5 phases (BS1–BS5), 22 ACs, 6 PM decisions. BS1 unblocked now. COMPLEMENTS SEC-BTR1/CONSUMER-BTR1/RUSTIFY-CORE-1. |
+| BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **BS1 DONE** (`ecosystem-v0.1.136-btr-spec1-bs1-taxonomy`, 2026-03-14). AC-BS-01–03 all PASS. 7-module taxonomy locked. BS2 READY. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 

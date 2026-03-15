@@ -5,6 +5,31 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-14 — BTR-SPEC-1 BS1 DONE: Module Taxonomy + Boundary Lock
+
+**BS1 status**: NOT-STARTED → **DONE**. All 3 ACs (AC-BS-01–03) PASS.
+
+**AC-BS-01 (module taxonomy):** 7-module taxonomy locked, matching P0 audit candidate list:
+- BTR-HS (Handshake + Capability Negotiation) — §4.2, §16.0
+- BTR-KS (Key Schedule + Ratchet Lifecycle) — §16.3, §16.5
+- BTR-INT (Chunk Integrity + Replay/Ordering) — §11, §16.6
+- BTR-FC (Flow Control + Backpressure) — NEW (§16 gap, BS3 scope)
+- BTR-RSM (Resume/Recovery/Rollback) — §16.7 (extend, BS3 scope)
+- BTR-WIRE (Envelope Framing + Canonicalization) — §16.2, §6.1
+- BTR-CNF (Conformance + Vectors + Interop) — Appendix C
+
+**AC-BS-02 (per-module artifact checklist):** 6-artifact checklist confirmed: SM (state machine), INV (invariants), PSC (pseudocode), FAIL (failure modes), SEC (security claims), VEC (conformance vectors). Coverage matrix shows 5/7 modules fully covered; BTR-FC and BTR-RSM have artifact gaps (BS3 gap-fill scope).
+
+**AC-BS-03 (SEC-BTR1 cross-reference):** Zero contradictions. All SEC-BTR1 evidence (341 tests, 10 vector files, BTR-INV-01–11, BTR-0–5 tags) fully consistent with module taxonomy.
+
+**BS2 status**: NOT-STARTED → **READY** (BS1 DONE, unblocked). BS2 scope: state machines + crypto/key-schedule canonicalization lock.
+
+**Tags**: `ecosystem-v0.1.136-btr-spec1-bs1-taxonomy`
+
+**Next**: BS2 — state machines + crypto/key-schedule canonicalization lock (requires PM-BS-01 for crypto baseline, PM-BS-02 for rekey thresholds).
+
+---
+
 ## 2026-03-14 — RUSTIFY-CORE-1: All 8 PM Decisions Resolved (PM-RC-07, PM-RC-04)
 
 **PM-RC-07 APPROVED (2026-03-14):** Stream relationship mode locked.

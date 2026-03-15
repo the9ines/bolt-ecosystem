@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-14 (PM-RC-07 APPROVED: SEC-CORE2/PLAT-CORE1 SUPERSEDED-BY RUSTIFY-CORE-1. PM-RC-04 APPROVED: SLO thresholds defined. All 8 RUSTIFY-CORE-1 PM decisions now resolved. All 33 ACs delivered.)
+> **Last Updated:** 2026-03-14 (BTR-SPEC-1 BS1 DONE: 7-module taxonomy locked, AC-BS-01–03 PASS, BS2 READY. Also: PM-RC-07/04 APPROVED, SEC-CORE2/PLAT-CORE1 SUPERSEDED, all 8 RUSTIFY-CORE-1 PM decisions resolved.)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -723,7 +723,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1–RC7 all DONE.** All 33 ACs PASS. **All 8 PM decisions APPROVED.** PM-RC-07: SUPERSEDES SEC-CORE2+PLAT-CORE1, REFACTORS MOB-RUNTIME1+ARCH-WASM1. PM-RC-04: SLO thresholds defined (≥10 MiB/s, 100% integrity, ≥99% connection). CLI execution stream NOT OPEN (Stage 1 burn-in pending). |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem + consumers | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies; DM1 unblocked immediately. |
-| BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **CODIFIED** (`ecosystem-v0.1.118-btr-spec1-codify`). 5 phases (BS1–BS5), 22 ACs, 6 PM decisions. BS1 unblocked now. COMPLEMENTS SEC-BTR1/CONSUMER-BTR1/RUSTIFY-CORE-1. |
+| BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **BS1 DONE** (`ecosystem-v0.1.136-btr-spec1-bs1-taxonomy`, 2026-03-14). AC-BS-01–03 PASS. 7-module taxonomy locked. BS2 READY. |
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** — Phase A: `sdk-v0.5.35-recon-xfer1-phase-a-tests`, `v3.0.88-recon-xfer1-phase-a`. Phase B: `localbolt-v1.0.35-recon-xfer1-phase-b`, `localbolt-app-v1.2.23-recon-xfer1-phase-b`. AC-RX-01–07 satisfied. AC-RX-08 automated PASS, manual runtime PENDING (RX-EVID-1). All code work closed. |
 
 ---
