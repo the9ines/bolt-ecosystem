@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-15 (EGUI-WASM-1 codified: browser egui via WASM experimental stream. PM-EN-04 early approval. 5 phases, 19 ACs, 5 PM decisions. EW1 unblocked.)
+> **Updated:** 2026-03-15 (BTR-SPEC-1 COMPLETE: BS5 DONE, all 22 ACs PASS, all 6 PM decisions APPROVED. Stream closed.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -528,7 +528,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 16: BTR-SPEC-1 — Algorithm-Grade BTR Protocol Specification
 
 **Priority:** NEXT
-**Status:** **BS1–BS4 DONE** (`ecosystem-v0.1.140-btr-spec1-bs4-conformance-lock`, 2026-03-14). AC-BS-01–17 all PASS. PM-BS-01–04 APPROVED. BS5 READY.
+**Status:** **COMPLETE** (`ecosystem-v0.1.143-btr-spec1-bs5-closeout`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED. BS1–BS5 DONE.
 **Routing:** bolt-protocol (primary — spec text), bolt-ecosystem (governance)
 **Category:** Specification — formal BTR protocol documentation
 **Stream:** BTR-SPEC-1 (phased, 5 phases BS1–BS5)
@@ -544,9 +544,9 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | BS2 | State machines + crypto/key-schedule lock | YES (gates BS3) | **DONE** (AC-BS-04–08 PASS, PM-BS-01/02 APPROVED, 2026-03-14) |
 | BS3 | Wire format + failure/recovery semantics lock | YES (gates BS4) | **DONE** (AC-BS-09–13 PASS, PM-BS-03/04 APPROVED, 2026-03-14) |
 | BS4 | Conformance vectors + negative-test matrix lock | YES (gates BS5) | **DONE** (AC-BS-14–17 PASS, 2026-03-14) |
-| BS5 | Versioning/change-control + external review readiness | YES (closes stream) | **READY** (BS4 DONE, unblocked) |
+| BS5 | Versioning/change-control + external review readiness | YES (closes stream) | **DONE** (AC-BS-18–22 PASS, PM-BS-05/06 APPROVED, 2026-03-15) |
 
-**Acceptance Criteria:** 22 ACs defined (AC-BS-01 through AC-BS-22). BS1–BS4: AC-BS-01–17 all PASS (17 of 22 delivered). PM-BS-01–04 APPROVED. See `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-SPEC-1.
+**Acceptance Criteria:** 22 ACs defined (AC-BS-01 through AC-BS-22). **All 22 ACs PASS.** All 6 PM decisions APPROVED. Stream COMPLETE.
 
 **PM Decisions:** 6 open (PM-BS-01 through PM-BS-06). See `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-SPEC-1.
 

@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-15 — BTR-SPEC-1 COMPLETE: BS5 Closeout (Change-Control + External Review Readiness)
+
+**BS5 status**: READY → **DONE**. All 5 ACs (AC-BS-18–22) PASS. Two PM decisions resolved.
+
+**BTR-SPEC-1 stream: COMPLETE.** All 5 phases (BS1–BS5) DONE. All 22 ACs (AC-BS-01–22) PASS. All 6 PM decisions (PM-BS-01–06) APPROVED.
+
+**AC-BS-18 (change-control policy):** §16 amendment governance process codified: 7-step process (propose → impact → PM gate → draft → vectors → cross-lang → publish). 5 amendment categories with required evidence. Inherits §17.6 change-control security policy.
+
+**AC-BS-19 (external review package):** 7-artifact package assembled: spec (§16/§17), vectors (10 files), vector policy, module taxonomy (BS1), state machines + invariant mapping (BS2), 5 evidence files.
+
+**PM-BS-05 APPROVED (2026-03-15):** External review gate — scope: BTR §16/§17 + vectors + evidence. Reviewer: independent crypto/protocol. Bar: no critical unresolved; medium = mitigation plan. Timing: before GA.
+
+**PM-BS-06 APPROVED (2026-03-15):** Relationship mode ratified — BTR-SPEC-1 COMPLEMENTS SEC-BTR1, CONSUMER-BTR1, RUSTIFY-CORE-1. No SUPERSEDES.
+
+**AC-BS-22 (docs-only audit):** All 5 BS phases touched only `docs/` files. Zero runtime files modified. BS-G1 satisfied.
+
+**Tags**: `ecosystem-v0.1.143-btr-spec1-bs5-closeout`
+
+**Stream summary:** BTR-SPEC-1 delivered algorithm-grade specification for the Bolt Transfer Ratchet: 7-module taxonomy, formal state machines, crypto/lifecycle ratification, wire format + recovery normative text, conformance vector mapping, negative-test matrix, cross-language contract, change-control policy, and external review readiness. Ready for independent cryptographic review.
+
+---
+
 ## 2026-03-15 — EGUI-WASM-1 Codified: Browser UI Migration to egui via WASM (Experimental)
 
 - **PM-EN-04 APPROVED (early resolution, 2026-03-15):** EGUI-WASM-1 opened independent of EGUI-NATIVE-1 EN3 completion. Browser WASM egui is architecturally distinct from desktop egui. Experimental, non-blocking to EGUI-NATIVE-1.

@@ -5357,7 +5357,7 @@ No material discovery-policy risks identified at codification. Rationale:
 > **Priority:** NEXT (BS1 unblocked now; no hard dependency on CONSUMER-BTR1 since spec is gap-fill, not greenfield)
 > **Repos:** bolt-protocol (primary — spec text), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.118-btr-spec1-codify (2026-03-13)
-> **Status:** BS1–BS4 DONE. BS5 READY. (`ecosystem-v0.1.140-btr-spec1-bs4-conformance-lock`, 2026-03-14).
+> **Status:** **COMPLETE.** BS1–BS5 all DONE (`ecosystem-v0.1.143-btr-spec1-bs5-closeout`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED.
 
 ---
 
@@ -5439,7 +5439,7 @@ No SUPERSEDES or REFACTORS relationships. BTR-SPEC-1 is additive formalization.
 | **BS2** | State machines + crypto/key-schedule canonicalization lock | Spec gate | YES — gates BS3 | BS1 complete | **DONE** (`ecosystem-v0.1.137-btr-spec1-bs2-state-crypto-lock`, 2026-03-14). AC-BS-04–08 all PASS. KS+HS state machines locked. PM-BS-01/02 APPROVED. |
 | **BS3** | Wire format + failure/recovery semantics lock (fill BTR-FC, BTR-RSM gaps) | Spec gate | YES — gates BS4 | BS2 complete | **DONE** (`ecosystem-v0.1.138-btr-spec1-bs3-wire-recovery-lock`, 2026-03-14). AC-BS-09–13 all PASS. BTR-FC/BTR-RSM normative text, wire versioning policy, parsing contract, failure matrix codified. PM-BS-03/04 APPROVED. |
 | **BS4** | Conformance vectors + negative-test matrix lock | Spec gate | YES — gates BS5 | BS3 complete | **DONE** (`ecosystem-v0.1.140-btr-spec1-bs4-conformance-lock`, 2026-03-14). AC-BS-14–17 all PASS. 10 vector categories mapped, negative-test matrix, cross-language conformance contract, downgrade coverage verified. |
-| **BS5** | Versioning/change-control + external review readiness lock | PM/Spec gate | YES — closes stream | BS4 complete | **READY** (BS4 DONE, unblocked) |
+| **BS5** | Versioning/change-control + external review readiness lock | PM/Spec gate | YES — closes stream | BS4 complete | **DONE** (`ecosystem-v0.1.143-btr-spec1-bs5-closeout`, 2026-03-15). AC-BS-18–22 all PASS. PM-BS-05/06 APPROVED. BTR-SPEC-1 COMPLETE. |
 
 #### Dependency DAG
 
@@ -5882,13 +5882,100 @@ Each entry defines what MUST fail and the required error action, mapped to BS2 S
 
 #### BS5 — Versioning + Review Readiness Lock
 
-| ID | Criterion | Evidence Required |
-|----|-----------|------------------|
-| AC-BS-18 | Change-control policy for §16 amendments codified (who, how, versioning) | Published policy |
-| AC-BS-19 | External review readiness package assembled (spec + vectors + evidence index) | Package inventory |
-| AC-BS-20 | External review gate confirmed (PM-BS-05 resolved) | PM decision recorded |
-| AC-BS-21 | Relationship mode ratified (PM-BS-06 resolved) | PM decision recorded |
-| AC-BS-22 | No non-doc files changed in this stream | `git diff --name-only` audit |
+| ID | Criterion | Evidence Required | Status |
+|----|-----------|------------------|--------|
+| AC-BS-18 | Change-control policy for §16 amendments codified (who, how, versioning) | Published policy | **PASS** — §16 amendment policy codified below. Inherits §17.6 change-control + adds governance process. |
+| AC-BS-19 | External review readiness package assembled (spec + vectors + evidence index) | Package inventory | **PASS** — Review package inventory codified below. 7 artifacts indexed. |
+| AC-BS-20 | External review gate confirmed (PM-BS-05 resolved) | PM decision recorded | **PASS** — PM-BS-05 APPROVED (2026-03-15). Scope: BTR sections + vectors + evidence. Reviewer: independent crypto/protocol. Bar: no critical unresolved. |
+| AC-BS-21 | Relationship mode ratified (PM-BS-06 resolved) | PM decision recorded | **PASS** — PM-BS-06 APPROVED (2026-03-15). BTR-SPEC-1 COMPLEMENTS SEC-BTR1, CONSUMER-BTR1, RUSTIFY-CORE-1. |
+| AC-BS-22 | No non-doc files changed in this stream | `git diff --name-only` audit | **PASS** — BTR-SPEC-1 BS1–BS5 touched only `docs/` files. Zero `.rs`, `.ts`, `.toml`, `.json` files modified. |
+
+##### AC-BS-18 — §16 Amendment Change-Control Policy (LOCKED)
+
+**Scope:** All amendments to PROTOCOL.md §16 (BTR) and §17 (BTR Security Claims).
+
+**Existing baseline:** §17.6 defines change-control security policy (4 rules: no claim expansion without evidence, claim-impacting changes, primitive substitution, deprecation). AC-BS-18 extends this with governance process.
+
+**Amendment governance process:**
+
+| Step | Action | Owner | Gate |
+|------|--------|-------|------|
+| 1 | Propose amendment with rationale and affected sections | Engineering | — |
+| 2 | Impact assessment: which invariants (BTR-INV-01–11), claims (§17.2), and modules (BS1 taxonomy) are affected | Engineering | Must be complete before PM review |
+| 3 | PM approval for spec change scope | PM | PM gate — blocks step 4 |
+| 4 | Draft spec text amendment | Engineering | — |
+| 5 | Update conformance vectors (per §17.6 evidence requirements) | Engineering (Rust authority) | Vectors must pass golden test + TS consumer |
+| 6 | Cross-language verification | Engineering | CI gate — both Rust and TS must pass |
+| 7 | Publish amendment with version tag | Engineering | Immutable tag per SRE policy |
+
+**Amendment categories and required evidence:**
+
+| Category | Example | Required Evidence | Capability Impact |
+|----------|---------|-------------------|-------------------|
+| **Normative text clarification** (no behavioral change) | Reword §16.3 for clarity | Existing vectors still pass | None |
+| **Gap-fill** (new normative text for undefined behavior) | BTR-FC, BTR-RSM (completed in BS3) | New vectors if deterministic computation added | None |
+| **Behavioral change** (modify existing normative behavior) | Change chain advance KDF | Updated vectors + cross-language pass + adversarial test | May require capability version bump (PM-BS-03 policy) |
+| **Primitive change** | Replace HKDF-SHA256 with HKDF-SHA3 | Per §17.6 rule 3: new info strings, new vectors, new capability version, security analysis | Requires `bolt.transfer-ratchet-v2` |
+| **Invariant change** (add, modify, or remove BTR-INV) | Add BTR-INV-12 | Updated invariant-to-SM mapping (BS2), updated claim-to-invariant mapping (§17.5) | PM gate |
+
+**Versioning rules (inheriting PM-BS-03):**
+- Additive/clarification: no version bump, same capability string
+- Behavioral/primitive: new capability string per PM-BS-03 breaking-change policy
+- All amendments: must update BS1 module taxonomy if module boundaries shift
+
+##### AC-BS-19 — External Review Readiness Package (ASSEMBLED)
+
+**Package inventory:**
+
+| # | Artifact | Location | Content |
+|---|----------|----------|---------|
+| 1 | BTR specification | `bolt-protocol/PROTOCOL.md` §16 | Normative BTR spec (§16.0–16.8) |
+| 2 | BTR security claims | `bolt-protocol/PROTOCOL.md` §17 | 8 security claims, threat model, primitive rationale, change-control |
+| 3 | Conformance vectors | `bolt-core-sdk/rust/bolt-core/test-vectors/btr/*.vectors.json` | 10 vector files, 38+ vectors |
+| 4 | Vector authority policy | `docs/BTR_VECTOR_POLICY.md` | Rust authority model, regeneration, CI integration |
+| 5 | Module taxonomy | `docs/GOVERNANCE_WORKSTREAMS.md` § BS1 | 7 modules with spec mappings |
+| 6 | State machines + invariant mapping | `docs/GOVERNANCE_WORKSTREAMS.md` § BS2 | KS SM (5 states, 7 transitions), HS SM (4 states, 6 transitions), 11/11 invariant mapping |
+| 7 | Evidence index | `docs/evidence/BS1_EVIDENCE.md` through `docs/evidence/BS5_EVIDENCE.md` | 5 phase evidence files |
+
+**Reviewer access:** All artifacts are in public GitHub repositories (`the9ines/bolt-ecosystem`, linked subrepos). No access restrictions.
+
+##### AC-BS-20 — External Review Gate (PM-BS-05 APPROVED)
+
+**PM-BS-05 APPROVED (2026-03-15):**
+
+| Property | Value |
+|----------|-------|
+| **Scope** | BTR sections (§16, §17) + conformance vectors (Appendix C, 10 vector files) + evidence package (BS1–BS5 evidence files) |
+| **Reviewer profile** | Independent cryptography/protocol reviewer with experience in key agreement protocols, forward secrecy mechanisms, or similar AEAD constructions |
+| **Acceptance bar** | No critical unresolved findings. Medium findings require documented mitigation plan. Low findings tracked but do not block. |
+| **Timing** | Before GA (per PM-BTR-11, already approved). Not before default-on (BTR-5 already approved as default-on). |
+| **Output** | Reviewer report with findings classified by severity. Mitigation plans for medium findings. Protocol changes (if any) spawn follow-on stream. |
+
+##### AC-BS-21 — Relationship Mode (PM-BS-06 APPROVED)
+
+**PM-BS-06 APPROVED (2026-03-15):** BTR-SPEC-1 **COMPLEMENTS** SEC-BTR1, CONSUMER-BTR1, and RUSTIFY-CORE-1.
+
+| Related Stream | Mode | Rationale |
+|----------------|------|-----------|
+| SEC-BTR1 (COMPLETE) | COMPLEMENTS | BTR-SPEC-1 formalizes what SEC-BTR1 implemented. No contradiction (AC-BS-03 audit). |
+| CONSUMER-BTR1 (DONE) | COMPLEMENTS | Consumer rollout is orthogonal to spec formalization. |
+| RUSTIFY-CORE-1 (DONE) | COMPLEMENTS | Shared Rust core API may consume BTR-SPEC-1 module boundaries. Non-blocking. |
+
+No SUPERSEDES or REFACTORS. BTR-SPEC-1 is additive formalization.
+
+##### AC-BS-22 — Docs-Only Audit
+
+BTR-SPEC-1 BS1–BS5 commits touched only `docs/` files across all 5 phases:
+
+| Phase | Tag | Files Changed |
+|-------|-----|---------------|
+| BS1 | `ecosystem-v0.1.136-btr-spec1-bs1-taxonomy` | `docs/GOVERNANCE_WORKSTREAMS.md`, `docs/FORWARD_BACKLOG.md`, `docs/STATE.md`, `docs/CHANGELOG.md`, `docs/evidence/BS1_EVIDENCE.md` |
+| BS2 | `ecosystem-v0.1.137-btr-spec1-bs2-state-crypto-lock` | Same 4 docs + `docs/evidence/BS2_EVIDENCE.md` |
+| BS3 | `ecosystem-v0.1.138-btr-spec1-bs3-wire-recovery-lock` | Same 4 docs + `docs/evidence/BS3_EVIDENCE.md` |
+| BS4 | `ecosystem-v0.1.140-btr-spec1-bs4-conformance-lock` | Same 4 docs + `docs/evidence/BS4_EVIDENCE.md` |
+| BS5 | `ecosystem-v0.1.143-btr-spec1-bs5-closeout` | Same 4 docs + `docs/evidence/BS5_EVIDENCE.md` |
+
+**Zero non-doc files modified.** BS-G1 (no runtime code) satisfied across all phases.
 
 ---
 
@@ -5900,8 +5987,8 @@ Each entry defines what MUST fail and the required error action, mapped to BS2 S
 | PM-BS-02 | Rekey thresholds/lifecycle policy. **APPROVED (2026-03-14):** Per-chunk symmetric chain + per-transfer DH ratchet ratified. No time/byte/chunk-count forced ratchet. Memory-only lifecycle. No session resume in v1. | BS2 (AC-BS-08) | BS2 | **APPROVED (2026-03-14)** |
 | PM-BS-03 | Wire format versioning policy. **APPROVED (2026-03-14):** Additive fields backward-compatible (no version bump). Breaking changes (mandatory field, type, semantic, info string) require new capability string + PM decision + updated vectors. `bolt.transfer-ratchet-v1` locked. | BS3 (AC-BS-11) | BS3 | **APPROVED (2026-03-14)** |
 | PM-BS-04 | Compatibility contract: strict vs tolerant parsing. **APPROVED (2026-03-14):** Strict on security-critical required fields and values. Tolerant on explicitly optional/unknown fields only. Downgrade detection strict. All failures → §16.7 error codes. Deterministic, no implementation-defined behavior. | BS3 (AC-BS-12) | BS3 | **APPROVED (2026-03-14)** |
-| PM-BS-05 | External review gate: scope (full spec vs BTR-only), reviewer profile, acceptance bar | BS5 (AC-BS-20) | BS5 | PENDING |
-| PM-BS-06 | Ratify P0-proposed relationship mode (COMPLEMENTS for all 3 related streams) | BS5 (AC-BS-21) | BS5 | PENDING |
+| PM-BS-05 | External review gate. **APPROVED (2026-03-15):** Scope: BTR §16/§17 + vectors + evidence. Reviewer: independent crypto/protocol. Bar: no critical unresolved; medium findings require mitigation plan. Timing: before GA. | BS5 (AC-BS-20) | BS5 | **APPROVED (2026-03-15)** |
+| PM-BS-06 | Relationship mode. **APPROVED (2026-03-15):** BTR-SPEC-1 COMPLEMENTS SEC-BTR1, CONSUMER-BTR1, RUSTIFY-CORE-1. No SUPERSEDES. Additive formalization. | BS5 (AC-BS-21) | BS5 | **APPROVED (2026-03-15)** |
 
 ---
 
@@ -6257,7 +6344,7 @@ WebTransport is enabled for browsers with full support. Safari/iOS Safari users 
 | RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE**, **RC2 DONE** (`ecosystem-v0.1.127-rustify-core1-rc2-complete`, 2026-03-13). PM-RC-01A APPROVED (quinn, 2026-03-13). 7 phases (RC1–RC7), 33 ACs, 8 PM decisions. **RC3 READY** (unblocked). |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies. |
-| BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **BS1–BS4 DONE** (`ecosystem-v0.1.140`, 2026-03-14). AC-BS-01–17 all PASS. PM-BS-01–04 APPROVED. BS5 READY. |
+| BTR-SPEC-1 | Algorithm-grade BTR protocol specification | ~~NEXT~~ COMPLETE | bolt-protocol + ecosystem | **COMPLETE** (`ecosystem-v0.1.143-btr-spec1-bs5-closeout`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED. BS1–BS5 DONE. |
 | WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | NEXT | bolt-daemon + bolt-core-sdk + ecosystem | **WT1 DONE** (`ecosystem-v0.1.141`, 2026-03-15). AC-WT-01–04 PASS. PM-WT-01/02 APPROVED. WT2 READY. |
 | EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | LATER | localbolt-v3 + localbolt + ecosystem | **CODIFIED** (`ecosystem-v0.1.142-egui-wasm1-codify`, 2026-03-15). 5 phases (EW1–EW5), 19 ACs, 5 PM decisions. PM-EN-04 early approval. EW1 unblocked. Experimental — ABANDON is valid outcome. |
 
