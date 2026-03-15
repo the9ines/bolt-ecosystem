@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-15 — EGUI-NATIVE-1 EN4 DONE: Rollback Gate + Dual-Path Compatibility
+
+**EN4 status**: READY → **DONE**. All 5 ACs (AC-EN-16–20) PASS.
+
+**AC-EN-16 (rollback path):** Legacy Tauri path compiles, tests pass (10/10), completely unchanged by EN1–EN3. Rollback = stop using bolt-ui.
+
+**AC-EN-17 (packaging):** No packaging change. bolt-ui is standalone in bolt-core-sdk. localbolt-app packaging untouched.
+
+**AC-EN-18 (daemon bundling):** daemon.rs in localbolt-app has 10 spawn references intact. N-STREAM-1 patterns preserved.
+
+**PM-EN-03 APPROVED (2026-03-15): Option C — condition-gated.** Dual-build active until EN5 explicit PM approval. No fixed time sunset.
+
+**AC-EN-20 (install flow):** No install/update flow changed.
+
+**Dual-path summary:** egui (bolt-ui, 5.7 MB standalone) and legacy (localbolt-app, Tauri WebView) are fully independent. Zero shared dependencies. Removing one has zero impact on the other.
+
+**EN5 status**: → **READY** (EN4 DONE, unblocked).
+
+**Tags**: `ecosystem-v0.1.161-egui-native1-en4-rollback-gate`
+
+---
+
 ## 2026-03-15 — DISCOVERY-MODE-1 COMPLETE: DM4 Env Audit + Stream Closure
 
 **DM4 status**: READY → **DONE**. All 3 ACs (AC-DM-14–16) PASS.

@@ -4690,7 +4690,7 @@ CLI-specific execution stream may begin only after ALL of:
 > **Priority:** LATER (EN1 PM gate openable in parallel with RUSTIFY-CORE-1 RC1–RC2)
 > **Repos:** localbolt-app (primary), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.115-egui-native1-codify (2026-03-12)
-> **Status:** EN1 DONE. EN2 DONE. EN3 DONE (`daemon-v0.2.44`, 2026-03-15). AC-EN-10–15 all PASS. EN4 READY.
+> **Status:** EN1–EN4 DONE (`ecosystem-v0.1.161`, 2026-03-15). AC-EN-01–20 all PASS. PM-EN-03 APPROVED. EN5 READY.
 
 ---
 
@@ -4781,7 +4781,8 @@ EGUI-NATIVE-1 migrates the desktop UI from Tauri WebView to egui (Rust-native im
 | **EN1** | PM framework lock gate (egui vs alternatives) | PM gate | YES — gates EN2 | None (openable in parallel with RUSTIFY-CORE-1 RC1–RC2) | **DONE** (`ecosystem-v0.1.149-egui-native1-en1-baseline`, 2026-03-15). AC-EN-01–04 all PASS. PM-EN-01 APPROVED (egui). PM-EN-02 APPROVED (minimal parity). |
 | **EN2** | Desktop `bolt-ui` scaffold + theme baseline | Engineering gate | YES — gates EN3 | EN1 complete, RUSTIFY-CORE-1 RC4 complete | **DONE** (`ecosystem-v0.1.150-egui-native1-en2-scaffold`, 2026-03-15). AC-EN-05–09 all PASS. bolt-ui crate created. eframe app shell + 3 skeleton screens + theme baseline. |
 | **EN3** | Desktop feature parity migration (core screens/workflows) | Engineering gate | YES — gates EN4 | EN2 complete | **DONE** (`daemon-v0.2.44`, 2026-03-15). AC-EN-10–15 all PASS. Host/Join launcher + IPC client + SAS + transfer events. |
-| **EN4** | Rollback/compatibility gate + packaging impact verification | PM/Engineering gate | YES — gates EN5 | EN3 complete | **READY** (EN3 DONE, unblocked) |
+| **EN4** | Rollback/compatibility gate + packaging impact verification | PM/Engineering gate | YES — gates EN5 | EN3 complete | **DONE** (`ecosystem-v0.1.161-egui-native1-en4-rollback-gate`, 2026-03-15). AC-EN-16–20 all PASS. PM-EN-03 APPROVED (condition-gated). Dual-path verified. |
+| **EN5** | Closure + handoff to optional EGUI-WASM-1 / EGUI-MOBILE-1 proposals | Governance gate | YES — closes stream | EN4 complete | **READY** (EN4 DONE, unblocked) |
 | **EN4** | Rollback/compatibility gate + packaging impact verification | PM/Engineering gate | YES — gates EN5 | EN3 complete | NOT-STARTED |
 | **EN5** | Closure + handoff to optional EGUI-WASM-1 / EGUI-MOBILE-1 proposals | Governance gate | YES — closes stream | EN4 complete | NOT-STARTED |
 
@@ -4998,7 +4999,7 @@ Current (Tauri):           Target (egui):
 |----|----------|--------|----------|--------|
 | PM-EN-01 | Desktop UI framework. **APPROVED (2026-03-15):** egui confirmed. eframe 0.33+. Immediate-mode rendering. WASM-capable (EGUI-WASM-1 alignment). Build verified on aarch64-apple-darwin. | EN2 | EN1 | **APPROVED (2026-03-15)** |
 | PM-EN-02 | Visual direction. **APPROVED (2026-03-15):** Minimal parity first. Match current Tauri WebView desktop UX. No custom design language in EN2/EN3. | EN2 | EN1 | **APPROVED (2026-03-15)** |
-| PM-EN-03 | Rollback window duration: how long must dual-build (egui + Tauri WebView) be maintained before legacy removal? | EN5 (legacy removal) | EN4 | PENDING |
+| PM-EN-03 | Rollback window duration. **APPROVED (2026-03-15): Option C — condition-gated.** Dual-build active until EN5 explicit PM approval. No fixed time sunset. Legacy removal is condition-gated, not date-gated. | EN5 (legacy removal) | EN4 | **APPROVED (2026-03-15)** |
 | PM-EN-04 | Whether to open EGUI-WASM-1 (browser egui via WASM). **APPROVED (2026-03-15, early resolution):** EGUI-WASM-1 opened independent of EN3 completion. Browser WASM egui is architecturally distinct from desktop egui. Experimental, non-blocking to EGUI-NATIVE-1. | Post-stream | EN5 | **APPROVED (2026-03-15, early)** |
 | PM-EN-05 | Whether to open EGUI-MOBILE-1 (mobile egui) after EN4 results | Post-stream | EN5 | PENDING |
 
@@ -6948,7 +6949,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | **DEPENDS-ON RUSTIFY-CORE-1 RC2** (PM-RC-07 APPROVED 2026-03-14). Retains own stream identity. |
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** |
 | RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE**, **RC2 DONE** (`ecosystem-v0.1.127-rustify-core1-rc2-complete`, 2026-03-13). PM-RC-01A APPROVED (quinn, 2026-03-13). 7 phases (RC1–RC7), 33 ACs, 8 PM decisions. **RC3 READY** (unblocked). |
-| EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + bolt-core-sdk + ecosystem | **EN1–EN3 DONE** (`daemon-v0.2.44`, 2026-03-15). AC-EN-01–15 all PASS. EN4 READY. |
+| EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + bolt-core-sdk + ecosystem | **EN1–EN4 DONE** (`ecosystem-v0.1.161`, 2026-03-15). AC-EN-01–20 all PASS. PM-EN-03 APPROVED. EN5 READY. |
 | DISCOVERY-MODE-1 | Discovery mode policy codification | ~~NEXT~~ COMPLETE | ecosystem (governance) + consumers (implementation) | **COMPLETE** (`ecosystem-v0.1.160`, 2026-03-15). All 16 ACs PASS. All 4 PM decisions APPROVED. DM1–DM4 DONE. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | ~~NEXT~~ COMPLETE | bolt-protocol + ecosystem | **COMPLETE** (`ecosystem-v0.1.143-btr-spec1-bs5-closeout`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED. BS1–BS5 DONE. |
 | WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | ~~NEXT~~ COMPLETE | bolt-daemon + bolt-core-sdk + ecosystem | **COMPLETE** (`ecosystem-v0.1.147-webtransport-browser-app1-wt5-closeout`, 2026-03-15). All 20 ACs PASS. All 5 PM decisions APPROVED. WT1–WT5 DONE. |
