@@ -3,6 +3,7 @@
 Captured: 2026-03-15
 Operator: oberfelder (local workstation)
 Context: AC-EN-10..15 partial closure. EN3 IN-PROGRESS (daemon IPC blockers).
+Updated: 2026-03-15 — connect hang hotfix applied (sdk-v0.6.12).
 
 ---
 
@@ -53,11 +54,14 @@ Grep verification: `grep -rn "ABC123\|A3 F7 2B" bolt-ui/src/screens/` = zero mat
 | Check | Command | Result |
 |-------|---------|--------|
 | Build | `cargo build -p bolt-ui` | PASS |
-| Tests | `cargo test -p bolt-ui` | 9 passed, 0 failed |
+| Tests | `cargo test -p bolt-ui` | 15 passed, 0 failed (6 new timeout/cancel/retry tests) |
 | Dep audit | `cargo tree -p bolt-ui \| grep bolt-` | bolt-core only |
 | No placeholders | `grep -rn "ABC123" bolt-ui/src/screens/` | 0 matches |
 | Workspace regression | `cargo check --workspace` | PASS |
 | Smoke test | `cargo run -p bolt-ui` (4s) | Real peer code, themed window |
+| Connect hang fix | Enter valid code, click Connect | Times out after 5s with error (no infinite hang) |
+| Cancel test | Click Cancel during Connecting | Returns to Disconnected |
+| Retry test | Click Retry after timeout | Re-enters Connecting |
 
 ---
 

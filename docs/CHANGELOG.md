@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-15 — EGUI-NATIVE-1 EN3 Hotfix: Connect Hang Resolved
+
+**Bug:** Two devices entering each other's codes hung on "Connecting..." indefinitely.
+
+**Root cause:** `attempt_connect()` set `ConnectionState::Connecting` with no timeout and no daemon IPC path. State never transitioned out.
+
+**Fix (`sdk-v0.6.12`):**
+- `Connecting` state now carries `started_at: Instant`
+- 5s timeout (`CONNECT_TIMEOUT`) transitions to `TimedOut` state
+- Cancel button available during connecting (→ Disconnected)
+- Retry button available from TimedOut/Error states
+- Honest status message: "Connection timed out — daemon not available"
+- `ctx.request_repaint()` while connecting ensures timeout detection
+
+**Tests:** 6 new tests added (15 total): timeout fires, timeout doesn't fire early, real elapsed, cancel, retry from error, retry from timeout.
+
+**AC-EN-11/12:** Remain PARTIAL. No infinite hang, but daemon IPC not implemented. Transfer/verify require bolt-daemon integration.
+
+**Tags**: `sdk-v0.6.12-egui-native1-en3-connect-hang-fix`, `ecosystem-v0.1.152-egui-native1-en3-hang-fix`
+
+---
+
 ## 2026-03-15 — EGUI-NATIVE-1 EN3 IN-PROGRESS: Feature Parity Wiring + Web Token Alignment
 
 **EN3 status**: READY → **IN-PROGRESS**. AC-EN-10/13/14 PASS. AC-EN-11/12/15 PARTIAL.
