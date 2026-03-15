@@ -5224,7 +5224,7 @@ These gates are evaluated at EW3 and must all PASS for EW4 ADOPT recommendation.
 > **Priority:** NEXT (no upstream dependencies; orthogonal to all active streams)
 > **Repos:** bolt-ecosystem (governance only — no runtime code)
 > **Codified:** ecosystem-v0.1.116-discovery-mode1-codify (2026-03-12)
-> **Status:** CODIFIED (DM1 PM gate unblocked immediately)
+> **Status:** DM1 DONE (`ecosystem-v0.1.156-discovery-mode1-dm1-policy-lock`, 2026-03-15). PM-DM-01–04 APPROVED. DM2 READY.
 
 ---
 
@@ -5344,8 +5344,8 @@ The following deduplication invariants apply when both local and cloud signaling
 
 | Phase | Description | Type | Serial Gate | Dependencies | Status |
 |-------|-------------|------|-------------|--------------|--------|
-| **DM1** | PM mode policy lock (default mode, UI requirements, CLOUD_ONLY disposition) | PM gate | YES — gates DM2 | None | NOT-STARTED |
-| **DM2** | Mode indicator implementation across consumers | Engineering gate | YES — gates DM3 | DM1 complete | NOT-STARTED |
+| **DM1** | PM mode policy lock (default mode, UI requirements, CLOUD_ONLY disposition) | PM gate | YES — gates DM2 | None | **DONE** (`ecosystem-v0.1.156-discovery-mode1-dm1-policy-lock`, 2026-03-15). AC-DM-01–04 all PASS. PM-DM-01–04 APPROVED. LAN_ONLY default (AirDrop-style), no cloud/hybrid in LocalBolt discovery. |
+| **DM2** | Mode indicator implementation across consumers | Engineering gate | YES — gates DM3 | DM1 complete | **READY** (DM1 DONE, unblocked) |
 | **DM3** | Mode-aware acceptance test harness | Engineering gate | YES — gates DM4 | DM2 complete | NOT-STARTED |
 | **DM4** | Env var harmonization + documentation alignment | Engineering gate | YES — closes stream | DM3 complete | NOT-STARTED |
 
@@ -5372,12 +5372,58 @@ No upstream stream dependencies. DISCOVERY-MODE-1 is orthogonal to RUSTIFY-CORE-
 
 #### DM1 — PM Mode Policy Lock
 
-| ID | Criterion | Evidence Required |
-|----|-----------|------------------|
-| AC-DM-01 | Default discovery mode confirmed (HYBRID vs LAN_ONLY) — PM-DM-01 resolved | PM decision recorded |
-| AC-DM-02 | User-facing mode toggle requirement confirmed — PM-DM-02 resolved | PM decision recorded |
-| AC-DM-03 | Mode/origin UX wording requirements confirmed — PM-DM-03 resolved | PM decision recorded |
-| AC-DM-04 | CLOUD_ONLY disposition confirmed (codify now vs defer) — PM-DM-04 resolved | PM decision recorded |
+| ID | Criterion | Evidence Required | Status |
+|----|-----------|------------------|--------|
+| AC-DM-01 | Default discovery mode confirmed — PM-DM-01 resolved | PM decision recorded | **PASS** — PM-DM-01 APPROVED (2026-03-15). LAN_ONLY automatic proximity (AirDrop-style). No HYBRID default. |
+| AC-DM-02 | User-facing mode toggle requirement confirmed — PM-DM-02 resolved | PM decision recorded | **PASS** — PM-DM-02 APPROVED (2026-03-15). No mode toggle. Discovery is automatic LAN-only. |
+| AC-DM-03 | Mode/origin UX wording requirements confirmed — PM-DM-03 resolved | PM decision recorded | **PASS** — PM-DM-03 APPROVED (2026-03-15). Show "Nearby" only. Manual code entry is optional fallback. |
+| AC-DM-04 | CLOUD_ONLY disposition confirmed (codify now vs defer) — PM-DM-04 resolved | PM decision recorded | **PASS** — PM-DM-04 APPROVED (2026-03-15). Cloud/relay discovery out of DM1 scope. ByteBolt/web context only. |
+
+##### AC-DM-01 — Default Discovery Mode (PM-DM-01 APPROVED)
+
+**PM-DM-01 APPROVED (2026-03-15): LAN_ONLY automatic proximity discovery (AirDrop-style).**
+
+| Property | Decision |
+|----------|----------|
+| Default mode | **LAN_ONLY** — automatic LAN proximity discovery |
+| UX model | AirDrop-style: peers on same network appear automatically, no manual action required |
+| Cloud peers | NOT shown in LocalBolt discovery. Cloud rendezvous is ByteBolt/web context only. |
+| HYBRID | NOT the default. LocalBolt does not merge LAN + cloud peer lists. |
+| Manual code entry | Optional fallback path, never the primary or default UX |
+| Rationale | LocalBolt is a LAN file transfer tool. Automatic nearby-device discovery is the natural UX. Cloud discovery introduces scope and privacy complexity beyond LocalBolt's mission. |
+
+##### AC-DM-02 — Mode Toggle (PM-DM-02 APPROVED)
+
+**PM-DM-02 APPROVED (2026-03-15): No user-facing mode toggle in DM1.**
+
+Discovery is automatic LAN-only in LocalBolt. No toggle UI needed because:
+- There is only one mode (LAN_ONLY) in LocalBolt
+- Cloud/hybrid modes are not LocalBolt scope
+- Discovery starts automatically when the app launches
+
+##### AC-DM-03 — UX Wording (PM-DM-03 APPROVED)
+
+**PM-DM-03 APPROVED (2026-03-15):**
+
+| Element | Wording | Notes |
+|---------|---------|-------|
+| Mode indicator | **"Nearby"** | Shown when LAN discovery is active |
+| No "Online" text | — | No hybrid/online mode in LocalBolt |
+| Manual code entry | Optional fallback | Available but not primary. Label: "Enter code manually" or equivalent. |
+| No "AirDrop" branding | — | Do not use Apple product names in UI |
+| Peer display | Show device name from signaling | Same as current behavior |
+
+##### AC-DM-04 — CLOUD_ONLY Disposition (PM-DM-04 APPROVED)
+
+**PM-DM-04 APPROVED (2026-03-15): Cloud/relay discovery is explicitly out of DM1 scope.**
+
+| Scope | Owner | Status |
+|-------|-------|--------|
+| LAN automatic discovery | LocalBolt (DM1) | **IN SCOPE** |
+| Cloud rendezvous discovery | ByteBolt / web contexts | **OUT OF SCOPE** — separate stream |
+| Hybrid (LAN + cloud merged) | Future / ByteBolt | **OUT OF SCOPE** |
+
+Cloud signaling (the existing `DualSignaling` with cloud URL) remains functional for web-to-web and web-to-app contexts where it's already deployed. DM1 does not remove it. DM1 establishes that LocalBolt's **default discovery UX** is LAN-only.
 
 #### DM2 — Mode Indicator Implementation
 
@@ -5412,10 +5458,10 @@ No upstream stream dependencies. DISCOVERY-MODE-1 is orthogonal to RUSTIFY-CORE-
 
 | ID | Decision | Blocks | Priority | Status |
 |----|----------|--------|----------|--------|
-| PM-DM-01 | Default discovery mode: HYBRID (recommended) vs LAN_ONLY | DM2 | DM1 | PENDING |
-| PM-DM-02 | User-facing mode toggle required? (toggle UI vs config-only) | DM2 | DM1 | PENDING |
-| PM-DM-03 | Wording/UX for mode indicator and peer origin display | DM2 | DM1 | PENDING |
-| PM-DM-04 | CLOUD_ONLY: codify now as optional mode, or defer entirely? | DM4 (if codified) | DM1 | PENDING |
+| PM-DM-01 | Default discovery mode. **APPROVED (2026-03-15):** LAN_ONLY automatic proximity (AirDrop-style). No HYBRID default. No cloud peers in LocalBolt. Manual code entry is fallback only. | DM2 | DM1 | **APPROVED (2026-03-15)** |
+| PM-DM-02 | Mode toggle. **APPROVED (2026-03-15):** No user-facing toggle. Discovery is automatic LAN-only. | DM2 | DM1 | **APPROVED (2026-03-15)** |
+| PM-DM-03 | UX wording. **APPROVED (2026-03-15):** "Nearby" for LAN mode. No "Online" text. Manual code entry as optional fallback. No "AirDrop" branding. | DM2 | DM1 | **APPROVED (2026-03-15)** |
+| PM-DM-04 | CLOUD_ONLY disposition. **APPROVED (2026-03-15):** Deferred. Cloud/relay discovery is ByteBolt/web scope, not LocalBolt LAN discovery. | DM4 (if codified) | DM1 | **APPROVED (2026-03-15)** |
 
 ---
 
@@ -6848,7 +6894,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** |
 | RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE**, **RC2 DONE** (`ecosystem-v0.1.127-rustify-core1-rc2-complete`, 2026-03-13). PM-RC-01A APPROVED (quinn, 2026-03-13). 7 phases (RC1–RC7), 33 ACs, 8 PM decisions. **RC3 READY** (unblocked). |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + bolt-core-sdk + ecosystem | **EN1–EN2 DONE. EN3 IN-PROGRESS** (`sdk-v0.6.14`, 2026-03-15). AC-EN-10/12/13/14/15 PASS. AC-EN-11 PARTIAL (daemon transfer emit points). |
-| DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies. |
+| DISCOVERY-MODE-1 | Discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **DM1 DONE** (`ecosystem-v0.1.156`, 2026-03-15). PM-DM-01–04 APPROVED. LAN_ONLY default (AirDrop-style). DM2 READY. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | ~~NEXT~~ COMPLETE | bolt-protocol + ecosystem | **COMPLETE** (`ecosystem-v0.1.143-btr-spec1-bs5-closeout`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED. BS1–BS5 DONE. |
 | WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | ~~NEXT~~ COMPLETE | bolt-daemon + bolt-core-sdk + ecosystem | **COMPLETE** (`ecosystem-v0.1.147-webtransport-browser-app1-wt5-closeout`, 2026-03-15). All 20 ACs PASS. All 5 PM decisions APPROVED. WT1–WT5 DONE. |
 | EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | LATER | localbolt-v3 + localbolt + ecosystem | **CODIFIED** (`ecosystem-v0.1.142-egui-wasm1-codify`, 2026-03-15). 5 phases (EW1–EW5), 19 ACs, 5 PM decisions. PM-EN-04 early approval. EW1 unblocked. Experimental — ABANDON is valid outcome. |

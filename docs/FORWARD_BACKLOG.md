@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-15 (EGUI-NATIVE-1 EN3 IN-PROGRESS: IPC client + SAS verified. AC-EN-10/12/13/14/15 PASS. AC-EN-11 PARTIAL — daemon transfer emit points.)
+> **Updated:** 2026-03-15 (DISCOVERY-MODE-1 DM1 DONE: LAN_ONLY default (AirDrop-style). PM-DM-01–04 APPROVED. DM2 READY.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -488,7 +488,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 15: DISCOVERY-MODE-1 — Dual Discovery Mode Policy Codification
 
 **Priority:** NEXT
-**Status:** CODIFIED (DM1 PM gate unblocked immediately; no upstream dependencies)
+**Status:** **DM1 DONE** (`ecosystem-v0.1.156-discovery-mode1-dm1-policy-lock`, 2026-03-15). PM-DM-01–04 APPROVED. LAN_ONLY default (AirDrop-style). DM2 READY.
 **Routing:** bolt-ecosystem (governance), localbolt-v3 + localbolt + localbolt-app (implementation phases)
 **Category:** Policy — discovery mode semantics
 **Stream:** DISCOVERY-MODE-1 (phased, 4 phases DM1–DM4)
@@ -505,21 +505,21 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 **Mode definitions:**
 - **LAN_ONLY** (required): Local signaling only. Cloud disabled/absent. Peers from local server only.
-- **HYBRID** (required, recommended default): Local + cloud active. Merged deduplicated peer list. First-discovery-wins, source-aware loss.
+- **HYBRID** (available, NOT default for LocalBolt): Local + cloud active. ByteBolt/web context only.
 - **CLOUD_ONLY** (deferred): Reserved as future extension. PM-DM-04 must approve before codification.
 
 **Phased Plan (DISCOVERY-MODE-1):**
 
 | Phase | Description | Serial Gate | Status |
 |-------|-------------|-------------|--------|
-| DM1 | PM mode policy lock (default mode, UI reqs, CLOUD_ONLY disposition) | YES (gates DM2) | NOT-STARTED |
-| DM2 | Mode indicator implementation across consumers | YES (gates DM3) | NOT-STARTED |
+| DM1 | PM mode policy lock (default mode, UI reqs, CLOUD_ONLY disposition) | YES (gates DM2) | **DONE** (AC-DM-01–04 PASS, PM-DM-01–04 APPROVED, 2026-03-15) |
+| DM2 | Mode indicator implementation across consumers | YES (gates DM3) | **READY** (DM1 DONE, unblocked) |
 | DM3 | Mode-aware acceptance test harness | YES (gates DM4) | NOT-STARTED |
 | DM4 | Env var harmonization + documentation alignment + closure | YES (closes stream) | NOT-STARTED |
 
-**Acceptance Criteria:** 16 ACs defined (AC-DM-01 through AC-DM-16). See `docs/GOVERNANCE_WORKSTREAMS.md` § DISCOVERY-MODE-1 for full list.
+**Acceptance Criteria:** 16 ACs defined (AC-DM-01 through AC-DM-16). DM1: AC-DM-01–04 all PASS (4 of 16 delivered). PM-DM-01–04 APPROVED.
 
-**PM Decisions:** 4 open (PM-DM-01 through PM-DM-04). See `docs/GOVERNANCE_WORKSTREAMS.md` § DISCOVERY-MODE-1 for full table.
+**PM Decisions:** 4 total, all APPROVED. PM-DM-01 (LAN_ONLY default). PM-DM-02 (no toggle). PM-DM-03 ("Nearby" wording). PM-DM-04 (CLOUD_ONLY deferred).
 
 **Risk register:** No material discovery-policy risks identified at codification.
 
@@ -678,9 +678,10 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-EN-03 | EGUI-NATIVE-1: Rollback window duration before legacy UI removal | EN5 | LATER |
 | PM-EN-04 | EGUI-NATIVE-1: Whether to open EGUI-WASM-1 after EN3 results | Post-stream | LATER |
 | PM-EN-05 | EGUI-NATIVE-1: Whether to open EGUI-MOBILE-1 after EN4 results | Post-stream | LATER |
-| PM-DM-01 | DISCOVERY-MODE-1: Default discovery mode (HYBRID recommended vs LAN_ONLY) | DM2 | NEXT |
-| PM-DM-02 | DISCOVERY-MODE-1: User-facing mode toggle required? (toggle UI vs config-only) | DM2 | NEXT |
-| PM-DM-03 | DISCOVERY-MODE-1: Wording/UX for mode indicator and peer origin display | DM2 | NEXT |
+| PM-DM-01 | DISCOVERY-MODE-1: Default discovery mode | DM2 | **APPROVED** (LAN_ONLY AirDrop-style, 2026-03-15) |
+| PM-DM-02 | DISCOVERY-MODE-1: Mode toggle | DM2 | **APPROVED** (no toggle, auto LAN, 2026-03-15) |
+| PM-DM-03 | DISCOVERY-MODE-1: UX wording | DM2 | **APPROVED** ("Nearby", no "Online", 2026-03-15) |
+| PM-DM-04 | DISCOVERY-MODE-1: CLOUD_ONLY disposition | DM4 | **APPROVED** (deferred, ByteBolt scope, 2026-03-15) |
 | PM-DM-04 | DISCOVERY-MODE-1: CLOUD_ONLY — codify now as optional mode, or defer entirely? | DM4 | NEXT |
 | PM-BS-01 | BTR-SPEC-1: Crypto primitive baseline confirmation (NaCl box + HKDF-SHA256) | BS2 | NEXT |
 | PM-BS-02 | BTR-SPEC-1: Rekey thresholds/lifecycle policy | BS2 | NEXT |

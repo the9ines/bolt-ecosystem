@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-15 — DISCOVERY-MODE-1 DM1 DONE: LAN_ONLY Discovery Policy Lock (AirDrop-Style)
+
+**DM1 status**: NOT-STARTED → **DONE**. All 4 ACs (AC-DM-01–04) PASS. All 4 PM decisions resolved.
+
+**PM-DM-01 APPROVED:** Default discovery mode is LAN_ONLY automatic proximity (AirDrop-style). No HYBRID default. No cloud peers in LocalBolt discovery. Manual code entry is fallback only, never default.
+
+**PM-DM-02 APPROVED:** No user-facing mode toggle. Discovery is automatic LAN-only.
+
+**PM-DM-03 APPROVED:** UX wording: "Nearby" for LAN mode. No "Online" text. Manual code entry as optional fallback. No "AirDrop" branding.
+
+**PM-DM-04 APPROVED:** CLOUD_ONLY deferred. Cloud/relay discovery is ByteBolt/web context scope, not LocalBolt LAN discovery.
+
+**Policy summary:** LocalBolt discovery = LAN AirDrop-style only. Peers on same network appear automatically. Cloud rendezvous remains functional for web-to-web and web-to-app contexts but is not the LocalBolt default UX.
+
+**DM2 status**: NOT-STARTED → **READY** (DM1 DONE, unblocked). DM2 scope: mode indicator implementation.
+
+**Tags**: `ecosystem-v0.1.156-discovery-mode1-dm1-policy-lock`
+
+**Next**: DM2 — "Nearby" mode indicator implementation across consumer apps.
+
+---
+
 ## 2026-03-15 — EGUI-NATIVE-1 EN3e: Daemon IPC Events + bolt-ui IPC Client
 
 **Daemon IPC events added** (`daemon-v0.2.43`): session.connected, session.sas, session.error, session.ended, transfer.started/progress/complete. Both offerer and answerer rendezvous paths emit events via IPC socket.
