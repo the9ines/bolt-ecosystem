@@ -2,7 +2,7 @@
 
 Captured: 2026-03-14
 Operator: oberfelder (local workstation)
-Context: AC-RC-29..33 closure attempt for RC7. Result: IN-PROGRESS (PM-RC-06 blocker).
+Context: AC-RC-29..33 closure for RC7. Result: DONE (PM-RC-06 resolved 2026-03-14).
 
 ---
 
@@ -14,7 +14,7 @@ Context: AC-RC-29..33 closure attempt for RC7. Result: IN-PROGRESS (PM-RC-06 blo
 | AC-RC-30 | PASS | 7 reserved `cli.*` config keys documented. No parser or runtime reader. |
 | AC-RC-31 | PASS | 3 reserved `bolt.cli-*` capabilities documented. Follows existing `bolt.*` namespace convention. |
 | AC-RC-32 | PASS | All files changed are under `docs/`. See § 6 below. |
-| AC-RC-33 | BLOCKED | PM-RC-06 PENDING. CLI stream trigger condition cannot be defined. |
+| AC-RC-33 | PASS | PM-RC-06 APPROVED (2026-03-14). CLI trigger: RC4 complete [satisfied] + RC6 Stage 1 burn-in passed [12h soak, 0 P0/P1, 0 kill-switch, gates green]. |
 
 ---
 
@@ -65,18 +65,24 @@ Negotiation: HELLO `capabilities[]` intersection (unknown caps silently dropped)
 
 ---
 
-## 5. PM-RC-06 Status (AC-RC-33 Blocker)
+## 5. PM-RC-06 Decision (AC-RC-33 RESOLVED)
 
-**Status: PENDING**
+**Status: APPROVED (2026-03-14)**
 
-PM-RC-06 asks: "When should the CLI-specific execution stream begin?"
+**Decision:** CLI-specific execution stream may begin only after ALL of:
 
-Recommended trigger conditions proposed:
-1. Minimum: RUSTIFY-CORE-1 RC4 complete (shared Rust core adopted) — already satisfied
-2. Recommended: RC6 rollout Stage 1 burn-in passed (QUIC transport proven)
-3. Optional: N-STREAM-1 N6 implementation complete (IPC contract implemented)
+1. **RUSTIFY-CORE-1 RC4 complete** (shared Rust core adopted) — **SATISFIED** (2026-03-14)
+2. **RC6 Stage 1 burn-in passed** — NOT YET STARTED
 
-RC7 cannot close until PM-RC-06 is resolved.
+**Burn-in pass definition (lab/staging):**
+- 12h continuous automated soak
+- 0 P0/P1 incidents
+- 0 kill-switch activations
+- Required no-regression gates remain green
+
+**Explicitly NOT required:** N-STREAM-1 N6 completion.
+
+**Effect:** CLI stream is currently gated on RC6 Stage 1 burn-in. Once burn-in passes, a CLI execution stream may be opened under separate governance.
 
 ---
 
@@ -98,19 +104,36 @@ Files changed in RC7 commit:
 
 ## 7. Cross-Doc Consistency
 
-| Document | RC7 Status | AC-RC-29–32 | AC-RC-33 | PM-RC-06 |
-|----------|-----------|-------------|----------|----------|
-| GOVERNANCE_WORKSTREAMS.md | IN-PROGRESS | All PASS | BLOCKED | PENDING |
-| FORWARD_BACKLOG.md | IN-PROGRESS in status | 32/33 delivered | BLOCKED on PM-RC-06 | PENDING |
-| STATE.md | IN-PROGRESS in header + row | AC-RC-01–32 PASS | BLOCKED | Referenced |
-| CHANGELOG.md | IN-PROGRESS entry | All 4 detailed | BLOCKED detailed | Referenced |
+| Document | RC7 Status | AC-RC-29–33 | PM-RC-06 |
+|----------|-----------|-------------|----------|
+| GOVERNANCE_WORKSTREAMS.md | DONE | All PASS | APPROVED |
+| FORWARD_BACKLOG.md | DONE in status | 33/33 delivered | APPROVED |
+| STATE.md | DONE in header + row | All 33 ACs PASS | APPROVED |
+| CHANGELOG.md | DONE entry | All 5 detailed | APPROVED with full text |
 
 ---
 
-## 8. Remaining RUSTIFY-CORE-1 Blockers
+## 8. Remaining RUSTIFY-CORE-1 Residuals
 
-| Blocker | What It Blocks | Priority |
-|---------|---------------|----------|
-| PM-RC-06 | AC-RC-33 → RC7 closure | NEXT |
-| PM-RC-04 | Performance SLO thresholds (residual, does not block RC7) | NEXT |
-| PM-RC-07 | Stream relationship mode (residual, does not block RC7) | NEXT |
+| Item | Status | Blocks |
+|------|--------|--------|
+| PM-RC-06 | **RESOLVED** | N/A — RC7 closed |
+| PM-RC-04 | PENDING | Performance SLO thresholds (non-blocking residual) |
+| PM-RC-07 | PENDING | Stream relationship mode (non-blocking residual) |
+
+---
+
+## 9. RUSTIFY-CORE-1 Stream Summary
+
+| Phase | Status | ACs |
+|-------|--------|-----|
+| RC1 | DONE | AC-RC-01–06 |
+| RC2 | DONE | AC-RC-07–11 |
+| RC3 | DONE | AC-RC-12–16 |
+| RC4 | DONE | AC-RC-17–20 |
+| RC5 | DONE | AC-RC-21–24 |
+| RC6 | DONE | AC-RC-25–28 |
+| RC7 | DONE | AC-RC-29–33 |
+| **Total** | **All 7 phases DONE** | **33/33 ACs PASS** |
+
+PM decisions: 6 of 8 APPROVED (PM-RC-01, 01A, 02, 03, 05, 06). 2 residual PENDING (PM-RC-04, 07) — non-blocking.

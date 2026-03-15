@@ -4234,7 +4234,7 @@ If PM-RC-07 confirms SUPERSEDES for SEC-CORE2 and PLAT-CORE1, those items should
 | **RC4** | Shared Rust core adoption in app/runtime boundaries | Engineering gate | NO (parallel with RC3) | RC2 complete | **DONE** (`ecosystem-v0.1.130-rustify-core1-rc4-executed`, 2026-03-14). AC-RC-17–20 all PASS. Adoption verified via audit; IPC-mediated delegation confirmed as canonical path. |
 | **RC5** | Browser↔app endpoint integration gates (WebSocket-direct) | Engineering gate | YES — gates RC6 | RC3 + RC4 complete, PM-RC-02 APPROVED (WebSocket-direct) | **DONE** (`daemon-v0.2.42-rustify-core1-rc5-btr-ws`, `sdk-v0.6.9-rustify-core1-rc5-ws-transport`, `ecosystem-v0.1.133-rustify-core1-rc5-done`, 2026-03-14). AC-RC-21–24 all PASS. WS endpoint + BTR capability + fallback verified. |
 | **RC6** | Rollout + compatibility + rollback policy | PM/Engineering gate | YES — gates close | RC5 complete, PM-RC-03 APPROVED, PM-RC-05 APPROVED | **DONE** (`ecosystem-v0.1.134-rustify-core1-rc6-executed`, 2026-03-14). AC-RC-25–28 all PASS. Rollout policy, rollback policy, compatibility matrix, and no-regression gates codified. PM-RC-03 APPROVED (app-first rollout). PM-RC-05 APPROVED (deprecate-but-retain TS paths). |
-| **RC7** | CLI reservation hooks (governance artifacts only) | Governance gate | NO (parallel with RC1–RC6) | None | **IN-PROGRESS** (2026-03-14). AC-RC-29–32 all PASS. AC-RC-33 BLOCKED on PM-RC-06 (CLI stream trigger condition). |
+| **RC7** | CLI reservation hooks (governance artifacts only) | Governance gate | NO (parallel with RC1–RC6) | None | **DONE** (`ecosystem-v0.1.135-rustify-core1-rc7-executed`, 2026-03-14). AC-RC-29–33 all PASS. PM-RC-06 APPROVED. CLI stream trigger: RC4 complete + RC6 Stage 1 burn-in passed (12h soak, 0 P0/P1, 0 kill-switch). |
 
 #### Dependency DAG
 
@@ -4572,7 +4572,7 @@ Kill-switch rollback (RC-G7) remains active throughout the Deprecated phase. Sun
 | AC-RC-30 | CLI config schema keys reserved | Schema doc | **PASS** — Reserved `cli.*` config key namespace documented below. |
 | AC-RC-31 | CLI capability namespace reserved | Capability registry entry | **PASS** — Reserved `bolt.cli-*` capability namespace documented below. |
 | AC-RC-32 | No runtime code produced in this phase | Code review / `git diff --name-only` | **PASS** — RC7 commit touches only `docs/` files. No `.rs`, `.ts`, `.toml`, `.json`, or other runtime files modified. |
-| AC-RC-33 | CLI stream trigger condition defined (PM-RC-06 resolved) | PM decision recorded | **BLOCKED** — PM-RC-06 PENDING. Cannot define trigger condition without PM decision. |
+| AC-RC-33 | CLI stream trigger condition defined (PM-RC-06 resolved) | PM decision recorded | **PASS** — PM-RC-06 APPROVED (2026-03-14). CLI stream may begin after: (1) RC4 complete [satisfied], AND (2) RC6 Stage 1 burn-in passed [12h continuous soak, 0 P0/P1 incidents, 0 kill-switch activations, no-regression gates green]. N-STREAM-1 N6 NOT required. |
 
 ##### AC-RC-29 — Reserved CLI API Extension Points
 
@@ -4626,18 +4626,24 @@ Following the existing `bolt.*` capability namespace convention (`bolt.file-hash
 - No new capabilities may be advertised without PM approval (RC-G5)
 - Backward compatibility: peers without `bolt.cli-*` capabilities must not be affected (existing negotiation is intersection-based — unknown capabilities are silently dropped)
 
-##### AC-RC-33 — CLI Stream Trigger Condition (BLOCKED)
+##### AC-RC-33 — CLI Stream Trigger Condition (PM-RC-06 APPROVED)
 
-**PM-RC-06 status: PENDING**
+**PM-RC-06 APPROVED (2026-03-14)**
 
-AC-RC-33 requires PM-RC-06 to define when the CLI-specific execution stream should begin. Without this decision, the trigger condition cannot be codified.
+CLI-specific execution stream may begin only after ALL of:
 
-**Recommended trigger conditions for PM consideration:**
-1. **Minimum dependency:** RUSTIFY-CORE-1 RC4 complete (shared Rust core adopted) — satisfied
-2. **Recommended dependency:** RC6 rollout Stage 1 burn-in passed (QUIC transport proven in production)
-3. **Optional dependency:** N-STREAM-1 N6 implementation complete (IPC contract implemented)
+1. **RUSTIFY-CORE-1 RC4 complete** (shared Rust core adopted) — **SATISFIED** (2026-03-14)
+2. **RC6 Stage 1 burn-in passed** — NOT YET STARTED
 
-**Blocker:** PM-RC-06 must be resolved before AC-RC-33 can be satisfied and RC7 can close.
+**Burn-in pass definition (lab/staging):**
+- 12h continuous automated soak
+- 0 P0/P1 incidents
+- 0 kill-switch activations
+- Required no-regression gates remain green
+
+**Explicitly NOT required:** N-STREAM-1 N6 completion is not a prerequisite for CLI stream start.
+
+**Effect:** CLI stream is currently gated on RC6 Stage 1 burn-in. Once burn-in passes per the above criteria, a CLI execution stream may be opened under separate governance.
 
 ---
 
@@ -4651,7 +4657,7 @@ AC-RC-33 requires PM-RC-06 to define when the CLI-specific execution stream shou
 | PM-RC-03 | Rollout order confirmation: app-first, browser↔app second. **APPROVED (2026-03-14):** Stage 1: app↔app (QUIC). Stage 2: browser↔app (WS-direct). browser↔browser remains WebRTC invariant (G1). Promotion gate: burn-in with zero P0/P1 regressions. | RC6 | RC1 | **APPROVED (2026-03-14)** |
 | PM-RC-04 | Performance SLO thresholds for native transport migration gates (latency, throughput, overhead) | RC3 (AC-RC-15) | RC1 | PENDING |
 | PM-RC-05 | Legacy TS-path deprecation policy/timeline after Rust core adoption. **APPROVED (2026-03-14):** Deprecate-but-retain. TS paths retained as fallback with kill-switch (RC-G7). Sunset requires separate PM approval after: (a) one full release cycle, (b) zero kill-switch activations, (c) zero P0/P1 regressions. Condition-gated, not date-gated. | RC6 | RC6 | **APPROVED (2026-03-14)** |
-| PM-RC-06 | CLI stream trigger condition: when to start CLI-specific execution stream | RC7 (AC-RC-33) | RC7 | PENDING |
+| PM-RC-06 | CLI stream trigger condition: when to start CLI-specific execution stream. **APPROVED (2026-03-14):** CLI stream may begin after RC4 complete [satisfied] AND RC6 Stage 1 burn-in passed (12h continuous soak, 0 P0/P1, 0 kill-switch activations, no-regression gates green). N-STREAM-1 N6 NOT required. | RC7 (AC-RC-33) | RC7 | **APPROVED (2026-03-14)** |
 | PM-RC-07 | Relationship mode to existing streams. Recommended: SUPERSEDES SEC-CORE2 + PLAT-CORE1; REFACTORS/DEPENDS-ON MOB-RUNTIME1 + ARCH-WASM1 | All phases | RC1 | PENDING (recommended: hybrid) |
 
 ---
