@@ -6020,7 +6020,7 @@ BTR-SPEC-1 BS1–BS5 commits touched only `docs/` files across all 5 phases:
 > **Priority:** NEXT (depends on RUSTIFY-CORE-1 RC5 WS baseline being operational)
 > **Repos:** bolt-daemon (primary — WebTransport endpoint), bolt-core-sdk (browser adapter), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.139-webtransport-browser-app1-codify (2026-03-14)
-> **Status:** WT1 DONE (`ecosystem-v0.1.141-webtransport-browser-app1-wt1-executed`, 2026-03-15). WT2 READY.
+> **Status:** WT1 DONE. WT2 DONE (`ecosystem-v0.1.144-webtransport-browser-app1-wt2-executed`, 2026-03-15). WT3 READY.
 
 ---
 
@@ -6076,8 +6076,8 @@ No SUPERSEDES or REFACTORS relationships. WEBTRANSPORT-BROWSER-APP-1 is additive
 | Phase | Description | Type | Serial Gate | Dependencies | Status |
 |-------|-------------|------|-------------|--------------|--------|
 | **WT1** | Policy lock + capability/browser support matrix | PM/Spec gate | YES — gates WT2 | None | **DONE** (`ecosystem-v0.1.141-webtransport-browser-app1-wt1-executed`, 2026-03-15). AC-WT-01–04 all PASS. PM-WT-01/02 APPROVED. Browser matrix, capability string, fallback policy, TLS requirements locked. |
-| **WT2** | Daemon WebTransport endpoint contract + auth/origin/TLS policy lock | Engineering + PM gate | YES — gates WT3 | WT1 complete | **READY** (WT1 DONE, unblocked) |
-| **WT3** | Browser adapter contract + three-tier fallback orchestration lock | Engineering gate | YES — gates WT4 | WT2 complete | NOT-STARTED |
+| **WT2** | Daemon WebTransport endpoint contract + auth/origin/TLS policy lock | Engineering + PM gate | YES — gates WT3 | WT1 complete | **DONE** (`ecosystem-v0.1.144-webtransport-browser-app1-wt2-executed`, 2026-03-15). AC-WT-05–08 all PASS. PM-WT-03 APPROVED (C2 local CA primary, C1 dev fallback). |
+| **WT3** | Browser adapter contract + three-tier fallback orchestration lock | Engineering gate | YES — gates WT4 | WT2 complete | **READY** (WT2 DONE, unblocked) |
 | **WT4** | Conformance/compatibility matrix + rollout/rollback gate lock | Engineering + PM gate | YES — gates WT5 | WT3 complete | NOT-STARTED |
 | **WT5** | Closure criteria + WS role disposition after WebTransport adoption | PM/Spec gate | YES — closes stream | WT4 complete | NOT-STARTED |
 
@@ -6201,12 +6201,116 @@ WebTransport is enabled for browsers with full support. Safari/iOS Safari users 
 
 #### WT2 — Daemon Endpoint + TLS Policy
 
-| ID | Criterion | Evidence Required |
-|----|-----------|------------------|
-| AC-WT-05 | Daemon WebTransport endpoint contract specified (listen address, ALPN, connection lifecycle) | Endpoint spec |
-| AC-WT-06 | Auth/origin validation policy for WebTransport connections defined | Auth policy doc |
-| AC-WT-07 | TLS certificate provisioning strategy locked (self-signed dev, CA-signed prod, rotation policy) | PM decision recorded |
-| AC-WT-08 | WebTransport endpoint feature-gated (kill-switch for rollback to WS) | Feature gate design |
+| ID | Criterion | Evidence Required | Status |
+|----|-----------|------------------|--------|
+| AC-WT-05 | Daemon WebTransport endpoint contract specified (listen address, ALPN, connection lifecycle) | Endpoint spec | **PASS** — Endpoint contract codified below. ALPN `h3`, HTTP/3 server, connection lifecycle defined. |
+| AC-WT-06 | Auth/origin validation policy for WebTransport connections defined | Auth policy doc | **PASS** — Origin validation + connection token policy codified below. |
+| AC-WT-07 | TLS certificate provisioning strategy locked (self-signed dev, CA-signed prod, rotation policy) | PM decision recorded | **PASS** — PM-WT-03 APPROVED (2026-03-15). C2 local CA primary, C1 dev fallback. |
+| AC-WT-08 | WebTransport endpoint feature-gated (kill-switch for rollback to WS) | Feature gate design | **PASS** — `transport-webtransport` feature gate design codified below. |
+
+**Invariant:** browser↔browser WebRTC (G1) is unchanged by WT2. Runtime implementation is deferred — WT2 specifies contracts only.
+
+##### AC-WT-05 — Daemon WebTransport Endpoint Contract (LOCKED)
+
+**Endpoint specification:**
+
+| Property | Value | Notes |
+|----------|-------|-------|
+| Protocol | HTTP/3 (QUIC + TLS 1.3) | WebTransport runs over HTTP/3 |
+| ALPN | `h3` | Standard HTTP/3 ALPN token |
+| Listen address | `127.0.0.1:<port>` (localhost default) or `0.0.0.0:<port>` (LAN) | Configurable. Separate port from WS endpoint. |
+| Default port | TBD at implementation (recommended: WS port + 1, or config key `daemon.webtransport.port`) | Must not conflict with WS or QUIC (app↔app) ports |
+| TLS | Required (WebTransport mandates TLS 1.3) | Cert provisioned per PM-WT-03 (AC-WT-07) |
+| Max concurrent sessions | Same as WS endpoint (daemon-configured) | Shared session pool with WS if both active |
+
+**Connection lifecycle:**
+
+```
+Browser                          Daemon
+  │                                │
+  ├─ WebTransport(url) ───────────►│  1. HTTP/3 CONNECT + TLS 1.3 handshake
+  │                                │
+  │◄── session established ────────┤  2. WebTransport session open
+  │                                │
+  ├─ open bidirectional stream ───►│  3. Stream for HELLO exchange
+  │                                │
+  ├─ HELLO (encrypted envelope) ──►│  4. Standard Bolt HELLO (§3)
+  │◄── HELLO response ────────────┤     Capability intersection includes
+  │                                │     bolt.transport-webtransport-v1
+  │                                │
+  │    [session active — same as   │  5. Protocol proceeds identically
+  │     WS/WebRTC from here]       │     to WS path (envelopes, BTR,
+  │                                │     transfers, etc.)
+  │                                │
+  ├─ close session ───────────────►│  6. Clean shutdown
+  │                                │     OR disconnect → zeroize
+```
+
+**Relationship to WS endpoint:**
+- WebTransport and WS endpoints MAY run concurrently on separate ports
+- Both delegate to shared Rust core (RC4 pattern) — no dual protocol authority
+- Session authority is in daemon/bolt_core regardless of transport
+- Browser chooses transport per three-tier fallback (AC-WT-03)
+
+##### AC-WT-06 — Auth/Origin Validation Policy (LOCKED)
+
+| Policy | Rule | Rationale |
+|--------|------|-----------|
+| **Origin validation** | Daemon MUST validate `Origin` header on WebTransport CONNECT. Accept only configured origins (default: same-origin localhost). Reject unknown origins with HTTP 403. | Prevents cross-origin abuse of local daemon. |
+| **Connection token** | Daemon MAY require a connection token/nonce in the WebTransport URL query parameter for additional auth. Token generation: daemon provides token via IPC to local app, which passes to browser. | Defense-in-depth. Prevents unauthenticated connections to daemon WT endpoint. |
+| **Rate limiting** | Daemon MUST rate-limit WebTransport connection attempts (same policy as WS endpoint). | Prevents local DoS. |
+| **TLS client auth** | NOT REQUIRED in v1. TLS server cert sufficient for transport security. Mutual TLS deferred. | Simplicity. Server cert + origin validation + optional token is sufficient for localhost/LAN. |
+| **Same-origin policy** | WebTransport from HTTPS pages connects to daemon's TLS endpoint — no mixed-content restriction (unlike ws:// from HTTPS). | WebTransport always uses TLS, resolving the HTTPS mixed-content caveat from RC5/RC6. |
+
+**Security note:** WebTransport connections are always TLS-encrypted. The daemon's TLS cert authenticates the daemon to the browser. Origin validation + optional token authenticate the browser to the daemon. No protocol reimplementation in browser (WT-G4).
+
+##### AC-WT-07 — TLS Certificate Strategy (PM-WT-03 APPROVED)
+
+**PM-WT-03 APPROVED (2026-03-15):**
+
+| Environment | Strategy | Certificate Type | Setup |
+|-------------|----------|-----------------|-------|
+| **Development/testing** | C1: Self-signed | Self-signed cert generated by daemon | Zero setup. Browser shows TLS warning. Acceptable for dev only. |
+| **LAN/localhost production** | C2: Local CA (mkcert-style) | CA-signed cert from locally installed root CA | One-time: install local root CA in OS trust store. Daemon generates certs signed by local CA. No browser warnings after CA trust. |
+
+**Out of scope:** C3 ACME/Let's Encrypt (WAN/public deployment, deferred to ByteBolt/relay scope).
+
+**Cert lifecycle:**
+
+| Aspect | Policy |
+|--------|--------|
+| Generation | Daemon generates cert on first start if none exists. Stores in daemon data directory. |
+| Validity | 365 days recommended. Daemon warns on approaching expiry. |
+| Rotation | Regenerate cert + restart daemon. No online rotation in v1. |
+| CA installation (C2) | One-time per machine. Platform-specific: macOS Keychain, Windows cert store, Linux ca-certificates. |
+| Rollback | If TLS fails → browser falls back to WS (Tier 2) → WebRTC (Tier 3). Three-tier fallback is the safety net. |
+
+**Implementation note (deferred):** Cert generation and CA management are runtime concerns. WT2 locks the policy; implementation is a future engineering phase.
+
+##### AC-WT-08 — Feature Gate Design (LOCKED)
+
+**Feature gate: `transport-webtransport`**
+
+| Property | Value |
+|----------|-------|
+| Gate name | `transport-webtransport` |
+| Default | OFF (WebTransport disabled until implementation complete + burn-in) |
+| When OFF | Daemon does not start WebTransport listener. Browser falls through to WS (Tier 2). |
+| When ON | Daemon starts HTTP/3 WebTransport listener on configured port. Browser attempts WebTransport first. |
+| Interaction with `transport-ws` | Independent. Both can be ON simultaneously (different ports). |
+| Interaction with `transport-quic` | Independent. `transport-quic` is app↔app QUIC. `transport-webtransport` is browser↔app HTTP/3. Different protocols, different listeners. |
+| Kill-switch | Set `transport-webtransport` OFF → rebuild daemon → deploy. Browser auto-falls to WS. |
+| Rollback path | WT-G8: feature gate OFF restores RC5 behavior (WS primary). No data loss. |
+
+**Feature gate hierarchy (daemon):**
+
+```
+transport-quic          → app↔app QUIC (RC3)
+transport-ws            → browser↔app WebSocket (RC5)
+transport-webtransport  → browser↔app WebTransport (this stream)
+```
+
+All three are independent. Any combination is valid. Browser↔browser remains WebRTC regardless of daemon feature gates (G1 invariant).
 
 #### WT3 — Browser Adapter + Fallback Orchestration
 
@@ -6243,7 +6347,7 @@ WebTransport is enabled for browsers with full support. Safari/iOS Safari users 
 |----|----------|--------|----------|--------|
 | PM-WT-01 | Browser support matrix. **APPROVED (2026-03-15): Option B.** Ship WebTransport on Chrome 97+, Edge 97+, Firefox 115+. Safari/iOS Safari fallback to WS → WebRTC. Re-evaluate when Safari ships WebTransport (Interop 2026). | WT1 (AC-WT-01) | WT1 | **APPROVED (2026-03-15)** |
 | PM-WT-02 | WebTransport capability string. **APPROVED (2026-03-15): Option A.** `bolt.transport-webtransport-v1`. Follows existing `bolt.*` namespace. Transport-level, no protocol impact. | WT1 (AC-WT-02) | WT1 | **APPROVED (2026-03-15)** |
-| PM-WT-03 | TLS certificate provisioning strategy for daemon WebTransport endpoint | WT2 (AC-WT-07) | WT2 | PENDING |
+| PM-WT-03 | TLS certificate provisioning strategy. **APPROVED (2026-03-15):** Primary: C2 local CA (mkcert-style) for localhost/LAN. Dev fallback: C1 self-signed. Out of scope: C3 ACME/Let's Encrypt (WAN, deferred). | WT2 (AC-WT-07) | WT2 | **APPROVED (2026-03-15)** |
 | PM-WT-04 | Performance SLO thresholds for WebTransport (latency improvement target vs WS) | WT4 (AC-WT-16) | WT4 | PENDING |
 | PM-WT-05 | WS disposition after WebTransport adoption (permanent fallback vs deprecate-with-sunset) | WT5 (AC-WT-18) | WT5 | PENDING |
 
@@ -6345,7 +6449,7 @@ WebTransport is enabled for browsers with full support. Safari/iOS Safari users 
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | ~~NEXT~~ COMPLETE | bolt-protocol + ecosystem | **COMPLETE** (`ecosystem-v0.1.143-btr-spec1-bs5-closeout`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED. BS1–BS5 DONE. |
-| WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | NEXT | bolt-daemon + bolt-core-sdk + ecosystem | **WT1 DONE** (`ecosystem-v0.1.141`, 2026-03-15). AC-WT-01–04 PASS. PM-WT-01/02 APPROVED. WT2 READY. |
+| WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | NEXT | bolt-daemon + bolt-core-sdk + ecosystem | **WT1–WT2 DONE** (`ecosystem-v0.1.144`, 2026-03-15). AC-WT-01–08 PASS. PM-WT-01–03 APPROVED. WT3 READY. |
 | EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | LATER | localbolt-v3 + localbolt + ecosystem | **CODIFIED** (`ecosystem-v0.1.142-egui-wasm1-codify`, 2026-03-15). 5 phases (EW1–EW5), 19 ACs, 5 PM decisions. PM-EN-04 early approval. EW1 unblocked. Experimental — ABANDON is valid outcome. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].

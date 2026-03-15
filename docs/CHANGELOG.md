@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-15 — WEBTRANSPORT-BROWSER-APP-1 WT2 DONE: Daemon Endpoint + TLS Policy Lock
+
+**WT2 status**: READY → **DONE**. All 4 ACs (AC-WT-05–08) PASS. One PM decision resolved.
+
+**AC-WT-05 (daemon endpoint contract):** HTTP/3 WebTransport endpoint specified. ALPN `h3`, TLS 1.3 mandatory, configurable listen address (localhost default), separate port from WS. Connection lifecycle: HTTP/3 CONNECT → session open → bidirectional stream → HELLO exchange → standard Bolt protocol. Delegates to shared Rust core (RC4 pattern).
+
+**AC-WT-06 (auth/origin validation):** Origin header validation required (default: same-origin localhost). Optional connection token/nonce. Rate limiting per WS policy. No mutual TLS in v1. WebTransport always TLS — resolves HTTPS mixed-content caveat.
+
+**PM-WT-03 APPROVED (2026-03-15):** TLS cert strategy — Primary: C2 local CA (mkcert-style) for localhost/LAN. Dev fallback: C1 self-signed. Out of scope: C3 ACME/Let's Encrypt (WAN, deferred). Cert lifecycle: daemon-generated on first start, 365-day validity, regenerate + restart for rotation.
+
+**AC-WT-08 (feature gate):** `transport-webtransport` feature gate designed. Default OFF. Independent from `transport-ws` and `transport-quic`. Kill-switch: gate OFF → browser auto-falls to WS (Tier 2). Feature gate hierarchy documented.
+
+**Invariant:** browser↔browser WebRTC (G1) unchanged. Runtime implementation deferred.
+
+**WT3 status**: NOT-STARTED → **READY** (WT2 DONE, unblocked). WT3 scope: browser adapter + three-tier fallback orchestration lock.
+
+**Tags**: `ecosystem-v0.1.144-webtransport-browser-app1-wt2-executed`
+
+**Next**: WT3 — browser adapter contract + fallback orchestration lock. No PM decisions required.
+
+---
+
 ## 2026-03-15 — BTR-SPEC-1 COMPLETE: BS5 Closeout (Change-Control + External Review Readiness)
 
 **BS5 status**: READY → **DONE**. All 5 ACs (AC-BS-18–22) PASS. Two PM decisions resolved.
