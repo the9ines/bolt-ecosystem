@@ -4690,7 +4690,7 @@ CLI-specific execution stream may begin only after ALL of:
 > **Priority:** LATER (EN1 PM gate openable in parallel with RUSTIFY-CORE-1 RC1–RC2)
 > **Repos:** localbolt-app (primary), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.115-egui-native1-codify (2026-03-12)
-> **Status:** EN1 DONE (`ecosystem-v0.1.149-egui-native1-en1-baseline`, 2026-03-15). PM-EN-01/02 APPROVED. EN2 READY.
+> **Status:** EN1 DONE. EN2 DONE (`ecosystem-v0.1.150-egui-native1-en2-scaffold`, 2026-03-15). EN3 READY.
 
 ---
 
@@ -4779,8 +4779,8 @@ EGUI-NATIVE-1 migrates the desktop UI from Tauri WebView to egui (Rust-native im
 | Phase | Description | Type | Serial Gate | Dependencies | Status |
 |-------|-------------|------|-------------|--------------|--------|
 | **EN1** | PM framework lock gate (egui vs alternatives) | PM gate | YES — gates EN2 | None (openable in parallel with RUSTIFY-CORE-1 RC1–RC2) | **DONE** (`ecosystem-v0.1.149-egui-native1-en1-baseline`, 2026-03-15). AC-EN-01–04 all PASS. PM-EN-01 APPROVED (egui). PM-EN-02 APPROVED (minimal parity). |
-| **EN2** | Desktop `bolt-ui` scaffold + theme baseline | Engineering gate | YES — gates EN3 | EN1 complete, RUSTIFY-CORE-1 RC4 complete | **READY** (EN1 DONE + RC4 DONE, unblocked) |
-| **EN3** | Desktop feature parity migration (core screens/workflows) | Engineering gate | YES — gates EN4 | EN2 complete | NOT-STARTED |
+| **EN2** | Desktop `bolt-ui` scaffold + theme baseline | Engineering gate | YES — gates EN3 | EN1 complete, RUSTIFY-CORE-1 RC4 complete | **DONE** (`ecosystem-v0.1.150-egui-native1-en2-scaffold`, 2026-03-15). AC-EN-05–09 all PASS. bolt-ui crate created. eframe app shell + 3 skeleton screens + theme baseline. |
+| **EN3** | Desktop feature parity migration (core screens/workflows) | Engineering gate | YES — gates EN4 | EN2 complete | **READY** (EN2 DONE, unblocked) |
 | **EN4** | Rollback/compatibility gate + packaging impact verification | PM/Engineering gate | YES — gates EN5 | EN3 complete | NOT-STARTED |
 | **EN5** | Closure + handoff to optional EGUI-WASM-1 / EGUI-MOBILE-1 proposals | Governance gate | YES — closes stream | EN4 complete | NOT-STARTED |
 
@@ -6847,7 +6847,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | **DEPENDS-ON RUSTIFY-CORE-1 RC2** (PM-RC-07 APPROVED 2026-03-14). Retains own stream identity. |
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** |
 | RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE**, **RC2 DONE** (`ecosystem-v0.1.127-rustify-core1-rc2-complete`, 2026-03-13). PM-RC-01A APPROVED (quinn, 2026-03-13). 7 phases (RC1–RC7), 33 ACs, 8 PM decisions. **RC3 READY** (unblocked). |
-| EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **EN1 DONE** (`ecosystem-v0.1.149`, 2026-03-15). PM-EN-01/02 APPROVED (egui, minimal parity). EN2 READY. |
+| EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + bolt-core-sdk + ecosystem | **EN1–EN2 DONE** (`ecosystem-v0.1.150`, 2026-03-15). bolt-ui crate created. EN3 READY. |
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | ~~NEXT~~ COMPLETE | bolt-protocol + ecosystem | **COMPLETE** (`ecosystem-v0.1.143-btr-spec1-bs5-closeout`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED. BS1–BS5 DONE. |
 | WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | ~~NEXT~~ COMPLETE | bolt-daemon + bolt-core-sdk + ecosystem | **COMPLETE** (`ecosystem-v0.1.147-webtransport-browser-app1-wt5-closeout`, 2026-03-15). All 20 ACs PASS. All 5 PM decisions APPROVED. WT1–WT5 DONE. |

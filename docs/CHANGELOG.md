@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-15 — EGUI-NATIVE-1 EN2 DONE: bolt-ui Scaffold + Theme Baseline
+
+**EN2 status**: READY → **DONE**. All 5 ACs (AC-EN-05–09) PASS.
+
+**AC-EN-05 (crate compiles):** `bolt-ui` crate added to `bolt-core-sdk/rust/` workspace. `cargo build -p bolt-ui` PASS on aarch64-apple-darwin. x86_64/Windows/Linux: CI-required (code is platform-agnostic via eframe).
+
+**AC-EN-06 (app shell launches):** eframe app shell launches with dark-themed 480×640 window. Navigation header with Connect/Transfer/Verify tabs. Smoke test: 4s run, clean exit.
+
+**AC-EN-07 (skeleton screens):** 3 screens implemented: Connect (peer code display + input + button), Transfer (progress bar + file list + send button), Verify (SAS display + confirm/reject buttons). All skeleton only — EN3 wires to core/daemon.
+
+**AC-EN-08 (theme baseline):** `theme.rs` with 11 colors (dark palette matching Tauri WebView app), 4 spacing values, 4 font sizes, rounding. `apply_theme()` configures egui visuals.
+
+**AC-EN-09 (no transport deps):** `cargo tree -p bolt-ui` shows zero bolt-* dependencies. eframe only.
+
+**localbolt-app:** UNTOUCHED. EN-G8 preserved.
+
+**Tags**: `ecosystem-v0.1.150-egui-native1-en2-scaffold`
+
+**Next**: EN3 — desktop feature parity migration (wire bolt-ui to core/daemon APIs).
+
+---
+
 ## 2026-03-15 — EGUI-NATIVE-1 EN1 DONE: PM Framework Lock (egui Confirmed)
 
 **EN1 status**: NOT-STARTED → **DONE**. All 4 ACs (AC-EN-01–04) PASS. Two PM decisions resolved.
