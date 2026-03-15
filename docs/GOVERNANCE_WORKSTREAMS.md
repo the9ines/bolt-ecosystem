@@ -4234,7 +4234,7 @@ If PM-RC-07 confirms SUPERSEDES for SEC-CORE2 and PLAT-CORE1, those items should
 | **RC4** | Shared Rust core adoption in app/runtime boundaries | Engineering gate | NO (parallel with RC3) | RC2 complete | **DONE** (`ecosystem-v0.1.130-rustify-core1-rc4-executed`, 2026-03-14). AC-RC-17–20 all PASS. Adoption verified via audit; IPC-mediated delegation confirmed as canonical path. |
 | **RC5** | Browser↔app endpoint integration gates (WebSocket-direct) | Engineering gate | YES — gates RC6 | RC3 + RC4 complete, PM-RC-02 APPROVED (WebSocket-direct) | **DONE** (`daemon-v0.2.42-rustify-core1-rc5-btr-ws`, `sdk-v0.6.9-rustify-core1-rc5-ws-transport`, `ecosystem-v0.1.133-rustify-core1-rc5-done`, 2026-03-14). AC-RC-21–24 all PASS. WS endpoint + BTR capability + fallback verified. |
 | **RC6** | Rollout + compatibility + rollback policy | PM/Engineering gate | YES — gates close | RC5 complete, PM-RC-03 APPROVED, PM-RC-05 APPROVED | **DONE** (`ecosystem-v0.1.134-rustify-core1-rc6-executed`, 2026-03-14). AC-RC-25–28 all PASS. Rollout policy, rollback policy, compatibility matrix, and no-regression gates codified. PM-RC-03 APPROVED (app-first rollout). PM-RC-05 APPROVED (deprecate-but-retain TS paths). |
-| **RC7** | CLI reservation hooks (governance artifacts only) | Governance gate | NO (parallel with RC1–RC6) | None | NOT-STARTED |
+| **RC7** | CLI reservation hooks (governance artifacts only) | Governance gate | NO (parallel with RC1–RC6) | None | **IN-PROGRESS** (2026-03-14). AC-RC-29–32 all PASS. AC-RC-33 BLOCKED on PM-RC-06 (CLI stream trigger condition). |
 
 #### Dependency DAG
 
@@ -4566,13 +4566,78 @@ Kill-switch rollback (RC-G7) remains active throughout the Deprecated phase. Sun
 
 #### RC7 — CLI Reservation
 
-| ID | Criterion | Evidence Required |
-|----|-----------|------------------|
-| AC-RC-29 | CLI API extension points documented (traits/interfaces) | Architecture doc |
-| AC-RC-30 | CLI config schema keys reserved | Schema doc |
-| AC-RC-31 | CLI capability namespace reserved | Capability registry entry |
-| AC-RC-32 | No runtime code produced in this phase | Code review |
-| AC-RC-33 | CLI stream trigger condition defined (PM-RC-06 resolved) | PM decision recorded |
+| ID | Criterion | Evidence Required | Status |
+|----|-----------|------------------|--------|
+| AC-RC-29 | CLI API extension points documented (traits/interfaces) | Architecture doc | **PASS** — Reserved trait contracts documented below. No runtime code. |
+| AC-RC-30 | CLI config schema keys reserved | Schema doc | **PASS** — Reserved `cli.*` config key namespace documented below. |
+| AC-RC-31 | CLI capability namespace reserved | Capability registry entry | **PASS** — Reserved `bolt.cli-*` capability namespace documented below. |
+| AC-RC-32 | No runtime code produced in this phase | Code review / `git diff --name-only` | **PASS** — RC7 commit touches only `docs/` files. No `.rs`, `.ts`, `.toml`, `.json`, or other runtime files modified. |
+| AC-RC-33 | CLI stream trigger condition defined (PM-RC-06 resolved) | PM decision recorded | **BLOCKED** — PM-RC-06 PENDING. Cannot define trigger condition without PM decision. |
+
+##### AC-RC-29 — Reserved CLI API Extension Points
+
+The following trait/interface contracts are **governance reservations only**. No Rust code, no TypeScript code, no runtime implementation. These define the expected API surface for a future CLI stream (gated by PM-RC-06).
+
+| Reserved Trait/Interface | Purpose | Boundary | Notes |
+|--------------------------|---------|----------|-------|
+| `CliTransport` | Transport adapter for CLI↔daemon communication | CLI binary ↔ daemon IPC | Extends existing `TransportQuery` pattern (RC2). Expected to wrap Unix socket / named pipe (N-STREAM-1 IPC contract). |
+| `CliSessionHandler` | Session lifecycle management for CLI-initiated transfers | CLI binary ↔ shared Rust core | Delegates to shared core session authority (RC4 pattern). CLI is a thin adapter, not a protocol authority. |
+| `CliConfigProvider` | Configuration loading for CLI-specific settings | CLI binary startup | Reads `cli.*` config keys (AC-RC-30). Must be transport-independent (RC-G3). |
+| `CliOutputFormatter` | Output formatting (JSON, human-readable, etc.) | CLI binary → stdout/stderr | CLI-only concern. No protocol impact. |
+| `CliAuthProvider` | Authentication method selection for CLI sessions | CLI binary ↔ daemon | Extends daemon auth surface. Must preserve existing security invariants (PROTO-01–07). |
+
+**Architectural constraints (inherited from RC2/RC4):**
+- CLI MUST delegate protocol authority to shared Rust core — no protocol reimplementation
+- CLI MUST use daemon IPC path (N-STREAM-1 contract) — no direct network I/O for protocol operations
+- CLI MUST NOT introduce new transport modes without PM approval (RC-G5)
+- CLI config MUST NOT override daemon security invariants
+
+##### AC-RC-30 — Reserved CLI Config Schema Keys
+
+Config key namespace `cli.*` is reserved for future CLI stream. Keys below are governance reservations — no config file parser, no runtime reader, no default values implemented.
+
+| Reserved Key | Type | Purpose | Notes |
+|-------------|------|---------|-------|
+| `cli.transport.mode` | `string` | IPC transport mode (`unix_socket` / `named_pipe` / `tcp_localhost`) | Aligns with N-STREAM-1 N2 IPC contract |
+| `cli.daemon.socket_path` | `string` | Path to daemon IPC socket | Default TBD at implementation. Platform-dependent. |
+| `cli.output.format` | `string` | Output format (`json` / `text` / `quiet`) | CLI-only UX concern |
+| `cli.auth.method` | `string` | Auth method for CLI↔daemon sessions | Must not weaken existing daemon auth |
+| `cli.transfer.default_mode` | `string` | Default transfer mode (`send` / `receive`) | Convenience setting only |
+| `cli.log.level` | `string` | CLI-specific log verbosity | Separate from daemon log level |
+| `cli.log.file` | `string` | CLI log file path | Optional; defaults to stderr |
+
+**Schema constraints:**
+- `cli.*` keys MUST NOT collide with existing daemon config namespace
+- `cli.*` keys MUST NOT override protocol-level settings
+- Schema validation rules deferred to implementation stream
+
+##### AC-RC-31 — Reserved CLI Capability Namespace
+
+Following the existing `bolt.*` capability namespace convention (`bolt.file-hash`, `bolt.transfer-ratchet-v1`, `bolt.profile-envelope-v1`), the `bolt.cli-*` sub-namespace is reserved for CLI-specific capability negotiation.
+
+| Reserved Capability | Purpose | Negotiation Context | Notes |
+|--------------------|---------|---------------------|-------|
+| `bolt.cli-session-v1` | CLI session identification in HELLO | CLI↔daemon HELLO | Allows daemon to distinguish CLI peer from browser/app peer |
+| `bolt.cli-transfer-v1` | CLI transfer mode capability | CLI↔daemon HELLO | Signals CLI-specific transfer options (e.g., stdin/stdout streaming) |
+| `bolt.cli-batch-v1` | Batch transfer capability | CLI↔daemon HELLO | Multi-file transfer in single session (CLI UX feature) |
+
+**Namespace constraints:**
+- `bolt.cli-*` capabilities follow existing HELLO `capabilities[]` intersection negotiation
+- No new capabilities may be advertised without PM approval (RC-G5)
+- Backward compatibility: peers without `bolt.cli-*` capabilities must not be affected (existing negotiation is intersection-based — unknown capabilities are silently dropped)
+
+##### AC-RC-33 — CLI Stream Trigger Condition (BLOCKED)
+
+**PM-RC-06 status: PENDING**
+
+AC-RC-33 requires PM-RC-06 to define when the CLI-specific execution stream should begin. Without this decision, the trigger condition cannot be codified.
+
+**Recommended trigger conditions for PM consideration:**
+1. **Minimum dependency:** RUSTIFY-CORE-1 RC4 complete (shared Rust core adopted) — satisfied
+2. **Recommended dependency:** RC6 rollout Stage 1 burn-in passed (QUIC transport proven in production)
+3. **Optional dependency:** N-STREAM-1 N6 implementation complete (IPC contract implemented)
+
+**Blocker:** PM-RC-06 must be resolved before AC-RC-33 can be satisfied and RC7 can close.
 
 ---
 

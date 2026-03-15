@@ -5,6 +5,26 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-14 — RUSTIFY-CORE-1 RC7 IN-PROGRESS: CLI Reservation Hooks (Governance-Only)
+
+**RC7 status**: IN-PROGRESS. AC-RC-29–32 all PASS. AC-RC-33 BLOCKED on PM-RC-06.
+
+**AC-RC-29 (CLI API extension points):** 5 reserved trait/interface contracts documented: `CliTransport`, `CliSessionHandler`, `CliConfigProvider`, `CliOutputFormatter`, `CliAuthProvider`. All are governance reservations — no Rust or TypeScript code produced. Architectural constraints inherited from RC2/RC4: CLI must delegate protocol authority to shared Rust core, use daemon IPC path, and not introduce new transport modes without PM approval.
+
+**AC-RC-30 (CLI config schema keys):** Reserved `cli.*` config key namespace with 7 placeholder keys: `cli.transport.mode`, `cli.daemon.socket_path`, `cli.output.format`, `cli.auth.method`, `cli.transfer.default_mode`, `cli.log.level`, `cli.log.file`. No parser, no runtime reader, no defaults implemented.
+
+**AC-RC-31 (CLI capability namespace):** Reserved `bolt.cli-*` sub-namespace following existing `bolt.*` convention. 3 reserved capabilities: `bolt.cli-session-v1`, `bolt.cli-transfer-v1`, `bolt.cli-batch-v1`. Follows HELLO intersection negotiation — unknown capabilities silently dropped (backward compatible).
+
+**AC-RC-32 (no runtime code):** PASS — RC7 commit touches only `docs/` files. Zero `.rs`, `.ts`, `.toml`, `.json`, or other runtime artifacts modified.
+
+**AC-RC-33 (CLI stream trigger condition):** BLOCKED — PM-RC-06 PENDING. Recommended trigger conditions proposed for PM consideration (minimum: RC4 complete; recommended: RC6 Stage 1 burn-in passed; optional: N-STREAM-1 N6 complete).
+
+**Blocker**: PM-RC-06 must be resolved before RC7 can close.
+
+**Next**: Resolve PM-RC-06 (CLI stream trigger condition) to unblock AC-RC-33 and close RC7. Remaining PM decisions: PM-RC-04 (performance SLO), PM-RC-06 (CLI trigger), PM-RC-07 (stream relationships).
+
+---
+
 ## 2026-03-14 — RUSTIFY-CORE-1 RC6 DONE: Rollout, Compatibility, and Rollback Policy
 
 **RC6 closed**: All 4 ACs (AC-RC-25–28) PASS. Two PM decisions resolved.
