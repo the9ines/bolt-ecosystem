@@ -5225,7 +5225,7 @@ These gates are evaluated at EW3 and must all PASS for EW4 ADOPT recommendation.
 > **Priority:** NEXT (no upstream dependencies; orthogonal to all active streams)
 > **Repos:** bolt-ecosystem (governance only — no runtime code)
 > **Codified:** ecosystem-v0.1.116-discovery-mode1-codify (2026-03-12)
-> **Status:** DM1 DONE (`ecosystem-v0.1.156-discovery-mode1-dm1-policy-lock`, 2026-03-15). PM-DM-01–04 APPROVED. DM2 READY.
+> **Status:** DM1 DONE. DM2 DONE (`ecosystem-v0.1.158-discovery-mode1-dm2-nearby`, 2026-03-15). DM3 READY.
 
 ---
 
@@ -5346,8 +5346,8 @@ The following deduplication invariants apply when both local and cloud signaling
 | Phase | Description | Type | Serial Gate | Dependencies | Status |
 |-------|-------------|------|-------------|--------------|--------|
 | **DM1** | PM mode policy lock (default mode, UI requirements, CLOUD_ONLY disposition) | PM gate | YES — gates DM2 | None | **DONE** (`ecosystem-v0.1.156-discovery-mode1-dm1-policy-lock`, 2026-03-15). AC-DM-01–04 all PASS. PM-DM-01–04 APPROVED. LAN_ONLY default (AirDrop-style), no cloud/hybrid in LocalBolt discovery. |
-| **DM2** | Mode indicator implementation across consumers | Engineering gate | YES — gates DM3 | DM1 complete | **READY** (DM1 DONE, unblocked) |
-| **DM3** | Mode-aware acceptance test harness | Engineering gate | YES — gates DM4 | DM2 complete | NOT-STARTED |
+| **DM2** | Mode indicator implementation across consumers | Engineering gate | YES — gates DM3 | DM1 complete | **DONE** (`ecosystem-v0.1.158-discovery-mode1-dm2-nearby`, 2026-03-15). AC-DM-05–08 PASS. "NEARBY" in all 3 consumers. |
+| **DM3** | Mode-aware acceptance test harness | Engineering gate | YES — gates DM4 | DM2 complete | **READY** (DM2 DONE, unblocked) |
 | **DM4** | Env var harmonization + documentation alignment | Engineering gate | YES — closes stream | DM3 complete | NOT-STARTED |
 
 #### Dependency DAG
@@ -6895,7 +6895,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** |
 | RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE**, **RC2 DONE** (`ecosystem-v0.1.127-rustify-core1-rc2-complete`, 2026-03-13). PM-RC-01A APPROVED (quinn, 2026-03-13). 7 phases (RC1–RC7), 33 ACs, 8 PM decisions. **RC3 READY** (unblocked). |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + bolt-core-sdk + ecosystem | **EN1–EN3 DONE** (`daemon-v0.2.44`, 2026-03-15). AC-EN-01–15 all PASS. EN4 READY. |
-| DISCOVERY-MODE-1 | Discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **DM1 DONE** (`ecosystem-v0.1.156`, 2026-03-15). PM-DM-01–04 APPROVED. LAN_ONLY default (AirDrop-style). DM2 READY. |
+| DISCOVERY-MODE-1 | Discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **DM1–DM2 DONE** (`ecosystem-v0.1.158`, 2026-03-15). "NEARBY" in all 3 consumers. DM3 READY. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | ~~NEXT~~ COMPLETE | bolt-protocol + ecosystem | **COMPLETE** (`ecosystem-v0.1.143-btr-spec1-bs5-closeout`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED. BS1–BS5 DONE. |
 | WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | ~~NEXT~~ COMPLETE | bolt-daemon + bolt-core-sdk + ecosystem | **COMPLETE** (`ecosystem-v0.1.147-webtransport-browser-app1-wt5-closeout`, 2026-03-15). All 20 ACs PASS. All 5 PM decisions APPROVED. WT1–WT5 DONE. |
 | EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | LATER | localbolt-v3 + localbolt + ecosystem | **CODIFIED** (`ecosystem-v0.1.142-egui-wasm1-codify`, 2026-03-15). 5 phases (EW1–EW5), 19 ACs, 5 PM decisions. PM-EN-04 early approval. EW1 unblocked. Experimental — ABANDON is valid outcome. |

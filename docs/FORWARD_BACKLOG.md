@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-15 (EGUI-NATIVE-1 EN3 DONE: all 6 ACs PASS. Transfer IPC events added. EN4 READY.)
+> **Updated:** 2026-03-15 (DISCOVERY-MODE-1 DM2 DONE: "NEARBY" in all 3 consumers. DM3 READY.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -489,7 +489,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 15: DISCOVERY-MODE-1 — Dual Discovery Mode Policy Codification
 
 **Priority:** NEXT
-**Status:** **DM1 DONE** (`ecosystem-v0.1.156-discovery-mode1-dm1-policy-lock`, 2026-03-15). PM-DM-01–04 APPROVED. LAN_ONLY default (AirDrop-style). DM2 READY.
+**Status:** **DM1–DM2 DONE** (`ecosystem-v0.1.158`, 2026-03-15). "NEARBY" in all 3 consumers. DM3 READY.
 **Routing:** bolt-ecosystem (governance), localbolt-v3 + localbolt + localbolt-app (implementation phases)
 **Category:** Policy — discovery mode semantics
 **Stream:** DISCOVERY-MODE-1 (phased, 4 phases DM1–DM4)
@@ -514,11 +514,11 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | Phase | Description | Serial Gate | Status |
 |-------|-------------|-------------|--------|
 | DM1 | PM mode policy lock (default mode, UI reqs, CLOUD_ONLY disposition) | YES (gates DM2) | **DONE** (AC-DM-01–04 PASS, PM-DM-01–04 APPROVED, 2026-03-15) |
-| DM2 | Mode indicator implementation across consumers | YES (gates DM3) | **READY** (DM1 DONE, unblocked) |
-| DM3 | Mode-aware acceptance test harness | YES (gates DM4) | NOT-STARTED |
+| DM2 | Mode indicator implementation across consumers | YES (gates DM3) | **DONE** (AC-DM-05–08 PASS, 2026-03-15) |
+| DM3 | Mode-aware acceptance test harness | YES (gates DM4) | **READY** (DM2 DONE, unblocked) |
 | DM4 | Env var harmonization + documentation alignment + closure | YES (closes stream) | NOT-STARTED |
 
-**Acceptance Criteria:** 16 ACs defined (AC-DM-01 through AC-DM-16). DM1: AC-DM-01–04 all PASS (4 of 16 delivered). PM-DM-01–04 APPROVED.
+**Acceptance Criteria:** 16 ACs defined (AC-DM-01 through AC-DM-16). DM1–DM2: AC-DM-01–08 PASS (8 of 16 delivered). PM-DM-01–04 APPROVED.
 
 **PM Decisions:** 4 total, all APPROVED. PM-DM-01 (LAN_ONLY default). PM-DM-02 (no toggle). PM-DM-03 ("Nearby" wording). PM-DM-04 (CLOUD_ONLY deferred).
 

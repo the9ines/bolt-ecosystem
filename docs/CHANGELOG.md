@@ -5,6 +5,27 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-15 — DISCOVERY-MODE-1 DM2 DONE: "NEARBY" LAN Discovery Indicator
+
+**DM2 status**: READY → **DONE**. AC-DM-05–08 PASS.
+
+**Per-app changes:**
+- **localbolt-v3** (baseline): "ACTIVE" → "NEARBY" when signaling connected
+- **localbolt**: Aligned to baseline — "ACTIVE" → "NEARBY"
+- **localbolt-app**: "HEALTHY"/"ACTIVE" → "NEARBY" (unified + daemon-ready labels)
+
+**LAN-only policy compliance:** Zero "ACTIVE"/"Online"/"HYBRID" text in any header. "NEARBY" with green dot when LAN connected. "OFFLINE" with red dot when disconnected.
+
+**AC-DM-08 (HYBRID degraded):** N/A for LocalBolt desktop (LAN_ONLY per DM1). For localbolt-v3 web where cloud IS configured, existing degraded indicators preserved.
+
+**Regression:** All BTR compatibility tests pass (v3: 5, localbolt: 5, app: 10).
+
+**DM3 status**: → **READY** (DM2 DONE, unblocked).
+
+**Tags**: `ecosystem-v0.1.158-discovery-mode1-dm2-nearby`
+
+---
+
 ## 2026-03-15 — EGUI-NATIVE-1 EN3 DONE: Transfer IPC Events (EN3f Closure)
 
 **EN3 status**: IN-PROGRESS → **DONE**. All 6 ACs (AC-EN-10–15) now PASS.
