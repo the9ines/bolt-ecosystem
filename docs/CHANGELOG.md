@@ -5,6 +5,32 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-14 — BTR-SPEC-1 BS3 DONE: Wire Format + Failure/Recovery Semantics Lock
+
+**BS3 status**: READY → **DONE**. All 5 ACs (AC-BS-09–13) PASS. Two PM decisions resolved.
+
+**AC-BS-09 (BTR-FC flow control):** Normative text codified. BTR introduces no separate v1 flow-control algorithm. All backpressure inherited from transport layer (§8). 5 normative rules (FC-01–FC-05): no BTR buffering/windowing, synchronous chain advance, transport backpressure applied before encryption, no speculative chain advance, pause/resume does not affect key state. Layering boundary diagram included.
+
+**AC-BS-10 (BTR-RSM resume/recovery):** Normative text codified. No v1 session resume (BTR-NG1). No v1 transfer resume. Disconnect → zeroize ALL state (BTR-INV-09) → fresh handshake → new session. 5 normative rules (RSM-01–RSM-05). 7 recovery paths mapped deterministically to SM transitions and §16.7 error actions.
+
+**AC-BS-11 (wire versioning, PM-BS-03):** Additive fields backward-compatible, no version bump. Breaking changes require new capability string + PM decision + updated vectors. `bolt.transfer-ratchet-v1` locked.
+
+**AC-BS-12 (parsing contract, PM-BS-04):** Strict on security-critical required fields/values. Tolerant only on explicitly optional/unknown fields. Downgrade detection strict. All failures → §16.7 error codes. Deterministic, no implementation-defined behavior.
+
+**AC-BS-13 (failure-to-action matrix):** All 4 §16.7 error codes mapped to SM trigger points, trigger conditions, required actions, recovery paths, and enforced invariants. Complete, deterministic, SM-linked, invariant-backed.
+
+**PM-BS-03 APPROVED (2026-03-14):** Wire format versioning — additive backward-compatible, breaking requires version bump.
+
+**PM-BS-04 APPROVED (2026-03-14):** Compatibility contract — strict on security-critical, tolerant on optional, deterministic failures.
+
+**BS4 status**: NOT-STARTED → **READY** (BS3 DONE, unblocked). BS4 scope: conformance vectors + negative-test matrix lock.
+
+**Tags**: `ecosystem-v0.1.138-btr-spec1-bs3-wire-recovery-lock`
+
+**Next**: BS4 — conformance vectors + negative-test matrix lock. No PM decisions required.
+
+---
+
 ## 2026-03-14 — BTR-SPEC-1 BS2 DONE: State Machines + Crypto/Key-Schedule Lock
 
 **BS2 status**: READY → **DONE**. All 5 ACs (AC-BS-04–08) PASS. Two PM decisions resolved.

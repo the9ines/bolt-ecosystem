@@ -5175,7 +5175,7 @@ No material discovery-policy risks identified at codification. Rationale:
 > **Priority:** NEXT (BS1 unblocked now; no hard dependency on CONSUMER-BTR1 since spec is gap-fill, not greenfield)
 > **Repos:** bolt-protocol (primary — spec text), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.118-btr-spec1-codify (2026-03-13)
-> **Status:** BS1 DONE. BS2 DONE (`ecosystem-v0.1.137-btr-spec1-bs2-state-crypto-lock`, 2026-03-14). BS3 READY.
+> **Status:** BS1 DONE. BS2 DONE. BS3 DONE (`ecosystem-v0.1.138-btr-spec1-bs3-wire-recovery-lock`, 2026-03-14). BS4 READY.
 
 ---
 
@@ -5255,8 +5255,8 @@ No SUPERSEDES or REFACTORS relationships. BTR-SPEC-1 is additive formalization.
 |-------|-------------|------|-------------|--------------|--------|
 | **BS1** | Module taxonomy + boundary lock (confirm P0 modules) | Spec gate | YES — gates BS2 | None | **DONE** (`ecosystem-v0.1.136-btr-spec1-bs1-taxonomy`, 2026-03-14). AC-BS-01–03 all PASS. 7-module taxonomy locked with §16 mapping, per-module artifact checklist confirmed, SEC-BTR1 cross-reference audit clean. |
 | **BS2** | State machines + crypto/key-schedule canonicalization lock | Spec gate | YES — gates BS3 | BS1 complete | **DONE** (`ecosystem-v0.1.137-btr-spec1-bs2-state-crypto-lock`, 2026-03-14). AC-BS-04–08 all PASS. KS+HS state machines locked. PM-BS-01/02 APPROVED. |
-| **BS3** | Wire format + failure/recovery semantics lock (fill BTR-FC, BTR-RSM gaps) | Spec gate | YES — gates BS4 | BS2 complete | **READY** (BS2 DONE, unblocked) |
-| **BS4** | Conformance vectors + negative-test matrix lock | Spec gate | YES — gates BS5 | BS3 complete | NOT-STARTED |
+| **BS3** | Wire format + failure/recovery semantics lock (fill BTR-FC, BTR-RSM gaps) | Spec gate | YES — gates BS4 | BS2 complete | **DONE** (`ecosystem-v0.1.138-btr-spec1-bs3-wire-recovery-lock`, 2026-03-14). AC-BS-09–13 all PASS. BTR-FC/BTR-RSM normative text, wire versioning policy, parsing contract, failure matrix codified. PM-BS-03/04 APPROVED. |
+| **BS4** | Conformance vectors + negative-test matrix lock | Spec gate | YES — gates BS5 | BS3 complete | **READY** (BS3 DONE, unblocked) |
 | **BS5** | Versioning/change-control + external review readiness lock | PM/Spec gate | YES — closes stream | BS4 complete | NOT-STARTED |
 
 #### Dependency DAG
@@ -5478,13 +5478,128 @@ Derived from PROTOCOL.md §4.2 canonical 6-row negotiation matrix.
 
 #### BS3 — Wire Format + Failure/Recovery Lock
 
-| ID | Criterion | Evidence Required |
-|----|-----------|------------------|
-| AC-BS-09 | BTR-FC (flow control/backpressure) normative text added to §16 | Published spec section |
-| AC-BS-10 | BTR-RSM (resume/recovery) normative text added to §16 | Published spec section |
-| AC-BS-11 | Wire format versioning policy confirmed (PM-BS-03 resolved) | PM decision recorded |
-| AC-BS-12 | Compatibility contract confirmed — strict vs tolerant parsing (PM-BS-04 resolved) | PM decision recorded |
-| AC-BS-13 | All 4 error codes (§16.7) have deterministic failure-to-action mapping | Failure matrix |
+| ID | Criterion | Evidence Required | Status |
+|----|-----------|------------------|--------|
+| AC-BS-09 | BTR-FC (flow control/backpressure) normative text added to §16 | Published spec section | **PASS** — BTR-FC normative section codified below. BTR introduces no v1 flow-control algorithm; inherits transport backpressure (§8). Layering boundary explicit. |
+| AC-BS-10 | BTR-RSM (resume/recovery) normative text added to §16 | Published spec section | **PASS** — BTR-RSM normative section codified below. No v1 resume (transfer or session). Disconnect → zeroize → fresh handshake. Recovery actions mapped via §16.7. |
+| AC-BS-11 | Wire format versioning policy confirmed (PM-BS-03 resolved) | PM decision recorded | **PASS** — PM-BS-03 APPROVED (2026-03-14). Additive fields backward-compatible; breaking changes require version bump + PM decision + updated vectors. |
+| AC-BS-12 | Compatibility contract confirmed — strict vs tolerant parsing (PM-BS-04 resolved) | PM decision recorded | **PASS** — PM-BS-04 APPROVED (2026-03-14). Strict parsing on security-critical fields; tolerant only on explicitly optional; deterministic downgrade; failures → §16.7. |
+| AC-BS-13 | All 4 error codes (§16.7) have deterministic failure-to-action mapping | Failure matrix | **PASS** — Deterministic failure-to-action matrix codified below. All 4 error codes mapped to SM transitions (BS2), triggers, required actions, and recovery paths. |
+
+##### AC-BS-09 — BTR-FC Flow Control + Backpressure (NORMATIVE)
+
+**Layering principle:** BTR operates above the transport layer and is transparent to flow control. BTR introduces no separate v1 flow-control algorithm. All backpressure semantics are inherited from the transport layer (§8).
+
+**Normative rules:**
+
+| ID | Rule | Scope | Rationale |
+|----|------|-------|-----------|
+| FC-01 | BTR MUST NOT introduce its own flow-control primitives (window sizing, rate limiting, or buffering) in v1. | BTR layer | BTR is a key agreement mechanism, not a transport. Flow control is the transport layer's responsibility. |
+| FC-02 | BTR chunk encryption/decryption MUST be synchronous with transport chunk send/receive. No BTR-layer buffering or reordering. | BTR-KS chain advance | Chain index = chunk index (§16.2). Reordering would break chain_index sequential validation (BTR-INV-07). |
+| FC-03 | Transport backpressure (§8) MUST be applied before BTR encryption on send, and after BTR decryption on receive. | Layering boundary | Sender: transport backpressure → chunk ready → BTR encrypt → transport send. Receiver: transport receive → BTR decrypt → deliver to application. |
+| FC-04 | BTR state (chain_key, message_key) MUST NOT advance speculatively. Chain advance occurs only when a chunk is actually sent or received. | BTR-KS T3/T4 | Speculative advance would desynchronize sender/receiver chain state. |
+| FC-05 | User-level pause/resume (PAUSE, RESUME messages) MUST NOT affect BTR key state. Pausing a transfer freezes the chain at the current index; resuming continues from the same index. | BTR-KS + control messages | §16.2: PAUSE/RESUME include `chain_index` equal to last chunk's. No chain advance during pause. |
+
+**Layering boundary diagram:**
+
+```
+Application Layer
+    │
+    ├─ User pause/resume/cancel
+    │
+Transfer Manager (§8 backpressure)
+    │
+    ├─ Watermark controller (high/low threshold)
+    ├─ awaitBackpressureDrain() before send
+    ├─ Policy-driven pacing
+    │
+BTR Layer (§16 — this module)
+    │
+    ├─ Chain advance per chunk (FC-02, FC-04)
+    ├─ Encrypt with message_key (FC-03)
+    ├─ No own flow control (FC-01)
+    │
+Transport Layer (DataChannel / WebSocket / QUIC)
+    │
+    └─ Wire send/receive
+```
+
+**Existing implementation alignment:** Rust `BackpressureController` (watermark model, 64KiB high / 16KiB low) and TS `awaitBackpressureDrain()` operate at the transport layer. BTR `BtrTransferAdapter` calls encrypt/decrypt synchronously per chunk. No BTR-specific flow control code exists — this normative text codifies that as intentional (BS-G2).
+
+##### AC-BS-10 — BTR-RSM Resume/Recovery/Rollback (NORMATIVE)
+
+**v1 resume policy:** No BTR session resume and no transfer resume in v1. This is an explicit non-goal (BTR-NG1, PM-BTR-03).
+
+**Normative rules:**
+
+| ID | Rule | Scope | Rationale |
+|----|------|-------|-----------|
+| RSM-01 | BTR v1 MUST NOT support session resume. Reconnection MUST create a fresh ephemeral handshake and derive a fresh `session_root_key`. No BTR state carryover across disconnect boundaries. | Session lifecycle | Memory-only policy (§16.5, BTR-INV-08/09). Persistent ratchet state is BTR-NG1. |
+| RSM-02 | BTR v1 MUST NOT support transfer resume. A disconnected transfer is permanently lost. The sender/receiver MUST start a new transfer (new transfer_id, new transfer_root_key) after reconnection. | Transfer lifecycle | Transfer root is bound to transfer_id (BTR-INV-02). Resuming would require persisting chain_key state, violating BTR-INV-08. |
+| RSM-03 | On disconnect, ALL BTR state MUST be zeroized immediately (§16.5 cleanup). No deferred cleanup. | Disconnect handler | BTR-INV-09. Immediate zeroization prevents key material exposure window. |
+| RSM-04 | After reconnection and fresh handshake, BTR state MUST begin from `KS_UNINIT` → `KS_SESSION_ROOTED` (BS2 T1). No shortcut to prior state. | Reconnect path | Fresh session_root_key from new ephemeral DH. Old state is gone. |
+| RSM-05 | Error recovery MUST follow the deterministic failure-to-action matrix (AC-BS-13). No silent error swallowing. | Error handling | Each §16.7 error code has exactly one required action (cancel transfer or disconnect). |
+
+**Recovery paths (deterministic):**
+
+| Scenario | BTR Action | SM Transition | Recovery Path |
+|----------|-----------|---------------|---------------|
+| Mid-transfer disconnect | Zeroize all BTR state (RSM-03) | KS Tε (any → `KS_UNINIT`) | Reconnect → fresh handshake → new session → new transfer |
+| `RATCHET_STATE_ERROR` | Disconnect immediately (§16.7) | KS Tε | Reconnect → fresh handshake → new session |
+| `RATCHET_CHAIN_ERROR` | Cancel transfer (§16.7) | KS T5 (`KS_TRANSFER_ACTIVE` → `KS_SESSION_ROOTED`) | Start new transfer in same session |
+| `RATCHET_DECRYPT_FAIL` | Cancel transfer (§16.7) | KS T5 | Start new transfer in same session |
+| `RATCHET_DOWNGRADE_REJECTED` | Disconnect immediately (§16.7) | HS → `HS_REJECTED` + KS Tε | Reconnect → fresh handshake → new session |
+| User cancel (CANCEL) | Zeroize transfer state | KS T5 | Start new transfer in same session |
+| Transfer complete (FILE_FINISH) | Zeroize transfer state, retain session | KS T5 | Next transfer via T6→T7→T2 |
+
+**Future extensibility:** Transfer resume capability (`bolt.resume`) is reserved for a future protocol version. If implemented, it would require persistent chain state (violating current BTR-INV-08) and would need a new capability string + PM decision.
+
+##### AC-BS-11 — Wire Format Versioning Policy (PM-BS-03 APPROVED)
+
+**PM-BS-03 APPROVED (2026-03-14):**
+
+| Change Type | Policy | Governance |
+|-------------|--------|------------|
+| **Additive field** (new optional field in BTR envelope) | Backward-compatible. Existing implementations ignore unknown fields. No version bump required. | Engineering decision. Must update vectors + spec text. |
+| **Mandatory field change** (new required field, type change, semantic change to existing field) | Breaking. Requires new capability string (e.g., `bolt.transfer-ratchet-v2`). Old and new versions coexist via capability negotiation. | PM decision required. Must update vectors, spec, and negotiation matrix. |
+| **Field removal** | Breaking. Requires new capability string. Deprecation period defined per PM decision. | PM decision required. |
+| **Info string change** (HKDF info string modification) | Breaking. Cryptographic domain separation change. | PM decision required. PM-BS-01 amendment. |
+
+**Constraints:**
+- Any versioning-affecting change MUST include updated conformance vectors and mapping evidence
+- The `bolt.transfer-ratchet-v1` capability string is locked — it cannot be redefined to mean different wire behavior
+- New capability strings follow existing `bolt.*` namespace convention
+
+##### AC-BS-12 — Compatibility Contract: Strict vs Tolerant Parsing (PM-BS-04 APPROVED)
+
+**PM-BS-04 APPROVED (2026-03-14):**
+
+| Field Category | Parsing Rule | Failure Action |
+|----------------|-------------|----------------|
+| **Security-critical required fields** (`ratchet_public_key`, `ratchet_generation`, `chain_index` when §16.2 says MUST) | **Strict.** Missing or malformed → error. No fallback. | `RATCHET_STATE_ERROR` → disconnect (§16.7) |
+| **Security-critical field values** (chain_index sequential, generation monotonic, key sizes) | **Strict.** Out-of-range or gap → error. No tolerance. | `RATCHET_CHAIN_ERROR` or `RATCHET_STATE_ERROR` (§16.7) |
+| **Explicitly optional fields** (future additive fields under PM-BS-03 policy) | **Tolerant.** Unknown fields silently ignored. Implementations MUST NOT fail on unknown fields. | No error. |
+| **BTR envelope presence** (BTR negotiated but envelope has no BTR fields) | **Strict.** This is a downgrade attack. | `RATCHET_DOWNGRADE_REJECTED` → disconnect (§16.7) |
+| **Non-BTR session** (BTR not negotiated, envelope contains BTR fields) | **Tolerant.** Ignore BTR fields. | No error. Silently ignore. |
+
+**Determinism requirement:** Every parsing outcome MUST be deterministic and auditable. No implementation-defined behavior for BTR field parsing. Either the field is accepted (valid), ignored (optional/unknown), or triggers a specific §16.7 error code.
+
+##### AC-BS-13 — Deterministic Failure-to-Action Matrix (LOCKED)
+
+| Error Code | SM Trigger Point | Trigger Conditions | Required Action | Recovery Path | Invariants Enforced |
+|------------|-----------------|-------------------|-----------------|---------------|---------------------|
+| `RATCHET_STATE_ERROR` | KS T2 (generation mismatch), KS T6 (unexpected DH key), any (missing required BTR fields per §16.2) | (1) `ratchet_generation` != expected value, (2) unexpected `ratchet_public_key` outside transfer boundary, (3) missing MUST-present BTR fields | Send error inside encrypted envelope → **disconnect immediately** | KS Tε → `KS_UNINIT`. Reconnect → fresh handshake → new session. | BTR-INV-06 (monotonic generation), BTR-INV-05 (fresh keypair boundary) |
+| `RATCHET_CHAIN_ERROR` | KS T3 (chain_index gap) | `chain_index` != expected next sequential value. Any gap or duplicate. | Send error inside encrypted envelope → **cancel transfer** | KS T5 → `KS_SESSION_ROOTED`. New transfer in same session. | BTR-INV-07 (no gap tolerance), BTR-INV-03 (chain advance) |
+| `RATCHET_DECRYPT_FAIL` | KS T4 (secretbox open fails) | NaCl secretbox decryption fails with derived `message_key`. Indicates tampered ciphertext, wrong key, or corrupted envelope. | Send error inside encrypted envelope → **cancel transfer** | KS T5 → `KS_SESSION_ROOTED`. New transfer in same session. | BTR-INV-04 (message key single-use), BTR-INV-11 (secretbox keyed by message_key) |
+| `RATCHET_DOWNGRADE_REJECTED` | HS H5/H6 (malformed BTR metadata post-negotiation) | Peer advertised `bolt.transfer-ratchet-v1` but: (a) sends envelopes missing required BTR fields, (b) sends invalid types/sizes/values, (c) uses static ephemeral for transfer messages | Send error inside encrypted envelope → **disconnect immediately** | HS → `HS_REJECTED`, KS Tε → `KS_UNINIT`. Reconnect → fresh handshake → new session. | BTR-INV-10 (no SAS alteration — detects capability mismatch) |
+
+**Matrix properties:**
+- **Complete:** All 4 §16.7 error codes have exactly one required action
+- **Deterministic:** No implementation-defined behavior. Same trigger → same action
+- **SM-linked:** Each error code maps to specific BS2 state machine transitions
+- **Invariant-backed:** Each error enforces specific BTR-INV invariants
+- **Envelope-enclosed:** All errors sent inside encrypted envelopes (post-handshake)
+- **transfer_id inclusion:** SHOULD include `transfer_id` when error relates to a specific transfer
 
 #### BS4 — Conformance + Negative Tests Lock
 
@@ -5513,8 +5628,8 @@ Derived from PROTOCOL.md §4.2 canonical 6-row negotiation matrix.
 |----|----------|--------|----------|--------|
 | PM-BS-01 | Crypto primitive baseline confirmation. **APPROVED (2026-03-14):** NaCl box + HKDF-SHA256 + X25519 ratified as canonical baseline. No new primitives without new PM decision. 5 HKDF info strings locked. | BS2 (AC-BS-07) | BS2 | **APPROVED (2026-03-14)** |
 | PM-BS-02 | Rekey thresholds/lifecycle policy. **APPROVED (2026-03-14):** Per-chunk symmetric chain + per-transfer DH ratchet ratified. No time/byte/chunk-count forced ratchet. Memory-only lifecycle. No session resume in v1. | BS2 (AC-BS-08) | BS2 | **APPROVED (2026-03-14)** |
-| PM-BS-03 | Wire format versioning policy (how §16.2 fields evolve across protocol versions) | BS3 (AC-BS-11) | BS3 | PENDING |
-| PM-BS-04 | Compatibility contract: strict vs tolerant parsing of BTR envelope fields | BS3 (AC-BS-12) | BS3 | PENDING |
+| PM-BS-03 | Wire format versioning policy. **APPROVED (2026-03-14):** Additive fields backward-compatible (no version bump). Breaking changes (mandatory field, type, semantic, info string) require new capability string + PM decision + updated vectors. `bolt.transfer-ratchet-v1` locked. | BS3 (AC-BS-11) | BS3 | **APPROVED (2026-03-14)** |
+| PM-BS-04 | Compatibility contract: strict vs tolerant parsing. **APPROVED (2026-03-14):** Strict on security-critical required fields and values. Tolerant on explicitly optional/unknown fields only. Downgrade detection strict. All failures → §16.7 error codes. Deterministic, no implementation-defined behavior. | BS3 (AC-BS-12) | BS3 | **APPROVED (2026-03-14)** |
 | PM-BS-05 | External review gate: scope (full spec vs BTR-only), reviewer profile, acceptance bar | BS5 (AC-BS-20) | BS5 | PENDING |
 | PM-BS-06 | Ratify P0-proposed relationship mode (COMPLEMENTS for all 3 related streams) | BS5 (AC-BS-21) | BS5 | PENDING |
 
@@ -5607,7 +5722,7 @@ Derived from PROTOCOL.md §4.2 canonical 6-row negotiation matrix.
 | RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE**, **RC2 DONE** (`ecosystem-v0.1.127-rustify-core1-rc2-complete`, 2026-03-13). PM-RC-01A APPROVED (quinn, 2026-03-13). 7 phases (RC1–RC7), 33 ACs, 8 PM decisions. **RC3 READY** (unblocked). |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies. |
-| BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **BS1 DONE**. **BS2 DONE** (`ecosystem-v0.1.137`, 2026-03-14). AC-BS-01–08 all PASS. PM-BS-01/02 APPROVED. BS3 READY. |
+| BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **BS1–BS3 DONE** (`ecosystem-v0.1.138`, 2026-03-14). AC-BS-01–13 all PASS. PM-BS-01–04 APPROVED. BS4 READY. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 
