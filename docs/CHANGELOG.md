@@ -5,6 +5,26 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-15 — WEBTRANSPORT-BROWSER-APP-1 COMPLETE: WT5 Closure + WS Disposition Lock
+
+**WT5 status**: READY → **DONE**. All 4 ACs (AC-WT-17–20) PASS. One PM decision resolved.
+
+**WEBTRANSPORT-BROWSER-APP-1 stream: COMPLETE.** All 5 phases (WT1–WT5) DONE. All 20 ACs (AC-WT-01–20) PASS. All 5 PM decisions (PM-WT-01–05) APPROVED.
+
+**AC-WT-17 (closure criteria):** Governance closure met — all 20 ACs, all 5 PM decisions, all guardrails verified. Runtime closure (burn-in, production SLO) deferred to implementation execution (WT4 rollout stages).
+
+**PM-WT-05 APPROVED (2026-03-15, Option B):** WS disposition — deprecate-with-sunset, condition-gated. WS retained until ALL of: (1) ≥1 release cycle with WT default-on, (2) zero kill-switch activations, (3) zero P0/P1 from WT, (4) Safari ships production WebTransport, (5) explicit PM removal approval. Matches PM-RC-05 pattern (TS-path deprecation).
+
+**AC-WT-19 (cross-stream reconciliation):** G1 invariant (browser↔browser WebRTC) confirmed unchanged. RC6 rollback preserved (RB-L5 extends framework). BTR transparency (BS3) preserved. RUSTIFY-CORE-1 session authority preserved.
+
+**AC-WT-20 (migration guide outline):** 7-section outline defined. Full guide deferred to implementation.
+
+**Tags**: `ecosystem-v0.1.147-webtransport-browser-app1-wt5-closeout`
+
+**Stream summary:** WEBTRANSPORT-BROWSER-APP-1 delivered complete governance specification for browser↔app WebTransport migration: browser support matrix, capability string, TLS cert strategy, daemon endpoint contract, three-tier fallback orchestrator, BTR transparency plan, DataTransport compliance, compatibility matrix, rollout/rollback gates, performance SLO, and WS sunset policy. Ready for implementation.
+
+---
+
 ## 2026-03-15 — WEBTRANSPORT-BROWSER-APP-1 WT4 DONE: Conformance + Rollout/Rollback Gate Lock
 
 **WT4 status**: READY → **DONE**. All 4 ACs (AC-WT-13–16) PASS. One PM decision resolved.

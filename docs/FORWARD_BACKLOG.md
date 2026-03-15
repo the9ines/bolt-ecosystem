@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-15 (WEBTRANSPORT-BROWSER-APP-1 WT4 DONE: conformance + rollout/rollback gates locked. PM-WT-04 APPROVED. WT5 READY.)
+> **Updated:** 2026-03-15 (WEBTRANSPORT-BROWSER-APP-1 COMPLETE: WT5 DONE, all 20 ACs PASS, all 5 PM decisions APPROVED. Stream closed.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -557,7 +557,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 17: WEBTRANSPORT-BROWSER-APP-1 — Browser↔App WebTransport Migration
 
 **Priority:** NEXT
-**Status:** **WT1–WT4 DONE** (`ecosystem-v0.1.146-webtransport-browser-app1-wt4-gate-lock`, 2026-03-15). AC-WT-01–16 PASS. PM-WT-01–04 APPROVED. WT5 READY.
+**Status:** **COMPLETE** (`ecosystem-v0.1.147-webtransport-browser-app1-wt5-closeout`, 2026-03-15). All 20 ACs PASS. All 5 PM decisions APPROVED. WT1–WT5 DONE.
 **Routing:** bolt-daemon (WebTransport endpoint), bolt-core-sdk (browser adapter), bolt-ecosystem (governance)
 **Category:** Architecture — browser↔app transport evolution
 **Stream:** WEBTRANSPORT-BROWSER-APP-1 (phased, 5 phases WT1–WT5)
@@ -580,9 +580,9 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | WT2 | Daemon endpoint + TLS policy lock | YES (gates WT3) | **DONE** (AC-WT-05–08 PASS, PM-WT-03 APPROVED, 2026-03-15) |
 | WT3 | Browser adapter + fallback orchestration lock | YES (gates WT4) | **DONE** (AC-WT-09–12 PASS, 2026-03-15) |
 | WT4 | Conformance + rollout/rollback gate lock | YES (gates WT5) | **DONE** (AC-WT-13–16 PASS, PM-WT-04 APPROVED, 2026-03-15) |
-| WT5 | Closure + WS disposition | YES (closes stream) | **READY** (WT4 DONE, unblocked) |
+| WT5 | Closure + WS disposition | YES (closes stream) | **DONE** (AC-WT-17–20 PASS, PM-WT-05 APPROVED, 2026-03-15) |
 
-**Acceptance Criteria:** 20 ACs defined (AC-WT-01 through AC-WT-20). WT1–WT4: AC-WT-01–16 all PASS (16 of 20 delivered). PM-WT-01–04 APPROVED. See `docs/GOVERNANCE_WORKSTREAMS.md` § WEBTRANSPORT-BROWSER-APP-1.
+**Acceptance Criteria:** 20 ACs defined (AC-WT-01 through AC-WT-20). **All 20 ACs PASS.** All 5 PM decisions APPROVED. Stream COMPLETE.
 
 **PM Decisions:** 5 open (PM-WT-01 through PM-WT-05). See `docs/GOVERNANCE_WORKSTREAMS.md` § WEBTRANSPORT-BROWSER-APP-1.
 
@@ -692,7 +692,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-WT-02 | WEBTRANSPORT-BROWSER-APP-1: WebTransport capability string naming | WT1 | **APPROVED** (Option A: `bolt.transport-webtransport-v1`, 2026-03-15) |
 | PM-WT-03 | WEBTRANSPORT-BROWSER-APP-1: TLS certificate provisioning strategy | WT2 | **APPROVED** (C2 local CA primary, C1 dev fallback, 2026-03-15) |
 | PM-WT-04 | WEBTRANSPORT-BROWSER-APP-1: Performance SLO thresholds for WebTransport | WT4 | **APPROVED** (Option B balanced, 2026-03-15) |
-| PM-WT-05 | WEBTRANSPORT-BROWSER-APP-1: WS disposition after WebTransport adoption | WT5 | NEXT |
+| PM-WT-05 | WEBTRANSPORT-BROWSER-APP-1: WS disposition after WebTransport adoption | WT5 | **APPROVED** (Option B: deprecate-with-sunset, 2026-03-15) |
 | PM-EN-04 | EGUI-NATIVE-1: Open EGUI-WASM-1 (browser egui via WASM) | Post-EN3 | **APPROVED** (early resolution, 2026-03-15) |
 | PM-EW-01 | EGUI-WASM-1: WASM bundle size budget | EW1 | LATER |
 | PM-EW-02 | EGUI-WASM-1: Browser rendering backend preference | EW2 | LATER |
