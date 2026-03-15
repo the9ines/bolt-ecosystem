@@ -5,6 +5,29 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-14 — RUSTIFY-CORE-1: All 8 PM Decisions Resolved (PM-RC-07, PM-RC-04)
+
+**PM-RC-07 APPROVED (2026-03-14):** Stream relationship mode locked.
+- **SUPERSEDES:** SEC-CORE2 (AC-SC-01–04 absorbed by AC-RC-08–11), PLAT-CORE1 (RC2+RC4 absorbed full scope)
+- **REFACTORS/DEPENDS-ON:** MOB-RUNTIME1 (depends on RC4, retains own stream), ARCH-WASM1 (depends on RC2, retains own stream)
+- SEC-CORE2 and PLAT-CORE1 updated to `SUPERSEDED-BY: RUSTIFY-CORE-1` across all docs (matching DR-STREAM-1 → BTR-STREAM-1 precedent)
+
+**PM-RC-04 APPROVED (2026-03-14):** Performance SLO thresholds for native transport migration gates.
+
+| Metric | Threshold | Notes |
+|--------|-----------|-------|
+| Throughput | ≥10 MiB/s avg | 3×1MiB localhost transfers |
+| Integrity | 100% hash match | 0 mismatches tolerated |
+| Connection success | ≥99% | Controlled matrix |
+| No-regression | All suites green | Cross-repo |
+| Failure action | Hold/rollback per RC6 levers | RB-L1–L4 |
+
+AC-RC-15 updated from "DONE (provisional)" to "DONE" — baseline (~15–16 MB/s) exceeds all SLO thresholds.
+
+**RUSTIFY-CORE-1 PM decisions:** All 8 of 8 now APPROVED (PM-RC-01, 01A, 02, 03, 04, 05, 06, 07). Zero residual PM blockers.
+
+---
+
 ## 2026-03-14 — RUSTIFY-CORE-1 RC7 DONE: CLI Reservation Hooks Closed (PM-RC-06 Resolved)
 
 **RC7 status**: IN-PROGRESS → **DONE**. All 5 ACs (AC-RC-29–33) now PASS.

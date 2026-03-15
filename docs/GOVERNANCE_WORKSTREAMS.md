@@ -4117,7 +4117,7 @@ CONSUMER-BTR-1 is a rollout stream, not a feature stream. No protocol or SDK cha
 ## RUSTIFY-CORE-1 — Native-First Transport + Core Consolidation
 
 > **Stream ID:** RUSTIFY-CORE-1
-> **Backlog Items:** SEC-CORE2, PLAT-CORE1 (provisionally superseded), MOB-RUNTIME1, ARCH-WASM1 (provisionally refactored/dependent)
+> **Backlog Items:** SEC-CORE2, PLAT-CORE1 (SUPERSEDED-BY RUSTIFY-CORE-1), MOB-RUNTIME1, ARCH-WASM1 (REFACTORS/DEPENDS-ON RUSTIFY-CORE-1)
 > **Priority:** NEXT (execution blocked until CONSUMER-BTR1 completes)
 > **Repos:** bolt-core-sdk (Rust primary), bolt-daemon, bolt-protocol (spec amendments)
 > **Codified:** ecosystem-v0.1.113-rustify-core1-codify (2026-03-12)
@@ -4196,16 +4196,14 @@ RUSTIFY-CORE-1 consolidates protocol authority in Rust and introduces native tra
 
 ### Relationship to Existing Streams
 
-> **Status:** **PROVISIONAL** (pending PM-RC-07). Recommended mode: hybrid (SUPERSEDES for SEC-CORE2/PLAT-CORE1, REFACTORS for MOB-RUNTIME1/ARCH-WASM1). RC1 records this mapping as provisional — no silent supersession until PM-RC-07 confirms.
+> **Status:** **CONFIRMED** (PM-RC-07 APPROVED, 2026-03-14). Hybrid mode locked: SUPERSEDES for SEC-CORE2/PLAT-CORE1, REFACTORS/DEPENDS-ON for MOB-RUNTIME1/ARCH-WASM1.
 
-| Existing Stream | Recommended Mode | Rationale |
-|-----------------|-----------------|-----------|
-| **SEC-CORE2** (Rust-first security/protocol consolidation) | **SUPERSEDES** | RC2 (shared Rust core API design) absorbs AC-SC-01 through AC-SC-04 entirely. Protocol authority migration is a core deliverable of RUSTIFY-CORE-1. |
-| **PLAT-CORE1** (Shared Rust core + thin platform UIs) | **SUPERSEDES** | RC2+RC4 (core API + adoption in app boundaries) absorb PLAT-CORE1's full scope. Crate topology, FFI surface, and platform adapter model are RUSTIFY-CORE-1 deliverables. |
-| **MOB-RUNTIME1** (Mobile embedded runtime model) | **REFACTORS/DEPENDS-ON** | MOB-RUNTIME1 retains its own stream identity but becomes dependent on RC4 completion (shared Rust core adoption). Mobile-specific concerns (FFI, background execution, app store policies) remain MOB-RUNTIME1 scope. |
-| **ARCH-WASM1** (WASM protocol engine) | **REFACTORS/DEPENDS-ON** | ARCH-WASM1 retains its own stream identity but becomes dependent on RC2 completion (shared core API). Browser WASM integration concerns remain ARCH-WASM1 scope. |
-
-If PM-RC-07 confirms SUPERSEDES for SEC-CORE2 and PLAT-CORE1, those items should be updated to `SUPERSEDED-BY: RUSTIFY-CORE-1` (matching DR-STREAM-1 → BTR-STREAM-1 precedent).
+| Existing Stream | Mode | Rationale |
+|-----------------|------|-----------|
+| **SEC-CORE2** (Rust-first security/protocol consolidation) | **SUPERSEDED-BY: RUSTIFY-CORE-1** | RC2 (shared Rust core API design) absorbed AC-SC-01 through AC-SC-04 entirely. Protocol authority migration is a core deliverable of RUSTIFY-CORE-1. |
+| **PLAT-CORE1** (Shared Rust core + thin platform UIs) | **SUPERSEDED-BY: RUSTIFY-CORE-1** | RC2+RC4 (core API + adoption in app boundaries) absorbed PLAT-CORE1's full scope. Crate topology, FFI surface, and platform adapter model are RUSTIFY-CORE-1 deliverables. |
+| **MOB-RUNTIME1** (Mobile embedded runtime model) | **REFACTORS/DEPENDS-ON RUSTIFY-CORE-1** | MOB-RUNTIME1 retains its own stream identity but depends on RC4 completion (shared Rust core adoption). Mobile-specific concerns (FFI, background execution, app store policies) remain MOB-RUNTIME1 scope. |
+| **ARCH-WASM1** (WASM protocol engine) | **REFACTORS/DEPENDS-ON RUSTIFY-CORE-1** | ARCH-WASM1 retains its own stream identity but depends on RC2 completion (shared core API). Browser WASM integration concerns remain ARCH-WASM1 scope. |
 
 ---
 
@@ -4273,7 +4271,7 @@ RC2 (Shared Rust Core API Design/Extraction Lock) starts only when ALL of the fo
 | RC1 artifacts locked and cross-doc consistent | **SATISFIED** | RC1 executed `ecosystem-v0.1.120-rustify-core1-rc1-executed` |
 | PM-RC-01 status explicit (resolved, or formally pending with fallback statement) | **SATISFIED** | PM-RC-01 APPROVED (QUIC confirmed, 2026-03-13). Library selection deferred to PM-RC-01A (blocks RC3 only). |
 | PM-RC-02 impact explicit (resolved, or explicitly non-blocking for RC2) | **SATISFIED** | PM-RC-02 is non-blocking for RC2. PM-RC-02 blocks RC5 per phase table. |
-| PM-RC-07 relationship handling explicit (resolved, or provisional policy accepted) | **SATISFIED (PROVISIONAL)** | RC1 records relationship mapping as PROVISIONAL pending PM-RC-07. No silent supersession. Provisional status accepted for RC2 entry. |
+| PM-RC-07 relationship handling explicit (resolved, or provisional policy accepted) | **SATISFIED (CONFIRMED)** | PM-RC-07 APPROVED (2026-03-14): SUPERSEDES SEC-CORE2 + PLAT-CORE1; REFACTORS/DEPENDS-ON MOB-RUNTIME1 + ARCH-WASM1. |
 
 **Prior blocking path (RESOLVED):** PM-RC-01 resolved as QUIC APPROVED (2026-03-13). RC2 entry unblocked. PM-RC-01A resolved as quinn APPROVED (2026-03-13). RC3 blocker cleared — status moved to READY.
 
@@ -4329,7 +4327,7 @@ Rationale from codebase audit:
 - Consumer repos MUST pin to exact crate versions in Cargo.lock (workspace members use path deps; external consumers use tag-pinned git deps per existing policy).
 - Cross-crate breaking changes (e.g., `bolt-core` type change affecting `bolt-btr`) MUST be coordinated as a single workspace-wide version bump.
 
-##### E) SEC-CORE2 Absorption Mapping (PROVISIONAL — pending PM-RC-07)
+##### E) SEC-CORE2 Absorption Mapping (CONFIRMED — PM-RC-07 APPROVED 2026-03-14)
 
 | SEC-CORE2 AC | Absorbed By | RC2 Deliverable |
 |-------------|-------------|-----------------|
@@ -4338,7 +4336,7 @@ Rationale from codebase audit:
 | AC-SC-03 (Protocol SM canonical in Rust) | AC-RC-10 | Rust crate with SM + invariants | **DONE** (RC2-EXEC-C, 2026-03-13) |
 | AC-SC-04 (S1 conformance against Rust vectors) | AC-RC-11 | CI gate | **DONE** (RC2-EXEC-B, 2026-03-13) |
 
-**Provisional:** This mapping assumes PM-RC-07 confirms SUPERSEDES for SEC-CORE2. If PM-RC-07 rejects SUPERSEDES, AC-SC-01–04 remain in SEC-CORE2's own stream and RC2 ACs AC-RC-08–11 are redefined as non-absorbing equivalents.
+**Confirmed:** PM-RC-07 APPROVED (2026-03-14) confirms SUPERSEDES for SEC-CORE2. AC-SC-01–04 are permanently absorbed by AC-RC-08–11.
 
 #### RC2 API Status Clarification
 
@@ -4352,7 +4350,7 @@ Existing Rust crates that form the shared core foundation:
 1. ~~Define the unified API surface (facade crate or re-export strategy)~~ → **LOCKED (RC2-GOV): direct multi-crate dependency policy**
 2. Define FFI boundary for Tauri/native consumers (RC2-EXEC: interface contract from RC2-GOV, codegen/impl in RC2-EXEC)
 3. Migrate protocol authority from TS to Rust for remaining paths (handshake, envelope orchestration) (RC2-EXEC)
-4. Absorb SEC-CORE2 ACs (AC-SC-01–04): Rust vector authority, TS generation deprecated, canonical Rust state machine (RC2-EXEC, PROVISIONAL pending PM-RC-07)
+4. Absorb SEC-CORE2 ACs (AC-SC-01–04): Rust vector authority, TS generation deprecated, canonical Rust state machine (RC2-EXEC, CONFIRMED per PM-RC-07)
 
 #### RC7 CLI Reservation Artifacts
 
@@ -4426,7 +4424,7 @@ RC7 produces governance-only artifacts. No runtime code. Concrete deliverables:
 | AC-RC-12 | Native transport crate (`quinn`-based) compiles and passes unit tests | `cargo test` green | **DONE** — 10 QUIC unit tests pass. Compiles with and without `transport-quic` feature. |
 | AC-RC-13 | App↔app file transfer completes over native transport | Integration test | **DONE** — 3 E2E tests: 1MiB transfer + SHA-256 integrity, sub-chunk payload, multiple sequential transfers. |
 | AC-RC-14 | BTR operates correctly over native transport | BTR conformance suite pass | **DONE** — 4 BTR-over-QUIC tests: seal/open roundtrip, multi-chunk chain ordering, tampering detection, byte-level framing preservation. |
-| AC-RC-15 | Performance meets PM-RC-04 SLO thresholds | Benchmark results | **DONE (provisional)** — ~15–16 MB/s avg throughput (3×1MiB localhost). PM-RC-04 SLO thresholds PENDING formal definition; baseline captured. |
+| AC-RC-15 | Performance meets PM-RC-04 SLO thresholds | Benchmark results | **DONE** — ~15–16 MB/s avg throughput (3×1MiB localhost). PM-RC-04 APPROVED (2026-03-14): ≥10 MiB/s throughput, 100% hash integrity, ≥99% connection success. Baseline exceeds all SLO thresholds. If thresholds fail persistently during rollout, hold/rollback per RC6 levers (RB-L1–L4). |
 | AC-RC-16 | No regression in existing daemon/app test suites | CI gate | **DONE** — 381 total tests pass (353 pre-existing + 18 RC3 integration + 10 QUIC unit). Zero regressions. |
 
 #### RC4 — Shared Rust Core Adoption
@@ -4655,10 +4653,10 @@ CLI-specific execution stream may begin only after ALL of:
 | PM-RC-01A | QUIC runtime/library selection. **APPROVED (2026-03-13):** Primary: `quinn`. Fallback 1: `s2n-quic`. Fallback 2: `msquic-rs`. Rationale: quinn dominates on cross-platform maturity (macOS/Windows/Linux tested, pure Rust, no C toolchain), Rust API ergonomics (AsyncRead/AsyncWrite streams, tokio-native), ecosystem adoption (133M crates.io downloads), supply chain posture (pure Rust, audited crypto deps), and mobile path viability (community-validated iOS/Android compilation). s2n-quic ranked above msquic-rs as fallback due to proper async Rust API and active biweekly release cadence vs msquic-rs perpetual beta status and callback-based C FFI requiring async bridge. ARCH-01 verified: quinn wraps behind `TransportQuery` trait with zero type leakage into shared core. | RC3 only (non-blocking for RC2) | RC3 | **APPROVED (2026-03-13)** |
 | PM-RC-02 | Browser↔app transport mode default. **APPROVED (2026-03-14):** Option B — WebSocket-direct. Primary: browser opens WebSocket to app daemon endpoint; daemon terminates WS and bridges frames to shared Rust core pipeline (RC4-consistent session authority). Fallback: WebRTC via signaling server (current behavior). Fallback trigger: WS connection failure/timeout → automatic client-side fall-through to WebRTC. Fallback override authority: PM can adjust timeout/ordering via future decision. Options rejected: (A) WebRTC-mediated — collapses primary/fallback distinction, AC-RC-24 becomes tautological; (C) WebTransport — Safari unsupported, experimental API, unnecessary scope risk. G1 preserved: WebRTC fallback IS current browser↔browser baseline. | RC5 | RC1 | **APPROVED (WebSocket-direct, 2026-03-14)** |
 | PM-RC-03 | Rollout order confirmation: app-first, browser↔app second. **APPROVED (2026-03-14):** Stage 1: app↔app (QUIC). Stage 2: browser↔app (WS-direct). browser↔browser remains WebRTC invariant (G1). Promotion gate: burn-in with zero P0/P1 regressions. | RC6 | RC1 | **APPROVED (2026-03-14)** |
-| PM-RC-04 | Performance SLO thresholds for native transport migration gates (latency, throughput, overhead) | RC3 (AC-RC-15) | RC1 | PENDING |
+| PM-RC-04 | Performance SLO thresholds for native transport migration gates. **APPROVED (2026-03-14):** Throughput ≥10 MiB/s avg (3×1MiB localhost). Integrity: 100% hash match, 0 mismatches. Connection success: ≥99% in controlled matrix. No-regression suites green. Persistent failure → hold/rollback per RC6 levers. | RC3 (AC-RC-15) | RC1 | **APPROVED (2026-03-14)** |
 | PM-RC-05 | Legacy TS-path deprecation policy/timeline after Rust core adoption. **APPROVED (2026-03-14):** Deprecate-but-retain. TS paths retained as fallback with kill-switch (RC-G7). Sunset requires separate PM approval after: (a) one full release cycle, (b) zero kill-switch activations, (c) zero P0/P1 regressions. Condition-gated, not date-gated. | RC6 | RC6 | **APPROVED (2026-03-14)** |
 | PM-RC-06 | CLI stream trigger condition: when to start CLI-specific execution stream. **APPROVED (2026-03-14):** CLI stream may begin after RC4 complete [satisfied] AND RC6 Stage 1 burn-in passed (12h continuous soak, 0 P0/P1, 0 kill-switch activations, no-regression gates green). N-STREAM-1 N6 NOT required. | RC7 (AC-RC-33) | RC7 | **APPROVED (2026-03-14)** |
-| PM-RC-07 | Relationship mode to existing streams. Recommended: SUPERSEDES SEC-CORE2 + PLAT-CORE1; REFACTORS/DEPENDS-ON MOB-RUNTIME1 + ARCH-WASM1 | All phases | RC1 | PENDING (recommended: hybrid) |
+| PM-RC-07 | Relationship mode to existing streams. **APPROVED (2026-03-14):** SUPERSEDES SEC-CORE2 + PLAT-CORE1 (final supersession). REFACTORS/DEPENDS-ON MOB-RUNTIME1 + ARCH-WASM1. SEC-CORE2 and PLAT-CORE1 updated to SUPERSEDED-BY: RUSTIFY-CORE-1. | All phases | RC1 | **APPROVED (2026-03-14)** |
 
 ---
 
@@ -4754,7 +4752,7 @@ EGUI-NATIVE-1 migrates the desktop UI from Tauri WebView to egui (Rust-native im
 | Existing Stream | Relationship | Rationale |
 |-----------------|-------------|-----------|
 | **RUSTIFY-CORE-1** | **DEPENDS-ON** (RC4) | RC4 defines the shared Rust core API surface. `bolt-ui` consumes this API for connection, transfer, verification workflows. EN2+ execution blocked until RC4 completes. |
-| **PLAT-CORE1** | **COMPLEMENTARY** (provisionally SUPERSEDED by RUSTIFY-CORE-1) | PLAT-CORE1 envisioned "thin platform UIs" over shared Rust core. EGUI-NATIVE-1 is the concrete desktop realization. If PM-RC-07 confirms PLAT-CORE1 SUPERSEDED, EGUI-NATIVE-1 inherits the desktop UI portion. |
+| **PLAT-CORE1** | **COMPLEMENTARY** (SUPERSEDED-BY RUSTIFY-CORE-1, PM-RC-07 APPROVED) | PLAT-CORE1 envisioned "thin platform UIs" over shared Rust core. EGUI-NATIVE-1 is the concrete desktop realization. PLAT-CORE1 confirmed SUPERSEDED; EGUI-NATIVE-1 inherits the desktop UI portion. |
 | **MOB-RUNTIME1** | **INDEPENDENT** | Mobile UI is a separate concern. EGUI-NATIVE-1 is desktop-only (EN-G2). |
 | **ARCH-WASM1** | **INDEPENDENT** | Browser WASM is a separate concern. EGUI-NATIVE-1 is desktop-only (EN-G2). |
 | **N-STREAM-1** | **COMPLEMENTARY** | N-STREAM-1 defined daemon bundling/lifecycle for localbolt-app. EGUI-NATIVE-1 replaces the UI layer but retains daemon bundling patterns. EN4 verifies packaging compatibility. |
@@ -5425,11 +5423,11 @@ No upstream stream dependencies. COMPLEMENTS SEC-BTR1, CONSUMER-BTR1, RUSTIFY-CO
 | SEC-BTR1 | Bolt Transfer Ratchet pre-ByteBolt security gate (BTR-STREAM-1) | NEXT | bolt-core-sdk + bolt-protocol | **BTR-STREAM-1 COMPLETE** (BTR-0–5 DONE. Option C approved: default-on fail-open. PM-BTR-08/09/11 approved 2026-03-11) |
 | CONSUMER-BTR1 | Consumer app BTR rollout (CONSUMER-BTR-1) | ~~NOW~~ DONE | localbolt-v3, localbolt, localbolt-app | **DONE** (burn-in waived via `PM-CBTR-EX-01`). CBTR-1 DONE (burn-in PASSED). CBTR-2 DONE (burn-in PASSED, 24h02m). CBTR-3 DONE (`localbolt-app-v1.2.24`, `ff33747`; burn-in waived). |
 | T-STREAM-0 | Rust transfer core (no UDP in v1) | NEXT | `bolt-transfer-core` (bolt-core-sdk workspace) + daemon consumer | **DONE** (`sdk-v0.5.30-tstream0-transfer-core-v1`) |
-| SEC-CORE2 | Rust-first security/protocol consolidation | NEXT | bolt-core-sdk | Provisionally SUPERSEDED-BY RUSTIFY-CORE-1 (pending PM-RC-07) |
+| SEC-CORE2 | Rust-first security/protocol consolidation | ~~NEXT~~ SUPERSEDED | bolt-core-sdk | **SUPERSEDED-BY: RUSTIFY-CORE-1** (PM-RC-07 APPROVED 2026-03-14). AC-SC-01–04 absorbed by AC-RC-08–11. |
 | T-STREAM-1 | Browser selective WASM integration | LATER | bolt-core-sdk (TS) + WASM | NOT-STARTED |
-| PLAT-CORE1 | Shared Rust core + thin platform UIs | LATER | TBD | Provisionally SUPERSEDED-BY RUSTIFY-CORE-1 (pending PM-RC-07) |
-| MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD | Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC4 (pending PM-RC-07) |
-| ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC2 (pending PM-RC-07) |
+| PLAT-CORE1 | Shared Rust core + thin platform UIs | ~~LATER~~ SUPERSEDED | TBD | **SUPERSEDED-BY: RUSTIFY-CORE-1** (PM-RC-07 APPROVED 2026-03-14). RC2+RC4 absorbed full scope. |
+| MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD | **DEPENDS-ON RUSTIFY-CORE-1 RC4** (PM-RC-07 APPROVED 2026-03-14). Retains own stream identity. |
+| ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | **DEPENDS-ON RUSTIFY-CORE-1 RC2** (PM-RC-07 APPROVED 2026-03-14). Retains own stream identity. |
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** |
 | RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE**, **RC2 DONE** (`ecosystem-v0.1.127-rustify-core1-rc2-complete`, 2026-03-13). PM-RC-01A APPROVED (quinn, 2026-03-13). 7 phases (RC1–RC7), 33 ACs, 8 PM decisions. **RC3 READY** (unblocked). |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | LATER | localbolt-app + ecosystem | **CODIFIED** (`ecosystem-v0.1.115-egui-native1-codify`). 5 phases (EN1–EN5), 24 ACs, 5 PM decisions. EN1 openable in parallel with RUSTIFY-CORE-1; EN2+ blocked on RC4. |

@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-14 (RC7 DONE: CLI reservation hooks closed. PM-RC-06 APPROVED (trigger defined). CLI execution stream NOT OPEN — Stage 1 burn-in pending.)
+> **Updated:** 2026-03-14 (PM-RC-07 APPROVED: SEC-CORE2/PLAT-CORE1 SUPERSEDED. PM-RC-04 APPROVED: SLO thresholds defined. All 8 RUSTIFY-CORE-1 PM decisions resolved.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -31,18 +31,18 @@ NEXT:
   SEC-DR1 (Double Ratchet security gate) ──────── SUPERSEDED-BY: SEC-BTR1
   SEC-BTR1 (Bolt Transfer Ratchet) ──────────── COMPLETE (pre-ByteBolt, replaces SEC-DR1)
   T-STREAM-0 (Rust transfer core) ────────────── depends on B-XFER-1 completion
-  SEC-CORE2 (Rust-first security consolidation) ── depends on S1 (DONE)
+  SEC-CORE2 (Rust-first security consolidation) ── SUPERSEDED-BY RUSTIFY-CORE-1 (PM-RC-07)
 
 NEXT:
   RUSTIFY-CORE-1 (native-first transport + core) ── RC1 DONE; RC2 DONE; RC3 DONE; RC4 DONE (2026-03-14, AC-RC-12–20 PASS); PM-RC-02 APPROVED (WebSocket-direct, 2026-03-14); RC5 DONE (2026-03-14, AC-RC-21–24 PASS); PM-RC-03 APPROVED (app-first rollout, 2026-03-14); PM-RC-05 APPROVED (deprecate-but-retain, 2026-03-14); RC6 DONE (2026-03-14, AC-RC-25–28 PASS); RC7 DONE (2026-03-14, AC-RC-29–33 PASS, PM-RC-06 APPROVED)
-    Provisionally SUPERSEDES: SEC-CORE2, PLAT-CORE1 (pending PM-RC-07)
-    Provisionally REFACTORS/DEPENDS-ON: MOB-RUNTIME1, ARCH-WASM1 (pending PM-RC-07)
+    SUPERSEDES: SEC-CORE2, PLAT-CORE1 (PM-RC-07 APPROVED 2026-03-14)
+    REFACTORS/DEPENDS-ON: MOB-RUNTIME1, ARCH-WASM1 (PM-RC-07 APPROVED 2026-03-14)
 
 LATER:
   T-STREAM-1 (browser selective WASM) ────────── depends on T-STREAM-0
-  PLAT-CORE1 (shared Rust core + thin UIs) ────── provisionally SUPERSEDED-BY RUSTIFY-CORE-1 (pending PM-RC-07)
-  MOB-RUNTIME1 (mobile embedded runtime) ─────── depends on RUSTIFY-CORE-1 RC4 (pending PM-RC-07)
-  ARCH-WASM1 (WASM protocol engine) ──────────── depends on RUSTIFY-CORE-1 RC2 (pending PM-RC-07)
+  PLAT-CORE1 (shared Rust core + thin UIs) ────── SUPERSEDED-BY RUSTIFY-CORE-1 (PM-RC-07)
+  MOB-RUNTIME1 (mobile embedded runtime) ─────── depends on RUSTIFY-CORE-1 RC4 (PM-RC-07)
+  ARCH-WASM1 (WASM protocol engine) ──────────── depends on RUSTIFY-CORE-1 RC2 (PM-RC-07)
   EGUI-NATIVE-1 (desktop UI → egui) ──────────── EN1 openable now; EN2+ depends on RUSTIFY-CORE-1 RC4
 
 NEXT (independent):
@@ -191,8 +191,8 @@ DR-0 through DR-5, AC-DR-01 through AC-DR-38, DR-F1–F99 tracker series — all
 
 ## Item 6: SEC-CORE2 — Rust-First Security/Protocol Consolidation
 
-**Priority:** NEXT
-**Status:** Provisionally SUPERSEDED-BY RUSTIFY-CORE-1 (pending PM-RC-07)
+**Priority:** ~~NEXT~~ → SUPERSEDED
+**Status:** **SUPERSEDED-BY: RUSTIFY-CORE-1** (PM-RC-07 APPROVED 2026-03-14). AC-SC-01–04 absorbed by AC-RC-08–11.
 **Routing:** bolt-core-sdk (Rust crate primary), bolt-core-sdk (TS secondary)
 **Category:** Security — protocol authority migration
 **Dependencies:** S1 conformance harness (DONE)
@@ -215,8 +215,8 @@ DR-0 through DR-5, AC-DR-01 through AC-DR-38, DR-F1–F99 tracker series — all
 
 ## Item 7: PLAT-CORE1 — Shared Rust Core + Thin Platform UIs
 
-**Priority:** LATER
-**Status:** Provisionally SUPERSEDED-BY RUSTIFY-CORE-1 (pending PM-RC-07)
+**Priority:** ~~LATER~~ → SUPERSEDED
+**Status:** **SUPERSEDED-BY: RUSTIFY-CORE-1** (PM-RC-07 APPROVED 2026-03-14). RC2+RC4 absorbed full scope.
 **Routing:** Architecture decision required — new crate structure TBD
 **Category:** Platform convergence
 **Dependencies:** T-STREAM-0 (transfer core), SEC-CORE2 (Rust protocol authority)
@@ -232,12 +232,12 @@ DR-0 through DR-5, AC-DR-01 through AC-DR-38, DR-F1–F99 tracker series — all
 ## Item 8: MOB-RUNTIME1 — Mobile Embedded Runtime Model
 
 **Priority:** LATER
-**Status:** Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC4 (pending PM-RC-07)
+**Status:** **DEPENDS-ON RUSTIFY-CORE-1 RC4** (PM-RC-07 APPROVED 2026-03-14). Retains own stream identity.
 **Routing:** TBD — architecture decision required
 **Category:** Mobile platform support
-**Dependencies:** PLAT-CORE1 (shared Rust core surface must be defined first)
+**Dependencies:** RUSTIFY-CORE-1 RC4 (shared Rust core adoption, DONE)
 
-**Sequencing constraint:** MOB-RUNTIME1 priority MUST NOT exceed PLAT-CORE1 priority. Mobile runtime depends on the shared core surface definition from PLAT-CORE1. Attempting mobile runtime before the shared core is defined risks building on unstable abstractions.
+**Sequencing constraint:** MOB-RUNTIME1 depends on RUSTIFY-CORE-1 RC4 (shared Rust core adoption, DONE). PLAT-CORE1 is SUPERSEDED; its shared core surface is now delivered by RUSTIFY-CORE-1.
 
 **Context:** Define how Bolt protocol runs on mobile (iOS/Android). Options include:
 - Embedded Rust library via FFI (UniFFI, swift-bridge, JNI)
@@ -253,10 +253,10 @@ DR-0 through DR-5, AC-DR-01 through AC-DR-38, DR-F1–F99 tracker series — all
 ## Item 9: ARCH-WASM1 — WASM Protocol Engine
 
 **Priority:** LATER
-**Status:** Provisionally DEPENDS-ON RUSTIFY-CORE-1 RC2 (pending PM-RC-07)
+**Status:** **DEPENDS-ON RUSTIFY-CORE-1 RC2** (PM-RC-07 APPROVED 2026-03-14). Retains own stream identity.
 **Routing:** bolt-core-sdk (Rust → WASM), bolt-core-sdk (TS adapter)
 **Category:** Architecture — WASM protocol engine (medium risk)
-**Dependencies:** T-STREAM-0 (transfer core), S4 gate (S2 must demonstrate viable WASM-in-browser)
+**Dependencies:** T-STREAM-0 (transfer core), RUSTIFY-CORE-1 RC2 (shared core API, DONE), S4 gate
 
 **Context:** Extends S4 vision. WASM module owns state machine, enforcement codes, and message routing. TS becomes thin I/O adapter: WebRTC ↔ WASM ↔ UI. Medium risk — WASM bundle size, browser compatibility, and debugging complexity are open concerns.
 
@@ -435,14 +435,13 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 - Rust owns: shared protocol/security core, transfer SM integrity/policy authority, lifecycle invariants
 - Platform adapters (TS/Swift/Tauri): thin shells for I/O binding, UI routing, platform persistence
 
-**Stream relationship (PROVISIONAL, pending PM-RC-07):**
-- Provisionally SUPERSEDES: SEC-CORE2, PLAT-CORE1
-- Provisionally REFACTORS/DEPENDS-ON: MOB-RUNTIME1, ARCH-WASM1
-- No silent supersession until PM-RC-07 confirms
+**Stream relationship (CONFIRMED, PM-RC-07 APPROVED 2026-03-14):**
+- SUPERSEDES: SEC-CORE2, PLAT-CORE1
+- REFACTORS/DEPENDS-ON: MOB-RUNTIME1, ARCH-WASM1
 
 **Acceptance Criteria:** 33 ACs defined (AC-RC-01 through AC-RC-33). RC1–RC7: **all 33 ACs PASS/DONE**. See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1 for full list.
 
-**PM Decisions:** 8 total (PM-RC-01 through PM-RC-07 + PM-RC-01A). PM-RC-01 APPROVED (QUIC). PM-RC-01A APPROVED (quinn). PM-RC-02 APPROVED (WebSocket-direct). PM-RC-03 APPROVED (app-first rollout). PM-RC-05 APPROVED (deprecate-but-retain). PM-RC-06 APPROVED (CLI trigger: RC4 + Stage 1 burn-in). PM-RC-04, PM-RC-07 PENDING. See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1 for full table.
+**PM Decisions:** 8 total (PM-RC-01 through PM-RC-07 + PM-RC-01A). **All 8 APPROVED.** PM-RC-01 (QUIC). PM-RC-01A (quinn). PM-RC-02 (WebSocket-direct). PM-RC-03 (app-first rollout). PM-RC-04 (SLO thresholds). PM-RC-05 (deprecate-but-retain). PM-RC-06 (CLI trigger). PM-RC-07 (stream relationships). See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-CORE-1 for full table.
 
 ---
 
@@ -599,10 +598,10 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-RC-01A | RUSTIFY-CORE-1: QUIC runtime/library selection — **APPROVED (quinn, 2026-03-13)**. Fallback: `s2n-quic` → `msquic-rs`. | ~~RC3~~ | **APPROVED** |
 | PM-RC-02 | RUSTIFY-CORE-1: Browser↔app transport mode default | RC5 | **APPROVED (WebSocket-direct, 2026-03-14)** |
 | PM-RC-03 | RUSTIFY-CORE-1: Rollout order (app first, browser↔app second) | RC6 | **APPROVED** (app-first, 2026-03-14) |
-| PM-RC-04 | RUSTIFY-CORE-1: Performance SLO thresholds for migration gates | RC3 | NEXT |
+| PM-RC-04 | RUSTIFY-CORE-1: Performance SLO thresholds for migration gates | RC3 | **APPROVED** (SLO defined, 2026-03-14) |
 | PM-RC-05 | RUSTIFY-CORE-1: Legacy TS-path deprecation policy/timeline | RC6 | **APPROVED** (deprecate-but-retain, 2026-03-14) |
 | PM-RC-06 | RUSTIFY-CORE-1: CLI stream trigger condition | RC7 | **APPROVED** (RC4 + Stage 1 burn-in, 2026-03-14) |
-| PM-RC-07 | RUSTIFY-CORE-1: Relationship mode to SEC-CORE2/PLAT-CORE1/MOB-RUNTIME1/ARCH-WASM1 | All RC phases | NEXT |
+| PM-RC-07 | RUSTIFY-CORE-1: Relationship mode to SEC-CORE2/PLAT-CORE1/MOB-RUNTIME1/ARCH-WASM1 | All RC phases | **APPROVED** (hybrid: SUPERSEDES + REFACTORS, 2026-03-14) |
 | PM-EN-01 | EGUI-NATIVE-1: Confirm egui as desktop UI framework (vs iced, Slint, Dioxus) | EN2 | LATER |
 | PM-EN-02 | EGUI-NATIVE-1: Visual direction scope (minimal parity vs custom theme) | EN2 | LATER |
 | PM-EN-03 | EGUI-NATIVE-1: Rollback window duration before legacy UI removal | EN5 | LATER |
