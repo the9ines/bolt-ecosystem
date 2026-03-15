@@ -4918,7 +4918,7 @@ EN5 produces:
 | PM-EN-01 | Confirm egui as desktop UI framework (vs iced, Slint, Dioxus, or other Rust-native GUI) | EN2 | EN1 | PENDING |
 | PM-EN-02 | Visual direction scope: minimal parity first (match current look) vs custom theme in-stream (new design language) | EN2 | EN1 | PENDING |
 | PM-EN-03 | Rollback window duration: how long must dual-build (egui + Tauri WebView) be maintained before legacy removal? | EN5 (legacy removal) | EN4 | PENDING |
-| PM-EN-04 | Whether to open EGUI-WASM-1 (browser egui via WASM) after EN3 results | Post-stream | EN5 | PENDING |
+| PM-EN-04 | Whether to open EGUI-WASM-1 (browser egui via WASM). **APPROVED (2026-03-15, early resolution):** EGUI-WASM-1 opened independent of EN3 completion. Browser WASM egui is architecturally distinct from desktop egui. Experimental, non-blocking to EGUI-NATIVE-1. | Post-stream | EN5 | **APPROVED (2026-03-15, early)** |
 | PM-EN-05 | Whether to open EGUI-MOBILE-1 (mobile egui) after EN4 results | Post-stream | EN5 | PENDING |
 
 ---
@@ -4938,7 +4938,7 @@ EN5 produces:
 
 | ID | Non-Goal | Rationale |
 |----|----------|-----------|
-| EN-NG1 | Replace browser UI (localbolt, localbolt-v3) | EGUI-WASM-1 scope (future, if approved) |
+| EN-NG1 | Replace browser UI (localbolt, localbolt-v3) | EGUI-WASM-1 scope (codified, PM-EN-04 approved early) |
 | EN-NG2 | Mobile UI | EGUI-MOBILE-1 scope (future, if approved) |
 | EN-NG3 | Transport/protocol changes | EN-G1; this is a UI-only stream |
 | EN-NG4 | CLI interface | EN-G5; CLI is text-only |
@@ -4948,10 +4948,192 @@ EN5 produces:
 
 | Stream ID | Scope | Trigger Condition | Dependencies |
 |-----------|-------|-------------------|--------------|
-| **EGUI-WASM-1** | Browser UI migration to egui via WASM (localbolt, localbolt-v3) | PM-EN-04 approved after EN3 results | EGUI-NATIVE-1 EN3 complete, ARCH-WASM1 |
+| ~~**EGUI-WASM-1**~~ | ~~Browser UI migration to egui via WASM~~ | **PM-EN-04 APPROVED (early, 2026-03-15)** — stream codified below | See § EGUI-WASM-1 |
 | **EGUI-MOBILE-1** | Mobile UI via egui (iOS, Android) | PM-EN-05 approved after EN4 results | EGUI-NATIVE-1 EN4 complete, MOB-RUNTIME1 |
 
 These are governance reservations only. No phases, ACs, or PM decisions are defined for deferred streams. Full codification requires separate stream codification prompts after trigger conditions are met.
+
+---
+
+## EGUI-WASM-1 — Browser UI Migration to egui via WASM (Experimental)
+
+> **Stream ID:** EGUI-WASM-1
+> **Backlog Item:** EGUI-NATIVE-1 deferred follow-on (PM-EN-04 approved early, 2026-03-15)
+> **Priority:** LATER (experimental; non-blocking to EGUI-NATIVE-1)
+> **Repos:** localbolt-v3 (primary consumer), localbolt (secondary consumer), bolt-ecosystem (governance)
+> **Codified:** ecosystem-v0.1.142-egui-wasm1-codify (2026-03-15)
+> **Status:** CODIFIED (EW1 unblocked immediately)
+
+---
+
+### Context & Motivation
+
+Current browser UIs (localbolt, localbolt-v3) use React/TypeScript/Tailwind rendered in the browser DOM. EGUI-WASM-1 explores migrating browser UI to egui compiled to WASM, rendering to `<canvas>`. This would unify the UI framework across desktop (EGUI-NATIVE-1) and browser, reducing dual-stack maintenance.
+
+**PM-EN-04 early resolution rationale:** Browser WASM egui is architecturally distinct from desktop egui. Desktop egui renders via native GPU backends (wgpu/glow); browser egui renders via WebGL/WebGPU in a `<canvas>` element. The browser path has independent constraints (bundle size, startup latency, accessibility, SEO) that do not depend on desktop EN3 parity results.
+
+**Experimental status:** This stream is explicitly experimental. The default-safe path is retaining the current React/TS browser UI. EGUI-WASM-1 produces a decision (adopt or abandon) — not a guaranteed migration.
+
+### Relationship to Existing Streams
+
+| Stream | Mode | Rationale |
+|--------|------|-----------|
+| **EGUI-NATIVE-1** (CODIFIED) | **PARALLEL/NON-BLOCKING** | EGUI-WASM-1 runs independently. EN phases are not prerequisites. Results may inform each other but neither blocks the other. |
+| **ARCH-WASM1** (LATER) | **COMPLEMENTARY** | ARCH-WASM1 targets protocol engine WASM; EGUI-WASM-1 targets UI WASM. Different layers, same compile target. |
+| **RUSTIFY-CORE-1** (DONE) | **EXTENDS** | Shared Rust core API (RC2/RC4) is consumed by egui WASM UI via wasm-bindgen, same as TS currently consumes via SDK. |
+| **BTR-SPEC-1** (IN-PROGRESS) | **ORTHOGONAL** | BTR operates below UI. No interaction. |
+| **WEBTRANSPORT-BROWSER-APP-1** (IN-PROGRESS) | **ORTHOGONAL** | Transport operates below UI. No interaction. |
+
+No SUPERSEDES relationships. EGUI-WASM-1 is additive/experimental.
+
+---
+
+### Scope Guardrails
+
+| ID | Guardrail |
+|----|-----------|
+| EW-G1 | Default-safe: React/TS browser UI is retained as the production path until EW4 explicitly approves migration |
+| EW-G2 | No protocol/transport changes — UI-only stream |
+| EW-G3 | EGUI-NATIVE-1 is not blocked or modified by EGUI-WASM-1 progress or failure |
+| EW-G4 | Rollback to React/TS UI must be available at every phase — dual-build (WASM + React) during experimental window |
+| EW-G5 | No removal of React/TS browser UI without separate PM approval (PM-EW-05) |
+| EW-G6 | Bundle size gate: WASM bundle must not exceed success threshold (PM-EW-01) |
+| EW-G7 | Accessibility gate: egui WASM canvas must meet or exceed current React accessibility level |
+| EW-G8 | No consumer app deployment of egui WASM UI without EW4 rollout gate pass |
+
+---
+
+### EGUI-WASM-1 Phase Table
+
+| Phase | Description | Type | Serial Gate | Dependencies | Status |
+|-------|-------------|------|-------------|--------------|--------|
+| **EW1** | Feasibility assessment + success gate definition lock | PM/Spec gate | YES — gates EW2 | None | NOT-STARTED |
+| **EW2** | WASM scaffold + rendering proof-of-concept | Engineering gate | YES — gates EW3 | EW1 complete | NOT-STARTED |
+| **EW3** | Feature parity assessment + success gate evaluation | Engineering + PM gate | YES — gates EW4 | EW2 complete | NOT-STARTED |
+| **EW4** | Adoption decision gate (adopt, abandon, or defer) | PM gate | YES — gates EW5 or closes | EW3 complete | NOT-STARTED |
+| **EW5** | Migration rollout + React/TS disposition (if adopt) | Engineering + PM gate | YES — closes stream | EW4 = ADOPT | NOT-STARTED |
+
+#### Dependency DAG
+
+```
+EW1 (feasibility + gates — unblocked now)
+  │
+  ▼
+EW2 (WASM scaffold + PoC)
+  │
+  ▼
+EW3 (parity assessment + gate evaluation)
+  │
+  ▼
+EW4 (adopt / abandon / defer — PM decision)
+  │
+  ├─ ADOPT → EW5 (migration rollout)
+  └─ ABANDON/DEFER → stream closes with findings report
+```
+
+No upstream stream dependencies. Runs in parallel with EGUI-NATIVE-1. May consume shared `bolt-ui` crate if EGUI-NATIVE-1 EN2 produces one.
+
+---
+
+### Success Gates (Quantitative)
+
+These gates are evaluated at EW3 and must all PASS for EW4 ADOPT recommendation.
+
+| ID | Gate | Threshold | Rationale |
+|----|------|-----------|-----------|
+| SG-01 | WASM bundle size (gzipped) | ≤500 KiB | Current React bundle is ~200–400 KiB. WASM must not regress significantly. |
+| SG-02 | Initial render time (cold start) | ≤2s on median hardware | Current React hydration is ~500ms–1s. Allow 2× budget for WASM init. |
+| SG-03 | Runtime frame rate | ≥30 FPS during file transfer UI updates | Smooth UI during active transfers. |
+| SG-04 | Accessibility audit | WAI-ARIA equivalent coverage OR documented mitigation plan | egui canvas lacks native DOM accessibility. Must compensate. |
+| SG-05 | Feature parity | ≥90% of current React UI workflows functional | Peer connection, file transfer, progress, settings, mode indicator. |
+| SG-06 | Cross-browser rendering | Renders correctly on Chrome, Firefox, Edge (Safari if WebGPU available) | Canvas rendering may vary by browser GPU backend. |
+
+**Gate evaluation:** All 6 must PASS for ADOPT recommendation. Any FAIL produces ABANDON or DEFER with findings.
+
+---
+
+### Acceptance Criteria
+
+#### EW1 — Feasibility + Gate Definition
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-EW-01 | egui WASM compilation feasibility confirmed (egui + eframe compile to wasm32-unknown-unknown) | Build evidence |
+| AC-EW-02 | Success gates (SG-01–SG-06) locked with quantitative thresholds | Published gate doc |
+| AC-EW-03 | Browser rendering backend options evaluated (WebGL2 vs WebGPU vs software) | Evaluation doc |
+| AC-EW-04 | Accessibility risk assessment for canvas-based UI documented | Risk doc |
+
+#### EW2 — WASM Scaffold + PoC
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-EW-05 | Minimal egui WASM app renders in browser (hello-world level) | Screenshot + build artifact |
+| AC-EW-06 | WASM bundle size measured against SG-01 threshold | Size measurement |
+| AC-EW-07 | Cold start time measured against SG-02 threshold | Timing measurement |
+| AC-EW-08 | Shared `bolt-ui` crate consumption path verified (if crate exists from EN2) OR standalone UI module created | Architecture doc |
+
+#### EW3 — Parity Assessment + Gate Evaluation
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-EW-09 | Feature parity audit against current React UI (SG-05) | Parity matrix |
+| AC-EW-10 | All 6 success gates (SG-01–SG-06) evaluated with evidence | Gate evaluation report |
+| AC-EW-11 | Accessibility audit completed (SG-04) | Audit report |
+| AC-EW-12 | Cross-browser rendering verified (SG-06) | Browser test matrix |
+
+#### EW4 — Adoption Decision
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-EW-13 | PM adoption decision recorded: ADOPT, ABANDON, or DEFER | PM decision doc |
+| AC-EW-14 | If ABANDON/DEFER: findings report published with gate results | Findings doc |
+| AC-EW-15 | If ADOPT: migration plan and React/TS disposition timeline drafted | Plan doc |
+
+#### EW5 — Migration Rollout (ADOPT only)
+
+| ID | Criterion | Evidence Required |
+|----|-----------|------------------|
+| AC-EW-16 | Staged rollout plan (per-consumer, with burn-in) | Rollout policy |
+| AC-EW-17 | React/TS UI disposition decided (retain as fallback vs deprecate) | PM decision (PM-EW-05) |
+| AC-EW-18 | Rollback to React/TS verified per consumer | Rollback test evidence |
+| AC-EW-19 | Stream closure criteria met | Closure evidence |
+
+---
+
+### PM Open Decisions Table
+
+| ID | Decision | Blocks | Priority | Status |
+|----|----------|--------|----------|--------|
+| PM-EW-01 | WASM bundle size budget (recommended ≤500 KiB gzipped) | EW1 (SG-01) | EW1 | PENDING |
+| PM-EW-02 | Browser rendering backend preference (WebGL2 vs WebGPU vs auto-detect) | EW2 (AC-EW-05) | EW2 | PENDING |
+| PM-EW-03 | Accessibility mitigation strategy (ARIA overlay vs alternative) | EW3 (AC-EW-11) | EW3 | PENDING |
+| PM-EW-04 | Adoption decision: ADOPT, ABANDON, or DEFER | EW4 (AC-EW-13) | EW4 | PENDING |
+| PM-EW-05 | React/TS disposition after adoption (retain fallback vs deprecate-with-sunset) | EW5 (AC-EW-17) | EW5 | PENDING |
+
+---
+
+### Risk Register
+
+| ID | Risk | Severity | Mitigation |
+|----|------|----------|------------|
+| EW-R1 | WASM bundle too large (>500 KiB) for browser UX | HIGH | SG-01 gate. Tree-shaking, wasm-opt, feature-gating egui modules. Fail = ABANDON/DEFER. |
+| EW-R2 | egui canvas accessibility inferior to React DOM | HIGH | SG-04 gate. ARIA overlay evaluation (PM-EW-03). Fail = ABANDON/DEFER. |
+| EW-R3 | Cold start latency unacceptable (WASM compile + init) | MEDIUM | SG-02 gate. Streaming WASM compilation, preload hints. 2s budget. |
+| EW-R4 | Cross-browser rendering inconsistency (WebGL/WebGPU variance) | MEDIUM | SG-06 gate. EW2 PoC tests on Chrome/Firefox/Edge. |
+| EW-R5 | egui API instability (pre-1.0 in some areas) | LOW | Pin egui version in EW2. Track upstream releases. |
+| EW-R6 | Dual-build complexity during experimental window | LOW | EW-G4 rollback guardrail. Separate build targets, shared core API. |
+
+---
+
+### Explicit Non-Goals
+
+| ID | Non-Goal | Rationale |
+|----|----------|-----------|
+| EW-NG1 | Desktop UI changes | EGUI-NATIVE-1 scope |
+| EW-NG2 | Mobile UI | EGUI-MOBILE-1 scope (deferred, PM-EN-05) |
+| EW-NG3 | Protocol/transport changes | EW-G2; UI-only stream |
+| EW-NG4 | Guaranteed migration | Experimental; ABANDON is a valid EW4 outcome |
+| EW-NG5 | React/TS removal in this stream | EW-G5; requires separate PM-EW-05 approval |
 
 ---
 
@@ -6038,6 +6220,8 @@ WebTransport is enabled for browsers with full support. Safari/iOS Safari users 
 | WEBTRANSPORT-BROWSER-APP-1 (daemon) | bolt-daemon | `daemon-vX.Y.Z-wt<phase>-<slug>` | — |
 | WEBTRANSPORT-BROWSER-APP-1 (SDK) | bolt-core-sdk | `sdk-vX.Y.Z-wt<phase>-<slug>` | — |
 | WEBTRANSPORT-BROWSER-APP-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-webtransport-browser-app1-<slug>` | `ecosystem-v0.1.139-webtransport-browser-app1-codify` |
+| EGUI-WASM-1 (consumers) | localbolt-v3, localbolt | `<repo-prefix>-ew<phase>-<slug>` | — |
+| EGUI-WASM-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-egui-wasm1-<slug>` | `ecosystem-v0.1.142-egui-wasm1-codify` |
 | Governance | bolt-ecosystem | `ecosystem-v0.1.X-workstreams-N` | `ecosystem-v0.1.30-workstreams-1` |
 
 **Rules:**
@@ -6075,6 +6259,7 @@ WebTransport is enabled for browsers with full support. Safari/iOS Safari users 
 | DISCOVERY-MODE-1 | Dual discovery mode policy codification | NEXT | ecosystem (governance) + consumers (implementation) | **CODIFIED** (`ecosystem-v0.1.116-discovery-mode1-codify`). 4 phases (DM1–DM4), 16 ACs, 4 PM decisions. No upstream dependencies. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | NEXT | bolt-protocol + ecosystem | **BS1–BS4 DONE** (`ecosystem-v0.1.140`, 2026-03-14). AC-BS-01–17 all PASS. PM-BS-01–04 APPROVED. BS5 READY. |
 | WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | NEXT | bolt-daemon + bolt-core-sdk + ecosystem | **WT1 DONE** (`ecosystem-v0.1.141`, 2026-03-15). AC-WT-01–04 PASS. PM-WT-01/02 APPROVED. WT2 READY. |
+| EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | LATER | localbolt-v3 + localbolt + ecosystem | **CODIFIED** (`ecosystem-v0.1.142-egui-wasm1-codify`, 2026-03-15). 5 phases (EW1–EW5), 19 ACs, 5 PM decisions. PM-EN-04 early approval. EW1 unblocked. Experimental — ABANDON is valid outcome. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 

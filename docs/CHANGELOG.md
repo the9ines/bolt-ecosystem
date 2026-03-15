@@ -5,6 +5,25 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-15 — EGUI-WASM-1 Codified: Browser UI Migration to egui via WASM (Experimental)
+
+- **PM-EN-04 APPROVED (early resolution, 2026-03-15):** EGUI-WASM-1 opened independent of EGUI-NATIVE-1 EN3 completion. Browser WASM egui is architecturally distinct from desktop egui. Experimental, non-blocking to EGUI-NATIVE-1.
+- **New governance stream codified:** EGUI-WASM-1 — explores migrating browser UI from React/TS to egui compiled to WASM.
+- **Experimental status:** Default-safe path is retaining React/TS browser UI. ABANDON is a valid EW4 outcome.
+- **5 phases defined:** EW1 (feasibility + gates) → EW2 (WASM scaffold + PoC) → EW3 (parity assessment) → EW4 (adoption decision) → EW5 (migration rollout, if adopt)
+- **19 acceptance criteria:** AC-EW-01 through AC-EW-19
+- **5 PM decisions opened:** PM-EW-01 (bundle budget), PM-EW-02 (rendering backend), PM-EW-03 (accessibility), PM-EW-04 (adopt/abandon/defer), PM-EW-05 (React/TS disposition)
+- **6 quantitative success gates:** SG-01 (≤500 KiB gzipped), SG-02 (≤2s cold start), SG-03 (≥30 FPS), SG-04 (accessibility parity), SG-05 (≥90% feature parity), SG-06 (cross-browser rendering)
+- **6 risks identified:** EW-R1 bundle size (HIGH), EW-R2 accessibility (HIGH), EW-R3 cold start (MEDIUM), EW-R4 cross-browser (MEDIUM), EW-R5 API instability (LOW), EW-R6 dual-build (LOW)
+- **8 guardrails:** EW-G1 (React/TS retained as default), EW-G4 (rollback at every phase), EW-G5 (no React removal without PM-EW-05)
+- **Relationship:** PARALLEL/NON-BLOCKING to EGUI-NATIVE-1. ORTHOGONAL to BTR-SPEC-1, WEBTRANSPORT-BROWSER-APP-1.
+
+**Tags**: `ecosystem-v0.1.142-egui-wasm1-codify`
+
+**Next**: EW1 — feasibility assessment + success gate definition lock (PM-EW-01 needed).
+
+---
+
 ## 2026-03-15 — WEBTRANSPORT-BROWSER-APP-1 WT1 DONE: Policy + Browser Support Matrix Lock
 
 **WT1 status**: NOT-STARTED → **DONE**. All 4 ACs (AC-WT-01–04) PASS. Two PM decisions resolved.
