@@ -5,6 +5,27 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-15 — DISCOVERY-MODE-1 DM3 DONE: Acceptance Test Harness
+
+**DM3 status**: READY → **DONE**. AC-DM-10–13 all PASS. 11 tests added.
+
+**Test harness:** `dm3-discovery-mode.test.ts` in bolt-transport-web. Tests DualSignaling peer-list composition, dedup, source-aware loss, and signal routing.
+
+**AC-DM-10 (composition):** LAN_ONLY shows local peers only. HYBRID shows merged list.
+**AC-DM-11 (dedup):** Same peer from both sources → single entry. Different peers not deduped.
+**AC-DM-12 (source-aware loss):** Peer removed only by originating source. Offline peer gone from visible list (AirDrop-style). Wrong-source loss blocked.
+**AC-DM-13 (routing):** Source tracked in peerSource map. Cleared on loss. Disconnect clears all.
+
+**Runtime code: UNCHANGED.** Test-only harness validating existing DualSignaling behavior.
+
+**Regression:** 375 total tests (364 existing + 11 new), 0 failures.
+
+**DM4 status**: → **READY** (DM3 DONE, unblocked).
+
+**Tags**: `ecosystem-v0.1.159-discovery-mode1-dm3-harness`
+
+---
+
 ## 2026-03-15 — DISCOVERY-MODE-1 DM2 DONE: "NEARBY" LAN Discovery Indicator
 
 **DM2 status**: READY → **DONE**. AC-DM-05–08 PASS.
