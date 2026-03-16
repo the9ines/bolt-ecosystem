@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-15 (EGUI-NATIVE-1 EN4 DONE: rollback gate verified, PM-EN-03 APPROVED. EN5 READY.)
+> **Updated:** 2026-03-16 (EGUI-NATIVE-1 EN5 closure — stream COMPLETE.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -450,7 +450,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 14: EGUI-NATIVE-1 — Native Desktop UI Consolidation (egui)
 
 **Priority:** LATER
-**Status:** **EN1–EN4 DONE** (`ecosystem-v0.1.161`, 2026-03-15). AC-EN-01–20 all PASS. PM-EN-03 APPROVED. EN5 READY.
+**Status:** **COMPLETE** (`ecosystem-v0.1.162-egui-native1-en5-closure`, 2026-03-16). EN1–EN4 delivered AC-EN-01–20; EN5 closure (AC-EN-21–24). PM-EN-01/02/03/04 APPROVED. PM-EN-05 deferred. Stream CLOSED.
 **Routing:** localbolt-app (primary), bolt-ecosystem (governance)
 **Category:** UI architecture — desktop WebView→egui migration
 **Stream:** EGUI-NATIVE-1 (phased, 5 phases EN1–EN5)
@@ -466,13 +466,11 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | EN2 | Desktop `bolt-ui` scaffold + theme baseline | YES (gates EN3) | **DONE** (AC-EN-05–09 PASS, 2026-03-15) |
 | EN3 | Desktop feature parity migration (core screens/workflows) | YES (gates EN4) | **DONE** (AC-EN-10–15 PASS, 2026-03-15) |
 | EN4 | Rollback/compatibility gate + packaging | YES (gates EN5) | **DONE** (AC-EN-16–20 PASS, PM-EN-03 APPROVED, 2026-03-15) |
-| EN5 | Closure + handoff | YES (closes stream) | **READY** (EN4 DONE, unblocked) |
-| EN4 | Rollback/compatibility gate + packaging impact verification | YES (gates EN5) | NOT-STARTED |
-| EN5 | Closure + handoff to optional EGUI-WASM-1 / EGUI-MOBILE-1 proposals | YES (closes stream) | NOT-STARTED |
+| EN5 | Closure + handoff | YES (closes stream) | **DONE** (AC-EN-21–24, 2026-03-16) |
 
-**Acceptance Criteria:** 24 ACs defined (AC-EN-01 through AC-EN-24). EN1–EN4: AC-EN-01–20 all PASS (20 of 24 delivered). PM-EN-01/02/03/04 APPROVED.
+**Acceptance Criteria:** 24 ACs (AC-EN-01–24). EN1–EN4 delivered AC-EN-01–20; EN5 delivered AC-EN-21–24. All 24 satisfied.
 
-**PM Decisions:** 5 total. PM-EN-01 APPROVED (egui). PM-EN-02 APPROVED (minimal parity). PM-EN-04 APPROVED (early, EGUI-WASM-1 opened). PM-EN-03, PM-EN-05 PENDING.
+**PM Decisions:** 5 total. PM-EN-01 APPROVED (egui). PM-EN-02 APPROVED (minimal parity). PM-EN-03 APPROVED (condition-gated rollback). PM-EN-04 APPROVED (early, EGUI-WASM-1 opened). PM-EN-05 PENDING (EGUI-MOBILE-1 deferred).
 
 **Scope guardrails:**
 - EN-G1: No protocol/transport changes
@@ -481,9 +479,9 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 - EN-G4: `bolt-ui` must be transport-independent
 - EN-G5: No CLI deliverables
 
-**Deferred streams (governance reservation only):**
-- EGUI-WASM-1: Browser UI migration to egui via WASM (trigger: PM-EN-04 after EN3)
-- EGUI-MOBILE-1: Mobile UI via egui (trigger: PM-EN-05 after EN4)
+**Follow-on streams:**
+- EGUI-WASM-1: Browser UI migration to egui via WASM — **CODIFIED** (PM-EN-04 APPROVED, independent stream, EW1 unblocked). Experimental — ABANDON is valid outcome.
+- EGUI-MOBILE-1: Mobile UI via egui — **DEFERRED PROPOSAL** (PM-EN-05 PENDING). Not codified. No phases, ACs, or spec defined.
 
 ---
 
@@ -677,9 +675,9 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-RC-07 | RUSTIFY-CORE-1: Relationship mode to SEC-CORE2/PLAT-CORE1/MOB-RUNTIME1/ARCH-WASM1 | All RC phases | **APPROVED** (hybrid: SUPERSEDES + REFACTORS, 2026-03-14) |
 | PM-EN-01 | EGUI-NATIVE-1: Desktop UI framework | EN2 | **APPROVED** (egui, 2026-03-15) |
 | PM-EN-02 | EGUI-NATIVE-1: Visual direction scope | EN2 | **APPROVED** (minimal parity, 2026-03-15) |
-| PM-EN-03 | EGUI-NATIVE-1: Rollback window duration before legacy UI removal | EN5 | LATER |
-| PM-EN-04 | EGUI-NATIVE-1: Whether to open EGUI-WASM-1 after EN3 results | Post-stream | LATER |
-| PM-EN-05 | EGUI-NATIVE-1: Whether to open EGUI-MOBILE-1 after EN4 results | Post-stream | LATER |
+| PM-EN-03 | EGUI-NATIVE-1: Rollback window duration before legacy UI removal | EN5 | **APPROVED** (condition-gated, 2026-03-15) |
+| PM-EN-04 | EGUI-NATIVE-1: Whether to open EGUI-WASM-1 after EN3 results | Post-stream | **APPROVED** (early resolution, 2026-03-15) |
+| PM-EN-05 | EGUI-NATIVE-1: Whether to open EGUI-MOBILE-1 after EN4 results | Post-stream | PENDING |
 | PM-DM-01 | DISCOVERY-MODE-1: Default discovery mode | DM2 | **APPROVED** (LAN_ONLY AirDrop-style, 2026-03-15) |
 | PM-DM-02 | DISCOVERY-MODE-1: Mode toggle | DM2 | **APPROVED** (no toggle, auto LAN, 2026-03-15) |
 | PM-DM-03 | DISCOVERY-MODE-1: UX wording | DM2 | **APPROVED** ("Nearby", no "Online", 2026-03-15) |

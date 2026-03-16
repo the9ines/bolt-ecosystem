@@ -5,6 +5,32 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-16 — EGUI-NATIVE-1 EN5 DONE: Stream Closure
+
+**EN5 status**: READY → **DONE**. AC-EN-21–24 satisfied.
+
+**AC-EN-21 (closure report):** EN5_EVIDENCE.md published with AC-by-AC mapping, governance reconciliation summary, and residual guardrails.
+
+**AC-EN-22 (EGUI-WASM-1 recommendation):** PM-EN-04 was APPROVED early (2026-03-15). EGUI-WASM-1 already codified as independent experimental stream. Handed off — no action required from EN5.
+
+**AC-EN-23 (EGUI-MOBILE-1 recommendation):** PM-EN-05 remains PENDING. EN4 results available for PM evaluation. EGUI-MOBILE-1 is a deferred proposal only — not codified, no phases or ACs defined.
+
+**AC-EN-24 (legacy deprecation timeline):** PM-EN-03 APPROVED condition-gated rollback window (2026-03-15). No fixed sunset. Legacy Tauri WebView path retained until explicit PM approval for removal. Dual-path active.
+
+**EGUI-NATIVE-1 stream status**: → **COMPLETE**. 24 ACs delivered (AC-EN-01–20 in EN1–EN4, AC-EN-21–24 in EN5). PM-EN-01/02/03/04 APPROVED. PM-EN-05 deferred.
+
+**Governance reconciliation:** Fixed stale duplicate rows in FORWARD_BACKLOG.md phase table. Fixed PM-EN-03 (LATER→APPROVED) and PM-EN-04 (LATER→APPROVED) in PM decision tables across FORWARD_BACKLOG.md. Updated headers in GOVERNANCE_WORKSTREAMS.md, FORWARD_BACKLOG.md, STATE.md.
+
+**Residual guardrails:**
+- Legacy Tauri WebView path retained (EN-G3, PM-EN-03 condition-gated)
+- No protocol/transport changes made by EGUI stream (EN-G1 upheld)
+- Desktop-only scope (EN-G2 upheld)
+- bolt-ui is transport-independent (EN-G4 upheld)
+
+**Tags**: `ecosystem-v0.1.162-egui-native1-en5-closure`
+
+---
+
 ## 2026-03-15 — EGUI-NATIVE-1 EN4 DONE: Rollback Gate + Dual-Path Compatibility
 
 **EN4 status**: READY → **DONE**. All 5 ACs (AC-EN-16–20) PASS.
