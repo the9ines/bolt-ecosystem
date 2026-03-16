@@ -702,3 +702,29 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-EW-03 | EGUI-WASM-1: Accessibility mitigation strategy | EW3 | LATER |
 | PM-EW-04 | EGUI-WASM-1: Adoption decision (adopt/abandon/defer) | EW4 | LATER |
 | PM-EW-05 | EGUI-WASM-1: React/TS disposition after adoption | EW5 | LATER |
+
+---
+
+## Follow-Up: RDVZ-PEERID-1 — Rendezvous Peer ID Validation + Clear Error
+
+**Priority:** LATER (non-blocking, discovered during N-STREAM-TIMEOUT drill 2026-03-16)
+**Routing:** bolt-rendezvous (server-side error) + bolt-ui / localbolt-app (client-side validation)
+**Category:** UX / input-validation / error handling
+**Scope:** Strictly validation and error messaging. No transport or protocol changes.
+
+### Problem
+
+Peer IDs containing non-alphanumeric characters (e.g., hyphens: `studio-host`) are silently rejected by bolt-rendezvous with a WebSocket connection reset. The client sees `FATAL: WebSocket protocol error: Connection reset without closing handshake` with no indication that the peer ID was invalid.
+
+### Root Cause
+
+bolt-rendezvous validates peer codes as alphanumeric-only and logs `invalid peer code ... Peer code must be alphanumeric` server-side, but drops the WebSocket without sending an error frame to the client.
+
+### Acceptance Criteria
+
+| ID | Criterion |
+|----|-----------|
+| AC-RP-01 | bolt-rendezvous sends a structured error message (e.g., `{"error":"invalid_peer_code","message":"..."}`) before closing the WebSocket when peer code validation fails |
+| AC-RP-02 | bolt-ui and localbolt-app validate peer IDs client-side before sending to rendezvous (alphanumeric check) |
+| AC-RP-03 | User-visible error message when peer ID is rejected (not a raw WebSocket error) |
+| AC-RP-04 | No transport, protocol, or session authority changes |
