@@ -5,6 +5,24 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-17 — RUSTIFY-BROWSER-CORE-1 RB5 DONE: TS Adapter Thinning + Consumer Wiring
+
+**RB5 status**: NOT-STARTED → **DONE**. AC-RB-17–20 satisfied.
+
+**Production path wired (localbolt-v3):** `main.ts` calls `initWasmCrypto()` before `createApp()`. When WASM loads, all protocol authority routes through Rust: crypto (seal/open/SAS/identity), BTR (ratchet/seal_chunk/open_chunk), transfer SM (state transitions).
+
+**BTR production path:** `WebRTCService` and `WsDataTransport` now use `createBtrAdapter()` factory which returns `WasmBtrTransferAdapter` (Rust opaque handles) when WASM is available, or `BtrTransferAdapter` (TS) as fallback. TransferManager's hot-path sealChunk/openChunk calls route through Rust on the WASM path.
+
+**TS disposition:** All TS protocol modules (crypto.ts, btr/*.ts, BtrTransferAdapter) demoted to fallback-only on the production WASM path. Retained for rollback per PM-RB-03.
+
+**Staged rollout (PM-RB-04):** localbolt-v3 only. localbolt and localbolt-app deferred after burn-in.
+
+**Tests:** 232 bolt-core, 375 bolt-transport-web, 141/143 localbolt-v3 (2 pre-existing).
+
+**Tags**: `sdk-v0.6.18-rustify-browser-core1-rb5-wasm-wiring`, `v3.0.90-rustify-browser-core1-rb5-wasm-init`, `ecosystem-v0.1.170-rustify-browser-core1-rb5-done`
+
+---
+
 ## 2026-03-17 — RUSTIFY-BROWSER-CORE-1 RB4 DONE: BTR + Transfer State WASM Authority
 
 **RB4 status**: NOT-STARTED → **DONE**. AC-RB-12–16 satisfied.

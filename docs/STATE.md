@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-17 (RUSTIFY-BROWSER-CORE-1 RB4 DONE — BTR+transfer WASM authority.)
+> **Last Updated:** 2026-03-17 (RUSTIFY-BROWSER-CORE-1 RB5 DONE — production WASM path wired.)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -727,7 +727,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | ~~NEXT~~ COMPLETE | bolt-protocol + ecosystem | **COMPLETE** (`ecosystem-v0.1.143`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED. |
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** — Phase A: `sdk-v0.5.35-recon-xfer1-phase-a-tests`, `v3.0.88-recon-xfer1-phase-a`. Phase B: `localbolt-v1.0.35-recon-xfer1-phase-b`, `localbolt-app-v1.2.23-recon-xfer1-phase-b`. AC-RX-01–07 satisfied. AC-RX-08 automated PASS, manual runtime PENDING (RX-EVID-1). All code work closed. |
 | WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | ~~NEXT~~ COMPLETE | bolt-daemon + bolt-core-sdk + ecosystem | **COMPLETE** (`ecosystem-v0.1.147`, 2026-03-15). All 20 ACs PASS. All 5 PM decisions APPROVED. |
-| RUSTIFY-BROWSER-CORE-1 | Browser-path Rust/WASM protocol authority | NEXT | bolt-core-sdk + bolt-transport-web + consumers + ecosystem | **RB4 DONE** (`sdk-v0.6.17` + `ecosystem-v0.1.169`, 2026-03-17). Full protocol WASM: 102 KiB gzipped. Hot path: 42 μs/chunk (PRACTICAL). RB5 READY. |
+| RUSTIFY-BROWSER-CORE-1 | Browser-path Rust/WASM protocol authority | NEXT | bolt-core-sdk + bolt-transport-web + consumers + ecosystem | **RB5 DONE** (`ecosystem-v0.1.170`, 2026-03-17). Production browser path wired (localbolt-v3). BTR + crypto + transfer authority in Rust/WASM. TS fallback retained. RB6 READY. |
 
 ---
 
