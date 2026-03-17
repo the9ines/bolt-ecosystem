@@ -5,6 +5,26 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-17 — EGUI-WASM-1 ABANDONED: EW2 PoC Measured
+
+**EW2 status**: NOT-STARTED → **DONE**. PoC built and measured. Kill criteria triggered.
+
+**Q1 — Bundle size:** 1,296 KiB gzipped (**FAIL** — 2.6× over 500 KiB kill threshold). Current vanilla TS app delivers at 65 KiB (20× smaller).
+
+**Q3 — Reuse:** 26% verbatim/near-verbatim presentation reuse (theme, state, transfer screen, verify screen). Connect screen required structural rewrite (BoltApp decoupling). App shell entirely new.
+
+**Q5 — Dual-UI maintenance:** Not justified. Small sharing surface (26%), simple screens shared, complex parts platform-specific, 20× bundle regression.
+
+**Recommendation:** ABANDON. Bundle size is structural — egui bakes in font rendering, text shaping, and GL backend that the browser already provides via the DOM. No realistic optimization path to <500 KiB.
+
+**Stream status**: EGUI-WASM-1 → **ABANDONED**. Stream CLOSED with findings preserved for future reference.
+
+**PoC artifact**: `bolt-core-sdk/rust/bolt-ui-wasm/` (isolated crate, not wired to any consumer).
+
+**Tags**: `ecosystem-v0.1.164-egui-wasm1-ew2-poc`
+
+---
+
 ## 2026-03-16 — EGUI-WASM-1 EW1 DONE: Feasibility Assessment
 
 **EW1 status**: NOT-STARTED → **DONE**. AC-EW-01–04 satisfied.

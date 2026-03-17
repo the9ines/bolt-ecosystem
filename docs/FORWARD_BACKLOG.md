@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-16 (EGUI-WASM-1 EW1 feasibility — proceed to EW2 PoC.)
+> **Updated:** 2026-03-17 (EGUI-WASM-1 ABANDONED — EW2 PoC measured, Q1 hard kill.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -480,7 +480,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 - EN-G5: No CLI deliverables
 
 **Follow-on streams:**
-- EGUI-WASM-1: Browser UI migration to egui via WASM — **EW1 DONE** (2026-03-16). Feasibility concerns documented. EW2 approved as measurement-only PoC. No migration commitment. ABANDON remains default outcome.
+- EGUI-WASM-1: Browser UI migration to egui via WASM — **ABANDONED** (2026-03-17). EW2 PoC: 1,296 KiB gzipped (2.6× over 500 KiB kill). Stream CLOSED with findings.
 - EGUI-MOBILE-1: Mobile UI via egui — **DEFERRED PROPOSAL** (PM-EN-05 PENDING). Not codified. No phases, ACs, or spec defined.
 
 ---
@@ -593,7 +593,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 18: EGUI-WASM-1 — Browser UI Migration to egui via WASM (Experimental)
 
 **Priority:** LATER (experimental)
-**Status:** **EW1 DONE** (`ecosystem-v0.1.163`, 2026-03-16). Feasibility concerns documented. EW2 approved as measurement-only PoC. No migration commitment. ABANDON remains default outcome.
+**Status:** **ABANDONED** (`ecosystem-v0.1.164-egui-wasm1-ew2-poc`, 2026-03-17). EW2 PoC built and measured. 1,296 KiB gzipped (2.6× over 500 KiB kill). 26% presentation reuse. Stream CLOSED.
 **Routing:** localbolt-v3 (primary), localbolt (secondary), bolt-ecosystem (governance)
 **Category:** UI architecture — browser egui shell via WASM (experimental)
 **Stream:** EGUI-WASM-1 (phased, 5 phases EW1–EW5)
@@ -608,7 +608,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | Phase | Description | Serial Gate | Status |
 |-------|-------------|-------------|--------|
 | EW1 | Feasibility + success gate definition | YES (gates EW2) | **DONE** (AC-EW-01–04, 2026-03-16) |
-| EW2 | WASM scaffold + measurement PoC | YES (gates EW3) | NOT-STARTED |
+| EW2 | WASM scaffold + measurement PoC | YES (gates EW3) | **DONE** (2026-03-17). Q1 FAIL → ABANDON. |
 | EW3 | Parity assessment + gate evaluation | YES (gates EW4) | NOT-STARTED |
 | EW4 | Adoption decision (adopt/abandon/defer) | YES (gates EW5 or closes) | NOT-STARTED |
 | EW5 | Migration rollout (if adopt) | YES (closes stream) | NOT-STARTED |

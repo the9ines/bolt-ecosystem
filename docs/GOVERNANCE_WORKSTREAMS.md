@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-16 (EGUI-WASM-1 EW1 feasibility — proceed to EW2 PoC)
-> **Tag:** ecosystem-v0.1.163-egui-wasm1-ew1-feasibility
+> **Updated:** 2026-03-17 (EGUI-WASM-1 ABANDONED — EW2 PoC measured, Q1 hard kill)
+> **Tag:** ecosystem-v0.1.164-egui-wasm1-ew2-poc
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -5042,7 +5042,7 @@ These are governance reservations only. No phases, ACs, or PM decisions are defi
 > **Priority:** LATER (experimental; non-blocking to EGUI-NATIVE-1)
 > **Repos:** localbolt-v3 (primary consumer), localbolt (secondary consumer), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.142-egui-wasm1-codify (2026-03-15)
-> **Status:** EW1 DONE (`ecosystem-v0.1.163-egui-wasm1-ew1-feasibility`, 2026-03-16). Feasibility concerns documented: 5–8× bundle regression, canvas accessibility gap, desktop runtime incompatible with WASM. PM override: proceed to EW2 as tightly-bounded measurement PoC. No migration commitment. ABANDON remains default outcome.
+> **Status:** **ABANDONED** (`ecosystem-v0.1.164-egui-wasm1-ew2-poc`, 2026-03-17). EW2 PoC built and measured. WASM bundle 1,296 KiB gzipped (2.6× over 500 KiB kill threshold). Reuse 26% (simple screens only). 20× bundle regression vs current 65 KiB vanilla TS app. Q1 hard kill triggered. Stream CLOSED.
 
 ---
 
@@ -5144,7 +5144,7 @@ EW2 allows proceeding to EW3 **only if** all quantitative criteria pass, PM asse
 | Phase | Description | Type | Serial Gate | Dependencies | Status |
 |-------|-------------|------|-------------|--------------|--------|
 | **EW1** | Feasibility assessment + success gate definition lock | PM/Spec gate | YES — gates EW2 | None | **DONE** (`ecosystem-v0.1.163`, 2026-03-16). AC-EW-01–04 satisfied. Feasibility negative on structural grounds; PM override to EW2 PoC. |
-| **EW2** | WASM scaffold + rendering proof-of-concept | Engineering gate | YES — gates EW3 | EW1 complete | NOT-STARTED |
+| **EW2** | WASM scaffold + rendering proof-of-concept | Engineering gate | YES — gates EW3 | EW1 complete | **DONE** (`ecosystem-v0.1.164`, 2026-03-17). PoC built. 1,296 KiB gzipped (FAIL >500 KiB). 26% reuse. Q1 hard kill → ABANDON. |
 | **EW3** | Feature parity assessment + success gate evaluation | Engineering + PM gate | YES — gates EW4 | EW2 complete | NOT-STARTED |
 | **EW4** | Adoption decision gate (adopt, abandon, or defer) | PM gate | YES — gates EW5 or closes | EW3 complete | NOT-STARTED |
 | **EW5** | Migration rollout + React/TS disposition (if adopt) | Engineering + PM gate | YES — closes stream | EW4 = ADOPT | NOT-STARTED |
@@ -7007,7 +7007,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | DISCOVERY-MODE-1 | Discovery mode policy codification | ~~NEXT~~ COMPLETE | ecosystem (governance) + consumers (implementation) | **COMPLETE** (`ecosystem-v0.1.160`, 2026-03-15). All 16 ACs PASS. All 4 PM decisions APPROVED. DM1–DM4 DONE. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | ~~NEXT~~ COMPLETE | bolt-protocol + ecosystem | **COMPLETE** (`ecosystem-v0.1.143-btr-spec1-bs5-closeout`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED. BS1–BS5 DONE. |
 | WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | ~~NEXT~~ COMPLETE | bolt-daemon + bolt-core-sdk + ecosystem | **COMPLETE** (`ecosystem-v0.1.147-webtransport-browser-app1-wt5-closeout`, 2026-03-15). All 20 ACs PASS. All 5 PM decisions APPROVED. WT1–WT5 DONE. |
-| EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | LATER | localbolt-v3 + localbolt + ecosystem | **EW1 DONE** (`ecosystem-v0.1.163`, 2026-03-16). Feasibility concerns documented (bundle, accessibility, architecture). PM override: EW2 approved as measurement-only PoC. No migration commitment. ABANDON remains default outcome. |
+| EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | ~~LATER~~ ABANDONED | localbolt-v3 + localbolt + ecosystem | **ABANDONED** (`ecosystem-v0.1.164`, 2026-03-17). EW2 PoC: 1,296 KiB gzipped (2.6× over 500 KiB kill). 26% reuse. 20× bundle vs current 65 KiB TS app. Stream CLOSED with findings. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 
