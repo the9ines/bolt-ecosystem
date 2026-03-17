@@ -5,6 +5,31 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-16 — EGUI-WASM-1 EW1 DONE: Feasibility Assessment
+
+**EW1 status**: NOT-STARTED → **DONE**. AC-EW-01–04 satisfied.
+
+**Feasibility assessment:** Negative on structural grounds. Key findings:
+- Bundle size: egui WASM estimated 300–500 KiB gzipped vs current 65 KiB (5–8× regression)
+- Accessibility: egui canvas renders no semantic HTML; no production-ready ARIA solution exists in egui ecosystem (SG-04 is hardest gate)
+- Architecture: bolt-ui's desktop runtime (daemon spawn, Unix IPC, filesystem) is incompatible with WASM; shared surface is presentation/state/core only
+- Current web UI is vanilla TypeScript (not React), 2,175 LOC, already near-optimal for its feature set
+
+**PM override:** Proceed to EW2 as tightly-bounded measurement PoC. This is a taste-driven exception, not a reversal of technical concerns. No migration commitment.
+
+**Three architectural truths (normative):**
+1. Browser does not run desktop runtime (no daemon, no sockets, no `/tmp`)
+2. Browser QUIC means WebTransport-class (not native quinn)
+3. Canvas replaces DOM — accessibility is structurally worse
+
+**EW2 scope:** Measurement-only PoC answering: actual bundle size, actual cold-start/render, meaningful presentation/state/core reuse from bolt-ui, and subjective viability assessment. ABANDON remains default outcome if EW2 does not materially beat expectations.
+
+**PM-EW-01:** Deferred to EW2 measurement (≤500 KiB threshold retained).
+
+**Tags**: `ecosystem-v0.1.163-egui-wasm1-ew1-feasibility`
+
+---
+
 ## 2026-03-16 — EGUI-NATIVE-1 EN5 DONE: Stream Closure
 
 **EN5 status**: READY → **DONE**. AC-EN-21–24 satisfied.

@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-16 (EGUI-NATIVE-1 EN5 closure — stream COMPLETE)
-> **Tag:** ecosystem-v0.1.162-egui-native1-en5-closure
+> **Updated:** 2026-03-16 (EGUI-WASM-1 EW1 feasibility — proceed to EW2 PoC)
+> **Tag:** ecosystem-v0.1.163-egui-wasm1-ew1-feasibility
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -5042,7 +5042,7 @@ These are governance reservations only. No phases, ACs, or PM decisions are defi
 > **Priority:** LATER (experimental; non-blocking to EGUI-NATIVE-1)
 > **Repos:** localbolt-v3 (primary consumer), localbolt (secondary consumer), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.142-egui-wasm1-codify (2026-03-15)
-> **Status:** CODIFIED (EW1 unblocked immediately)
+> **Status:** EW1 DONE (`ecosystem-v0.1.163-egui-wasm1-ew1-feasibility`, 2026-03-16). Feasibility concerns documented: 5–8× bundle regression, canvas accessibility gap, desktop runtime incompatible with WASM. PM override: proceed to EW2 as tightly-bounded measurement PoC. No migration commitment. ABANDON remains default outcome.
 
 ---
 
@@ -5080,6 +5080,60 @@ No SUPERSEDES relationships. EGUI-WASM-1 is additive/experimental.
 | EW-G6 | Bundle size gate: WASM bundle must not exceed success threshold (PM-EW-01) |
 | EW-G7 | Accessibility gate: egui WASM canvas must meet or exceed current React accessibility level |
 | EW-G8 | No consumer app deployment of egui WASM UI without EW4 rollout gate pass |
+| EW-G9 | EW2 is measurement-only. No consumer app integration or deployment. |
+| EW-G10 | No EW3+ unless EW2 produces evidence that materially beats the feasibility expectations documented in EW1. The bar is "unexpectedly strong," not "marginally acceptable." |
+| EW-G11 | PM override to proceed past EW1 is taste-driven, not a reversal of technical concerns. Technical concerns remain on the record and govern EW2 kill criteria. |
+
+---
+
+### Architectural Truths (EW1 Findings — Normative)
+
+These three truths constrain all subsequent EGUI-WASM-1 phases. Any phase deliverable that violates them has drifted from scope.
+
+**Truth 1: Browser does not run desktop runtime.**
+No daemon spawning, no Unix sockets, no `/tmp`, no `std::process::Command`, no native process lifecycle. The browser egui shell is a new thin host that consumes shared presentation/state/core code — not a port of bolt-ui's desktop runtime. bolt-ui's daemon.rs and ipc.rs are not part of the shared surface.
+
+**Truth 2: Browser QUIC means WebTransport, not native quinn.**
+"QUIC in the browser" means the browser's WebTransport API (HTTP/3-class, browser-mediated). It does not mean compiling quinn to WASM or opening raw UDP sockets. Desktop may use native quinn; browser uses browser APIs. The shared core API abstracts over both, but transport implementations are distinct.
+
+**Truth 3: Canvas replaces DOM — accessibility is structurally worse.**
+egui renders to `<canvas>`, not semantic HTML. The current web UI's `<button>`, `<section>`, `<header>`, ARIA labels, and keyboard navigation come from the DOM for free. Canvas gets none of this. There is no production-ready egui WASM accessibility solution. SG-04 remains the hardest gate.
+
+---
+
+### EW2 PoC Scope (Measurement Only)
+
+EW2 is a **tightly-bounded measurement PoC**. It answers four concrete questions with empirical data. It does not commit to browser migration, product adoption, or React/TS replacement. The current vanilla TS browser UI remains the default-safe production path. ABANDON remains the default outcome if EW2 does not materially beat expectations.
+
+#### EW2 Questions
+
+| # | Question | Measurement | Kill Criterion |
+|---|----------|-------------|----------------|
+| Q1 | What is the actual gzipped WASM bundle size for a minimal egui browser shell in this codebase? | `wasm-opt` + gzip of built artifact | >500 KiB gzipped = ABANDON |
+| Q2 | What is the actual cold-start and render performance? | Time-to-first-frame on median hardware, FPS during UI updates | >3s cold start OR <30 FPS = ABANDON |
+| Q3 | How much of bolt-ui's presentation/state/core code is meaningfully reusable in a browser shell? | Structural audit: theme, screen composition, state/view-model enums, bolt-core consumption. Reuse must reduce future browser-shell implementation cost, not just share cosmetic constants. | Reusable surface insufficient to materially reduce implementation cost = sharing rationale is dead |
+| Q4 | Does the browser shell feel viable as a foundation that could later sit on browser-safe transport? | Subjective PM assessment of the running PoC | PM taste call |
+
+#### EW2 Deliverable
+
+A minimal egui WASM app that:
+- Renders in a browser tab (WebGL2 canvas)
+- Reuses bolt-ui theme/screen/state code where possible via shared crate or extracted module
+- Displays a peer code via bolt-core (already WASM-proven)
+- Does **not** implement any transport (no WebTransport, no WebRTC, no daemon, no signaling)
+- Does **not** replace or modify the existing web UI
+- Lives in an isolated crate — not wired into any consumer app
+
+#### EW2 Kill Criteria
+
+EW2 closes the stream (ABANDON) if **any** of:
+1. Gzipped WASM bundle >500 KiB
+2. Cold start >3s on median hardware
+3. FPS <30 during UI updates
+4. Reusable presentation/state/core surface insufficient to materially reduce implementation cost
+5. PM subjective assessment: "not worth pursuing"
+
+EW2 allows proceeding to EW3 **only if** all quantitative criteria pass, PM assessment is affirmative, and accessibility path is at least theoretically viable (documented, not solved).
 
 ---
 
@@ -5087,7 +5141,7 @@ No SUPERSEDES relationships. EGUI-WASM-1 is additive/experimental.
 
 | Phase | Description | Type | Serial Gate | Dependencies | Status |
 |-------|-------------|------|-------------|--------------|--------|
-| **EW1** | Feasibility assessment + success gate definition lock | PM/Spec gate | YES — gates EW2 | None | NOT-STARTED |
+| **EW1** | Feasibility assessment + success gate definition lock | PM/Spec gate | YES — gates EW2 | None | **DONE** (`ecosystem-v0.1.163`, 2026-03-16). AC-EW-01–04 satisfied. Feasibility negative on structural grounds; PM override to EW2 PoC. |
 | **EW2** | WASM scaffold + rendering proof-of-concept | Engineering gate | YES — gates EW3 | EW1 complete | NOT-STARTED |
 | **EW3** | Feature parity assessment + success gate evaluation | Engineering + PM gate | YES — gates EW4 | EW2 complete | NOT-STARTED |
 | **EW4** | Adoption decision gate (adopt, abandon, or defer) | PM gate | YES — gates EW5 or closes | EW3 complete | NOT-STARTED |
@@ -6951,7 +7005,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | DISCOVERY-MODE-1 | Discovery mode policy codification | ~~NEXT~~ COMPLETE | ecosystem (governance) + consumers (implementation) | **COMPLETE** (`ecosystem-v0.1.160`, 2026-03-15). All 16 ACs PASS. All 4 PM decisions APPROVED. DM1–DM4 DONE. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | ~~NEXT~~ COMPLETE | bolt-protocol + ecosystem | **COMPLETE** (`ecosystem-v0.1.143-btr-spec1-bs5-closeout`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED. BS1–BS5 DONE. |
 | WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | ~~NEXT~~ COMPLETE | bolt-daemon + bolt-core-sdk + ecosystem | **COMPLETE** (`ecosystem-v0.1.147-webtransport-browser-app1-wt5-closeout`, 2026-03-15). All 20 ACs PASS. All 5 PM decisions APPROVED. WT1–WT5 DONE. |
-| EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | LATER | localbolt-v3 + localbolt + ecosystem | **CODIFIED** (`ecosystem-v0.1.142-egui-wasm1-codify`, 2026-03-15). 5 phases (EW1–EW5), 19 ACs, 5 PM decisions. PM-EN-04 early approval. EW1 unblocked. Experimental — ABANDON is valid outcome. |
+| EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | LATER | localbolt-v3 + localbolt + ecosystem | **EW1 DONE** (`ecosystem-v0.1.163`, 2026-03-16). Feasibility concerns documented (bundle, accessibility, architecture). PM override: EW2 approved as measurement-only PoC. No migration commitment. ABANDON remains default outcome. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 

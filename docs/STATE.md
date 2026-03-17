@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-16 (EGUI-NATIVE-1 EN5 closure — stream COMPLETE.)
+> **Last Updated:** 2026-03-16 (EGUI-WASM-1 EW1 feasibility — proceed to EW2 PoC.)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -722,7 +722,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | **DEPENDS-ON RUSTIFY-CORE-1 RC2** (PM-RC-07 APPROVED 2026-03-14). Retains own stream identity. |
 | RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1–RC7 all DONE.** All 33 ACs PASS. **All 8 PM decisions APPROVED.** PM-RC-07: SUPERSEDES SEC-CORE2+PLAT-CORE1, REFACTORS MOB-RUNTIME1+ARCH-WASM1. PM-RC-04: SLO thresholds defined (≥10 MiB/s, 100% integrity, ≥99% connection). CLI execution stream NOT OPEN (Stage 1 burn-in pending). |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | ~~LATER~~ COMPLETE | localbolt-app + bolt-core-sdk + ecosystem | **COMPLETE** (`ecosystem-v0.1.162`, 2026-03-16). EN1–EN4 delivered AC-EN-01–20; EN5 closure (AC-EN-21–24). PM-EN-01/02/03/04 APPROVED. PM-EN-05 deferred. Stream CLOSED. |
-| EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | LATER | localbolt-v3 + localbolt + ecosystem | **CODIFIED** (`ecosystem-v0.1.142-egui-wasm1-codify`, 2026-03-15). 5 phases (EW1–EW5), 19 ACs, 5 PM decisions. Experimental — ABANDON is valid outcome. EW1 unblocked. |
+| EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | LATER | localbolt-v3 + localbolt + ecosystem | **EW1 DONE** (`ecosystem-v0.1.163`, 2026-03-16). Feasibility concerns documented (bundle, accessibility, architecture). PM override: EW2 approved as measurement-only PoC. No migration commitment. ABANDON remains default outcome. |
 | DISCOVERY-MODE-1 | Discovery mode policy codification | ~~NEXT~~ COMPLETE | ecosystem + consumers | **COMPLETE** (`ecosystem-v0.1.160`, 2026-03-15). All 16 ACs PASS. All 4 PM decisions APPROVED. |
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | ~~NEXT~~ COMPLETE | bolt-protocol + ecosystem | **COMPLETE** (`ecosystem-v0.1.143`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED. |
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** — Phase A: `sdk-v0.5.35-recon-xfer1-phase-a-tests`, `v3.0.88-recon-xfer1-phase-a`. Phase B: `localbolt-v1.0.35-recon-xfer1-phase-b`, `localbolt-app-v1.2.23-recon-xfer1-phase-b`. AC-RX-01–07 satisfied. AC-RX-08 automated PASS, manual runtime PENDING (RX-EVID-1). All code work closed. |

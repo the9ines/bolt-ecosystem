@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-16 (EGUI-NATIVE-1 EN5 closure — stream COMPLETE.)
+> **Updated:** 2026-03-16 (EGUI-WASM-1 EW1 feasibility — proceed to EW2 PoC.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -480,7 +480,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 - EN-G5: No CLI deliverables
 
 **Follow-on streams:**
-- EGUI-WASM-1: Browser UI migration to egui via WASM — **CODIFIED** (PM-EN-04 APPROVED, independent stream, EW1 unblocked). Experimental — ABANDON is valid outcome.
+- EGUI-WASM-1: Browser UI migration to egui via WASM — **EW1 DONE** (2026-03-16). Feasibility concerns documented. EW2 approved as measurement-only PoC. No migration commitment. ABANDON remains default outcome.
 - EGUI-MOBILE-1: Mobile UI via egui — **DEFERRED PROPOSAL** (PM-EN-05 PENDING). Not codified. No phases, ACs, or spec defined.
 
 ---
@@ -593,22 +593,22 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 18: EGUI-WASM-1 — Browser UI Migration to egui via WASM (Experimental)
 
 **Priority:** LATER (experimental)
-**Status:** **CODIFIED** (`ecosystem-v0.1.142-egui-wasm1-codify`, 2026-03-15). EW1 unblocked.
+**Status:** **EW1 DONE** (`ecosystem-v0.1.163`, 2026-03-16). Feasibility concerns documented. EW2 approved as measurement-only PoC. No migration commitment. ABANDON remains default outcome.
 **Routing:** localbolt-v3 (primary), localbolt (secondary), bolt-ecosystem (governance)
-**Category:** UI architecture — browser WebView→egui WASM migration (experimental)
+**Category:** UI architecture — browser egui shell via WASM (experimental)
 **Stream:** EGUI-WASM-1 (phased, 5 phases EW1–EW5)
 **Dependencies:** None (PM-EN-04 approved early, 2026-03-15). Non-blocking to EGUI-NATIVE-1.
 
-**Context:** Browser UIs currently use React/TypeScript/Tailwind. EGUI-WASM-1 explores migrating to egui compiled to WASM, rendering to `<canvas>`. Experimental — ABANDON is a valid outcome. React/TS UI retained as default-safe production path until explicit EW4 adoption decision.
+**Context:** Browser UIs currently use vanilla TypeScript/Tailwind (not React). EGUI-WASM-1 explores a browser egui shell compiled to WASM, sharing presentation/state/core with desktop bolt-ui where viable. Experimental — ABANDON is the default outcome. Current TS UI retained as default-safe production path. Browser transport is WebTransport-class (not native QUIC/quinn).
 
-**Success gates (quantitative):** Bundle size ≤500 KiB gzipped, cold start ≤2s, ≥30 FPS, accessibility parity, ≥90% feature parity, cross-browser rendering.
+**Success gates (quantitative):** Bundle size ≤500 KiB gzipped, cold start ≤2s (EW1 revised to ≤3s), ≥30 FPS, accessibility parity, ≥90% feature parity, cross-browser rendering.
 
 **Phased Plan (EGUI-WASM-1):**
 
 | Phase | Description | Serial Gate | Status |
 |-------|-------------|-------------|--------|
-| EW1 | Feasibility + success gate definition | YES (gates EW2) | NOT-STARTED |
-| EW2 | WASM scaffold + PoC | YES (gates EW3) | NOT-STARTED |
+| EW1 | Feasibility + success gate definition | YES (gates EW2) | **DONE** (AC-EW-01–04, 2026-03-16) |
+| EW2 | WASM scaffold + measurement PoC | YES (gates EW3) | NOT-STARTED |
 | EW3 | Parity assessment + gate evaluation | YES (gates EW4) | NOT-STARTED |
 | EW4 | Adoption decision (adopt/abandon/defer) | YES (gates EW5 or closes) | NOT-STARTED |
 | EW5 | Migration rollout (if adopt) | YES (closes stream) | NOT-STARTED |
@@ -695,7 +695,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-WT-04 | WEBTRANSPORT-BROWSER-APP-1: Performance SLO thresholds for WebTransport | WT4 | **APPROVED** (Option B balanced, 2026-03-15) |
 | PM-WT-05 | WEBTRANSPORT-BROWSER-APP-1: WS disposition after WebTransport adoption | WT5 | **APPROVED** (Option B: deprecate-with-sunset, 2026-03-15) |
 | PM-EN-04 | EGUI-NATIVE-1: Open EGUI-WASM-1 (browser egui via WASM) | Post-EN3 | **APPROVED** (early resolution, 2026-03-15) |
-| PM-EW-01 | EGUI-WASM-1: WASM bundle size budget | EW1 | LATER |
+| PM-EW-01 | EGUI-WASM-1: WASM bundle size budget | EW1 | **DEFERRED TO EW2** (threshold ≤500 KiB retained; EW2 measures actuals) |
 | PM-EW-02 | EGUI-WASM-1: Browser rendering backend preference | EW2 | LATER |
 | PM-EW-03 | EGUI-WASM-1: Accessibility mitigation strategy | EW3 | LATER |
 | PM-EW-04 | EGUI-WASM-1: Adoption decision (adopt/abandon/defer) | EW4 | LATER |
