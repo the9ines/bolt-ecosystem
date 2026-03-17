@@ -5,6 +5,26 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-17 — RUSTIFY-BROWSER-CORE-1 RB1 DONE: Policy Lock
+
+**RB1 status**: NOT-STARTED → **DONE**. AC-RB-01–04 satisfied. All 5 PM decisions approved.
+
+**PM-RB-01 APPROVED:** ≤300 KiB gzipped WASM bundle budget. Exceeding fails the gate — requires explicit PM disposition before RB3.
+
+**PM-RB-02 APPROVED:** WebRTC retained, WebTransport deferred (governed by WEBTRANSPORT-BROWSER-APP-1).
+
+**PM-RB-03 APPROVED:** Condition-gated sunset. Dual-path (WASM + TS protocol) until explicit PM approval for TS removal. No fixed deadline.
+
+**PM-RB-04 APPROVED:** localbolt-v3 first, staged rollout. Other consumers follow after burn-in.
+
+**PM-RB-05 APPROVED:** ARCH-WASM1 formally superseded by RUSTIFY-BROWSER-CORE-1.
+
+**RB2 status**: → **READY** (RB1 DONE, unblocked).
+
+**Tags**: `ecosystem-v0.1.166-rustify-browser-core1-rb1-policy-lock`
+
+---
+
 ## 2026-03-17 — RUSTIFY-BROWSER-CORE-1 Codified
 
 **New stream:** RUSTIFY-BROWSER-CORE-1 — browser-path Rust/WASM protocol authority.

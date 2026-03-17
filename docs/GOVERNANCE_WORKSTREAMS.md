@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-17 (RUSTIFY-BROWSER-CORE-1 codified — browser-path Rust/WASM authority)
-> **Tag:** ecosystem-v0.1.165-rustify-browser-core1-codify
+> **Updated:** 2026-03-17 (RUSTIFY-BROWSER-CORE-1 RB1 DONE — policy lock, all 5 PM decisions approved)
+> **Tag:** ecosystem-v0.1.166-rustify-browser-core1-rb1-policy-lock
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -5280,7 +5280,7 @@ These gates are evaluated at EW3 and must all PASS for EW4 ADOPT recommendation.
 > **Priority:** NEXT (unblocked — RUSTIFY-CORE-1 complete, ARCH-WASM1 dependency satisfied)
 > **Repos:** bolt-core-sdk (WASM bindings), bolt-transport-web (TS adapter thinning), localbolt-v3 / localbolt / localbolt-app (consumer rollout), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.165-rustify-browser-core1-codify (2026-03-17)
-> **Status:** CODIFIED (RB1 unblocked immediately)
+> **Status:** RB1 DONE (`ecosystem-v0.1.166-rustify-browser-core1-rb1-policy-lock`, 2026-03-17). AC-RB-01–04 satisfied. PM-RB-01–05 all APPROVED. RB2 READY.
 
 ---
 
@@ -5365,7 +5365,7 @@ Parity with Rust is maintained by shared test vectors and CI constant verificati
 
 | Phase | Description | Type | Serial Gate | Dependencies | Status |
 |-------|-------------|------|-------------|--------------|--------|
-| **RB1** | Policy lock + target boundary + bundle budget | PM gate | YES — gates RB2 | None | NOT-STARTED |
+| **RB1** | Policy lock + target boundary + bundle budget | PM gate | YES — gates RB2 | None | **DONE** (`ecosystem-v0.1.166`, 2026-03-17). AC-RB-01–04 satisfied. PM-RB-01–05 APPROVED. |
 | **RB2** | Authority boundary audit + TS adapter inventory | Engineering audit | YES — gates RB3 | RB1 complete | NOT-STARTED |
 | **RB3** | Rust/WASM crypto + session core (NaCl box, HELLO, SAS, envelope) | Engineering | YES — gates RB4 | RB2 complete | NOT-STARTED |
 | **RB4** | Rust/WASM BTR + transfer core (ratchet, encrypt/decrypt, transfer SM) | Engineering | YES — gates RB5 | RB3 complete | NOT-STARTED |
@@ -5458,11 +5458,11 @@ No upstream stream dependencies. RUSTIFY-CORE-1 is complete. T-STREAM-1 WASM int
 
 | ID | Decision | Blocks | Priority | Status |
 |----|----------|--------|----------|--------|
-| PM-RB-01 | WASM bundle budget for protocol authority. Options: (A) ≤200 KiB gzipped (aggressive — matches protocol-only scope, existing policy WASM is 20 KiB), (B) ≤300 KiB gzipped (moderate — allows headroom for crypto + BTR), (C) ≤100 KiB gzipped (tight — may require aggressive tree-shaking). Recommended: Option A. | RB3 (engineering start) | RB1 | PENDING |
-| PM-RB-02 | Browser transport binding posture. Options: (A) WebRTC retained as-is, WebTransport deferred to separate stream, (B) Both WebRTC and WebTransport bindings in scope. Recommended: Option A (focused scope). | RB2 (adapter inventory scope) | RB1 | PENDING |
-| PM-RB-03 | Rollback/deprecation model for TS protocol implementation. Options: (A) Condition-gated sunset (dual-path until PM approves removal), (B) Time-gated sunset (e.g., 90 days post-rollout), (C) Immediate removal after RB6 rollout gate. Recommended: Option A (matches PM-RC-05 / PM-EN-03 pattern). | RB5 (thinning scope) | RB1 | PENDING |
-| PM-RB-04 | Consumer scope. Options: (A) Required for all browser consumers (localbolt-v3, localbolt, localbolt-app), (B) localbolt-v3 first, others opt-in later. Recommended: Option B (staged rollout). | RB6 (rollout scope) | RB1 | PENDING |
-| PM-RB-05 | ARCH-WASM1 disposition. Options: (A) Formally superseded by RUSTIFY-BROWSER-CORE-1, (B) Retained as separate placeholder for non-protocol WASM concerns. | Post-codification | LATER | PENDING |
+| PM-RB-01 | WASM bundle budget. **APPROVED (2026-03-17): Option B — ≤300 KiB gzipped.** Protocol-only WASM bundle must not exceed 300 KiB gzipped. RB2 measures actual size. Exceeding the budget fails the gate and requires explicit PM disposition before RB3 may proceed. | RB3 | RB1 | **APPROVED** |
+| PM-RB-02 | Browser transport binding posture. **APPROVED (2026-03-17): Option A — WebRTC retained, WebTransport deferred.** Browser transport bindings remain WebRTC as-is. WebTransport is out of scope (governed by WEBTRANSPORT-BROWSER-APP-1). | RB2 | RB1 | **APPROVED** |
+| PM-RB-03 | Rollback/deprecation model. **APPROVED (2026-03-17): Option A — condition-gated sunset.** Dual-path (WASM + TS protocol) active during migration. TS protocol removal requires explicit PM approval after evidence. No fixed deadline. | RB5 | RB1 | **APPROVED** |
+| PM-RB-04 | Consumer scope. **APPROVED (2026-03-17): Option B — staged rollout.** localbolt-v3 first for RB3–RB5. localbolt and localbolt-app follow after localbolt-v3 burn-in. Per-consumer opt-in at RB6. | RB6 | RB1 | **APPROVED** |
+| PM-RB-05 | ARCH-WASM1 disposition. **APPROVED (2026-03-17): Option A — formally superseded.** RUSTIFY-BROWSER-CORE-1 is the concrete execution for browser WASM protocol authority. ARCH-WASM1 retired. | Post-codification | RB1 | **APPROVED** |
 
 ---
 
@@ -7209,7 +7209,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | T-STREAM-1 | Browser selective WASM integration | LATER | bolt-core-sdk (TS) + WASM | NOT-STARTED |
 | PLAT-CORE1 | Shared Rust core + thin platform UIs | ~~LATER~~ SUPERSEDED | TBD | **SUPERSEDED-BY: RUSTIFY-CORE-1** (PM-RC-07 APPROVED 2026-03-14). RC2+RC4 absorbed full scope. |
 | MOB-RUNTIME1 | Mobile embedded runtime model | LATER | TBD | **DEPENDS-ON RUSTIFY-CORE-1 RC4** (PM-RC-07 APPROVED 2026-03-14). Retains own stream identity. |
-| ARCH-WASM1 | WASM protocol engine (medium risk) | LATER | bolt-core-sdk + WASM | **DEPENDS-ON RUSTIFY-CORE-1 RC2** (PM-RC-07 APPROVED 2026-03-14). Retains own stream identity. |
+| ARCH-WASM1 | WASM protocol engine (medium risk) | ~~LATER~~ SUPERSEDED | bolt-core-sdk + WASM | **SUPERSEDED-BY: RUSTIFY-BROWSER-CORE-1** (PM-RB-05 APPROVED 2026-03-17). Browser WASM protocol authority is now RUSTIFY-BROWSER-CORE-1 scope. |
 | RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | NOW | bolt-core-sdk (TS) + consumers | **DONE-VERIFIED (evidence tail: RX-EVID-1)** |
 | RUSTIFY-CORE-1 | Native-first transport + core consolidation | NEXT | bolt-core-sdk + bolt-daemon + bolt-protocol | **RC1 DONE**, **RC2 DONE** (`ecosystem-v0.1.127-rustify-core1-rc2-complete`, 2026-03-13). PM-RC-01A APPROVED (quinn, 2026-03-13). 7 phases (RC1–RC7), 33 ACs, 8 PM decisions. **RC3 READY** (unblocked). |
 | EGUI-NATIVE-1 | Native desktop UI consolidation (egui) | ~~LATER~~ COMPLETE | localbolt-app + bolt-core-sdk + ecosystem | **COMPLETE** (`ecosystem-v0.1.162`, 2026-03-16). EN1–EN4 delivered AC-EN-01–20; EN5 closure (AC-EN-21–24). PM-EN-01/02/03/04 APPROVED. PM-EN-05 deferred. Stream CLOSED. |
@@ -7217,7 +7217,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | ~~NEXT~~ COMPLETE | bolt-protocol + ecosystem | **COMPLETE** (`ecosystem-v0.1.143-btr-spec1-bs5-closeout`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED. BS1–BS5 DONE. |
 | WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | ~~NEXT~~ COMPLETE | bolt-daemon + bolt-core-sdk + ecosystem | **COMPLETE** (`ecosystem-v0.1.147-webtransport-browser-app1-wt5-closeout`, 2026-03-15). All 20 ACs PASS. All 5 PM decisions APPROVED. WT1–WT5 DONE. |
 | EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | ~~LATER~~ ABANDONED | localbolt-v3 + localbolt + ecosystem | **ABANDONED** (`ecosystem-v0.1.164`, 2026-03-17). EW2 PoC: 1,296 KiB gzipped (2.6× over 500 KiB kill). 26% reuse. 20× bundle vs current 65 KiB TS app. Stream CLOSED with findings. |
-| RUSTIFY-BROWSER-CORE-1 | Browser-path Rust/WASM protocol authority | NEXT | bolt-core-sdk + bolt-transport-web + consumers + ecosystem | **CODIFIED** (`ecosystem-v0.1.165`, 2026-03-17). 6 phases (RB1–RB6), 23 ACs, 5 PM decisions. Follow-on to RUSTIFY-CORE-1 for browser runtime authority. RB1 unblocked. |
+| RUSTIFY-BROWSER-CORE-1 | Browser-path Rust/WASM protocol authority | NEXT | bolt-core-sdk + bolt-transport-web + consumers + ecosystem | **RB1 DONE** (`ecosystem-v0.1.166`, 2026-03-17). PM-RB-01–05 all APPROVED. ≤300 KiB gzipped budget. Condition-gated sunset. localbolt-v3 first. ARCH-WASM1 superseded. RB2 READY. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 
