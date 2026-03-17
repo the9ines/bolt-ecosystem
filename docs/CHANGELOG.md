@@ -5,6 +5,22 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-17 — RUSTIFY-BROWSER-CORE-1 RB3 DONE: Rust/WASM Crypto + Session Authority
+
+**RB3 status**: NOT-STARTED → **DONE**. AC-RB-08–11 satisfied. First true runtime authority transfer.
+
+**bolt-protocol-wasm crate:** New WASM crate wrapping bolt-core crypto/session/SAS/peer-code functions. 8 exported functions. Built via wasm-pack. 153 KiB uncompressed, **61 KiB gzipped** (239 KiB headroom under 300 KiB budget).
+
+**TS SDK wiring:** `crypto.ts`, `identity.ts`, `sas.ts` now check `getWasmCrypto()` first. When WASM initialized, all 14 crypto call sites (across HandshakeManager, EnvelopeCodec, WebRTCService, TransferManager, WsDataTransport, identity-store) route through Rust. TS tweetnacl retained as fallback (PM-RB-03 dual-path).
+
+**Tests:** 5 Rust unit tests (golden vector included), 232 TS tests pass.
+
+**BTR/transfer hot-path:** Remains in TS (RB4 scope). Per-chunk `seal_chunk`/`open_chunk` benchmarking needed.
+
+**Tags**: `sdk-v0.6.16-rustify-browser-core1-rb3-wasm-crypto`, `ecosystem-v0.1.168-rustify-browser-core1-rb3-done`
+
+---
+
 ## 2026-03-17 — RUSTIFY-BROWSER-CORE-1 RB2 DONE: Authority Boundary Audit
 
 **RB2 status**: NOT-STARTED → **DONE**. AC-RB-05–07 satisfied.

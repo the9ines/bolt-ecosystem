@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-17 (RUSTIFY-BROWSER-CORE-1 RB2 DONE — boundary audit, 67 KiB WASM measured)
-> **Tag:** ecosystem-v0.1.167-rustify-browser-core1-rb2-boundary-audit
+> **Updated:** 2026-03-17 (RUSTIFY-BROWSER-CORE-1 RB3 DONE — Rust/WASM crypto+session authority, 61 KiB)
+> **Tag:** ecosystem-v0.1.168-rustify-browser-core1-rb3-done
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -5280,7 +5280,7 @@ These gates are evaluated at EW3 and must all PASS for EW4 ADOPT recommendation.
 > **Priority:** NEXT (unblocked — RUSTIFY-CORE-1 complete, ARCH-WASM1 dependency satisfied)
 > **Repos:** bolt-core-sdk (WASM bindings), bolt-transport-web (TS adapter thinning), localbolt-v3 / localbolt / localbolt-app (consumer rollout), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.165-rustify-browser-core1-codify (2026-03-17)
-> **Status:** RB2 DONE (`ecosystem-v0.1.167-rustify-browser-core1-rb2-boundary-audit`, 2026-03-17). AC-RB-05–07 satisfied. Protocol WASM measured: 67 KiB gzipped (233 KiB headroom). TS inventory complete. WASM API boundary defined. RB3 READY.
+> **Status:** RB3 DONE (`ecosystem-v0.1.168`, 2026-03-17). AC-RB-08–11 satisfied. bolt-protocol-wasm crate built (61 KiB gzipped). TS SDK wired with WASM fallback. 232 TS tests pass. RB4 READY.
 
 ---
 
@@ -5367,7 +5367,7 @@ Parity with Rust is maintained by shared test vectors and CI constant verificati
 |-------|-------------|------|-------------|--------------|--------|
 | **RB1** | Policy lock + target boundary + bundle budget | PM gate | YES — gates RB2 | None | **DONE** (`ecosystem-v0.1.166`, 2026-03-17). AC-RB-01–04 satisfied. PM-RB-01–05 APPROVED. |
 | **RB2** | Authority boundary audit + TS adapter inventory | Engineering audit | YES — gates RB3 | RB1 complete | **DONE** (`ecosystem-v0.1.167`, 2026-03-17). AC-RB-05–07 satisfied. 67 KiB gzipped WASM measured. 31+ TS modules inventoried. API boundary defined. |
-| **RB3** | Rust/WASM crypto + session core (NaCl box, HELLO, SAS, envelope) | Engineering | YES — gates RB4 | RB2 complete | NOT-STARTED |
+| **RB3** | Rust/WASM crypto + session core (NaCl box, HELLO, SAS, envelope) | Engineering | YES — gates RB4 | RB2 complete | **DONE** (`sdk-v0.6.16`, 2026-03-17). AC-RB-08–11 satisfied. 61 KiB gzipped. 8 exports. TS dual-path wired. |
 | **RB4** | Rust/WASM BTR + transfer core (ratchet, encrypt/decrypt, transfer SM) | Engineering | YES — gates RB5 | RB3 complete | NOT-STARTED |
 | **RB5** | TS adapter thinning (remove TS protocol implementations, wire to WASM) | Engineering | YES — gates RB6 | RB4 complete | NOT-STARTED |
 | **RB6** | Rollout + compatibility gate + TS deprecation + closure | PM/Engineering | YES — closes stream | RB5 complete | NOT-STARTED |
@@ -7217,7 +7217,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | ~~NEXT~~ COMPLETE | bolt-protocol + ecosystem | **COMPLETE** (`ecosystem-v0.1.143-btr-spec1-bs5-closeout`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED. BS1–BS5 DONE. |
 | WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | ~~NEXT~~ COMPLETE | bolt-daemon + bolt-core-sdk + ecosystem | **COMPLETE** (`ecosystem-v0.1.147-webtransport-browser-app1-wt5-closeout`, 2026-03-15). All 20 ACs PASS. All 5 PM decisions APPROVED. WT1–WT5 DONE. |
 | EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | ~~LATER~~ ABANDONED | localbolt-v3 + localbolt + ecosystem | **ABANDONED** (`ecosystem-v0.1.164`, 2026-03-17). EW2 PoC: 1,296 KiB gzipped (2.6× over 500 KiB kill). 26% reuse. 20× bundle vs current 65 KiB TS app. Stream CLOSED with findings. |
-| RUSTIFY-BROWSER-CORE-1 | Browser-path Rust/WASM protocol authority | NEXT | bolt-core-sdk + bolt-transport-web + consumers + ecosystem | **RB2 DONE** (`ecosystem-v0.1.167`, 2026-03-17). Protocol WASM: 67 KiB gzipped (233 KiB headroom). 31+ TS modules inventoried. API boundary defined. RB3 READY. |
+| RUSTIFY-BROWSER-CORE-1 | Browser-path Rust/WASM protocol authority | NEXT | bolt-core-sdk + bolt-transport-web + consumers + ecosystem | **RB3 DONE** (`sdk-v0.6.16` + `ecosystem-v0.1.168`, 2026-03-17). bolt-protocol-wasm: 61 KiB gzipped. TS SDK wired with WASM fallback. 232 tests pass. RB4 READY. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 
