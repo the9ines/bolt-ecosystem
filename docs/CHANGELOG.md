@@ -5,6 +5,26 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-17 — RUSTIFY-BROWSER-CORE-1 RB4 DONE: BTR + Transfer State WASM Authority
+
+**RB4 status**: NOT-STARTED → **DONE**. AC-RB-12–16 satisfied.
+
+**BTR authority transfer:** WasmBtrEngine (session ratchet state) + WasmBtrTransferCtx (per-chunk seal/open). Rust owns all key material with zeroize-on-drop. Opaque handles held by JS.
+
+**Transfer state authority transfer:** WasmSendSession wraps bolt-transfer-core::SendSession. TS proposes events (accept, cancel, pause, resume); Rust validates transitions per §9 state machine. TS no longer decides transition validity.
+
+**Hot-path benchmark:** seal_chunk **42 μs/call** in native release (372 MiB/s). WASM estimate: ~52–72 μs/call with memory copies. **Judgment: PRACTICAL** — 37× headroom over 10 MiB/s requirement.
+
+**Bundle size:** 228 KiB uncompressed, **102 KiB gzipped** (198 KiB headroom under 300 KiB budget).
+
+**Fallback posture:** TS BTR modules retained but not authoritative on production WASM path. PM-RB-03 dual-path preserved. Dead code removal is RB5 scope.
+
+**Tests:** 10 Rust (BTR roundtrip, transfer lifecycle, benchmark), 232 TS.
+
+**Tags**: `sdk-v0.6.17-rustify-browser-core1-rb4-btr-transfer`, `ecosystem-v0.1.169-rustify-browser-core1-rb4-done`
+
+---
+
 ## 2026-03-17 — RUSTIFY-BROWSER-CORE-1 RB3 DONE: Rust/WASM Crypto + Session Authority
 
 **RB3 status**: NOT-STARTED → **DONE**. AC-RB-08–11 satisfied. First true runtime authority transfer.

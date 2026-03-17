@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-17 (RUSTIFY-BROWSER-CORE-1 RB3 DONE — Rust/WASM crypto+session authority.)
+> **Updated:** 2026-03-17 (RUSTIFY-BROWSER-CORE-1 RB4 DONE — BTR+transfer WASM authority.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -624,7 +624,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 19: RUSTIFY-BROWSER-CORE-1 — Browser-Path Rust/WASM Protocol Authority
 
 **Priority:** NEXT (unblocked)
-**Status:** **RB3 DONE** (`sdk-v0.6.16` + `ecosystem-v0.1.168`, 2026-03-17). bolt-protocol-wasm: 61 KiB gzipped. TS SDK wired. 232 tests pass. RB4 READY.
+**Status:** **RB4 DONE** (`sdk-v0.6.17` + `ecosystem-v0.1.169`, 2026-03-17). Full protocol WASM: 102 KiB gzipped. Hot path: 42 μs/chunk (PRACTICAL). RB5 READY.
 **Routing:** bolt-core-sdk (WASM bindings), bolt-transport-web (TS adapter thinning), consumers (rollout), bolt-ecosystem (governance)
 **Category:** Architecture — browser protocol authority migration from TS to Rust/WASM
 **Stream:** RUSTIFY-BROWSER-CORE-1 (phased, 6 phases RB1–RB6)
@@ -639,7 +639,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | RB1 | Policy lock + bundle budget | YES (gates RB2) | **DONE** (PM-RB-01–05 APPROVED, 2026-03-17) |
 | RB2 | Authority boundary audit + adapter inventory | YES (gates RB3) | **DONE** (67 KiB WASM, inventory complete, 2026-03-17) |
 | RB3 | Rust/WASM crypto + session core | YES (gates RB4) | **DONE** (61 KiB WASM, TS wired, 2026-03-17) |
-| RB4 | Rust/WASM BTR + transfer core | YES (gates RB5) | NOT-STARTED |
+| RB4 | Rust/WASM BTR + transfer core | YES (gates RB5) | **DONE** (102 KiB, 42 μs/chunk, 2026-03-17) |
 | RB5 | TS adapter thinning | YES (gates RB6) | NOT-STARTED |
 | RB6 | Rollout + closure | YES (closes stream) | NOT-STARTED |
 
