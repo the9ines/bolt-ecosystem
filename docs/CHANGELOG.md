@@ -5,6 +5,29 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-17 — RUSTIFY-BROWSER-CORE-1 RB2 DONE: Authority Boundary Audit
+
+**RB2 status**: NOT-STARTED → **DONE**. AC-RB-05–07 satisfied.
+
+**Bundle size (key de-risking result):** Protocol-only WASM (bolt-core + bolt-btr + bolt-transfer-core with full crypto) measured at **67 KiB gzipped** — 233 KiB headroom under 300 KiB budget. This eliminates the highest-severity risk (RB-R1).
+
+**TS inventory:** 31+ modules classified:
+- **WASM-replace:** 13 modules (~883 LOC) — crypto, SAS, BTR (6 modules), envelope codec, identity, peer-code, hash
+- **Split:** 3 modules (~1,946 LOC) — HandshakeManager, TransferManager, WebRTCService (crypto→WASM, I/O→TS-retain)
+- **TS-retain:** 18+ modules (~2,500+ LOC) — browser APIs, signaling, persistence, UI orchestration
+
+**WASM API boundary defined:** BoltProtocolCore (session/crypto) + BtrSession + BtrTransferHandle (BTR/transfer). Coarse-grained Rust ownership. Hot path: 2 WASM calls per 16 KiB chunk.
+
+**Migration assessment:** The migration path appears to be targeted substitution of crypto/protocol authority within existing TS transport adapters, not a full browser-stack rewrite.
+
+**Residual risk:** Per-chunk WASM hot-path overhead needs RB3 benchmarking. Size viability proven; runtime performance not yet measured.
+
+**RB3 status**: → **READY** (RB2 DONE, unblocked).
+
+**Tags**: `ecosystem-v0.1.167-rustify-browser-core1-rb2-boundary-audit`
+
+---
+
 ## 2026-03-17 — RUSTIFY-BROWSER-CORE-1 RB1 DONE: Policy Lock
 
 **RB1 status**: NOT-STARTED → **DONE**. AC-RB-01–04 satisfied. All 5 PM decisions approved.
