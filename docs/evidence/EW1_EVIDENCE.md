@@ -98,11 +98,14 @@ egui renders to `<canvas>`, not semantic HTML. There is no production-ready egui
 
 **Framing:** This is a taste-driven exception, not a reversal of technical concerns. The technical concerns documented above remain fully in force and govern EW2 kill criteria. ABANDON remains the default outcome if EW2 does not materially beat the expectations documented here.
 
+**Stream posture:** Dual-UI optionality, not forced migration. If the stream proceeds past EW2, the future is an optional browser egui shell coexisting with the vanilla TS UI — neither path forced out.
+
 **What EW2 measures:**
 1. Actual gzipped WASM bundle size (kill: >500 KiB)
 2. Actual cold-start/render performance (kill: >3s or <30 FPS)
 3. Meaningful reusable presentation/state/core surface from bolt-ui (kill: insufficient to reduce implementation cost)
 4. Subjective viability of browser-hosted egui shell (PM taste call)
+5. Whether dual-UI maintenance cost is plausibly justified by user preference and shared-core reuse (kill: cost clearly exceeds benefit)
 
 **What EW2 does NOT do:**
 - No browser migration
@@ -120,7 +123,8 @@ EW2 closes the stream (ABANDON) if **any** of:
 2. Cold start >3s on median hardware
 3. FPS <30 during UI updates
 4. Reusable presentation/state/core surface insufficient to materially reduce implementation cost
-5. PM subjective assessment: "not worth pursuing"
+5. Dual-UI maintenance cost clearly exceeds benefit of optionality + shared-core reuse
+6. PM subjective assessment: "not worth pursuing"
 
 No EW3+ unless EW2 produces unexpectedly strong evidence. The bar is "unexpectedly strong," not "marginally acceptable."
 

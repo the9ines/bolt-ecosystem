@@ -5103,7 +5103,7 @@ egui renders to `<canvas>`, not semantic HTML. The current web UI's `<button>`, 
 
 ### EW2 PoC Scope (Measurement Only)
 
-EW2 is a **tightly-bounded measurement PoC**. It answers four concrete questions with empirical data. It does not commit to browser migration, product adoption, or React/TS replacement. The current vanilla TS browser UI remains the default-safe production path. ABANDON remains the default outcome if EW2 does not materially beat expectations.
+EW2 is a **tightly-bounded measurement PoC** exploring an **optional browser egui shell** — not a forced migration. The future posture, if the stream proceeds, is **dual-UI optionality**: users or deployments could choose the egui WASM shell or the existing vanilla TS UI, with neither path forced out. EW2 answers five concrete questions with empirical data. It does not commit to browser migration, product adoption, or React/TS replacement. The current vanilla TS browser UI remains the default-safe production path. ABANDON remains the default outcome if EW2 does not materially beat expectations.
 
 #### EW2 Questions
 
@@ -5113,6 +5113,7 @@ EW2 is a **tightly-bounded measurement PoC**. It answers four concrete questions
 | Q2 | What is the actual cold-start and render performance? | Time-to-first-frame on median hardware, FPS during UI updates | >3s cold start OR <30 FPS = ABANDON |
 | Q3 | How much of bolt-ui's presentation/state/core code is meaningfully reusable in a browser shell? | Structural audit: theme, screen composition, state/view-model enums, bolt-core consumption. Reuse must reduce future browser-shell implementation cost, not just share cosmetic constants. | Reusable surface insufficient to materially reduce implementation cost = sharing rationale is dead |
 | Q4 | Does the browser shell feel viable as a foundation that could later sit on browser-safe transport? | Subjective PM assessment of the running PoC | PM taste call |
+| Q5 | Is the maintenance cost of supporting both browser UIs plausibly justified by user preference and shared-core reuse? | Assessment of dual-UI maintenance burden vs benefit of optionality + code sharing | Maintenance cost clearly exceeds benefit = dual-UI not justified |
 
 #### EW2 Deliverable
 
@@ -5131,7 +5132,8 @@ EW2 closes the stream (ABANDON) if **any** of:
 2. Cold start >3s on median hardware
 3. FPS <30 during UI updates
 4. Reusable presentation/state/core surface insufficient to materially reduce implementation cost
-5. PM subjective assessment: "not worth pursuing"
+5. Dual-UI maintenance cost clearly exceeds the benefit of optionality + shared-core reuse
+6. PM subjective assessment: "not worth pursuing"
 
 EW2 allows proceeding to EW3 **only if** all quantitative criteria pass, PM assessment is affirmative, and accessibility path is at least theoretically viable (documented, not solved).
 
