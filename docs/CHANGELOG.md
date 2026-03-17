@@ -5,6 +5,22 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-17 — RUSTIFY-BROWSER-CORE-1 Codified
+
+**New stream:** RUSTIFY-BROWSER-CORE-1 — browser-path Rust/WASM protocol authority.
+
+**Motivation:** Post-RUSTIFY-CORE-1 authority audit found browser protocol path is a complete independent TS implementation (BTR, HELLO, envelope, transfer orchestration via tweetnacl + @noble/hashes). Parity with Rust by test vector convention, not runtime authority. PM rejects dual-implementation as long-term target.
+
+**Scope:** Migrate browser protocol authority (crypto, session, BTR, transfer SM) from TS into Rust/WASM. TS retains browser API bindings, persistence, and UI only. No UI rendering changes (distinct from EGUI-WASM-1).
+
+**Relationship to RUSTIFY-CORE-1:** Follow-on, not correction. RUSTIFY-CORE-1 completed daemon/native-first scope correctly. Browser runtime authority was explicitly deferred (ARCH-WASM1 dependency).
+
+**Stream:** 6 phases (RB1–RB6), 23 ACs, 5 PM decisions, 7 risks. RB1 unblocked.
+
+**Tags**: `ecosystem-v0.1.165-rustify-browser-core1-codify`
+
+---
+
 ## 2026-03-17 — EGUI-WASM-1 ABANDONED: EW2 PoC Measured
 
 **EW2 status**: NOT-STARTED → **DONE**. PoC built and measured. Kill criteria triggered.

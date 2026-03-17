@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-17 (EGUI-WASM-1 ABANDONED — EW2 PoC measured, Q1 hard kill)
-> **Tag:** ecosystem-v0.1.164-egui-wasm1-ew2-poc
+> **Updated:** 2026-03-17 (RUSTIFY-BROWSER-CORE-1 codified — browser-path Rust/WASM authority)
+> **Tag:** ecosystem-v0.1.165-rustify-browser-core1-codify
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -5273,6 +5273,213 @@ These gates are evaluated at EW3 and must all PASS for EW4 ADOPT recommendation.
 
 ---
 
+## RUSTIFY-BROWSER-CORE-1 — Browser-Path Rust/WASM Protocol Authority
+
+> **Stream ID:** RUSTIFY-BROWSER-CORE-1
+> **Backlog Item:** Follow-on to RUSTIFY-CORE-1 (browser runtime authority); operationalizes browser-path portion deferred by ARCH-WASM1
+> **Priority:** NEXT (unblocked — RUSTIFY-CORE-1 complete, ARCH-WASM1 dependency satisfied)
+> **Repos:** bolt-core-sdk (WASM bindings), bolt-transport-web (TS adapter thinning), localbolt-v3 / localbolt / localbolt-app (consumer rollout), bolt-ecosystem (governance)
+> **Codified:** ecosystem-v0.1.165-rustify-browser-core1-codify (2026-03-17)
+> **Status:** CODIFIED (RB1 unblocked immediately)
+
+---
+
+### Context & Motivation
+
+**Audit finding (2026-03-17):** The browser protocol path is a complete independent TypeScript implementation of the Bolt protocol. Six TS modules in `bolt-core/ts/src/btr/` reimplement the entire BTR ratchet. `HandshakeManager.ts` reimplements HELLO/SAS. `TransferManager.ts` (836 LOC) reimplements transfer orchestration with chunk encrypt/decrypt. `EnvelopeCodec.ts` reimplements the envelope codec. All use tweetnacl + @noble/hashes with zero Rust calls at runtime.
+
+Parity with Rust is maintained by shared test vectors and CI constant verification — parity-by-convention, not parity-by-construction.
+
+**Why this matters:**
+- Doubles the protocol attack surface (a TS-only bug affects all browser users independently)
+- Requires coordinating algorithm changes across two languages
+- Makes parity a convention problem, not a construction guarantee
+
+**Relationship to RUSTIFY-CORE-1:** RUSTIFY-CORE-1 is **not a failure**. It completed its daemon/native-first scope: Rust canonical types, daemon-path authority, shared core API surface. Its transport matrix explicitly locked "browser↔browser: WebRTC (retained baseline)" and its stream relationship declared "REFACTORS/DEPENDS-ON: ARCH-WASM1" for future browser authority work. RUSTIFY-BROWSER-CORE-1 is the planned follow-on, not a retroactive negation.
+
+**Relationship to ARCH-WASM1:** RUSTIFY-BROWSER-CORE-1 is the concrete execution stream for browser-path Rust/WASM authority that ARCH-WASM1 left deferred. ARCH-WASM1 envisioned "WASM protocol engine" but was never codified beyond a placeholder. Whether ARCH-WASM1 is formally superseded is a PM decision (PM-RB-05) — this stream does not assume that disposition.
+
+**Relationship to EGUI-WASM-1 (ABANDONED):** Distinct scope. EGUI-WASM-1 attempted UI rendering migration (egui canvas → 1.3 MiB). RUSTIFY-BROWSER-CORE-1 migrates protocol logic only (crypto, session, BTR, transfer SM). Protocol WASM is structurally smaller — no font renderer, no GL backend, no text shaping. The existing `bolt-transfer-policy-wasm` module (20 KiB) demonstrates viable protocol-only WASM size.
+
+**Relationship to T-STREAM-1:** T-STREAM-1 achieved selective WASM integration for transfer policy/scheduling only. RUSTIFY-BROWSER-CORE-1 extends this to full protocol authority.
+
+---
+
+### Target Boundary
+
+**Rust/WASM must own (post-stream):**
+
+| Authority | Current Owner | Target Owner |
+|-----------|--------------|--------------|
+| Session protocol (HELLO, SAS, capability negotiation) | TS `HandshakeManager.ts` | Rust `bolt-core::session` via WASM |
+| Envelope codec (Profile Envelope v1) | TS `EnvelopeCodec.ts` | Rust via WASM |
+| Crypto authority (NaCl box seal/open) | TS `crypto.ts` (tweetnacl) | Rust `bolt-core::crypto` via WASM |
+| BTR ratchet state (engine, key schedule, DH ratchet) | TS `btr/*.ts` (6 modules) | Rust `bolt-btr` via WASM |
+| BTR encrypt/decrypt | TS `btr/encrypt.ts` | Rust `bolt-btr::encrypt` via WASM |
+| Replay guard | TS `btr/replay.ts` | Rust `bolt-btr::replay` via WASM |
+| Transfer state machine | TS `TransferManager.ts` | Rust `bolt-transfer-core` via WASM |
+| Transfer policy/scheduling | Rust via WASM (already done, T-STREAM-1) | No change |
+
+**TS must retain only:**
+
+| Responsibility | Rationale |
+|---------------|-----------|
+| WebRTC API bindings (RTCPeerConnection, DataChannel, ICE) | Browser API — cannot be in WASM |
+| WebTransport API bindings (future) | Browser API |
+| Signaling transport (WebSocket to rendezvous) | Browser API |
+| JS↔WASM bridge / glue | Structural necessity |
+| IndexedDB persistence (identity store, pin store) | Browser API |
+| UI layer (DOM manipulation, event handling) | Application concern |
+| File API (FileReader, Blob, download) | Browser API |
+
+---
+
+### Scope Guardrails
+
+| ID | Guardrail |
+|----|-----------|
+| RB-C1 | Browser transport remains browser-safe APIs only (WebRTC, WebTransport). No raw native QUIC in browser. |
+| RB-C2 | Fallback/rollback to TS protocol path required during migration window. |
+| RB-C3 | WASM bundle budget must be explicitly locked by PM (PM-RB-01) before engineering begins. |
+| RB-C4 | No protocol semantic drift during migration. Rust WASM must produce byte-identical outputs to current TS for all inputs. Verified by existing cross-implementation test vectors. |
+| RB-C5 | Browser product path must remain operable at every phase gate. No breaking change without rollback path. |
+| RB-C6 | No changes to Rust crate APIs — WASM bindings wrap existing crates, do not fork them. |
+| RB-C7 | UI layer remains TS/DOM. No egui, no DOM rewrite, no UI rendering changes. |
+| RB-C8 | Accessibility unchanged — protocol migration is below the UI layer. No accessibility discussion beyond "unaffected by this stream." |
+
+---
+
+### Explicit Non-Goals
+
+| ID | Non-Goal | Rationale |
+|----|----------|-----------|
+| RB-NG1 | UI rendering migration (egui, canvas, DOM rewrite) | EGUI-WASM-1 ABANDONED. UI is out of scope. RB-C7. |
+| RB-NG2 | Native QUIC in browser | Browser "QUIC" means WebTransport. RB-C1. |
+| RB-NG3 | Daemon architecture changes | Daemon already uses Rust exclusively. Not in scope. |
+| RB-NG4 | Protocol semantic changes | Migration only. Same protocol, same wire format. RB-C4. |
+| RB-NG5 | Mobile runtime changes | MOB-RUNTIME1 scope. Independent. |
+
+---
+
+### RUSTIFY-BROWSER-CORE-1 Phase Table
+
+| Phase | Description | Type | Serial Gate | Dependencies | Status |
+|-------|-------------|------|-------------|--------------|--------|
+| **RB1** | Policy lock + target boundary + bundle budget | PM gate | YES — gates RB2 | None | NOT-STARTED |
+| **RB2** | Authority boundary audit + TS adapter inventory | Engineering audit | YES — gates RB3 | RB1 complete | NOT-STARTED |
+| **RB3** | Rust/WASM crypto + session core (NaCl box, HELLO, SAS, envelope) | Engineering | YES — gates RB4 | RB2 complete | NOT-STARTED |
+| **RB4** | Rust/WASM BTR + transfer core (ratchet, encrypt/decrypt, transfer SM) | Engineering | YES — gates RB5 | RB3 complete | NOT-STARTED |
+| **RB5** | TS adapter thinning (remove TS protocol implementations, wire to WASM) | Engineering | YES — gates RB6 | RB4 complete | NOT-STARTED |
+| **RB6** | Rollout + compatibility gate + TS deprecation + closure | PM/Engineering | YES — closes stream | RB5 complete | NOT-STARTED |
+
+#### Dependency DAG
+
+```
+RB1 (policy lock — unblocked now)
+  │
+  ▼
+RB2 (adapter inventory)
+  │
+  ▼
+RB3 (crypto + session WASM)
+  │
+  ▼
+RB4 (BTR + transfer WASM)
+  │
+  ▼
+RB5 (TS thinning)
+  │
+  ▼
+RB6 (rollout + closure)
+```
+
+No upstream stream dependencies. RUSTIFY-CORE-1 is complete. T-STREAM-1 WASM integration pattern is available.
+
+---
+
+### Acceptance Criteria
+
+#### RB1 — Policy Lock
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-RB-01 | WASM bundle budget locked (PM-RB-01) | PM decision doc |
+| AC-RB-02 | Transport binding posture confirmed (PM-RB-02) | PM decision doc |
+| AC-RB-03 | Rollback/deprecation model confirmed (PM-RB-03) | PM decision doc |
+| AC-RB-04 | Consumer scope confirmed (PM-RB-04) | PM decision doc |
+
+#### RB2 — Adapter Inventory
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-RB-05 | Every TS protocol-authority module inventoried with disposition (WASM-replace / TS-retain / delete) | Inventory doc |
+| AC-RB-06 | WASM API surface defined (function signatures for JS↔WASM boundary) | API spec |
+| AC-RB-07 | Bundle size estimate for protocol WASM (without UI/font rendering) | Build measurement |
+
+#### RB3 — Crypto + Session WASM
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-RB-08 | bolt-core compiles to WASM with crypto + session + SAS + envelope exports | Build artifact |
+| AC-RB-09 | WASM crypto produces byte-identical outputs to TS crypto for all existing test vectors | Cross-impl test pass |
+| AC-RB-10 | HandshakeManager calls WASM for all crypto/session decisions (TS crypto calls removed) | Code audit + test |
+| AC-RB-11 | WASM bundle size within PM-RB-01 budget | Size measurement |
+
+#### RB4 — BTR + Transfer WASM
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-RB-12 | bolt-btr compiles to WASM with encrypt/decrypt/ratchet/replay exports | Build artifact |
+| AC-RB-13 | bolt-transfer-core state machine accessible from JS via WASM | API test |
+| AC-RB-14 | TransferManager delegates encrypt/decrypt + state transitions to WASM | Code audit + test |
+| AC-RB-15 | BTR test vectors pass through WASM path | Cross-impl test pass |
+| AC-RB-16 | TS btr/*.ts modules are dead code (no callers in production browser path) | Dead code analysis |
+
+#### RB5 — TS Thinning
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-RB-17 | No TS module owns protocol state transitions in production browser path (all delegated to WASM) | Authority audit |
+| AC-RB-18 | TS does not perform protocol cryptographic operations in production browser path. Zero tweetnacl/noble-hashes calls for protocol crypto (seal, open, encrypt, decrypt, ratchet, HKDF). Peer code generation and non-protocol hashing are exempt. | Code search + test |
+| AC-RB-19 | TS-only residue is: browser API bindings, JS↔WASM bridge, persistence, UI | Module classification doc |
+| AC-RB-20 | Dual-path (WASM + legacy TS) operational if rollback retained per PM-RB-03 | Rollback test |
+
+#### RB6 — Rollout + Closure
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-RB-21 | Per-consumer rollout completed per PM-RB-04 scope | Deploy evidence |
+| AC-RB-22 | TS protocol deprecation timeline confirmed (PM-RB-03 resolution) | PM decision |
+| AC-RB-23 | Stream closure criteria met | Closure evidence |
+
+---
+
+### PM Open Decisions Table
+
+| ID | Decision | Blocks | Priority | Status |
+|----|----------|--------|----------|--------|
+| PM-RB-01 | WASM bundle budget for protocol authority. Options: (A) ≤200 KiB gzipped (aggressive — matches protocol-only scope, existing policy WASM is 20 KiB), (B) ≤300 KiB gzipped (moderate — allows headroom for crypto + BTR), (C) ≤100 KiB gzipped (tight — may require aggressive tree-shaking). Recommended: Option A. | RB3 (engineering start) | RB1 | PENDING |
+| PM-RB-02 | Browser transport binding posture. Options: (A) WebRTC retained as-is, WebTransport deferred to separate stream, (B) Both WebRTC and WebTransport bindings in scope. Recommended: Option A (focused scope). | RB2 (adapter inventory scope) | RB1 | PENDING |
+| PM-RB-03 | Rollback/deprecation model for TS protocol implementation. Options: (A) Condition-gated sunset (dual-path until PM approves removal), (B) Time-gated sunset (e.g., 90 days post-rollout), (C) Immediate removal after RB6 rollout gate. Recommended: Option A (matches PM-RC-05 / PM-EN-03 pattern). | RB5 (thinning scope) | RB1 | PENDING |
+| PM-RB-04 | Consumer scope. Options: (A) Required for all browser consumers (localbolt-v3, localbolt, localbolt-app), (B) localbolt-v3 first, others opt-in later. Recommended: Option B (staged rollout). | RB6 (rollout scope) | RB1 | PENDING |
+| PM-RB-05 | ARCH-WASM1 disposition. Options: (A) Formally superseded by RUSTIFY-BROWSER-CORE-1, (B) Retained as separate placeholder for non-protocol WASM concerns. | Post-codification | LATER | PENDING |
+
+---
+
+### Risk Register
+
+| ID | Risk | Severity | Mitigation |
+|----|------|----------|------------|
+| RB-R1 | WASM bundle size exceeds budget | HIGH | RB2 measurement before engineering. Protocol-only WASM (no font/GL) is structurally smaller than EGUI-WASM-1's 1.3 MiB. Existing policy WASM is 20 KiB. But full crypto + BTR + transfer may reach 100–300 KiB. PM-RB-01 sets the hard gate. |
+| RB-R2 | Browser debugging complexity increases | MEDIUM | WASM source maps + console_error_panic_hook. Rust panic messages surface in browser console. TS adapter layer remains debuggable in native JS tooling. |
+| RB-R3 | Browser performance regression (WASM call overhead per chunk) | MEDIUM | Benchmark in RB3. Measure per-call overhead. Batch chunk operations if overhead is significant. T-STREAM-1 policy WASM showed acceptable performance. |
+| RB-R4 | Dual-path migration risk during transition | MEDIUM | RB-C2 requires rollback path. Feature flag to switch between WASM and TS protocol paths. Burn-in period per consumer. |
+| RB-R5 | Transport binding complexity (WebRTC callbacks → WASM state) | MEDIUM | RB2 defines the precise JS↔WASM boundary. Key constraint: WebRTC events are JS callbacks; WASM must be callable synchronously from those callbacks. No async WASM in hot path. |
+| RB-R6 | tweetnacl vs Rust crypto subtle differences | LOW | Already mitigated by existing cross-implementation test vectors. RB3 AC-RB-09 requires byte-identical outputs. |
+| RB-R7 | Accessibility impact | NONE | Protocol migration is below UI layer. No DOM changes. RB-C8 confirms. |
+
+---
+
 ## DISCOVERY-MODE-1 — Dual Discovery Mode Policy Codification
 
 > **Stream ID:** DISCOVERY-MODE-1
@@ -6969,7 +7176,9 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | WEBTRANSPORT-BROWSER-APP-1 (SDK) | bolt-core-sdk | `sdk-vX.Y.Z-wt<phase>-<slug>` | — |
 | WEBTRANSPORT-BROWSER-APP-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-webtransport-browser-app1-<slug>` | `ecosystem-v0.1.139-webtransport-browser-app1-codify` |
 | EGUI-WASM-1 (consumers) | localbolt-v3, localbolt | `<repo-prefix>-ew<phase>-<slug>` | — |
+| RUSTIFY-BROWSER-CORE-1 (consumers) | bolt-transport-web, localbolt-v3, localbolt, localbolt-app | `<repo-prefix>-rb<phase>-<slug>` | — |
 | EGUI-WASM-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-egui-wasm1-<slug>` | `ecosystem-v0.1.142-egui-wasm1-codify` |
+| RUSTIFY-BROWSER-CORE-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-rustify-browser-core1-<slug>` | `ecosystem-v0.1.165-rustify-browser-core1-codify` |
 | Governance | bolt-ecosystem | `ecosystem-v0.1.X-workstreams-N` | `ecosystem-v0.1.30-workstreams-1` |
 
 **Rules:**
@@ -7008,6 +7217,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | BTR-SPEC-1 | Algorithm-grade BTR protocol specification | ~~NEXT~~ COMPLETE | bolt-protocol + ecosystem | **COMPLETE** (`ecosystem-v0.1.143-btr-spec1-bs5-closeout`, 2026-03-15). All 22 ACs PASS. All 6 PM decisions APPROVED. BS1–BS5 DONE. |
 | WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | ~~NEXT~~ COMPLETE | bolt-daemon + bolt-core-sdk + ecosystem | **COMPLETE** (`ecosystem-v0.1.147-webtransport-browser-app1-wt5-closeout`, 2026-03-15). All 20 ACs PASS. All 5 PM decisions APPROVED. WT1–WT5 DONE. |
 | EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | ~~LATER~~ ABANDONED | localbolt-v3 + localbolt + ecosystem | **ABANDONED** (`ecosystem-v0.1.164`, 2026-03-17). EW2 PoC: 1,296 KiB gzipped (2.6× over 500 KiB kill). 26% reuse. 20× bundle vs current 65 KiB TS app. Stream CLOSED with findings. |
+| RUSTIFY-BROWSER-CORE-1 | Browser-path Rust/WASM protocol authority | NEXT | bolt-core-sdk + bolt-transport-web + consumers + ecosystem | **CODIFIED** (`ecosystem-v0.1.165`, 2026-03-17). 6 phases (RB1–RB6), 23 ACs, 5 PM decisions. Follow-on to RUSTIFY-CORE-1 for browser runtime authority. RB1 unblocked. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 

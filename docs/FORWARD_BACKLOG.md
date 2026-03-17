@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-17 (EGUI-WASM-1 ABANDONED — EW2 PoC measured, Q1 hard kill.)
+> **Updated:** 2026-03-17 (RUSTIFY-BROWSER-CORE-1 codified — browser-path Rust/WASM authority.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -621,6 +621,38 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 ---
 
+## Item 19: RUSTIFY-BROWSER-CORE-1 — Browser-Path Rust/WASM Protocol Authority
+
+**Priority:** NEXT (unblocked)
+**Status:** **CODIFIED** (`ecosystem-v0.1.165-rustify-browser-core1-codify`, 2026-03-17). RB1 unblocked.
+**Routing:** bolt-core-sdk (WASM bindings), bolt-transport-web (TS adapter thinning), consumers (rollout), bolt-ecosystem (governance)
+**Category:** Architecture — browser protocol authority migration from TS to Rust/WASM
+**Stream:** RUSTIFY-BROWSER-CORE-1 (phased, 6 phases RB1–RB6)
+**Dependencies:** RUSTIFY-CORE-1 complete (satisfied). T-STREAM-1 WASM integration pattern available.
+
+**Context:** Post-RUSTIFY-CORE-1 audit found browser protocol path is a complete independent TS implementation (tweetnacl + @noble/hashes). Parity with Rust by convention (test vectors), not construction. RUSTIFY-BROWSER-CORE-1 migrates browser protocol authority into Rust/WASM so TS retains only browser API bindings, persistence, and UI. Follow-on to RUSTIFY-CORE-1 (which completed daemon/native-first scope). Operationalizes the browser-path portion that ARCH-WASM1 left deferred.
+
+**Phased Plan (RUSTIFY-BROWSER-CORE-1):**
+
+| Phase | Description | Serial Gate | Status |
+|-------|-------------|-------------|--------|
+| RB1 | Policy lock + bundle budget | YES (gates RB2) | NOT-STARTED |
+| RB2 | Authority boundary audit + adapter inventory | YES (gates RB3) | NOT-STARTED |
+| RB3 | Rust/WASM crypto + session core | YES (gates RB4) | NOT-STARTED |
+| RB4 | Rust/WASM BTR + transfer core | YES (gates RB5) | NOT-STARTED |
+| RB5 | TS adapter thinning | YES (gates RB6) | NOT-STARTED |
+| RB6 | Rollout + closure | YES (closes stream) | NOT-STARTED |
+
+**Acceptance Criteria:** 23 ACs defined (AC-RB-01 through AC-RB-23). See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-BROWSER-CORE-1.
+
+**PM Decisions:** 5 (PM-RB-01 through PM-RB-05). Bundle budget, transport binding posture, rollback model, consumer scope, ARCH-WASM1 disposition.
+
+**Risk register:** 7 risks (RB-R1–R7). Bundle size (HIGH), debugging (MEDIUM), perf (MEDIUM), dual-path (MEDIUM), transport binding (MEDIUM), crypto parity (LOW), accessibility (NONE).
+
+**Key distinction from EGUI-WASM-1:** Protocol logic only (crypto, session, BTR, transfer SM). No UI rendering. Structurally smaller WASM — no font renderer, no GL backend. Existing `bolt-transfer-policy-wasm` (20 KiB) demonstrates viable protocol-only WASM.
+
+---
+
 ## Routing Summary
 
 | Item | Routing | Certainty |
@@ -643,6 +675,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | BTR-SPEC-1 | bolt-protocol + bolt-ecosystem | Confirmed |
 | WEBTRANSPORT-BROWSER-APP-1 | bolt-daemon + bolt-core-sdk + bolt-ecosystem | Confirmed |
 | EGUI-WASM-1 | localbolt-v3 + localbolt + bolt-ecosystem | Confirmed |
+| RUSTIFY-BROWSER-CORE-1 | bolt-core-sdk + bolt-transport-web + consumers + bolt-ecosystem | Confirmed |
 
 ---
 
@@ -700,6 +733,11 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-EW-03 | EGUI-WASM-1: Accessibility mitigation strategy | EW3 | LATER |
 | PM-EW-04 | EGUI-WASM-1: Adoption decision (adopt/abandon/defer) | EW4 | LATER |
 | PM-EW-05 | EGUI-WASM-1: React/TS disposition after adoption | EW5 | LATER |
+| PM-RB-01 | RUSTIFY-BROWSER-CORE-1: WASM bundle budget for protocol authority | RB1 | PENDING |
+| PM-RB-02 | RUSTIFY-BROWSER-CORE-1: Browser transport binding posture | RB1 | PENDING |
+| PM-RB-03 | RUSTIFY-BROWSER-CORE-1: Rollback/deprecation model for TS protocol | RB1 | PENDING |
+| PM-RB-04 | RUSTIFY-BROWSER-CORE-1: Consumer scope (all vs staged) | RB1 | PENDING |
+| PM-RB-05 | RUSTIFY-BROWSER-CORE-1: ARCH-WASM1 disposition | Post-codification | PENDING |
 
 ---
 
