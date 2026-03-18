@@ -5,6 +5,20 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-18 — RUSTIFY-BROWSER-ROLLOUT-1 BR3 DONE: Observability
+
+**BR3 status**: NOT-STARTED → **DONE**. AC-BR-07–09 satisfied.
+
+**getProtocolAuthorityMode():** Returns `'wasm'` | `'ts-fallback'` | `'not-initialized'`. Exported from both bolt-core and transport-web. Queryable at any time.
+
+**Console logging:** Success path logs `Protocol WASM loaded` + `Authority mode: wasm`. Failure path logs `Protocol WASM load failed: <reason>` + `Authority mode: ts-fallback`. Summary line emitted after every init attempt.
+
+**Published:** bolt-core@0.6.1, transport-web@0.7.1. localbolt-v3 updated.
+
+**Tags**: `sdk-v0.6.1`, `transport-web-v0.7.1`, `v3.0.92-br3-observability`
+
+---
+
 ## 2026-03-18 — RUSTIFY-BROWSER-ROLLOUT-1 BR2 DONE: SDK Published
 
 **BR2 status**: NOT-STARTED → **DONE**. AC-BR-04–06 satisfied.
