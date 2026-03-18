@@ -5,6 +5,18 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-18 — RUSTIFY-BROWSER-ROLLOUT-1 BR4 DONE: Burn-In Checklist
+
+**BR4 status**: NOT-STARTED → **DONE**. AC-BR-10–11 satisfied.
+
+**Burn-in checklist:** `localbolt-v3/docs/BURN_IN_CHECKLIST.md` — 19 checks across 3 categories (pre-deploy, post-deploy, forced fallback). References `getProtocolAuthorityMode()`, `[BOLT-WASM]`, `[BTR_INIT]` signals. Includes pass/fail disposition criteria for BR6.
+
+**Validation matrix:** Covers both WASM authority path and TS fallback path with explicit expected signals for each scenario.
+
+**Tags**: `v3.0.93-br4-burn-in-checklist`, `ecosystem-v0.1.176-rustify-browser-rollout1-br4-burnin`
+
+---
+
 ## 2026-03-18 — RUSTIFY-BROWSER-ROLLOUT-1 BR3 DONE: Observability
 
 **BR3 status**: NOT-STARTED → **DONE**. AC-BR-07–09 satisfied.
