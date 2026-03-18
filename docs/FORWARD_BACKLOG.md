@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-18 (RUSTIFY-BROWSER-ROLLOUT-1 BR1 DONE — delivery audit, PM-BR-01/02 approved.)
+> **Updated:** 2026-03-18 (RUSTIFY-BROWSER-ROLLOUT-1 BR2 DONE — SDK published, localbolt-v3 consuming.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -656,7 +656,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 20: RUSTIFY-BROWSER-ROLLOUT-1 — Package + Deploy + Burn-In
 
 **Priority:** NEXT (unblocked)
-**Status:** **BR1 DONE** (`ecosystem-v0.1.173`, 2026-03-18). PM-BR-01/02 APPROVED. Embedded delivery. bolt-core→0.6.0, transport-web→0.7.0. BR2 READY.
+**Status:** **BR2 DONE** (`ecosystem-v0.1.174`, 2026-03-18). bolt-core@0.6.0 + transport-web@0.7.0 published. localbolt-v3 consuming. BR3 READY.
 **Routing:** bolt-core-sdk (publish), localbolt-v3 (burn-in), localbolt / localbolt-app (follow-on), bolt-ecosystem (governance)
 **Category:** Operations — publish, deploy, observe, validate browser WASM authority
 **Stream:** RUSTIFY-BROWSER-ROLLOUT-1 (phased, 6 phases BR1–BR6)
@@ -669,7 +669,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | Phase | Description | Serial Gate | Status |
 |-------|-------------|-------------|--------|
 | BR1 | Package + artifact delivery audit | YES (gates BR2) | **DONE** (PM-BR-01/02 APPROVED, 2026-03-18) |
-| BR2 | Publish-ready SDK release | YES (gates BR3) | NOT-STARTED |
+| BR2 | Publish-ready SDK release | YES (gates BR3) | **DONE** (published to npmjs, 2026-03-18) |
 | BR3 | Observability + fallback telemetry | YES (gates BR4) | NOT-STARTED |
 | BR4 | Burn-in harness + validation checklist | YES (gates BR5) | NOT-STARTED |
 | BR5 | Follow-on consumer rollout | YES (gates BR6) | NOT-STARTED |

@@ -5,6 +5,22 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-18 — RUSTIFY-BROWSER-ROLLOUT-1 BR2 DONE: SDK Published
+
+**BR2 status**: NOT-STARTED → **DONE**. AC-BR-04–06 satisfied.
+
+**Published to npmjs:**
+- @the9ines/bolt-core@0.6.0 — WASM adapter exports (initWasmCrypto, initWasmCryptoFromModule, createWasmBtrEngine, createWasmSendSession)
+- @the9ines/bolt-transport-web@0.7.0 — embedded protocol WASM artifact (108 KiB gzipped, PASS ≤300 KiB) + initProtocolWasm() + createBtrAdapter() + WasmBtrTransferAdapter
+
+**Build infrastructure:** `scripts/build-wasm-protocol.sh` — builds bolt-protocol-wasm, copies to transport-web/wasm/, enforces size gate.
+
+**localbolt-v3:** Updated to bolt-core@0.6.0 + transport-web@0.7.0. main.ts calls initProtocolWasm() from transport-web. Vite build code-splits WASM correctly. 141/143 tests pass (2 pre-existing).
+
+**Tags**: `sdk-v0.6.0`, `transport-web-v0.7.0`, `v3.0.91-br2-published-wasm-sdk`, `ecosystem-v0.1.174-rustify-browser-rollout1-br2-publish`
+
+---
+
 ## 2026-03-18 — RUSTIFY-BROWSER-ROLLOUT-1 BR1 DONE: Delivery Audit
 
 **BR1 status**: NOT-STARTED → **DONE**. AC-BR-01–03 satisfied. PM-BR-01/02 APPROVED.
