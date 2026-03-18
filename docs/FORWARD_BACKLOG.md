@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-17 (RUSTIFY-BROWSER-CORE-1 CLOSED — browser-path Rust/WASM authority complete.)
+> **Updated:** 2026-03-17 (RUSTIFY-BROWSER-ROLLOUT-1 codified — package/deploy/burn-in.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -653,6 +653,34 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 ---
 
+## Item 20: RUSTIFY-BROWSER-ROLLOUT-1 — Package + Deploy + Burn-In
+
+**Priority:** NEXT (unblocked)
+**Status:** **CODIFIED** (`ecosystem-v0.1.172-rustify-browser-rollout1-codify`, 2026-03-17). BR1 unblocked.
+**Routing:** bolt-core-sdk (publish), localbolt-v3 (burn-in), localbolt / localbolt-app (follow-on), bolt-ecosystem (governance)
+**Category:** Operations — publish, deploy, observe, validate browser WASM authority
+**Stream:** RUSTIFY-BROWSER-ROLLOUT-1 (phased, 6 phases BR1–BR6)
+**Dependencies:** RUSTIFY-BROWSER-CORE-1 CLOSED (satisfied).
+
+**Context:** Architecture delivered but not yet deployed. npm packages need publishing with WASM code, runtime observability is missing, no burn-in evidence exists. This stream turns architectural completion into product reality.
+
+**Phased Plan (RUSTIFY-BROWSER-ROLLOUT-1):**
+
+| Phase | Description | Serial Gate | Status |
+|-------|-------------|-------------|--------|
+| BR1 | Package + artifact delivery audit | YES (gates BR2) | NOT-STARTED |
+| BR2 | Publish-ready SDK release | YES (gates BR3) | NOT-STARTED |
+| BR3 | Observability + fallback telemetry | YES (gates BR4) | NOT-STARTED |
+| BR4 | Burn-in harness + validation checklist | YES (gates BR5) | NOT-STARTED |
+| BR5 | Follow-on consumer rollout | YES (gates BR6) | NOT-STARTED |
+| BR6 | Burn-in execution + disposition | YES (closes stream) | NOT-STARTED |
+
+**Acceptance Criteria:** 17 ACs defined (AC-BR-01–17). See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-BROWSER-ROLLOUT-1.
+
+**PM Decisions:** 2 (PM-BR-01: WASM delivery path, PM-BR-02: follow-on consumer timing).
+
+---
+
 ## Routing Summary
 
 | Item | Routing | Certainty |
@@ -676,6 +704,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | WEBTRANSPORT-BROWSER-APP-1 | bolt-daemon + bolt-core-sdk + bolt-ecosystem | Confirmed |
 | EGUI-WASM-1 | localbolt-v3 + localbolt + bolt-ecosystem | Confirmed |
 | RUSTIFY-BROWSER-CORE-1 | bolt-core-sdk + bolt-transport-web + consumers + bolt-ecosystem | Confirmed |
+| RUSTIFY-BROWSER-ROLLOUT-1 | bolt-core-sdk + consumers + bolt-ecosystem | Confirmed |
 
 ---
 
@@ -738,6 +767,8 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-RB-03 | RUSTIFY-BROWSER-CORE-1: Rollback/deprecation model | RB1 | **APPROVED** (condition-gated sunset, 2026-03-17) |
 | PM-RB-04 | RUSTIFY-BROWSER-CORE-1: Consumer scope | RB1 | **APPROVED** (localbolt-v3 first, staged, 2026-03-17) |
 | PM-RB-05 | RUSTIFY-BROWSER-CORE-1: ARCH-WASM1 disposition | RB1 | **APPROVED** (superseded, 2026-03-17) |
+| PM-BR-01 | RUSTIFY-BROWSER-ROLLOUT-1: WASM delivery path (embedded vs standalone) | BR2 | PENDING |
+| PM-BR-02 | RUSTIFY-BROWSER-ROLLOUT-1: Follow-on consumer timing (after burn-in vs parallel) | BR5 | PENDING |
 
 ---
 

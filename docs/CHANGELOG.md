@@ -5,6 +5,18 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-17 — RUSTIFY-BROWSER-ROLLOUT-1 Codified
+
+**New stream:** RUSTIFY-BROWSER-ROLLOUT-1 — package + deploy + observability + burn-in for browser WASM authority.
+
+**Purpose:** Operational follow-on to RUSTIFY-BROWSER-CORE-1. Publishes WASM-capable SDK, establishes runtime observability, prepares and executes burn-in, wires follow-on consumers.
+
+**Scope:** 6 phases (BR1–BR6), 17 ACs, 2 PM decisions. No architecture changes — WASM API surface frozen. BR1 unblocked immediately.
+
+**Tags**: `ecosystem-v0.1.172-rustify-browser-rollout1-codify`
+
+---
+
 ## 2026-03-17 — RUSTIFY-BROWSER-CORE-1 CLOSED: Stream Complete
 
 **RB6 status**: NOT-STARTED → **DONE**. AC-RB-21–23 satisfied. Stream CLOSED.

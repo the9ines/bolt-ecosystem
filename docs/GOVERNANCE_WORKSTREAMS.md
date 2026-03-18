@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-17 (RUSTIFY-BROWSER-CORE-1 CLOSED — browser-path Rust/WASM authority complete)
-> **Tag:** ecosystem-v0.1.171-rustify-browser-core1-rb6-closure
+> **Updated:** 2026-03-17 (RUSTIFY-BROWSER-ROLLOUT-1 codified — package/deploy/burn-in operational stream)
+> **Tag:** ecosystem-v0.1.172-rustify-browser-rollout1-codify
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -5480,6 +5480,141 @@ No upstream stream dependencies. RUSTIFY-CORE-1 is complete. T-STREAM-1 WASM int
 
 ---
 
+## RUSTIFY-BROWSER-ROLLOUT-1 — Package + Deploy + Observability + Burn-In
+
+> **Stream ID:** RUSTIFY-BROWSER-ROLLOUT-1
+> **Backlog Item:** Operational follow-on to RUSTIFY-BROWSER-CORE-1 (architecture delivered, deployment pending)
+> **Priority:** NEXT (unblocked — RUSTIFY-BROWSER-CORE-1 CLOSED)
+> **Repos:** bolt-core-sdk (publish), localbolt-v3 (primary burn-in), localbolt / localbolt-app (follow-on per PM-BR-02), bolt-ecosystem (governance)
+> **Codified:** ecosystem-v0.1.172-rustify-browser-rollout1-codify (2026-03-17)
+> **Status:** CODIFIED (BR1 unblocked immediately)
+
+---
+
+### Context & Motivation
+
+RUSTIFY-BROWSER-CORE-1 delivered browser-path Rust/WASM protocol authority: bolt-protocol-wasm crate (102 KiB gzipped), TS SDK wiring, localbolt-v3 production path. But the architecture is not yet *deployed*:
+
+- bolt-core and bolt-transport-web npm packages are not published with WASM adapter code
+- bolt-protocol-wasm artifact is not embedded in the published transport-web package
+- No runtime observability distinguishes WASM authority from TS fallback
+- No burn-in evidence from production deployment
+- Follow-on consumers (localbolt, localbolt-app) are not wired
+
+This stream turns architectural completion into boring, trustworthy product reality.
+
+**Relationship to RUSTIFY-BROWSER-CORE-1:** Operational successor. No architecture reopening. The WASM API surface is frozen. This stream publishes, deploys, observes, and validates.
+
+---
+
+### Scope Guardrails
+
+| ID | Guardrail |
+|----|-----------|
+| BR-C1 | No protocol architecture changes. bolt-protocol-wasm WASM API surface is frozen from RUSTIFY-BROWSER-CORE-1. |
+| BR-C2 | No new WASM exports. If a protocol blocker appears, escalate to a new stream. |
+| BR-C3 | Existing CI guards must remain green. |
+| BR-C4 | Exact version pinning discipline maintained. |
+| BR-C5 | Netlify deploy pipeline not disrupted. |
+| BR-C6 | TS fallback path must remain operational throughout (PM-RB-03). |
+
+---
+
+### RUSTIFY-BROWSER-ROLLOUT-1 Phase Table
+
+| Phase | Description | Type | Serial Gate | Dependencies | Status |
+|-------|-------------|------|-------------|--------------|--------|
+| **BR1** | Package + artifact delivery audit | Engineering audit | YES — gates BR2 | None | NOT-STARTED |
+| **BR2** | Publish-ready SDK release | Engineering | YES — gates BR3 | BR1 complete | NOT-STARTED |
+| **BR3** | Observability + fallback telemetry | Engineering | YES — gates BR4 | BR2 complete | NOT-STARTED |
+| **BR4** | Burn-in harness + validation checklist | Engineering/PM | YES — gates BR5 | BR2 complete | NOT-STARTED |
+| **BR5** | Follow-on consumer rollout (localbolt, localbolt-app) | Engineering | YES — gates BR6 | BR2 + BR4 complete, PM-BR-02 resolved | NOT-STARTED |
+| **BR6** | Burn-in execution + disposition | PM gate | YES — closes stream | BR3 + BR4 + BR5 complete | NOT-STARTED |
+
+---
+
+### Acceptance Criteria
+
+#### BR1 — Package + Artifact Delivery Audit
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-BR-01 | bolt-protocol-wasm delivery path defined (embedded in transport-web or standalone) | PM-BR-01 decision + delivery plan doc |
+| AC-BR-02 | Version bump plan documented (bolt-core, transport-web, localbolt-core if needed) | Version plan doc |
+| AC-BR-03 | Build script for protocol WASM artifact exists and size-gated (≤300 KiB gzipped) | Build script + size measurement |
+
+#### BR2 — Publish-Ready SDK Release
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-BR-04 | bolt-core published with WASM adapter exports | npm registry verification |
+| AC-BR-05 | bolt-transport-web published with createBtrAdapter factory + protocol WASM artifact | npm registry + artifact verification |
+| AC-BR-06 | localbolt-v3 lockfile updated to published versions and CI green | CI pass evidence |
+
+#### BR3 — Observability + Fallback Telemetry
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-BR-07 | Runtime log distinguishes WASM authority path vs TS fallback path | Console output evidence |
+| AC-BR-08 | Console includes WASM load status, authority mode, and fallback trigger reason | Log sample |
+| AC-BR-09 | No silent failures — partial WASM load or unexpected fallback is logged | Error path verification |
+
+#### BR4 — Burn-In Harness + Validation Checklist
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-BR-10 | Burn-in checklist defined (what to verify, metrics, pass/fail criteria) | Checklist doc |
+| AC-BR-11 | Manual test plan for WASM path vs fallback path (both must work) | Test plan doc |
+
+#### BR5 — Follow-On Consumer Rollout
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-BR-12 | localbolt wired with initWasmCrypto() and pinned to WASM-capable SDK version | Code + CI evidence |
+| AC-BR-13 | localbolt-app wired with initWasmCrypto() and pinned to WASM-capable SDK version | Code + CI evidence |
+| AC-BR-14 | All wired consumer CI green after version bump | CI pass evidence |
+
+#### BR6 — Burn-In + Disposition
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-BR-15 | Burn-in evidence collected for localbolt-v3 production deploy | Burn-in report |
+| AC-BR-16 | PM disposition on TS fallback retention confirmed or revised | PM decision doc |
+| AC-BR-17 | Stream closure criteria met | Closure evidence |
+
+---
+
+### PM Open Decisions Table
+
+| ID | Decision | Blocks | Status |
+|----|----------|--------|--------|
+| PM-BR-01 | bolt-protocol-wasm delivery: embedded in transport-web (recommended, matches existing policy WASM pattern) or standalone npm package. | BR2 | PENDING |
+| PM-BR-02 | Follow-on consumer timing: wire localbolt/localbolt-app after localbolt-v3 burn-in (recommended), or in parallel. | BR5 | PENDING |
+
+---
+
+### Risk Register
+
+| ID | Risk | Severity | Mitigation |
+|----|------|----------|------------|
+| BR-R1 | WASM artifact not loaded in production (CDN stripping, wrong MIME type, Content-Security-Policy) | Medium | BR1 audit of Netlify headers. Test with actual production URL. |
+| BR-R2 | Version bump breaks pinned consumer lockfiles | Low | Exact pin strategy + CI drift guards. |
+| BR-R3 | Dual-registry publish gap (GitHub Packages vs npmjs timing) | Low | Existing publish workflows handle this. |
+| BR-R4 | Burn-in reveals WASM perf issue in real browser | Medium | Fallback is automatic (PM-RB-03). BR3 observability ensures visibility. |
+
+---
+
+### Stream-Level Done
+
+- bolt-core and bolt-transport-web published to npmjs with WASM adapter code + protocol WASM artifact
+- localbolt-v3 runs with published packages (not workspace `file:` links) and WASM authority path active
+- Consumer rollout completed according to the approved PM-BR-02 posture, with localbolt-v3 as the mandatory first burn-in target
+- Burn-in evidence exists for localbolt-v3 production deployment
+- PM has confirmed or revised TS fallback disposition
+- Stream closed
+
+---
+
 ## DISCOVERY-MODE-1 — Dual Discovery Mode Policy Codification
 
 > **Stream ID:** DISCOVERY-MODE-1
@@ -7179,6 +7314,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | RUSTIFY-BROWSER-CORE-1 (consumers) | bolt-transport-web, localbolt-v3, localbolt, localbolt-app | `<repo-prefix>-rb<phase>-<slug>` | — |
 | EGUI-WASM-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-egui-wasm1-<slug>` | `ecosystem-v0.1.142-egui-wasm1-codify` |
 | RUSTIFY-BROWSER-CORE-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-rustify-browser-core1-<slug>` | `ecosystem-v0.1.165-rustify-browser-core1-codify` |
+| RUSTIFY-BROWSER-ROLLOUT-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-rustify-browser-rollout1-<slug>` | `ecosystem-v0.1.172-rustify-browser-rollout1-codify` |
 | Governance | bolt-ecosystem | `ecosystem-v0.1.X-workstreams-N` | `ecosystem-v0.1.30-workstreams-1` |
 
 **Rules:**
@@ -7218,6 +7354,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | ~~NEXT~~ COMPLETE | bolt-daemon + bolt-core-sdk + ecosystem | **COMPLETE** (`ecosystem-v0.1.147-webtransport-browser-app1-wt5-closeout`, 2026-03-15). All 20 ACs PASS. All 5 PM decisions APPROVED. WT1–WT5 DONE. |
 | EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | ~~LATER~~ ABANDONED | localbolt-v3 + localbolt + ecosystem | **ABANDONED** (`ecosystem-v0.1.164`, 2026-03-17). EW2 PoC: 1,296 KiB gzipped (2.6× over 500 KiB kill). 26% reuse. 20× bundle vs current 65 KiB TS app. Stream CLOSED with findings. |
 | RUSTIFY-BROWSER-CORE-1 | Browser-path Rust/WASM protocol authority | ~~NEXT~~ CLOSED | bolt-core-sdk + bolt-transport-web + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.171`, 2026-03-17). All 23 ACs, all 5 PM decisions. 102 KiB gzipped WASM. localbolt-v3 complete; others PM-RB-04 deferred. TS fallback retained non-authoritative. |
+| RUSTIFY-BROWSER-ROLLOUT-1 | Package + deploy + burn-in for browser WASM authority | NEXT | bolt-core-sdk + consumers + ecosystem | **CODIFIED** (`ecosystem-v0.1.172`, 2026-03-17). 6 phases (BR1–BR6), 17 ACs, 2 PM decisions. Operational follow-on to RUSTIFY-BROWSER-CORE-1. BR1 unblocked. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 
