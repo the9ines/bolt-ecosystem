@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-17 (RUSTIFY-BROWSER-ROLLOUT-1 codified — package/deploy/burn-in operational stream)
-> **Tag:** ecosystem-v0.1.172-rustify-browser-rollout1-codify
+> **Updated:** 2026-03-18 (RUSTIFY-BROWSER-ROLLOUT-1 BR1 DONE — delivery audit, PM-BR-01/02 approved)
+> **Tag:** ecosystem-v0.1.173-rustify-browser-rollout1-br1-audit
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -5487,7 +5487,7 @@ No upstream stream dependencies. RUSTIFY-CORE-1 is complete. T-STREAM-1 WASM int
 > **Priority:** NEXT (unblocked — RUSTIFY-BROWSER-CORE-1 CLOSED)
 > **Repos:** bolt-core-sdk (publish), localbolt-v3 (primary burn-in), localbolt / localbolt-app (follow-on per PM-BR-02), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.172-rustify-browser-rollout1-codify (2026-03-17)
-> **Status:** CODIFIED (BR1 unblocked immediately)
+> **Status:** BR1 DONE (`ecosystem-v0.1.173`, 2026-03-18). AC-BR-01–03 satisfied. PM-BR-01/02 APPROVED. Embedded delivery in transport-web. BR2 READY.
 
 ---
 
@@ -5524,7 +5524,7 @@ This stream turns architectural completion into boring, trustworthy product real
 
 | Phase | Description | Type | Serial Gate | Dependencies | Status |
 |-------|-------------|------|-------------|--------------|--------|
-| **BR1** | Package + artifact delivery audit | Engineering audit | YES — gates BR2 | None | NOT-STARTED |
+| **BR1** | Package + artifact delivery audit | Engineering audit | YES — gates BR2 | None | **DONE** (`ecosystem-v0.1.173`, 2026-03-18). AC-BR-01–03 satisfied. PM-BR-01/02 APPROVED. |
 | **BR2** | Publish-ready SDK release | Engineering | YES — gates BR3 | BR1 complete | NOT-STARTED |
 | **BR3** | Observability + fallback telemetry | Engineering | YES — gates BR4 | BR2 complete | NOT-STARTED |
 | **BR4** | Burn-in harness + validation checklist | Engineering/PM | YES — gates BR5 | BR2 complete | NOT-STARTED |
@@ -5541,7 +5541,7 @@ This stream turns architectural completion into boring, trustworthy product real
 |----|-----------|----------|
 | AC-BR-01 | bolt-protocol-wasm delivery path defined (embedded in transport-web or standalone) | PM-BR-01 decision + delivery plan doc |
 | AC-BR-02 | Version bump plan documented (bolt-core, transport-web, localbolt-core if needed) | Version plan doc |
-| AC-BR-03 | Build script for protocol WASM artifact exists and size-gated (≤300 KiB gzipped) | Build script + size measurement |
+| AC-BR-03 | Build/release path and size-gate specification defined for protocol WASM artifact (≤300 KiB gzipped per PM-RB-01). Script creation is BR2 engineering scope. | Specification doc |
 
 #### BR2 — Publish-Ready SDK Release
 
@@ -5588,8 +5588,8 @@ This stream turns architectural completion into boring, trustworthy product real
 
 | ID | Decision | Blocks | Status |
 |----|----------|--------|--------|
-| PM-BR-01 | bolt-protocol-wasm delivery: embedded in transport-web (recommended, matches existing policy WASM pattern) or standalone npm package. | BR2 | PENDING |
-| PM-BR-02 | Follow-on consumer timing: wire localbolt/localbolt-app after localbolt-v3 burn-in (recommended), or in parallel. | BR5 | PENDING |
+| PM-BR-01 | bolt-protocol-wasm delivery. **APPROVED (2026-03-18): Embedded in @the9ines/bolt-transport-web.** Same pattern as existing policy WASM. No new npm package. | BR2 | **APPROVED** |
+| PM-BR-02 | Follow-on consumer timing. **APPROVED (2026-03-18): After localbolt-v3 burn-in.** localbolt/localbolt-app wired only after burn-in evidence collected. | BR5 | **APPROVED** |
 
 ---
 
@@ -7354,7 +7354,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | ~~NEXT~~ COMPLETE | bolt-daemon + bolt-core-sdk + ecosystem | **COMPLETE** (`ecosystem-v0.1.147-webtransport-browser-app1-wt5-closeout`, 2026-03-15). All 20 ACs PASS. All 5 PM decisions APPROVED. WT1–WT5 DONE. |
 | EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | ~~LATER~~ ABANDONED | localbolt-v3 + localbolt + ecosystem | **ABANDONED** (`ecosystem-v0.1.164`, 2026-03-17). EW2 PoC: 1,296 KiB gzipped (2.6× over 500 KiB kill). 26% reuse. 20× bundle vs current 65 KiB TS app. Stream CLOSED with findings. |
 | RUSTIFY-BROWSER-CORE-1 | Browser-path Rust/WASM protocol authority | ~~NEXT~~ CLOSED | bolt-core-sdk + bolt-transport-web + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.171`, 2026-03-17). All 23 ACs, all 5 PM decisions. 102 KiB gzipped WASM. localbolt-v3 complete; others PM-RB-04 deferred. TS fallback retained non-authoritative. |
-| RUSTIFY-BROWSER-ROLLOUT-1 | Package + deploy + burn-in for browser WASM authority | NEXT | bolt-core-sdk + consumers + ecosystem | **CODIFIED** (`ecosystem-v0.1.172`, 2026-03-17). 6 phases (BR1–BR6), 17 ACs, 2 PM decisions. Operational follow-on to RUSTIFY-BROWSER-CORE-1. BR1 unblocked. |
+| RUSTIFY-BROWSER-ROLLOUT-1 | Package + deploy + burn-in for browser WASM authority | NEXT | bolt-core-sdk + consumers + ecosystem | **BR1 DONE** (`ecosystem-v0.1.173`, 2026-03-18). PM-BR-01/02 APPROVED. Embedded delivery in transport-web. Version plan: bolt-core 0.6.0, transport-web 0.7.0. BR2 READY. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 

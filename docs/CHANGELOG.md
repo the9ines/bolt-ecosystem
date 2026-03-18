@@ -5,6 +5,22 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-18 — RUSTIFY-BROWSER-ROLLOUT-1 BR1 DONE: Delivery Audit
+
+**BR1 status**: NOT-STARTED → **DONE**. AC-BR-01–03 satisfied. PM-BR-01/02 APPROVED.
+
+**PM-BR-01 APPROVED:** Embed protocol WASM in @the9ines/bolt-transport-web `wasm/` directory. Same pattern as existing policy WASM. No new npm package.
+
+**PM-BR-02 APPROVED:** Follow-on consumers (localbolt, localbolt-app) wired after localbolt-v3 burn-in, not before.
+
+**Version bump plan:** bolt-core 0.5.2→0.6.0 (WASM exports), transport-web 0.6.8→0.7.0 (protocol WASM + BTR factory). Ordered publish.
+
+**AC-BR-03 note:** Build/release path and size-gate specification defined (300 KiB gzipped per PM-RB-01). Build script creation is BR2 engineering scope.
+
+**Tags**: `ecosystem-v0.1.173-rustify-browser-rollout1-br1-audit`
+
+---
+
 ## 2026-03-17 — RUSTIFY-BROWSER-ROLLOUT-1 Codified
 
 **New stream:** RUSTIFY-BROWSER-ROLLOUT-1 — package + deploy + observability + burn-in for browser WASM authority.
