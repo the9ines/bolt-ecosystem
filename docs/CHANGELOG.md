@@ -5,6 +5,23 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-17 — RUSTIFY-BROWSER-CORE-1 CLOSED: Stream Complete
+
+**RB6 status**: NOT-STARTED → **DONE**. AC-RB-21–23 satisfied. Stream CLOSED.
+
+**Rollout:**
+- localbolt-v3: **COMPLETE** — WASM init, production authority path wired
+- localbolt: **DEFERRED** — intentionally deferred follow-on under PM-RB-04 staged rollout
+- localbolt-app: **DEFERRED** — intentionally deferred follow-on under PM-RB-04 staged rollout
+
+**TS fallback:** Retained as non-authoritative condition-gated rollback path (PM-RB-03). No fixed removal date.
+
+**Stream delivered:** Browser-path Rust/WASM protocol authority — crypto, session, BTR, transfer SM. 102 KiB gzipped WASM. 42 μs/chunk hot path. 23 ACs across 6 phases. 5 PM decisions.
+
+**Tags**: `ecosystem-v0.1.171-rustify-browser-core1-rb6-closure`
+
+---
+
 ## 2026-03-17 — RUSTIFY-BROWSER-CORE-1 RB5 DONE: TS Adapter Thinning + Consumer Wiring
 
 **RB5 status**: NOT-STARTED → **DONE**. AC-RB-17–20 satisfied.
