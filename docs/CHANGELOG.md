@@ -5,6 +5,22 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-19 — LOCALBOLT-RELIABILITY-UX-1 RU2 DONE: State Visibility
+
+**RU2 status**: NOT-STARTED → **DONE**. AC-RU-03–05 satisfied.
+
+**Connection phase:** "Waiting for [device] to accept..." → "Establishing secure connection with [device]..." after peer accepts. New `connectingPhase` store field.
+
+**Paused state:** Yellow "PAUSED" badge + yellow progress bar. No longer icon-only.
+
+**Completion state:** Green checkmark + "[filename] — Transfer complete" replaces lingering 100% bar.
+
+**SAS guidance:** "Compare this code with the other device." below SAS code (PM-RU-01).
+
+**Tags**: `v3.0.95-ru2-state-visibility`
+
+---
+
 ## 2026-03-19 — LOCALBOLT-RELIABILITY-UX-1 RU1 DONE: Audit + Fix List
 
 **RU1 status**: NOT-STARTED → **DONE**. AC-RU-01–02 satisfied.
