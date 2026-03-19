@@ -5,6 +5,18 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-19 — RUSTIFY-BROWSER-ROLLOUT-1 BR5 DONE: All Consumers Rolled Out
+
+**BR5 status**: NOT-STARTED → **DONE**. AC-BR-12–14 satisfied.
+
+**localbolt:** bolt-core@0.6.2 + transport-web@0.7.2. initProtocolWasm() in main.ts. Test mock updated. 324/324 pass. Build succeeds with WASM code-splitting.
+
+**localbolt-app:** bolt-core@0.6.2 + transport-web@0.7.2. initProtocolWasm() in main.ts. 73/74 pass (1 pre-existing header.test.ts failure). Build succeeds with WASM code-splitting.
+
+**Tags**: `localbolt-v1.0.37-br5-wasm-init`, `localbolt-app-v1.2.26-br5-wasm-init`
+
+---
+
 ## 2026-03-18 — RUSTIFY-BROWSER-ROLLOUT-1 BR4 DONE: Burn-In Checklist
 
 **BR4 status**: NOT-STARTED → **DONE**. AC-BR-10–11 satisfied.
