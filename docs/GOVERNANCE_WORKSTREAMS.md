@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-19 (RUSTIFY-BROWSER-ROLLOUT-1 CLOSED — burn-in evidence collected, stream complete)
-> **Tag:** ecosystem-v0.1.178-rustify-browser-rollout1-br6-closure
+> **Updated:** 2026-03-19 (LOCALBOLT-RELIABILITY-UX-1 codified — transfer reliability + UX hardening)
+> **Tag:** ecosystem-v0.1.179-localbolt-reliability-ux1-codify
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -5615,6 +5615,150 @@ This stream turns architectural completion into boring, trustworthy product real
 
 ---
 
+## LOCALBOLT-RELIABILITY-UX-1 — Transfer Reliability + UX Hardening
+
+> **Stream ID:** LOCALBOLT-RELIABILITY-UX-1
+> **Backlog Item:** Product quality — post-architecture reliability and user experience
+> **Priority:** NEXT (unblocked — RUSTIFY-BROWSER-CORE-1 and RUSTIFY-BROWSER-ROLLOUT-1 both CLOSED)
+> **Repos:** localbolt-v3 (primary), bolt-transport-web (SDK components), localbolt / localbolt-app (follow-on), bolt-ecosystem (governance)
+> **Codified:** ecosystem-v0.1.179-localbolt-reliability-ux1-codify (2026-03-19)
+> **Status:** CODIFIED (RU1 unblocked immediately)
+
+---
+
+### Problem Statement
+
+The Rust/WASM browser core is shipped and deployed. Architecture is ahead of product polish. Five concrete user-facing issues degrade trust and clarity:
+
+1. **No intermediate state between peer acceptance and WebRTC connection** — user sees a spinner with no clarity on what's happening after the peer accepts
+2. **Transfer start is ambiguous** — no distinction between "waiting for receiver" and "actively sending"
+3. **Error toasts lack context** — "Transfer failed" with no reason or guidance
+4. **Paused state is invisible** — frozen progress bar with no label
+5. **No connection timeout feedback** — user can't tell if something is broken vs slow
+
+These are concrete, fixable, and user-impactful. This stream addresses them.
+
+---
+
+### Context & Motivation
+
+This is a **product-quality stream**, not a protocol stream. The Rust/WASM protocol core is stable and should not change unless a real correctness bug is found. The work here is about making the product feel trustworthy to real users by reducing ambiguity in state transitions, failures, and completion flows.
+
+**Relationship to closed streams:**
+- RUSTIFY-BROWSER-CORE-1 (CLOSED): delivered browser-path Rust/WASM authority
+- RUSTIFY-BROWSER-ROLLOUT-1 (CLOSED): delivered packaging, deploy, burn-in
+- LOCALBOLT-RELIABILITY-UX-1: delivers user-facing quality on top of that foundation
+
+---
+
+### Scope Guardrails
+
+| ID | Guardrail |
+|----|-----------|
+| RU-C1 | No protocol/WASM API changes unless a real correctness bug forces it |
+| RU-C2 | No architecture changes to the Rust/WASM core |
+| RU-C3 | Prefer consumer-level fixes (localbolt-v3) before SDK-wide changes unless the SDK is clearly the right layer |
+| RU-C4 | All changes must pass existing test suites |
+| RU-C5 | Do not broaden into new features disguised as reliability fixes |
+| RU-C6 | Keep rendezvous server unchanged unless a real bug is found |
+| RU-C7 | Prioritize reducing ambiguity in state and failure handling before aesthetic polish |
+
+---
+
+### LOCALBOLT-RELIABILITY-UX-1 Phase Table
+
+| Phase | Description | Type | Serial Gate | Dependencies | Status |
+|-------|-------------|------|-------------|--------------|--------|
+| **RU1** | Reliability/UX audit + prioritized issue list | Audit | YES — gates RU2 | None | NOT-STARTED |
+| **RU2** | Transfer-state visibility hardening | Engineering | YES — gates RU4 | RU1 complete | NOT-STARTED |
+| **RU3** | Error/failure/retry UX | Engineering | YES — gates RU5 | RU1 complete | NOT-STARTED |
+| **RU4** | Receive-flow clarity + completion handling | Engineering | YES — gates RU6 | RU2 complete | NOT-STARTED |
+| **RU5** | Reconnect/cancel/resume polish | Engineering | YES — gates RU6 | RU3 complete | NOT-STARTED |
+| **RU6** | Validation + closure | PM gate | YES — closes stream | RU4 + RU5 complete | NOT-STARTED |
+
+Note: RU2 and RU3 can run in parallel (both depend only on RU1).
+
+---
+
+### Acceptance Criteria
+
+#### RU1 — Audit
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-RU-01 | Prioritized issue list with severity and user impact | Issue list doc |
+| AC-RU-02 | Each issue has a concrete fix proposal (not vague "improve") | Fix proposals in issue list |
+
+#### RU2 — Transfer State Visibility
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-RU-03 | User can distinguish "waiting for peer" from "actively transferring" | UI evidence (screenshot or state description) |
+| AC-RU-04 | Paused state is explicitly labeled, not just a frozen progress bar | UI evidence |
+| AC-RU-05 | Transfer completion is clearly confirmed with filename | UI evidence |
+
+#### RU3 — Error/Failure/Retry UX
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-RU-06 | Error toasts include actionable context (not just "Transfer failed") | Before/after toast comparison |
+| AC-RU-07 | Retry count is contextualized (expected behavior, not alarming) | UI evidence |
+| AC-RU-08 | Connection timeout produces a clear message, not a hang | UI evidence or timeout test |
+
+#### RU4 — Receive-Flow Clarity
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-RU-09 | Receiver sees incoming transfer state before file starts arriving | UI evidence |
+| AC-RU-10 | Receiver sees clear transfer-complete confirmation | UI evidence |
+| AC-RU-11 | File download trigger is reliable across browsers/platforms | Cross-browser test evidence |
+
+#### RU5 — Reconnect/Cancel/Resume
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-RU-12 | Connection drop produces a clear message and recovery guidance | UI evidence |
+| AC-RU-13 | Cancel during transfer produces immediate, clean feedback | UI evidence |
+| AC-RU-14 | Post-disconnect reconnect path is obvious | UI evidence |
+
+#### RU6 — Validation + Closure
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-RU-15 | End-to-end transfer tested with all improved UX states visible | Test evidence |
+| AC-RU-16 | No regression in existing test suites | Test results |
+| AC-RU-17 | Stream closure criteria met | Closure evidence |
+
+---
+
+### PM Open Decisions Table
+
+| ID | Decision | Blocks | Status |
+|----|----------|--------|--------|
+| PM-RU-01 | SAS verification UX: add brief user-guidance text explaining what to do (compare codes with peer). Must stay concise and action-oriented. | RU2 | **APPROVED** (2026-03-19) |
+
+---
+
+### Risk Register
+
+| ID | Risk | Severity | Mitigation |
+|----|------|----------|------------|
+| RU-R1 | UI changes break existing test mocks | Low | Verify tests before and after each change |
+| RU-R2 | SDK component changes affect all consumers simultaneously | Medium | Scope to consumer-level where possible; SDK changes need version bump |
+| RU-R3 | Overscoping into feature work | Low | Each phase has concrete ACs; RU-C5 guardrail |
+
+---
+
+### Stream-Level Done
+
+- Users can tell what's happening at every step of connect → transfer → complete
+- Errors explain what went wrong and what to try
+- Cancel, pause, disconnect, and reconnect all produce clear feedback
+- No silent hangs or ambiguous waiting states
+- Existing tests pass
+
+---
+
 ## DISCOVERY-MODE-1 — Dual Discovery Mode Policy Codification
 
 > **Stream ID:** DISCOVERY-MODE-1
@@ -7315,6 +7459,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | EGUI-WASM-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-egui-wasm1-<slug>` | `ecosystem-v0.1.142-egui-wasm1-codify` |
 | RUSTIFY-BROWSER-CORE-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-rustify-browser-core1-<slug>` | `ecosystem-v0.1.165-rustify-browser-core1-codify` |
 | RUSTIFY-BROWSER-ROLLOUT-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-rustify-browser-rollout1-<slug>` | `ecosystem-v0.1.172-rustify-browser-rollout1-codify` |
+| LOCALBOLT-RELIABILITY-UX-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-localbolt-reliability-ux1-<slug>` | `ecosystem-v0.1.179-localbolt-reliability-ux1-codify` |
 | Governance | bolt-ecosystem | `ecosystem-v0.1.X-workstreams-N` | `ecosystem-v0.1.30-workstreams-1` |
 
 **Rules:**
@@ -7355,6 +7500,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | ~~LATER~~ ABANDONED | localbolt-v3 + localbolt + ecosystem | **ABANDONED** (`ecosystem-v0.1.164`, 2026-03-17). EW2 PoC: 1,296 KiB gzipped (2.6× over 500 KiB kill). 26% reuse. 20× bundle vs current 65 KiB TS app. Stream CLOSED with findings. |
 | RUSTIFY-BROWSER-CORE-1 | Browser-path Rust/WASM protocol authority | ~~NEXT~~ CLOSED | bolt-core-sdk + bolt-transport-web + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.171`, 2026-03-17). All 23 ACs, all 5 PM decisions. 102 KiB gzipped WASM. localbolt-v3 complete; others PM-RB-04 deferred. TS fallback retained non-authoritative. |
 | RUSTIFY-BROWSER-ROLLOUT-1 | Package + deploy + burn-in for browser WASM authority | ~~NEXT~~ CLOSED | bolt-core-sdk + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.178`, 2026-03-19). All 17 ACs satisfied. All consumers on published packages. Burn-in evidence collected. TS fallback retained. |
+| LOCALBOLT-RELIABILITY-UX-1 | Transfer reliability + UX hardening | NEXT | localbolt-v3 + bolt-transport-web + consumers + ecosystem | **CODIFIED** (`ecosystem-v0.1.179`, 2026-03-19). 6 phases (RU1–RU6), 17 ACs, 1 PM decision. Product quality stream. RU1 unblocked. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 

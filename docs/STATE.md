@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-19 (RUSTIFY-BROWSER-ROLLOUT-1 CLOSED — burn-in evidence collected.)
+> **Last Updated:** 2026-03-19 (LOCALBOLT-RELIABILITY-UX-1 codified — transfer reliability + UX hardening.)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -729,6 +729,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | WEBTRANSPORT-BROWSER-APP-1 | Browser↔app WebTransport migration | ~~NEXT~~ COMPLETE | bolt-daemon + bolt-core-sdk + ecosystem | **COMPLETE** (`ecosystem-v0.1.147`, 2026-03-15). All 20 ACs PASS. All 5 PM decisions APPROVED. |
 | RUSTIFY-BROWSER-CORE-1 | Browser-path Rust/WASM protocol authority | ~~NEXT~~ CLOSED | bolt-core-sdk + bolt-transport-web + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.171`, 2026-03-17). All 23 ACs, all 5 PM decisions. 102 KiB gzipped WASM. localbolt-v3 complete; others PM-RB-04 deferred. TS fallback retained non-authoritative. |
 | RUSTIFY-BROWSER-ROLLOUT-1 | Package + deploy + burn-in for browser WASM authority | ~~NEXT~~ CLOSED | bolt-core-sdk + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.178`, 2026-03-19). All 17 ACs. All consumers on published packages. Burn-in evidence collected. TS fallback retained. |
+| LOCALBOLT-RELIABILITY-UX-1 | Transfer reliability + UX hardening | NEXT | localbolt-v3 + bolt-transport-web + consumers + ecosystem | **CODIFIED** (`ecosystem-v0.1.179`, 2026-03-19). 6 phases (RU1–RU6), 17 ACs, 1 PM decision. Product quality stream. RU1 unblocked. |
 
 ---
 

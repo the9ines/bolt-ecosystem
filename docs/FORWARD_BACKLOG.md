@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-19 (RUSTIFY-BROWSER-ROLLOUT-1 CLOSED — burn-in evidence collected.)
+> **Updated:** 2026-03-19 (LOCALBOLT-RELIABILITY-UX-1 codified — transfer reliability + UX hardening.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -681,6 +681,34 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 ---
 
+## Item 21: LOCALBOLT-RELIABILITY-UX-1 — Transfer Reliability + UX Hardening
+
+**Priority:** NEXT (unblocked)
+**Status:** **CODIFIED** (`ecosystem-v0.1.179-localbolt-reliability-ux1-codify`, 2026-03-19). RU1 unblocked.
+**Routing:** localbolt-v3 (primary), bolt-transport-web (SDK components), localbolt / localbolt-app (follow-on), bolt-ecosystem (governance)
+**Category:** Product quality — reliability and UX clarity
+**Stream:** LOCALBOLT-RELIABILITY-UX-1 (phased, 6 phases RU1–RU6)
+**Dependencies:** None (RUSTIFY-BROWSER-CORE-1 and RUSTIFY-BROWSER-ROLLOUT-1 both CLOSED).
+
+**Context:** Architecture and rollout complete. Next highest-value work is product quality: transfer state visibility, error handling, receive-flow clarity, and reconnect polish. Five concrete issues identified as the opening problem set.
+
+**Phased Plan (LOCALBOLT-RELIABILITY-UX-1):**
+
+| Phase | Description | Serial Gate | Status |
+|-------|-------------|-------------|--------|
+| RU1 | Reliability/UX audit + prioritized list | YES (gates RU2, RU3) | NOT-STARTED |
+| RU2 | Transfer-state visibility hardening | YES (gates RU4) | NOT-STARTED |
+| RU3 | Error/failure/retry UX | YES (gates RU5) | NOT-STARTED |
+| RU4 | Receive-flow clarity + completion | YES (gates RU6) | NOT-STARTED |
+| RU5 | Reconnect/cancel/resume polish | YES (gates RU6) | NOT-STARTED |
+| RU6 | Validation + closure | YES (closes stream) | NOT-STARTED |
+
+**Acceptance Criteria:** 17 ACs defined (AC-RU-01–17). See `docs/GOVERNANCE_WORKSTREAMS.md` § LOCALBOLT-RELIABILITY-UX-1.
+
+**PM Decisions:** 1 (PM-RU-01: SAS verification guidance text — APPROVED).
+
+---
+
 ## Routing Summary
 
 | Item | Routing | Certainty |
@@ -705,6 +733,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | EGUI-WASM-1 | localbolt-v3 + localbolt + bolt-ecosystem | Confirmed |
 | RUSTIFY-BROWSER-CORE-1 | bolt-core-sdk + bolt-transport-web + consumers + bolt-ecosystem | Confirmed |
 | RUSTIFY-BROWSER-ROLLOUT-1 | bolt-core-sdk + consumers + bolt-ecosystem | Confirmed |
+| LOCALBOLT-RELIABILITY-UX-1 | localbolt-v3 + bolt-transport-web + consumers + bolt-ecosystem | Confirmed |
 
 ---
 
@@ -769,6 +798,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-RB-05 | RUSTIFY-BROWSER-CORE-1: ARCH-WASM1 disposition | RB1 | **APPROVED** (superseded, 2026-03-17) |
 | PM-BR-01 | RUSTIFY-BROWSER-ROLLOUT-1: WASM delivery path | BR2 | **APPROVED** (embedded in transport-web, 2026-03-18) |
 | PM-BR-02 | RUSTIFY-BROWSER-ROLLOUT-1: Follow-on consumer timing | BR5 | **APPROVED** (after burn-in, 2026-03-18) |
+| PM-RU-01 | LOCALBOLT-RELIABILITY-UX-1: SAS verification guidance text | RU2 | **APPROVED** (concise + action-oriented, 2026-03-19) |
 
 ---
 

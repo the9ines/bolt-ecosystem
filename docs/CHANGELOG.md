@@ -5,6 +5,20 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-19 — LOCALBOLT-RELIABILITY-UX-1 Codified
+
+**New stream:** LOCALBOLT-RELIABILITY-UX-1 — transfer reliability + UX hardening.
+
+**Purpose:** Product quality stream. Harden transfer state visibility, error handling, receive-flow clarity, and reconnect polish. Architecture is complete; now make the product feel trustworthy.
+
+**Top 5 issues:** (1) no intermediate connection state after peer accepts, (2) ambiguous transfer start, (3) context-free error toasts, (4) invisible pause state, (5) no timeout feedback.
+
+**Stream:** 6 phases (RU1–RU6), 17 ACs, 1 PM decision (PM-RU-01 APPROVED: SAS guidance text). RU1 unblocked.
+
+**Tags**: `ecosystem-v0.1.179-localbolt-reliability-ux1-codify`
+
+---
+
 ## 2026-03-19 — RUSTIFY-BROWSER-ROLLOUT-1 CLOSED: Stream Complete
 
 **BR6 status**: NOT-STARTED → **DONE**. AC-BR-15–17 satisfied. Stream CLOSED.
