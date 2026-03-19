@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-19 (LOCALBOLT-RELIABILITY-UX-1 RU4 DONE — receive-flow clarity.)
+> **Last Updated:** 2026-03-19 (LOCALBOLT-RELIABILITY-UX-1 RU5 DONE — reconnect/cancel polish.)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---

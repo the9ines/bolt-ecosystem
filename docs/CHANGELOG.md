@@ -5,6 +5,20 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-19 — LOCALBOLT-RELIABILITY-UX-1 RU5 DONE: Reconnect/Cancel Polish
+
+**RU5 status**: NOT-STARTED → **DONE**. AC-RU-12–14 satisfied.
+
+**Disconnect guidance:** "Select the device again to reconnect." No automatic reconnect implied.
+
+**Connection loss:** "Connection Lost — The connection was interrupted. Select the device again to reconnect." (destructive toast, was previously silent)
+
+**Cancel transition:** Grey "Transfer cancelled" label visible for 2s before UI clears. Was previously instant vanish.
+
+**Tags**: `v3.0.98-ru5-reconnect-cancel`
+
+---
+
 ## 2026-03-19 — LOCALBOLT-RELIABILITY-UX-1 RU4 DONE: Receive-Flow Clarity
 
 **RU4 status**: NOT-STARTED → **DONE**. AC-RU-09–11 satisfied.

@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-19 (LOCALBOLT-RELIABILITY-UX-1 RU4 DONE — receive-flow clarity.)
+> **Updated:** 2026-03-19 (LOCALBOLT-RELIABILITY-UX-1 RU5 DONE — reconnect/cancel polish.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -684,7 +684,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 21: LOCALBOLT-RELIABILITY-UX-1 — Transfer Reliability + UX Hardening
 
 **Priority:** NEXT (unblocked)
-**Status:** **RU4 DONE** (`ecosystem-v0.1.183`, 2026-03-19). Receive-flow incoming state, completion confirmation. RU5 READY.
+**Status:** **RU5 DONE** (`ecosystem-v0.1.184`, 2026-03-19). Disconnect guidance, cancel transition, connection-loss toast. RU6 READY.
 **Routing:** localbolt-v3 (primary), bolt-transport-web (SDK components), localbolt / localbolt-app (follow-on), bolt-ecosystem (governance)
 **Category:** Product quality — reliability and UX clarity
 **Stream:** LOCALBOLT-RELIABILITY-UX-1 (phased, 6 phases RU1–RU6)
@@ -700,7 +700,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | RU2 | Transfer-state visibility hardening | YES (gates RU4) | **DONE** (2026-03-19) |
 | RU3 | Error/failure/retry UX | YES (gates RU5) | **DONE** (2026-03-19) |
 | RU4 | Receive-flow clarity + completion | YES (gates RU6) | **DONE** (2026-03-19) |
-| RU5 | Reconnect/cancel/resume polish | YES (gates RU6) | NOT-STARTED |
+| RU5 | Reconnect/cancel/resume polish | YES (gates RU6) | **DONE** (2026-03-19) |
 | RU6 | Validation + closure | YES (closes stream) | NOT-STARTED |
 
 **Acceptance Criteria:** 17 ACs defined (AC-RU-01–17). See `docs/GOVERNANCE_WORKSTREAMS.md` § LOCALBOLT-RELIABILITY-UX-1.
