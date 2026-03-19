@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-19 (LOCALBOLT-RELIABILITY-UX-1 RU3 DONE — error/failure/retry UX)
-> **Tag:** ecosystem-v0.1.182-localbolt-reliability-ux1-ru3-error-ux
+> **Updated:** 2026-03-19 (LOCALBOLT-RELIABILITY-UX-1 RU4 DONE — receive-flow clarity)
+> **Tag:** ecosystem-v0.1.183-localbolt-reliability-ux1-ru4-receive-flow
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -5622,7 +5622,7 @@ This stream turns architectural completion into boring, trustworthy product real
 > **Priority:** NEXT (unblocked — RUSTIFY-BROWSER-CORE-1 and RUSTIFY-BROWSER-ROLLOUT-1 both CLOSED)
 > **Repos:** localbolt-v3 (primary), bolt-transport-web (SDK components), localbolt / localbolt-app (follow-on), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.179-localbolt-reliability-ux1-codify (2026-03-19)
-> **Status:** RU3 DONE (`ecosystem-v0.1.182`, 2026-03-19). Error reasons, timeout messaging, retry context. RU4+RU5 READY.
+> **Status:** RU4 DONE (`ecosystem-v0.1.183`, 2026-03-19). Receive-flow incoming state, completion confirmation, iOS caveat documented. RU5 READY.
 
 ---
 
@@ -5672,7 +5672,7 @@ This is a **product-quality stream**, not a protocol stream. The Rust/WASM proto
 | **RU1** | Reliability/UX audit + prioritized issue list | Audit | YES — gates RU2 | None | **DONE** (`ecosystem-v0.1.180`, 2026-03-19). 10 issues, 4 HIGH. Fix proposals defined. |
 | **RU2** | Transfer-state visibility hardening | Engineering | YES — gates RU4 | RU1 complete | **DONE** (2026-03-19). Connection phase, pause label, completion state, SAS guidance. |
 | **RU3** | Error/failure/retry UX | Engineering | YES — gates RU5 | RU1 complete | **DONE** (2026-03-19). Error reasons, timeout messaging, retry context. |
-| **RU4** | Receive-flow clarity + completion handling | Engineering | YES — gates RU6 | RU2 complete | NOT-STARTED |
+| **RU4** | Receive-flow clarity + completion handling | Engineering | YES — gates RU6 | RU2 complete | **DONE** (2026-03-19). Incoming state, completion timing, iOS caveat documented. |
 | **RU5** | Reconnect/cancel/resume polish | Engineering | YES — gates RU6 | RU3 complete | NOT-STARTED |
 | **RU6** | Validation + closure | PM gate | YES — closes stream | RU4 + RU5 complete | NOT-STARTED |
 
@@ -7500,7 +7500,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | ~~LATER~~ ABANDONED | localbolt-v3 + localbolt + ecosystem | **ABANDONED** (`ecosystem-v0.1.164`, 2026-03-17). EW2 PoC: 1,296 KiB gzipped (2.6× over 500 KiB kill). 26% reuse. 20× bundle vs current 65 KiB TS app. Stream CLOSED with findings. |
 | RUSTIFY-BROWSER-CORE-1 | Browser-path Rust/WASM protocol authority | ~~NEXT~~ CLOSED | bolt-core-sdk + bolt-transport-web + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.171`, 2026-03-17). All 23 ACs, all 5 PM decisions. 102 KiB gzipped WASM. localbolt-v3 complete; others PM-RB-04 deferred. TS fallback retained non-authoritative. |
 | RUSTIFY-BROWSER-ROLLOUT-1 | Package + deploy + burn-in for browser WASM authority | ~~NEXT~~ CLOSED | bolt-core-sdk + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.178`, 2026-03-19). All 17 ACs satisfied. All consumers on published packages. Burn-in evidence collected. TS fallback retained. |
-| LOCALBOLT-RELIABILITY-UX-1 | Transfer reliability + UX hardening | NEXT | localbolt-v3 + bolt-transport-web + consumers + ecosystem | **RU3 DONE (`ecosystem-v0.1.182`, 2026-03-19). Error reasons, timeout messaging, retry context. RU4+RU5 READY. |
+| LOCALBOLT-RELIABILITY-UX-1 | Transfer reliability + UX hardening | NEXT | localbolt-v3 + bolt-transport-web + consumers + ecosystem | **RU4 DONE (`ecosystem-v0.1.183`, 2026-03-19). Receive-flow incoming state, completion confirmation, iOS caveat documented. RU5 READY. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 

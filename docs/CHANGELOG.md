@@ -5,6 +5,20 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-19 — LOCALBOLT-RELIABILITY-UX-1 RU4 DONE: Receive-Flow Clarity
+
+**RU4 status**: NOT-STARTED → **DONE**. AC-RU-09–11 satisfied.
+
+**Incoming state:** `'receiving'` status emitted on first chunk. "Incoming file — [size]" with pulsing border before progress starts.
+
+**Completion:** Green checkmark visible for 3s (extended from 2s).
+
+**Download trigger:** Reliable on desktop + Android. iOS Safari platform limitation documented (may open in-browser instead of downloading).
+
+**Tags**: `v3.0.97-ru4-receive-flow`
+
+---
+
 ## 2026-03-19 — LOCALBOLT-RELIABILITY-UX-1 RU3 DONE: Error/Failure/Retry UX
 
 **RU3 status**: NOT-STARTED → **DONE**. AC-RU-06–08 satisfied.
