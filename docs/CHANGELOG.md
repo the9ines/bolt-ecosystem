@@ -5,6 +5,23 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-19 — LOCALBOLT-RELIABILITY-UX-1 RU1 DONE: Audit + Fix List
+
+**RU1 status**: NOT-STARTED → **DONE**. AC-RU-01–02 satisfied.
+
+**10 issues prioritized (4 HIGH):**
+1. No "Establishing connection..." state after peer accepts (consumer)
+2. Paused state has no label (SDK)
+3. Error toasts lack reason (mixed)
+4. Connection timeout is silent (consumer)
+5–10: Incoming transfer state, completion clarity, disconnect guidance, cancel transition, SAS guidance, retry context
+
+Each issue has exact fix proposal, likely files, layer classification, and phase assignment. Top 4 issues address state ambiguity and failure handling.
+
+**Tags**: `ecosystem-v0.1.180-localbolt-reliability-ux1-ru1-audit`
+
+---
+
 ## 2026-03-19 — LOCALBOLT-RELIABILITY-UX-1 Codified
 
 **New stream:** LOCALBOLT-RELIABILITY-UX-1 — transfer reliability + UX hardening.
