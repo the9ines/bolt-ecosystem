@@ -5,6 +5,20 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-19 — LOCALBOLT-RELIABILITY-UX-1 RU3 DONE: Error/Failure/Retry UX
+
+**RU3 status**: NOT-STARTED → **DONE**. AC-RU-06–08 satisfied.
+
+**Error reasons:** classifyTransferError() maps to user-meaningful messages. errorDetail field on TransferProgress.
+
+**Timeout:** "Still connecting..." after 10s, "Connection Timed Out" on failure.
+
+**Retry:** "Auto-retrying (3/5) — normal on slower connections."
+
+**Tags**: `v3.0.96-ru3-error-ux`
+
+---
+
 ## 2026-03-19 — LOCALBOLT-RELIABILITY-UX-1 RU2 DONE: State Visibility
 
 **RU2 status**: NOT-STARTED → **DONE**. AC-RU-03–05 satisfied.
