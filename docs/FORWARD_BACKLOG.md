@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-19 (RUSTIFY-BROWSER-ROLLOUT-1 BR5 DONE — all consumers rolled out.)
+> **Updated:** 2026-03-19 (RUSTIFY-BROWSER-ROLLOUT-1 CLOSED — burn-in evidence collected.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -656,7 +656,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 20: RUSTIFY-BROWSER-ROLLOUT-1 — Package + Deploy + Burn-In
 
 **Priority:** NEXT (unblocked)
-**Status:** **BR5 DONE** (`ecosystem-v0.1.177`, 2026-03-19). All consumers rolled out. BR6 READY.
+**Status:** **CLOSED** (`ecosystem-v0.1.178`, 2026-03-19). All 17 ACs. Burn-in evidence collected. Stream CLOSED.
 **Routing:** bolt-core-sdk (publish), localbolt-v3 (burn-in), localbolt / localbolt-app (follow-on), bolt-ecosystem (governance)
 **Category:** Operations — publish, deploy, observe, validate browser WASM authority
 **Stream:** RUSTIFY-BROWSER-ROLLOUT-1 (phased, 6 phases BR1–BR6)
@@ -673,7 +673,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | BR3 | Observability + fallback telemetry | YES (gates BR4) | **DONE** (authority mode query, 2026-03-18) |
 | BR4 | Burn-in harness + validation checklist | YES (gates BR5) | **DONE** (checklist defined, 2026-03-18) |
 | BR5 | Follow-on consumer rollout | YES (gates BR6) | **DONE** (all consumers, 2026-03-19) |
-| BR6 | Burn-in execution + disposition | YES (closes stream) | NOT-STARTED |
+| BR6 | Burn-in execution + disposition | YES (closes stream) | **DONE** (stream CLOSED, 2026-03-19) |
 
 **Acceptance Criteria:** 17 ACs defined (AC-BR-01–17). See `docs/GOVERNANCE_WORKSTREAMS.md` § RUSTIFY-BROWSER-ROLLOUT-1.
 

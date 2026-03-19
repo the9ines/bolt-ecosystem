@@ -5,6 +5,22 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-19 — RUSTIFY-BROWSER-ROLLOUT-1 CLOSED: Stream Complete
+
+**BR6 status**: NOT-STARTED → **DONE**. AC-BR-15–17 satisfied. Stream CLOSED.
+
+**Burn-in evidence:** Live burn-in produced meaningful real-world evidence, including a real deployed regression (receiver BTR DH key mismatch) that was found, root-caused, fixed, redeployed, and validated as part of the stream. Pre-deploy checks all passed. WASM authority observed. Rendezvous scoping fix deployed.
+
+**Fallback disposition:** TS fallback retained as non-authoritative rollback path (PM-RB-03). No fixed removal date.
+
+**Stream delivered:** Published SDK packages (bolt-core@0.6.2, transport-web@0.7.2). All 3 consumers on published packages. Observability (getProtocolAuthorityMode). Burn-in checklist. Bug found and fixed during burn-in. Rendezvous scoping fix.
+
+Full long-horizon burn-in continues as ongoing operational practice beyond stream closure.
+
+**Tags**: `ecosystem-v0.1.178-rustify-browser-rollout1-br6-closure`
+
+---
+
 ## 2026-03-19 — RUSTIFY-BROWSER-ROLLOUT-1 BR5 DONE: All Consumers Rolled Out
 
 **BR5 status**: NOT-STARTED → **DONE**. AC-BR-12–14 satisfied.
