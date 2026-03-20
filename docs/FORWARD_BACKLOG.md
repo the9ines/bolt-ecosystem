@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-20 (LOCALBOLT-PERF-1 PF2 DONE — baseline measured ~33–38 Mbps LAN, PF3/PF4 unblocked.)
+> **Updated:** 2026-03-20 (LOCALBOLT-PERF-1 PF3/PF4 DONE — tuned ~47 Mbps LAN, PF6 READY.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -712,7 +712,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 22: LOCALBOLT-PERF-1 — Transfer Throughput + Performance Hardening
 
 **Priority:** NEXT (unblocked)
-**Status:** **PF2 DONE** (`ecosystem-v0.1.189`, 2026-03-20). Baseline measured: ~33–38 Mbps sustained LAN throughput. PF3/PF4 unblocked.
+**Status:** **PF3/PF4 DONE** (`ecosystem-v0.1.191`, 2026-03-20). Tuned: ~47 Mbps sustained LAN (was ~33 Mbps). 64KB chunks, 256KB threshold. PF6 READY.
 **Routing:** bolt-core-sdk (transfer policy, metrics), localbolt-v3 (primary target), bolt-ecosystem (governance)
 **Category:** Product performance — throughput measurement and tuning
 **Stream:** LOCALBOLT-PERF-1 (phased, 6 phases PF1–PF6)
@@ -726,8 +726,8 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 |-------|-------------|-------------|--------|
 | PF1 | Performance audit + bottleneck model | YES (gates PF2) | **DONE** (6 hypotheses, plan defined, 2026-03-20) |
 | PF2 | Instrumentation + measurement harness | YES (gates PF3, PF4) | **DONE** (baseline: ~33–38 Mbps LAN, 2026-03-20) |
-| PF3 | Browser/browser throughput tuning | YES (gates PF6) | NOT-STARTED |
-| PF4 | Chunking/buffering/backpressure tuning | YES (gates PF6) | NOT-STARTED |
+| PF3 | Browser/browser throughput tuning | YES (gates PF6) | **DONE** (tuned: ~47 Mbps, +42% at 50 MiB, 2026-03-20) |
+| PF4 | Chunking/buffering/backpressure tuning | YES (gates PF6) | **DONE** (64KB chunks, 256KB threshold, 2026-03-20) |
 | PF5 | Comparative transport assessment (conditional, PM-PF-01) | NO (optional) | NOT-STARTED |
 | PF6 | Validation + closure | YES (closes stream) | NOT-STARTED |
 

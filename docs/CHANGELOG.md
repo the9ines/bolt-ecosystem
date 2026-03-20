@@ -5,6 +5,28 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-20 — LOCALBOLT-PERF-1 PF3/PF4 DONE: Throughput Tuned
+
+**PF3 status**: NOT-STARTED → **DONE**. AC-PF-07/08/09 all PASS.
+**PF4 status**: NOT-STARTED → **DONE**. AC-PF-10/11/12 all PASS.
+
+**Tuning:** Chunk size 16KB→64KB, backpressure threshold 64KB→256KB. Published as bolt-core@0.6.3, bolt-transport-web@0.7.6.
+
+**Before/after (Chrome Mac Studio → Safari iPhone 15 Pro, same LAN):**
+- 1 MiB: 30.5 → 38.5 Mbps (+26%)
+- 10 MiB: 38.4 → 45.6 Mbps (+19%)
+- 50 MiB: 33.0 → 46.8 Mbps (+42%)
+
+**Sustained LAN ceiling improved from ~33 Mbps to ~47 Mbps on the tested path.**
+
+**Not targeted:** binary wire format (H2), crypto-envelope optimization (H1), transport comparison (H5). These remain PF5/future scope.
+
+**PF6 (validation + closure) now READY.**
+
+**Tags**: `ecosystem-v0.1.191-localbolt-perf1-pf3-pf4-tuned`, `sdk-v0.6.19-perf-chunk64k-bp256k`, `v3.0.100-pf3-pf4-perf-tuning`
+
+---
+
 ## 2026-03-20 — LOCALBOLT-PERF-1 PF2 DONE: Baseline Measured
 
 **PF2 status**: IN-PROGRESS → **DONE**. AC-PF-04/05/06 all PASS.
