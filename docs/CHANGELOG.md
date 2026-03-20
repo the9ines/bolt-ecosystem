@@ -5,6 +5,22 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-20 — LOCALBOLT-PERF-1 PF1 DONE: Performance Audit
+
+**PF1 status**: NOT-STARTED → **DONE**. AC-PF-01–03 satisfied (audit/specification phase).
+
+**Bottleneck model:** 6 hypotheses ranked by code-audit confidence. Per-chunk pipeline traced end-to-end. All labeled as unverified pending PF2 measurement.
+
+**Top hypotheses:** (1) double encryption per chunk, (2) JSON+base64 wire expansion, (3) conservative backpressure threshold, (4) small chunk size. All require PF2 measurement before any tuning.
+
+**Measurement plan:** LAN-only. 3 file sizes (1/10/50 MiB). Chrome→Chrome primary. Existing S2B metrics infrastructure reusable.
+
+**AC-PF-01 note:** Measurement approach defined. Actual baseline measurement is PF2 scope.
+
+**Tags**: `ecosystem-v0.1.187-localbolt-perf1-pf1-audit`
+
+---
+
 ## 2026-03-19 — LOCALBOLT-PERF-1 Codified
 
 **New stream:** LOCALBOLT-PERF-1 — transfer throughput + performance hardening.

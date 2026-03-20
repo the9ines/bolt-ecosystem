@@ -11,7 +11,7 @@ Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosyst
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-19 (LOCALBOLT-PERF-1 codified — transfer throughput + performance hardening.)
+> **Last Updated:** 2026-03-20 (LOCALBOLT-PERF-1 PF1 DONE — performance audit + bottleneck model.)
 > **Authority:** Informational. Updated after each tagged release or H-phase completion.
 
 ---
@@ -730,7 +730,7 @@ Codified: ecosystem-v0.1.72-n-stream-1-codify (2026-03-07). N0 locked: ecosystem
 | RUSTIFY-BROWSER-CORE-1 | Browser-path Rust/WASM protocol authority | ~~NEXT~~ CLOSED | bolt-core-sdk + bolt-transport-web + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.171`, 2026-03-17). All 23 ACs, all 5 PM decisions. 102 KiB gzipped WASM. localbolt-v3 complete; others PM-RB-04 deferred. TS fallback retained non-authoritative. |
 | RUSTIFY-BROWSER-ROLLOUT-1 | Package + deploy + burn-in for browser WASM authority | ~~NEXT~~ CLOSED | bolt-core-sdk + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.178`, 2026-03-19). All 17 ACs. All consumers on published packages. Burn-in evidence collected. TS fallback retained. |
 | LOCALBOLT-RELIABILITY-UX-1 | Transfer reliability + UX hardening | ~~NEXT~~ CLOSED | localbolt-v3 + bolt-transport-web + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.185`, 2026-03-19). All 17 ACs. 10 UX improvements. Zero regressions. |
-| LOCALBOLT-PERF-1 | Transfer throughput + performance hardening | NEXT | bolt-core-sdk + localbolt-v3 + ecosystem | **CODIFIED** (`ecosystem-v0.1.186`, 2026-03-19). 6 phases (PF1–PF6), 17 ACs, 2 PM decisions. Product performance stream. PF1 unblocked. |
+| LOCALBOLT-PERF-1 | Transfer throughput + performance hardening | NEXT | bolt-core-sdk + localbolt-v3 + ecosystem | **PF1 DONE** (`ecosystem-v0.1.187`, 2026-03-20). Bottleneck model + measurement plan. 6 hypotheses ranked. PF2 READY. |
 
 ---
 
