@@ -5,6 +5,22 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-20 — LOCALBOLT-PERF-1 PF5 DONE: Ceiling Assessed
+
+**PF5 status**: NOT-STARTED → **DONE**. AC-PF-13 PASS. AC-PF-14 N/A (conditional, not executed).
+
+**Ceiling assessment:** Measured convergence suggests the tuned path is approaching a plausible practical ceiling at ~47 Mbps on the tested route (Chrome Mac Studio → Safari/WebKit iPhone 15 Pro, same-LAN Wi-Fi). Tight clustering at 50 MiB (4% range/mean) and sublinear return from chunk tuning (4× input → 1.42× output) support this read.
+
+**Remaining credible tunables:** double encryption removal (protocol-level), binary wire format (codec rewrite). Both require dedicated implementation streams. Further chunk/backpressure tuning shows low yield on the tested path.
+
+**Transport comparison:** Not executed. No browser↔browser alternative transport exists in the codebase. Browser "QUIC" means WebTransport over HTTP/3 (requires server endpoint, not peer-to-peer). True comparison deferred to future implementation stream.
+
+**PF6 (validation + closure) now READY.**
+
+**Tags**: `ecosystem-v0.1.192-localbolt-perf1-pf5-ceiling`
+
+---
+
 ## 2026-03-20 — LOCALBOLT-PERF-1 PF3/PF4 DONE: Throughput Tuned
 
 **PF3 status**: NOT-STARTED → **DONE**. AC-PF-07/08/09 all PASS.
