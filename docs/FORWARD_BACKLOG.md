@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-20 (LOCALBOLT-PERF-1 PF1 DONE — performance audit + bottleneck model.)
+> **Updated:** 2026-03-20 (LOCALBOLT-PERF-1 PF2 IN-PROGRESS — metrics enabled, baseline runs pending.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -712,7 +712,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 22: LOCALBOLT-PERF-1 — Transfer Throughput + Performance Hardening
 
 **Priority:** NEXT (unblocked)
-**Status:** **PF1 DONE** (`ecosystem-v0.1.187`, 2026-03-20). Bottleneck model + measurement plan. 6 hypotheses ranked. PF2 READY.
+**Status:** **PF2 IN-PROGRESS** (`ecosystem-v0.1.188`, 2026-03-20). Metrics enabled. Baseline measurement runs pending.
 **Routing:** bolt-core-sdk (transfer policy, metrics), localbolt-v3 (primary target), bolt-ecosystem (governance)
 **Category:** Product performance — throughput measurement and tuning
 **Stream:** LOCALBOLT-PERF-1 (phased, 6 phases PF1–PF6)
@@ -725,7 +725,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | Phase | Description | Serial Gate | Status |
 |-------|-------------|-------------|--------|
 | PF1 | Performance audit + bottleneck model | YES (gates PF2) | **DONE** (6 hypotheses, plan defined, 2026-03-20) |
-| PF2 | Instrumentation + measurement harness | YES (gates PF3, PF4) | NOT-STARTED |
+| PF2 | Instrumentation + measurement harness | YES (gates PF3, PF4) | **IN-PROGRESS** (metrics enabled, baseline runs pending) |
 | PF3 | Browser/browser throughput tuning | YES (gates PF6) | NOT-STARTED |
 | PF4 | Chunking/buffering/backpressure tuning | YES (gates PF6) | NOT-STARTED |
 | PF5 | Comparative transport assessment (conditional, PM-PF-01) | NO (optional) | NOT-STARTED |

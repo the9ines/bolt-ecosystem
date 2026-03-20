@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-20 (LOCALBOLT-PERF-1 PF1 DONE — performance audit + bottleneck model)
-> **Tag:** ecosystem-v0.1.187-localbolt-perf1-pf1-audit
+> **Updated:** 2026-03-20 (LOCALBOLT-PERF-1 PF2 IN-PROGRESS — metrics enabled, baseline runs pending)
+> **Tag:** ecosystem-v0.1.188-localbolt-perf1-pf2-instrumentation
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -5766,7 +5766,7 @@ Note: RU2 and RU3 can run in parallel (both depend only on RU1).
 > **Priority:** NEXT (unblocked — RUSTIFY-BROWSER-CORE-1, RUSTIFY-BROWSER-ROLLOUT-1, and LOCALBOLT-RELIABILITY-UX-1 all CLOSED)
 > **Repos:** bolt-core-sdk (transfer policy, chunk config, metrics), localbolt-v3 (primary measurement target), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.186-localbolt-perf1-codify (2026-03-19)
-> **Status:** PF1 DONE (`ecosystem-v0.1.187`, 2026-03-20). Bottleneck model + measurement plan defined. 6 hypotheses ranked. PF2 READY.
+> **Status:** PF2 IN-PROGRESS (`ecosystem-v0.1.188`, 2026-03-20). Metrics enabled (AC-PF-04/05 PASS). Baseline measurement runs pending (AC-PF-06).
 
 ---
 
@@ -5812,7 +5812,7 @@ This stream measures and improves real-world browser-to-browser transfer through
 | Phase | Description | Type | Serial Gate | Dependencies | Status |
 |-------|-------------|------|-------------|--------------|--------|
 | **PF1** | Performance audit + bottleneck model | Audit | YES — gates PF2 | None | **DONE** (`ecosystem-v0.1.187`, 2026-03-20). 6 hypotheses ranked. Measurement plan defined. |
-| **PF2** | Instrumentation + measurement harness | Engineering | YES — gates PF3, PF4 | PF1 complete | NOT-STARTED |
+| **PF2** | Instrumentation + measurement harness | Engineering | YES — gates PF3, PF4 | PF1 complete | **IN-PROGRESS** (2026-03-20). AC-PF-04/05 PASS. AC-PF-06 pending baseline runs. |
 | **PF3** | Browser/browser throughput tuning | Engineering | YES — gates PF6 | PF2 complete | NOT-STARTED |
 | **PF4** | Chunking/buffering/backpressure tuning | Engineering | YES — gates PF6 | PF2 complete | NOT-STARTED |
 | **PF5** | Comparative transport assessment (conditional) | Audit/Engineering | NO — optional, PM-PF-01 gated | PF3 + PF4 complete | NOT-STARTED |
@@ -7648,7 +7648,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | RUSTIFY-BROWSER-CORE-1 | Browser-path Rust/WASM protocol authority | ~~NEXT~~ CLOSED | bolt-core-sdk + bolt-transport-web + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.171`, 2026-03-17). All 23 ACs, all 5 PM decisions. 102 KiB gzipped WASM. localbolt-v3 complete; others PM-RB-04 deferred. TS fallback retained non-authoritative. |
 | RUSTIFY-BROWSER-ROLLOUT-1 | Package + deploy + burn-in for browser WASM authority | ~~NEXT~~ CLOSED | bolt-core-sdk + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.178`, 2026-03-19). All 17 ACs satisfied. All consumers on published packages. Burn-in evidence collected. TS fallback retained. |
 | LOCALBOLT-RELIABILITY-UX-1 | Transfer reliability + UX hardening | ~~NEXT~~ CLOSED | localbolt-v3 + bolt-transport-web + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.185`, 2026-03-19). All 17 ACs satisfied. 10 UX improvements. Zero regressions. |
-| LOCALBOLT-PERF-1 | Transfer throughput + performance hardening | NEXT | bolt-core-sdk + localbolt-v3 + ecosystem | **PF1 DONE** (`ecosystem-v0.1.187`, 2026-03-20). Bottleneck model + measurement plan. 6 hypotheses ranked. PF2 READY. |
+| LOCALBOLT-PERF-1 | Transfer throughput + performance hardening | NEXT | bolt-core-sdk + localbolt-v3 + ecosystem | **PF2 IN-PROGRESS** (`ecosystem-v0.1.188`, 2026-03-20). Metrics enabled. Baseline runs pending. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 

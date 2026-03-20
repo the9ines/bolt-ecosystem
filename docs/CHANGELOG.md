@@ -5,6 +5,20 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-20 — LOCALBOLT-PERF-1 PF2 IN-PROGRESS: Instrumentation Enabled
+
+**PF2 status**: NOT-STARTED → **IN-PROGRESS**. AC-PF-04 PASS. AC-PF-05 PASS. AC-PF-06 pending.
+
+**Instrumentation:** `setTransferMetricsEnabled` exported from bolt-transport-web. Enabled in localbolt-v3 main.ts. All transfers now log `[TRANSFER_METRICS]` JSON to console.
+
+**Metrics captured per transfer:** totalTimeMs, timeToFirstChunkMs, medianChunkIntervalMs, p95ChunkIntervalMs, maxBufferedAmount, stallCount, totalStallTimeMs, effectiveThroughputMbps.
+
+**Blocker for PF2 DONE:** AC-PF-06 requires actual same-LAN baseline measurement runs on physical devices. Instrumentation is deployed; execution pending.
+
+**Tags**: `v3.0.99-pf2-transfer-metrics`
+
+---
+
 ## 2026-03-20 — LOCALBOLT-PERF-1 PF1 DONE: Performance Audit
 
 **PF1 status**: NOT-STARTED → **DONE**. AC-PF-01–03 satisfied (audit/specification phase).
