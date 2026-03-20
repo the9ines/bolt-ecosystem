@@ -5,15 +5,29 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
-## 2026-03-20 — LOCALBOLT-PERF-1 PF2 IN-PROGRESS: Instrumentation Enabled
+## 2026-03-20 — LOCALBOLT-PERF-1 PF2 DONE: Baseline Measured
+
+**PF2 status**: IN-PROGRESS → **DONE**. AC-PF-04/05/06 all PASS.
+
+**Baseline results (Chrome Mac Studio → Safari iPhone 15 Pro, same LAN):**
+- 1 MiB: 30.5 Mbps mean (warm-start 37.4 Mbps)
+- 10 MiB: 38.4 Mbps mean
+- 50 MiB: 33.0 Mbps mean
+- **Sustained LAN ceiling: ~33–38 Mbps (4.1–4.8 MB/s)**
+
+**Key findings:** Zero stalls across 9 runs. Max buffered ~59 KB (under 64 KB threshold). Median chunk interval 1 ms (crypto not visibly binding). Reproducibility within 30% threshold for all file sizes.
+
+**PF3 (throughput tuning) and PF4 (chunking/buffering/backpressure) now unblocked.**
+
+**Tags**: `ecosystem-v0.1.189-localbolt-perf1-pf2-baseline`
+
+---
+
+## 2026-03-20 — LOCALBOLT-PERF-1 PF2 Instrumentation Enabled
 
 **PF2 status**: NOT-STARTED → **IN-PROGRESS**. AC-PF-04 PASS. AC-PF-05 PASS. AC-PF-06 pending.
 
 **Instrumentation:** `setTransferMetricsEnabled` exported from bolt-transport-web. Enabled in localbolt-v3 main.ts. All transfers now log `[TRANSFER_METRICS]` JSON to console.
-
-**Metrics captured per transfer:** totalTimeMs, timeToFirstChunkMs, medianChunkIntervalMs, p95ChunkIntervalMs, maxBufferedAmount, stallCount, totalStallTimeMs, effectiveThroughputMbps.
-
-**Blocker for PF2 DONE:** AC-PF-06 requires actual same-LAN baseline measurement runs on physical devices. Instrumentation is deployed; execution pending.
 
 **Tags**: `v3.0.99-pf2-transfer-metrics`
 
