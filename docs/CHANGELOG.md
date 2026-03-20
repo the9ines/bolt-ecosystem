@@ -5,6 +5,22 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-20 — LOCALBOLT-PERF-1 CLOSED: Stream Complete
+
+**PF6 status**: READY → **DONE**. AC-PF-15/16/17 all PASS. **Stream CLOSED.**
+
+**Stream summary:** Measured the real shipped browser↔browser product path (Chrome Mac Studio → Safari/WebKit iPhone 15 Pro, same-LAN Wi-Fi), established a reproducible baseline (~33–38 Mbps), implemented targeted tuning (64KB chunks, 256KB backpressure threshold), and measured a sustained improvement to ~47 Mbps (+42% at 50 MiB). Convergence analysis suggests a plausible practical ceiling on the tested route for parameter-level tuning.
+
+**Regression posture:** Stable. bolt-core 232/232, bolt-transport-web 375/375, localbolt-v3 141/143 (2 pre-existing). No regressions from any phase.
+
+**Not claimed:** No universal browser/network conclusion. No alternative transport comparison (none exists). Protocol-level headroom (double encryption, binary wire format) documented but not targeted.
+
+**Published:** bolt-core@0.6.3, bolt-transport-web@0.7.6.
+
+**Tags**: `ecosystem-v0.1.193-localbolt-perf1-pf6-closed`
+
+---
+
 ## 2026-03-20 — LOCALBOLT-PERF-1 PF5 DONE: Ceiling Assessed
 
 **PF5 status**: NOT-STARTED → **DONE**. AC-PF-13 PASS. AC-PF-14 N/A (conditional, not executed).

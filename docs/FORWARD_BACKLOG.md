@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-20 (LOCALBOLT-PERF-1 PF5 DONE — ceiling assessed ~47 Mbps on tested path, PF6 READY.)
+> **Updated:** 2026-03-20 (LOCALBOLT-PERF-1 CLOSED — baseline ~33–38 Mbps → tuned ~47 Mbps on tested path.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -712,7 +712,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 22: LOCALBOLT-PERF-1 — Transfer Throughput + Performance Hardening
 
 **Priority:** NEXT (unblocked)
-**Status:** **PF5 DONE** (`ecosystem-v0.1.192`, 2026-03-20). Ceiling assessed: ~47 Mbps plausible practical ceiling on tested path. PF6 READY.
+**Status:** **CLOSED** (`ecosystem-v0.1.193`, 2026-03-20). Baseline ~33–38 Mbps → tuned ~47 Mbps on tested path. All closure criteria satisfied.
 **Routing:** bolt-core-sdk (transfer policy, metrics), localbolt-v3 (primary target), bolt-ecosystem (governance)
 **Category:** Product performance — throughput measurement and tuning
 **Stream:** LOCALBOLT-PERF-1 (phased, 6 phases PF1–PF6)
@@ -729,7 +729,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PF3 | Browser/browser throughput tuning | YES (gates PF6) | **DONE** (tuned: ~47 Mbps, +42% at 50 MiB, 2026-03-20) |
 | PF4 | Chunking/buffering/backpressure tuning | YES (gates PF6) | **DONE** (64KB chunks, 256KB threshold, 2026-03-20) |
 | PF5 | Comparative transport assessment (conditional, PM-PF-01) | NO (optional) | **DONE** (ceiling assessed, transport comparison N/A, 2026-03-20) |
-| PF6 | Validation + closure | YES (closes stream) | NOT-STARTED |
+| PF6 | Validation + closure | YES (closes stream) | **DONE** (stream CLOSED, 2026-03-20) |
 
 **Acceptance Criteria:** 17 ACs defined (AC-PF-01–17). See `docs/GOVERNANCE_WORKSTREAMS.md` § LOCALBOLT-PERF-1.
 
