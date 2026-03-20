@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-19 (LOCALBOLT-RELIABILITY-UX-1 CLOSED — reliability + UX hardening complete)
-> **Tag:** ecosystem-v0.1.185-localbolt-reliability-ux1-ru6-closure
+> **Updated:** 2026-03-19 (LOCALBOLT-PERF-1 codified — transfer throughput + performance hardening)
+> **Tag:** ecosystem-v0.1.186-localbolt-perf1-codify
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -5759,6 +5759,152 @@ Note: RU2 and RU3 can run in parallel (both depend only on RU1).
 
 ---
 
+## LOCALBOLT-PERF-1 — Transfer Throughput + Performance Hardening
+
+> **Stream ID:** LOCALBOLT-PERF-1
+> **Backlog Item:** Product performance — post-architecture/rollout/UX throughput work
+> **Priority:** NEXT (unblocked — RUSTIFY-BROWSER-CORE-1, RUSTIFY-BROWSER-ROLLOUT-1, and LOCALBOLT-RELIABILITY-UX-1 all CLOSED)
+> **Repos:** bolt-core-sdk (transfer policy, chunk config, metrics), localbolt-v3 (primary measurement target), bolt-ecosystem (governance)
+> **Codified:** ecosystem-v0.1.186-localbolt-perf1-codify (2026-03-19)
+> **Status:** CODIFIED (PF1 unblocked immediately)
+
+---
+
+### Context & Motivation
+
+The browser Rust/WASM protocol core is shipped, deployed, and rolled out. UX/reliability hardening is complete. The next highest-value concern is: **how fast does transfer actually feel?**
+
+This stream measures and improves real-world browser-to-browser transfer throughput on the shipped stack. It operates on the live product, not planning-era specifications.
+
+**This is not a reuse of S2.** S2 was a planning-era roadmap item that spawned T-STREAM-0 (transfer core extraction) and T-STREAM-1 (selective WASM integration). Both are complete. LOCALBOLT-PERF-1 is the product-performance successor operating on published packages, deployed WASM, and live WebRTC path.
+
+---
+
+### Relationship to Prior Work
+
+| Prior Work | Status | Relationship |
+|------------|--------|-------------|
+| **S2 (roadmap)** | Spawned T-STREAM-0 + T-STREAM-1 (both DONE) | Predecessor context only. Not reused. |
+| **DP-9 (backpressure fix)** | DONE | Fixed RTCDataChannel backpressure hang (64KB threshold). PF4 evaluates whether that threshold is optimal. |
+| **RC3 perf baseline (PM-RC-04)** | SLO: ≥10 MiB/s | Measured ~15-16 MB/s on localhost daemon path. LOCALBOLT-PERF-1 measures real-world browser/browser throughput (different workload). |
+| **WT4 perf SLO (PM-WT-04)** | SLO: ≥90% WS throughput | WebTransport performance thresholds. PF5 only invokes transport comparison if current-path bottlenecks justify it. |
+| **S2B transfer metrics** | Feature-gated OFF in codebase | Already exists (`transferMetrics.ts`). PF2 enables and extends. |
+| **RB4 hot-path benchmark** | 42 μs/chunk (native Rust) | WASM boundary cost baseline. PF1 validates in-browser. |
+
+---
+
+### Scope Guardrails
+
+| ID | Guardrail |
+|----|-----------|
+| PF-C1 | Keep Rust/WASM protocol core stable unless a real perf/correctness interaction forces change |
+| PF-C2 | Protocol correctness (BTR, hash integrity) is inviolate |
+| PF-C3 | All tuning must pass existing test suites |
+| PF-C4 | Measure before tuning — no cargo-cult optimization |
+| PF-C5 | Prefer a small number of high-signal metrics over a benchmark zoo |
+| PF-C6 | Do not assume QUIC/WebTransport is the answer before measuring the current path |
+| PF-C7 | PF5 (comparative transport) is conditional — only if PF3/PF4 hit a documented ceiling |
+
+---
+
+### LOCALBOLT-PERF-1 Phase Table
+
+| Phase | Description | Type | Serial Gate | Dependencies | Status |
+|-------|-------------|------|-------------|--------------|--------|
+| **PF1** | Performance audit + bottleneck model | Audit | YES — gates PF2 | None | NOT-STARTED |
+| **PF2** | Instrumentation + measurement harness | Engineering | YES — gates PF3, PF4 | PF1 complete | NOT-STARTED |
+| **PF3** | Browser/browser throughput tuning | Engineering | YES — gates PF6 | PF2 complete | NOT-STARTED |
+| **PF4** | Chunking/buffering/backpressure tuning | Engineering | YES — gates PF6 | PF2 complete | NOT-STARTED |
+| **PF5** | Comparative transport assessment (conditional) | Audit/Engineering | NO — optional, PM-PF-01 gated | PF3 + PF4 complete | NOT-STARTED |
+| **PF6** | Validation + closure | PM gate | YES — closes stream | PF3 + PF4 complete | NOT-STARTED |
+
+PF3 and PF4 can run in parallel. PF5 is conditional — only executed if PM-PF-01 approves based on PF3/PF4 evidence.
+
+---
+
+### Acceptance Criteria
+
+#### PF1 — Performance Audit
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-PF-01 | Current throughput measured on representative hardware/network (baseline) | Measurement report |
+| AC-PF-02 | Bottleneck model: where time is spent (crypto, serialization, DC I/O, WASM bridge, buffering) | Analysis doc |
+| AC-PF-03 | Prioritized improvement targets with expected impact | Ranked target list |
+
+#### PF2 — Instrumentation
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-PF-04 | S2B transfer metrics enabled and collecting in dev/test | Metrics output sample |
+| AC-PF-05 | Per-phase timing instrumentation for the send path | Timing breakdown data |
+| AC-PF-06 | Measurement harness produces reproducible results | Repeated measurement evidence |
+
+#### PF3 — Throughput Tuning
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-PF-07 | Identified throughput improvements implemented | Code + before/after |
+| AC-PF-08 | Post-tuning throughput measured and compared to baseline | Comparison report |
+| AC-PF-09 | No regression in transfer correctness (hash integrity, BTR parity) | Test results |
+
+#### PF4 — Chunking/Buffering/Backpressure
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-PF-10 | Chunk size evaluated against DataChannel MTU and observed performance | Evaluation doc |
+| AC-PF-11 | Backpressure thresholds validated (DP-9 64KB, policy adapter integration) | Threshold analysis |
+| AC-PF-12 | Buffer management optimized if bottleneck identified | Code or documented no-change |
+
+#### PF5 — Comparative Transport (conditional)
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-PF-13 | If executed: current WebRTC throughput ceiling documented with evidence | Ceiling analysis |
+| AC-PF-14 | If executed: alternative transport measured against same workload | Comparison data |
+
+#### PF6 — Validation + Closure
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-PF-15 | Before/after throughput comparison with evidence | Comparison report |
+| AC-PF-16 | No regression in existing test suites | Test results |
+| AC-PF-17 | Stream closure criteria met | Closure evidence |
+
+---
+
+### PM Open Decisions Table
+
+| ID | Decision | Blocks | Status |
+|----|----------|--------|--------|
+| PM-PF-01 | Whether PF5 (comparative transport assessment) should execute, based on PF3/PF4 findings. Only if current-path bottlenecks are transport-level and not tunable. | PF5 | PENDING |
+| PM-PF-02 | Throughput improvement target. To be set after PF1 baseline measurement — not pre-baked. | PF3 | PENDING |
+
+---
+
+### Risk Register
+
+| ID | Risk | Severity | Mitigation |
+|----|------|----------|------------|
+| PF-R1 | WebRTC DataChannel throughput ceiling is a browser limitation, not tunable | HIGH | PF1 identifies whether bottleneck is tunable. PF5 evaluates alternatives only if justified. |
+| PF-R2 | WASM bridge overhead dominates | LOW | Already measured at 42μs/chunk (RB4). Re-evaluate only if live measurements differ. |
+| PF-R3 | Chunk-size changes break interop with older clients | MEDIUM | Version-negotiate or keep backward-compatible. |
+| PF-R4 | Backpressure tuning introduces stalls or hangs | MEDIUM | Test with existing pause/resume framework. RU2 made paused state visible. |
+
+---
+
+### Stream-Level Done
+
+Stream closes with measurable improvement or an evidence-backed documented ceiling on the current path. Specifically:
+
+- Current throughput baselined with reproducible measurement
+- Bottlenecks identified and addressed where tunable
+- Before/after throughput comparison with evidence
+- If transport ceiling reached: documented with data, PM-PF-01 decides whether to explore alternatives
+- Existing test suites pass
+
+---
+
 ## DISCOVERY-MODE-1 — Dual Discovery Mode Policy Codification
 
 > **Stream ID:** DISCOVERY-MODE-1
@@ -7460,6 +7606,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | RUSTIFY-BROWSER-CORE-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-rustify-browser-core1-<slug>` | `ecosystem-v0.1.165-rustify-browser-core1-codify` |
 | RUSTIFY-BROWSER-ROLLOUT-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-rustify-browser-rollout1-<slug>` | `ecosystem-v0.1.172-rustify-browser-rollout1-codify` |
 | LOCALBOLT-RELIABILITY-UX-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-localbolt-reliability-ux1-<slug>` | `ecosystem-v0.1.179-localbolt-reliability-ux1-codify` |
+| LOCALBOLT-PERF-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-localbolt-perf1-<slug>` | `ecosystem-v0.1.186-localbolt-perf1-codify` |
 | Governance | bolt-ecosystem | `ecosystem-v0.1.X-workstreams-N` | `ecosystem-v0.1.30-workstreams-1` |
 
 **Rules:**
@@ -7501,6 +7648,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | RUSTIFY-BROWSER-CORE-1 | Browser-path Rust/WASM protocol authority | ~~NEXT~~ CLOSED | bolt-core-sdk + bolt-transport-web + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.171`, 2026-03-17). All 23 ACs, all 5 PM decisions. 102 KiB gzipped WASM. localbolt-v3 complete; others PM-RB-04 deferred. TS fallback retained non-authoritative. |
 | RUSTIFY-BROWSER-ROLLOUT-1 | Package + deploy + burn-in for browser WASM authority | ~~NEXT~~ CLOSED | bolt-core-sdk + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.178`, 2026-03-19). All 17 ACs satisfied. All consumers on published packages. Burn-in evidence collected. TS fallback retained. |
 | LOCALBOLT-RELIABILITY-UX-1 | Transfer reliability + UX hardening | ~~NEXT~~ CLOSED | localbolt-v3 + bolt-transport-web + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.185`, 2026-03-19). All 17 ACs satisfied. 10 UX improvements. Zero regressions. |
+| LOCALBOLT-PERF-1 | Transfer throughput + performance hardening | NEXT | bolt-core-sdk + localbolt-v3 + ecosystem | **CODIFIED** (`ecosystem-v0.1.186`, 2026-03-19). 6 phases (PF1–PF6), 17 ACs, 2 PM decisions. Product performance stream. PF1 unblocked. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 

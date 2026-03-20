@@ -5,6 +5,18 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-19 — LOCALBOLT-PERF-1 Codified
+
+**New stream:** LOCALBOLT-PERF-1 — transfer throughput + performance hardening.
+
+**Purpose:** Product-performance successor. Measure and improve real-world browser/browser transfer throughput on the shipped stack. Not a reuse of S2. Measure first, tune second, compare transports only if current path tops out.
+
+**Stream:** 6 phases (PF1–PF6, PF5 conditional), 17 ACs, 2 PM decisions. PF1 unblocked.
+
+**Tags**: `ecosystem-v0.1.186-localbolt-perf1-codify`
+
+---
+
 ## 2026-03-19 — LOCALBOLT-RELIABILITY-UX-1 CLOSED: Stream Complete
 
 **RU6 status**: NOT-STARTED → **DONE**. AC-RU-15–17 satisfied. Stream CLOSED.

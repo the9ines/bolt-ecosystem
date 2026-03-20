@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-19 (LOCALBOLT-RELIABILITY-UX-1 CLOSED — reliability + UX hardening complete.)
+> **Updated:** 2026-03-19 (LOCALBOLT-PERF-1 codified — transfer throughput + performance hardening.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -709,6 +709,34 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 ---
 
+## Item 22: LOCALBOLT-PERF-1 — Transfer Throughput + Performance Hardening
+
+**Priority:** NEXT (unblocked)
+**Status:** **CODIFIED** (`ecosystem-v0.1.186-localbolt-perf1-codify`, 2026-03-19). PF1 unblocked.
+**Routing:** bolt-core-sdk (transfer policy, metrics), localbolt-v3 (primary target), bolt-ecosystem (governance)
+**Category:** Product performance — throughput measurement and tuning
+**Stream:** LOCALBOLT-PERF-1 (phased, 6 phases PF1–PF6)
+**Dependencies:** None (RUSTIFY-BROWSER-CORE-1, RUSTIFY-BROWSER-ROLLOUT-1, LOCALBOLT-RELIABILITY-UX-1 all CLOSED).
+
+**Context:** Architecture, rollout, and UX streams complete. Next concern is real-world transfer throughput. Measure current path, identify bottlenecks, tune where justified. Not a reuse of S2 — operates on the shipped product stack.
+
+**Phased Plan (LOCALBOLT-PERF-1):**
+
+| Phase | Description | Serial Gate | Status |
+|-------|-------------|-------------|--------|
+| PF1 | Performance audit + bottleneck model | YES (gates PF2) | NOT-STARTED |
+| PF2 | Instrumentation + measurement harness | YES (gates PF3, PF4) | NOT-STARTED |
+| PF3 | Browser/browser throughput tuning | YES (gates PF6) | NOT-STARTED |
+| PF4 | Chunking/buffering/backpressure tuning | YES (gates PF6) | NOT-STARTED |
+| PF5 | Comparative transport assessment (conditional, PM-PF-01) | NO (optional) | NOT-STARTED |
+| PF6 | Validation + closure | YES (closes stream) | NOT-STARTED |
+
+**Acceptance Criteria:** 17 ACs defined (AC-PF-01–17). See `docs/GOVERNANCE_WORKSTREAMS.md` § LOCALBOLT-PERF-1.
+
+**PM Decisions:** 2 (PM-PF-01: conditional PF5, PM-PF-02: throughput target after baseline).
+
+---
+
 ## Routing Summary
 
 | Item | Routing | Certainty |
@@ -734,6 +762,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | RUSTIFY-BROWSER-CORE-1 | bolt-core-sdk + bolt-transport-web + consumers + bolt-ecosystem | Confirmed |
 | RUSTIFY-BROWSER-ROLLOUT-1 | bolt-core-sdk + consumers + bolt-ecosystem | Confirmed |
 | LOCALBOLT-RELIABILITY-UX-1 | localbolt-v3 + bolt-transport-web + consumers + bolt-ecosystem | Confirmed |
+| LOCALBOLT-PERF-1 | bolt-core-sdk + localbolt-v3 + bolt-ecosystem | Confirmed |
 
 ---
 
@@ -799,6 +828,8 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | PM-BR-01 | RUSTIFY-BROWSER-ROLLOUT-1: WASM delivery path | BR2 | **APPROVED** (embedded in transport-web, 2026-03-18) |
 | PM-BR-02 | RUSTIFY-BROWSER-ROLLOUT-1: Follow-on consumer timing | BR5 | **APPROVED** (after burn-in, 2026-03-18) |
 | PM-RU-01 | LOCALBOLT-RELIABILITY-UX-1: SAS verification guidance text | RU2 | **APPROVED** (concise + action-oriented, 2026-03-19) |
+| PM-PF-01 | LOCALBOLT-PERF-1: Whether PF5 comparative transport executes | PF5 | PENDING |
+| PM-PF-02 | LOCALBOLT-PERF-1: Throughput improvement target (after PF1 baseline) | PF3 | PENDING |
 
 ---
 
