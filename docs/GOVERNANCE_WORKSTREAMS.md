@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-19 (LOCALBOLT-RELIABILITY-UX-1 RU5 DONE — reconnect/cancel/resume polish)
-> **Tag:** ecosystem-v0.1.184-localbolt-reliability-ux1-ru5-reconnect-cancel
+> **Updated:** 2026-03-19 (LOCALBOLT-RELIABILITY-UX-1 CLOSED — reliability + UX hardening complete)
+> **Tag:** ecosystem-v0.1.185-localbolt-reliability-ux1-ru6-closure
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -5622,7 +5622,7 @@ This stream turns architectural completion into boring, trustworthy product real
 > **Priority:** NEXT (unblocked — RUSTIFY-BROWSER-CORE-1 and RUSTIFY-BROWSER-ROLLOUT-1 both CLOSED)
 > **Repos:** localbolt-v3 (primary), bolt-transport-web (SDK components), localbolt / localbolt-app (follow-on), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.179-localbolt-reliability-ux1-codify (2026-03-19)
-> **Status:** RU5 DONE (`ecosystem-v0.1.184`, 2026-03-19). Disconnect guidance, cancel transition, connection-loss toast. RU6 READY.
+> **Status:** **CLOSED** (`ecosystem-v0.1.185`, 2026-03-19). All 17 ACs satisfied. 10 UX improvements. Zero regressions. Stream CLOSED.
 
 ---
 
@@ -5674,7 +5674,7 @@ This is a **product-quality stream**, not a protocol stream. The Rust/WASM proto
 | **RU3** | Error/failure/retry UX | Engineering | YES — gates RU5 | RU1 complete | **DONE** (2026-03-19). Error reasons, timeout messaging, retry context. |
 | **RU4** | Receive-flow clarity + completion handling | Engineering | YES — gates RU6 | RU2 complete | **DONE** (2026-03-19). Incoming state, completion timing, iOS caveat documented. |
 | **RU5** | Reconnect/cancel/resume polish | Engineering | YES — gates RU6 | RU3 complete | **DONE** (2026-03-19). Disconnect guidance, cancel state, connection-loss toast. |
-| **RU6** | Validation + closure | PM gate | YES — closes stream | RU4 + RU5 complete | NOT-STARTED |
+| **RU6** | Validation + closure | PM gate | YES — closes stream | RU4 + RU5 complete | **DONE** (2026-03-19). Zero regressions. Stream CLOSED. |
 
 Note: RU2 and RU3 can run in parallel (both depend only on RU1).
 
@@ -7500,7 +7500,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | EGUI-WASM-1 | Browser UI migration to egui via WASM (experimental) | ~~LATER~~ ABANDONED | localbolt-v3 + localbolt + ecosystem | **ABANDONED** (`ecosystem-v0.1.164`, 2026-03-17). EW2 PoC: 1,296 KiB gzipped (2.6× over 500 KiB kill). 26% reuse. 20× bundle vs current 65 KiB TS app. Stream CLOSED with findings. |
 | RUSTIFY-BROWSER-CORE-1 | Browser-path Rust/WASM protocol authority | ~~NEXT~~ CLOSED | bolt-core-sdk + bolt-transport-web + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.171`, 2026-03-17). All 23 ACs, all 5 PM decisions. 102 KiB gzipped WASM. localbolt-v3 complete; others PM-RB-04 deferred. TS fallback retained non-authoritative. |
 | RUSTIFY-BROWSER-ROLLOUT-1 | Package + deploy + burn-in for browser WASM authority | ~~NEXT~~ CLOSED | bolt-core-sdk + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.178`, 2026-03-19). All 17 ACs satisfied. All consumers on published packages. Burn-in evidence collected. TS fallback retained. |
-| LOCALBOLT-RELIABILITY-UX-1 | Transfer reliability + UX hardening | NEXT | localbolt-v3 + bolt-transport-web + consumers + ecosystem | **RU5 DONE (`ecosystem-v0.1.184`, 2026-03-19). Disconnect guidance, cancel transition, connection-loss toast. RU6 READY. |
+| LOCALBOLT-RELIABILITY-UX-1 | Transfer reliability + UX hardening | ~~NEXT~~ CLOSED | localbolt-v3 + bolt-transport-web + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.185`, 2026-03-19). All 17 ACs satisfied. 10 UX improvements. Zero regressions. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 

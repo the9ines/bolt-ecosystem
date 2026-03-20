@@ -5,6 +5,20 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-19 — LOCALBOLT-RELIABILITY-UX-1 CLOSED: Stream Complete
+
+**RU6 status**: NOT-STARTED → **DONE**. AC-RU-15–17 satisfied. Stream CLOSED.
+
+**10 UX improvements delivered:** connection phase distinction, pause label, error reasons, timeout messaging, retry context, incoming transfer state, completion confirmation, disconnect guidance, connection-loss toast, cancel transition.
+
+**Regression:** Zero new test failures across all 5 suites (1,145 total tests).
+
+**Evidence quality:** Strong code/test evidence for all improvements. Limited live validation from real transfer work during the stream (receiver BTR fix). Ongoing operational usage provides continuous validation.
+
+**Tags**: `ecosystem-v0.1.185-localbolt-reliability-ux1-ru6-closure`
+
+---
+
 ## 2026-03-19 — LOCALBOLT-RELIABILITY-UX-1 RU5 DONE: Reconnect/Cancel Polish
 
 **RU5 status**: NOT-STARTED → **DONE**. AC-RU-12–14 satisfied.
