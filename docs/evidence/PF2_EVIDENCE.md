@@ -105,7 +105,7 @@
 3. **P95 chunk interval 5–24 ms.** Tail latency spikes are modest and do not cause stalls.
 4. **First-transfer cold-start penalty:** Run 1 of 1 MiB shows 495 ms (16.9 Mbps) vs warm-start ~200-260 ms. Session setup overhead is amortized over larger files.
 5. **Throughput does not scale with file size.** 10 MiB and 50 MiB converge to ~33–38 Mbps, suggesting a steady-state ceiling.
-6. **Browser pair (Chrome→Safari) shows no obvious penalty** vs expected Chrome→Chrome baseline — comparable to WebRTC LAN performance norms.
+6. **Tested product path:** Chrome on Mac Studio → Safari/WebKit on iPhone 15 Pro over same-LAN Wi-Fi. No same-run Chrome→Chrome comparison was collected in this phase.
 
 ### PF1 Hypothesis Assessment (from baseline data)
 
