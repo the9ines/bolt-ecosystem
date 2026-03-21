@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-20 (WEBTRANSPORT-BROWSER-APP-IMPL-1 codified — browser↔app WebTransport implementation stream)
-> **Tag:** ecosystem-v0.1.194-webtransport-impl1-codify
+> **Updated:** 2026-03-21 (WEBTRANSPORT-BROWSER-APP-IMPL-1 WTI1 DONE — implementation audit complete)
+> **Tag:** ecosystem-v0.1.195-webtransport-impl1-wti1-audit
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -5912,7 +5912,7 @@ Stream closes with measurable improvement or an evidence-backed documented ceili
 > **Priority:** NEXT (unblocked — WEBTRANSPORT-BROWSER-APP-1 governance COMPLETE, RUSTIFY-CORE-1 RC3/RC5 DONE)
 > **Repos:** bolt-daemon (HTTP/3 endpoint), bolt-core-sdk/ts/bolt-transport-web (browser adapter), bolt-ecosystem (governance)
 > **Codified:** ecosystem-v0.1.194-webtransport-impl1-codify (2026-03-20)
-> **Status:** WTI1 NOT-STARTED
+> **Status:** WTI1 DONE (`ecosystem-v0.1.195`, 2026-03-21). AC-WTI-01–04 PASS. WTI2 READY.
 
 ---
 
@@ -5974,7 +5974,7 @@ Guardrails WT-G1 through WT-G8 and kill-switch RB-L5 carry forward unchanged.
 
 | Phase | Description | Type | Serial Gate | Dependencies | Status |
 |-------|-------------|------|-------------|--------------|--------|
-| **WTI1** | Implementation audit + integration plan | Audit | YES — gates WTI2 | None | NOT-STARTED |
+| **WTI1** | Implementation audit + integration plan | Audit | YES — gates WTI2 | None | **DONE** (`ecosystem-v0.1.195`, 2026-03-21). AC-WTI-01–04 PASS. HTTP/3 layer requirement identified. Integration plan defined. |
 | **WTI2** | Daemon HTTP/3 WebTransport endpoint | Engineering | YES — gates WTI3 | WTI1 complete | NOT-STARTED |
 | **WTI3** | Browser WebTransport adapter + three-tier fallback | Engineering | YES — gates WTI4 | WTI2 complete | NOT-STARTED |
 | **WTI4** | Feature gating + capability negotiation + TLS provisioning | Engineering | YES — gates WTI5 | WTI3 complete | NOT-STARTED |
@@ -7826,7 +7826,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | RUSTIFY-BROWSER-ROLLOUT-1 | Package + deploy + burn-in for browser WASM authority | ~~NEXT~~ CLOSED | bolt-core-sdk + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.178`, 2026-03-19). All 17 ACs satisfied. All consumers on published packages. Burn-in evidence collected. TS fallback retained. |
 | LOCALBOLT-RELIABILITY-UX-1 | Transfer reliability + UX hardening | ~~NEXT~~ CLOSED | localbolt-v3 + bolt-transport-web + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.185`, 2026-03-19). All 17 ACs satisfied. 10 UX improvements. Zero regressions. |
 | LOCALBOLT-PERF-1 | Transfer throughput + performance hardening | ~~NEXT~~ CLOSED | bolt-core-sdk + localbolt-v3 + ecosystem | **CLOSED** (`ecosystem-v0.1.193`, 2026-03-20). Baseline ~33–38 Mbps → tuned ~47 Mbps (+42% at 50 MiB). Practical ceiling assessed. |
-| WEBTRANSPORT-BROWSER-APP-IMPL-1 | Browser↔app WebTransport implementation | NEXT | bolt-daemon + bolt-core-sdk + ecosystem | **Codified** (`ecosystem-v0.1.194`, 2026-03-20). Implementation successor to WEBTRANSPORT-BROWSER-APP-1 governance. WTI1 NOT-STARTED. |
+| WEBTRANSPORT-BROWSER-APP-IMPL-1 | Browser↔app WebTransport implementation | NEXT | bolt-daemon + bolt-core-sdk + ecosystem | **WTI1 DONE** (`ecosystem-v0.1.195`, 2026-03-21). Audit complete. HTTP/3 layer required. WTI2 READY. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 

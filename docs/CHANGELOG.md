@@ -5,6 +5,23 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-21 — WEBTRANSPORT-BROWSER-APP-IMPL-1 WTI1 DONE: Implementation Audit
+
+**WTI1 status**: NOT-STARTED → **DONE**. AC-WTI-01–04 all PASS.
+
+**Key findings:**
+- **Daemon protocol layer (~80%) is transport-agnostic** and reusable (envelope, HELLO, session, routing). Transport layer (~20%) requires new `wt_endpoint.rs`.
+- **HTTP/3 layer required:** quinn 0.11 is raw QUIC — does not serve WebTransport directly. Needs `wtransport` or `h3` + `h3-quinn` crate for HTTP/3 WebTransport sessions.
+- **Browser DataTransport interface is sufficient** with adapter. Three gaps identified (message framing, readyState tracking, async send). All solvable via `WtDataTransport` class without interface change.
+- **TLS (C2 local CA):** mkcert approach validated. Daemon needs cert/key path config args.
+- **Browser support:** Feature-detected at runtime. Safari/WebKit does not support WebTransport — falls to WS.
+
+**Integration plan:** 2 files to create, 6 to modify, 8+ untouched. Daemon first (WTI2), browser adapter (WTI3), capability/gating (WTI4).
+
+**Tags**: `ecosystem-v0.1.195-webtransport-impl1-wti1-audit`
+
+---
+
 ## 2026-03-20 — WEBTRANSPORT-BROWSER-APP-IMPL-1 Codified
 
 **New stream:** WEBTRANSPORT-BROWSER-APP-IMPL-1 — browser↔app WebTransport implementation.

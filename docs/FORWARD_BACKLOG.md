@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-20 (WEBTRANSPORT-BROWSER-APP-IMPL-1 codified — browser↔app WebTransport implementation stream.)
+> **Updated:** 2026-03-21 (WEBTRANSPORT-BROWSER-APP-IMPL-1 WTI1 DONE — implementation audit complete, WTI2 READY.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -740,7 +740,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 23: WEBTRANSPORT-BROWSER-APP-IMPL-1 — Browser↔App WebTransport Implementation
 
 **Priority:** NEXT (unblocked)
-**Status:** **Codified** (`ecosystem-v0.1.194`, 2026-03-20). WTI1 NOT-STARTED.
+**Status:** **WTI1 DONE** (`ecosystem-v0.1.195`, 2026-03-21). Audit complete. HTTP/3 layer required (quinn alone insufficient). WTI2 READY.
 **Routing:** bolt-daemon (HTTP/3 endpoint), bolt-core-sdk/ts/bolt-transport-web (browser adapter), bolt-ecosystem (governance)
 **Category:** Transport implementation — browser↔app WebTransport over HTTP/3
 **Stream:** WEBTRANSPORT-BROWSER-APP-IMPL-1 (phased, 6 phases WTI1–WTI6)
@@ -752,7 +752,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 | Phase | Description | Serial Gate | Status |
 |-------|-------------|-------------|--------|
-| WTI1 | Implementation audit + integration plan | YES (gates WTI2) | NOT-STARTED |
+| WTI1 | Implementation audit + integration plan | YES (gates WTI2) | **DONE** (audit complete, 2026-03-21) |
 | WTI2 | Daemon HTTP/3 WebTransport endpoint | YES (gates WTI3) | NOT-STARTED |
 | WTI3 | Browser WebTransport adapter + three-tier fallback | YES (gates WTI4) | NOT-STARTED |
 | WTI4 | Feature gating + capability negotiation + TLS provisioning | YES (gates WTI5) | NOT-STARTED |
