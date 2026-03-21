@@ -5,6 +5,21 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-20 — WEBTRANSPORT-BROWSER-APP-IMPL-1 Codified
+
+**New stream:** WEBTRANSPORT-BROWSER-APP-IMPL-1 — browser↔app WebTransport implementation.
+
+**Purpose:** Implementation successor to WEBTRANSPORT-BROWSER-APP-1 governance (20 ACs, 5 PM decisions, all locked). Builds real browser↔app WebTransport over HTTP/3 path. Browser "QUIC" = WebTransport over HTTP/3, not raw QUIC in-browser, not peer-to-peer.
+
+**Browser support constraint:** Chrome 97+, Edge 97+, Firefox 115+ get WT path. Safari/WebKit does NOT support WebTransport — falls to WS/WebRTC via three-tier fallback.
+
+**Phases:** 6 (WTI1–WTI6). **ACs:** 23 (AC-WTI-01–23). **PM decisions:** 2 (PM-WTI-01, PM-WTI-02).
+**Repos:** bolt-daemon (HTTP/3 endpoint), bolt-core-sdk (browser adapter), bolt-ecosystem (governance).
+
+**Tags**: `ecosystem-v0.1.194-webtransport-impl1-codify`
+
+---
+
 ## 2026-03-20 — LOCALBOLT-PERF-1 CLOSED: Stream Complete
 
 **PF6 status**: READY → **DONE**. AC-PF-15/16/17 all PASS. **Stream CLOSED.**

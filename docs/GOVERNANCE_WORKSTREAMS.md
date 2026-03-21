@@ -2,8 +2,8 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-20 (LOCALBOLT-PERF-1 CLOSED — baseline ~33–38 Mbps → tuned ~47 Mbps on tested path)
-> **Tag:** ecosystem-v0.1.193-localbolt-perf1-pf6-closed
+> **Updated:** 2026-03-20 (WEBTRANSPORT-BROWSER-APP-IMPL-1 codified — browser↔app WebTransport implementation stream)
+> **Tag:** ecosystem-v0.1.194-webtransport-impl1-codify
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
 ---
@@ -5905,6 +5905,180 @@ Stream closes with measurable improvement or an evidence-backed documented ceili
 
 ---
 
+## WEBTRANSPORT-BROWSER-APP-IMPL-1 — Browser↔App WebTransport Implementation
+
+> **Stream ID:** WEBTRANSPORT-BROWSER-APP-IMPL-1
+> **Backlog Item:** Browser↔app WebTransport implementation (successor to WEBTRANSPORT-BROWSER-APP-1 governance)
+> **Priority:** NEXT (unblocked — WEBTRANSPORT-BROWSER-APP-1 governance COMPLETE, RUSTIFY-CORE-1 RC3/RC5 DONE)
+> **Repos:** bolt-daemon (HTTP/3 endpoint), bolt-core-sdk/ts/bolt-transport-web (browser adapter), bolt-ecosystem (governance)
+> **Codified:** ecosystem-v0.1.194-webtransport-impl1-codify (2026-03-20)
+> **Status:** WTI1 NOT-STARTED
+
+---
+
+### Purpose
+
+Implement a real browser↔app transport path using WebTransport over HTTP/3. This turns the fully locked WEBTRANSPORT-BROWSER-APP-1 governance (20 ACs, 5 PM decisions, all approved) into shipped code.
+
+Browser "QUIC" here means WebTransport over HTTP/3 — not raw QUIC sockets in the browser. WebTransport requires a server/app endpoint and is not peer-to-peer.
+
+This stream does NOT replace browser↔browser WebRTC (G1 invariant preserved). It adds a modern QUIC-class substrate for the browser↔app transport path where the daemon mediates the connection.
+
+---
+
+### Browser Support Reality
+
+WebTransport is not universally available across browsers. This is a deployment constraint, not a footnote.
+
+| Browser | WebTransport Support | Tier |
+|---------|---------------------|------|
+| Chrome 97+ | YES | Primary (WT path) |
+| Edge 97+ | YES | Primary (WT path) |
+| Firefox 115+ | YES | Primary (WT path) |
+| Safari (macOS) | NO | Fallback (WS → WebRTC) |
+| Safari (iOS/WebKit) | NO | Fallback (WS → WebRTC) |
+
+Safari/WebKit users will NOT get the WebTransport path. They fall to WS or WebRTC via the three-tier fallback. Runtime feature detection (`typeof WebTransport !== 'undefined'`) is required — no user-agent sniffing.
+
+Re-evaluation when Safari ships WebTransport support (per PM-WT-01).
+
+---
+
+### Predecessor Relationship
+
+| Stream | Relationship |
+|--------|-------------|
+| WEBTRANSPORT-BROWSER-APP-1 | **Governance predecessor.** All 20 ACs, 5 PM decisions locked. This stream executes that spec. |
+| LOCALBOLT-PERF-1 | **Context only.** Showed browser↔browser WebRTC approaches ~47 Mbps on tested path. LOCALBOLT-PERF-1 measured browser↔browser; this stream implements browser↔app. Different topology, different transport. No blurring between them. |
+| RUSTIFY-CORE-1 | **Foundation.** RC3 (QUIC/quinn for app↔app), RC5 (WS endpoint for browser↔app), RC6 (rollback framework). All DONE. |
+
+---
+
+### Governance Constraints Carried Forward
+
+All 5 PM decisions from WEBTRANSPORT-BROWSER-APP-1 are locked and carry forward as constraints:
+
+| ID | Decision | Constraint |
+|----|----------|------------|
+| PM-WT-01 | Browser support matrix | Chrome 97+, Edge 97+, Firefox 115+ primary. Safari fallback. |
+| PM-WT-02 | Capability string | `bolt.transport-webtransport-v1` |
+| PM-WT-03 | TLS cert provisioning | C2 local CA (mkcert-style) primary. C1 self-signed for dev. C3 ACME deferred. |
+| PM-WT-04 | Performance SLO | Setup ≤1.5× WS. Throughput ≥90% WS. Connection ≥99%. Fallback ≥98%. |
+| PM-WT-05 | WS disposition | Deprecate-with-sunset. 5 conditions before removal. |
+
+Guardrails WT-G1 through WT-G8 and kill-switch RB-L5 carry forward unchanged.
+
+---
+
+### Phase Table
+
+| Phase | Description | Type | Serial Gate | Dependencies | Status |
+|-------|-------------|------|-------------|--------------|--------|
+| **WTI1** | Implementation audit + integration plan | Audit | YES — gates WTI2 | None | NOT-STARTED |
+| **WTI2** | Daemon HTTP/3 WebTransport endpoint | Engineering | YES — gates WTI3 | WTI1 complete | NOT-STARTED |
+| **WTI3** | Browser WebTransport adapter + three-tier fallback | Engineering | YES — gates WTI4 | WTI2 complete | NOT-STARTED |
+| **WTI4** | Feature gating + capability negotiation + TLS provisioning | Engineering | YES — gates WTI5 | WTI3 complete | NOT-STARTED |
+| **WTI5** | Validation, measurement, rollout criteria | Engineering/PM gate | YES — gates WTI6 | WTI4 complete | NOT-STARTED |
+| **WTI6** | Closure | PM gate | YES — closes stream | WTI5 complete | NOT-STARTED |
+
+---
+
+### Acceptance Criteria
+
+#### WTI1 — Implementation Audit + Integration Plan
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-WTI-01 | Existing daemon QUIC/quinn code audited for HTTP/3 WebTransport reuse | Audit doc |
+| AC-WTI-02 | Browser `DataTransport` interface confirmed sufficient for WebTransport (or gap identified) | Interface analysis |
+| AC-WTI-03 | Integration plan: exact files to create/modify in daemon + SDK, with dependency order | Plan doc |
+| AC-WTI-04 | TLS provisioning approach (C2 local CA) validated against daemon deployment model | Validation doc |
+
+#### WTI2 — Daemon HTTP/3 WebTransport Endpoint
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-WTI-05 | Daemon serves HTTP/3 WebTransport endpoint on configurable port | Code + running endpoint |
+| AC-WTI-06 | WebTransport endpoint accepts bidirectional streams with ProfileEnvelopeV1 JSON text framing | Integration test |
+| AC-WTI-07 | TLS cert loading from configurable path (C2 local CA cert + key) | Config + test |
+| AC-WTI-08 | Daemon WebTransport endpoint tested with unit/integration tests | Test results |
+
+#### WTI3 — Browser WebTransport Adapter + Three-Tier Fallback
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-WTI-09 | `WtDataTransport` class implements `DataTransport` interface using browser WebTransport API | Code |
+| AC-WTI-10 | `BrowserAppTransport` updated: WT primary → WS fallback → WebRTC fallback (three-tier) | Code + test |
+| AC-WTI-11 | Runtime feature detection (`typeof WebTransport !== 'undefined'`) gates WT probe | Code |
+| AC-WTI-12 | Fallback triggers are deterministic (cert error, UDP blocked, timeout, connection refused/reset) | Test coverage |
+
+#### WTI4 — Feature Gating + Capability + TLS
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-WTI-13 | `bolt.transport-webtransport-v1` capability exchanged in HELLO (PM-WT-02) | Code + test |
+| AC-WTI-14 | Feature gate: daemon config flag enables/disables WT endpoint (kill-switch RB-L5) | Config + test |
+| AC-WTI-15 | Browser feature gate: config/environment flag can force WS-only or WebRTC-only mode | Code + test |
+| AC-WTI-16 | TLS cert generation documented (mkcert flow for C2 local CA) | Doc |
+
+#### WTI5 — Validation + Measurement
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-WTI-17 | End-to-end smoke test: browser sends file to daemon via WebTransport, daemon receives correctly | Test result |
+| AC-WTI-18 | Fallback smoke test: WT unavailable → falls to WS → transfer succeeds | Test result |
+| AC-WTI-19 | Throughput measurement on WT path compared to WS baseline on the browser↔app path (same workload). Not compared to browser↔browser WebRTC results from LOCALBOLT-PERF-1. | Measurement report |
+| AC-WTI-20 | BTR parity verified: BTR transfer over WT produces identical results to WS/WebRTC | Test result |
+
+#### WTI6 — Closure
+
+| ID | Criterion | Evidence |
+|----|-----------|----------|
+| AC-WTI-21 | Before/after comparison documented: WT vs WS throughput on the browser↔app path. Scope limited to browser↔app; no blurring with browser↔browser results. | Comparison report |
+| AC-WTI-22 | No regression in existing test suites | Test results |
+| AC-WTI-23 | Stream closure criteria met | Closure evidence |
+
+---
+
+### PM Decisions
+
+| ID | Decision | Blocks | Status |
+|----|----------|--------|--------|
+| PM-WTI-01 | Daemon WT port number (separate from WS port, or shared?) | WTI2 | PENDING |
+| PM-WTI-02 | Whether WT ships as default-on or opt-in at stream close | WTI5 | PENDING |
+
+---
+
+### Risk Register
+
+| ID | Risk | Severity | Mitigation |
+|----|------|----------|------------|
+| WTI-R1 | Safari lacks WebTransport — limits reach to Chrome/Edge/Firefox users | HIGH | Three-tier fallback. Safari users get WS/WebRTC. Explicit in browser support matrix. |
+| WTI-R2 | TLS cert complexity for local daemon (C2 local CA setup) | HIGH | mkcert-style provisioning. Dev: self-signed fallback. Kill-switch: WS path. |
+| WTI-R3 | quinn HTTP/3 WebTransport support maturity | MEDIUM | Audit in WTI1. quinn 0.11+ supports WebTransport. |
+| WTI-R4 | UDP blocked by corporate firewalls | MEDIUM | WS fallback (TCP) handles transparently. |
+| WTI-R5 | Browser WebTransport API differences across versions | LOW | Feature detection + minimum version matrix (PM-WT-01). |
+
+---
+
+### Non-Goals
+
+| ID | Non-Goal | Rationale |
+|----|----------|-----------|
+| WTI-NG1 | Replace browser↔browser WebRTC | G1 invariant. Browser↔browser never enters WT chain. |
+| WTI-NG2 | Raw QUIC sockets in browser | Not available. Browser "QUIC" = WebTransport over HTTP/3. |
+| WTI-NG3 | WAN cert provisioning (C3 ACME/Let's Encrypt) | Deferred per PM-WT-03. LAN/localhost scope only. |
+| WTI-NG4 | Modify BTR or protocol semantics | WT is transport binding only (WT-G5). |
+| WTI-NG5 | Claim WebTransport is peer-to-peer | WebTransport requires a server/app endpoint. |
+
+---
+
+### Stream-Level Done
+
+Stream closes when a browser can connect to bolt-daemon via WebTransport over HTTP/3, complete a HELLO handshake, and transfer files with BTR parity — falling back transparently to WS or WebRTC when WT is unavailable. Feature-gated, kill-switched, measured against WS baseline on the browser↔app path.
+
+---
+
 ## DISCOVERY-MODE-1 — Dual Discovery Mode Policy Codification
 
 > **Stream ID:** DISCOVERY-MODE-1
@@ -7607,6 +7781,9 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | RUSTIFY-BROWSER-ROLLOUT-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-rustify-browser-rollout1-<slug>` | `ecosystem-v0.1.172-rustify-browser-rollout1-codify` |
 | LOCALBOLT-RELIABILITY-UX-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-localbolt-reliability-ux1-<slug>` | `ecosystem-v0.1.179-localbolt-reliability-ux1-codify` |
 | LOCALBOLT-PERF-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-localbolt-perf1-<slug>` | `ecosystem-v0.1.186-localbolt-perf1-codify` |
+| WEBTRANSPORT-BROWSER-APP-IMPL-1 (daemon) | bolt-daemon | `daemon-vX.Y.Z-wti<phase>-<slug>` | — |
+| WEBTRANSPORT-BROWSER-APP-IMPL-1 (SDK) | bolt-core-sdk | `sdk-vX.Y.Z-wti<phase>-<slug>` | — |
+| WEBTRANSPORT-BROWSER-APP-IMPL-1 (governance) | bolt-ecosystem | `ecosystem-v0.1.X-webtransport-impl1-<slug>` | `ecosystem-v0.1.194-webtransport-impl1-codify` |
 | Governance | bolt-ecosystem | `ecosystem-v0.1.X-workstreams-N` | `ecosystem-v0.1.30-workstreams-1` |
 
 **Rules:**
@@ -7649,6 +7826,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | RUSTIFY-BROWSER-ROLLOUT-1 | Package + deploy + burn-in for browser WASM authority | ~~NEXT~~ CLOSED | bolt-core-sdk + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.178`, 2026-03-19). All 17 ACs satisfied. All consumers on published packages. Burn-in evidence collected. TS fallback retained. |
 | LOCALBOLT-RELIABILITY-UX-1 | Transfer reliability + UX hardening | ~~NEXT~~ CLOSED | localbolt-v3 + bolt-transport-web + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.185`, 2026-03-19). All 17 ACs satisfied. 10 UX improvements. Zero regressions. |
 | LOCALBOLT-PERF-1 | Transfer throughput + performance hardening | ~~NEXT~~ CLOSED | bolt-core-sdk + localbolt-v3 + ecosystem | **CLOSED** (`ecosystem-v0.1.193`, 2026-03-20). Baseline ~33–38 Mbps → tuned ~47 Mbps (+42% at 50 MiB). Practical ceiling assessed. |
+| WEBTRANSPORT-BROWSER-APP-IMPL-1 | Browser↔app WebTransport implementation | NEXT | bolt-daemon + bolt-core-sdk + ecosystem | **Codified** (`ecosystem-v0.1.194`, 2026-03-20). Implementation successor to WEBTRANSPORT-BROWSER-APP-1 governance. WTI1 NOT-STARTED. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 

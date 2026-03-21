@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-20 (LOCALBOLT-PERF-1 CLOSED — baseline ~33–38 Mbps → tuned ~47 Mbps on tested path.)
+> **Updated:** 2026-03-20 (WEBTRANSPORT-BROWSER-APP-IMPL-1 codified — browser↔app WebTransport implementation stream.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -737,6 +737,34 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 ---
 
+## Item 23: WEBTRANSPORT-BROWSER-APP-IMPL-1 — Browser↔App WebTransport Implementation
+
+**Priority:** NEXT (unblocked)
+**Status:** **Codified** (`ecosystem-v0.1.194`, 2026-03-20). WTI1 NOT-STARTED.
+**Routing:** bolt-daemon (HTTP/3 endpoint), bolt-core-sdk/ts/bolt-transport-web (browser adapter), bolt-ecosystem (governance)
+**Category:** Transport implementation — browser↔app WebTransport over HTTP/3
+**Stream:** WEBTRANSPORT-BROWSER-APP-IMPL-1 (phased, 6 phases WTI1–WTI6)
+**Dependencies:** WEBTRANSPORT-BROWSER-APP-1 governance COMPLETE. RUSTIFY-CORE-1 RC3/RC5 DONE.
+
+**Context:** Implementation successor to the fully locked WEBTRANSPORT-BROWSER-APP-1 governance stream (20 ACs, 5 PM decisions, all approved). Builds a real browser↔app WebTransport path using HTTP/3 over QUIC. Browser "QUIC" means WebTransport over HTTP/3 — not raw QUIC in-browser, not peer-to-peer. Safari/WebKit does NOT support WebTransport; those users fall to WS/WebRTC via three-tier fallback. G1 invariant preserved: browser↔browser remains WebRTC.
+
+**Phased Plan (WEBTRANSPORT-BROWSER-APP-IMPL-1):**
+
+| Phase | Description | Serial Gate | Status |
+|-------|-------------|-------------|--------|
+| WTI1 | Implementation audit + integration plan | YES (gates WTI2) | NOT-STARTED |
+| WTI2 | Daemon HTTP/3 WebTransport endpoint | YES (gates WTI3) | NOT-STARTED |
+| WTI3 | Browser WebTransport adapter + three-tier fallback | YES (gates WTI4) | NOT-STARTED |
+| WTI4 | Feature gating + capability negotiation + TLS provisioning | YES (gates WTI5) | NOT-STARTED |
+| WTI5 | Validation, measurement, rollout criteria | YES (gates WTI6) | NOT-STARTED |
+| WTI6 | Closure | YES (closes stream) | NOT-STARTED |
+
+**Acceptance Criteria:** 23 ACs defined (AC-WTI-01–23). See `docs/GOVERNANCE_WORKSTREAMS.md` § WEBTRANSPORT-BROWSER-APP-IMPL-1.
+
+**PM Decisions:** 2 (PM-WTI-01: daemon WT port, PM-WTI-02: default-on vs opt-in at close).
+
+---
+
 ## Routing Summary
 
 | Item | Routing | Certainty |
@@ -763,6 +791,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | RUSTIFY-BROWSER-ROLLOUT-1 | bolt-core-sdk + consumers + bolt-ecosystem | Confirmed |
 | LOCALBOLT-RELIABILITY-UX-1 | localbolt-v3 + bolt-transport-web + consumers + bolt-ecosystem | Confirmed |
 | LOCALBOLT-PERF-1 | bolt-core-sdk + localbolt-v3 + bolt-ecosystem | Confirmed |
+| WEBTRANSPORT-BROWSER-APP-IMPL-1 | bolt-daemon + bolt-core-sdk + bolt-ecosystem | Confirmed |
 
 ---
 
