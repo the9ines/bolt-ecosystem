@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-21 (WEBTRANSPORT-BROWSER-APP-IMPL-1 WTI1 DONE — implementation audit complete, WTI2 READY.)
+> **Updated:** 2026-03-21 (WEBTRANSPORT-BROWSER-APP-IMPL-1 **COMPLETE** — all 23 ACs, WTI1–WTI6 DONE. Stream CLOSED.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -740,7 +740,7 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 ## Item 23: WEBTRANSPORT-BROWSER-APP-IMPL-1 — Browser↔App WebTransport Implementation
 
 **Priority:** NEXT (unblocked)
-**Status:** **WTI1 DONE** (`ecosystem-v0.1.195`, 2026-03-21). Audit complete. HTTP/3 layer required (quinn alone insufficient). WTI2 READY.
+**Status:** **COMPLETE** (2026-03-21). All 23 ACs satisfied. WTI1–WTI6 DONE. Daemon WT endpoint + browser adapter + three-tier fallback + capability negotiation + kill-switches + E2E proof + benchmark + TLS docs. 381 daemon + 417 browser tests. Stream CLOSED.
 **Routing:** bolt-daemon (HTTP/3 endpoint), bolt-core-sdk/ts/bolt-transport-web (browser adapter), bolt-ecosystem (governance)
 **Category:** Transport implementation — browser↔app WebTransport over HTTP/3
 **Stream:** WEBTRANSPORT-BROWSER-APP-IMPL-1 (phased, 6 phases WTI1–WTI6)
@@ -753,11 +753,11 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | Phase | Description | Serial Gate | Status |
 |-------|-------------|-------------|--------|
 | WTI1 | Implementation audit + integration plan | YES (gates WTI2) | **DONE** (audit complete, 2026-03-21) |
-| WTI2 | Daemon HTTP/3 WebTransport endpoint | YES (gates WTI3) | NOT-STARTED |
-| WTI3 | Browser WebTransport adapter + three-tier fallback | YES (gates WTI4) | NOT-STARTED |
-| WTI4 | Feature gating + capability negotiation + TLS provisioning | YES (gates WTI5) | NOT-STARTED |
-| WTI5 | Validation, measurement, rollout criteria | YES (gates WTI6) | NOT-STARTED |
-| WTI6 | Closure | YES (closes stream) | NOT-STARTED |
+| WTI2 | Daemon HTTP/3 WebTransport endpoint | YES (gates WTI3) | **DONE** (endpoint implemented, 2026-03-21) |
+| WTI3 | Browser WebTransport adapter + three-tier fallback | YES (gates WTI4) | **DONE** (adapter + fallback implemented, 2026-03-21) |
+| WTI4 | Feature gating + capability negotiation + TLS provisioning | YES (gates WTI5) | **DONE** (capability + gating implemented, 2026-03-21) |
+| WTI5 | Validation, measurement, rollout criteria | YES (gates WTI6) | **DONE** (E2E + fallback + BTR proven, benchmark + TLS docs, 2026-03-21) |
+| WTI6 | Closure | YES (closes stream) | **DONE** (stream CLOSED, 2026-03-21) |
 
 **Acceptance Criteria:** 23 ACs defined (AC-WTI-01–23). See `docs/GOVERNANCE_WORKSTREAMS.md` § WEBTRANSPORT-BROWSER-APP-IMPL-1.
 

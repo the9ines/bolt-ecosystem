@@ -5,6 +5,80 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-03-21 — WEBTRANSPORT-BROWSER-APP-IMPL-1 WTI6 DONE: Stream CLOSED
+
+**WTI6 status**: READY → **DONE**. AC-WTI-21–23 PASS. **Stream CLOSED.**
+
+**Stream summary:** Implemented browser↔app WebTransport over HTTP/3 across daemon (`bolt-daemon`) and browser SDK (`bolt-transport-web`). Daemon endpoint via `wtransport` 0.7 with TLS PEM loading. Browser `WtDataTransport` adapter with 4-byte BE length-prefixed framing, `FrameDeframer`, and async send bridge. Three-tier fallback: WT→WS→WebRTC. Capability `bolt.transport-webtransport-v1` negotiated in HELLO. Kill-switches on both sides (`--no-wt`, `webTransportEnabled`). Safari/WebKit falls to WS transparently. G1 invariant preserved: browser↔browser remains WebRTC.
+
+**All 23 ACs satisfied.** WTI1–WTI6 DONE. 381 daemon + 417 browser tests. Zero regressions. Evidence: `docs/evidence/WTI1_EVIDENCE.md` through `docs/evidence/WTI6_CLOSURE.md`.
+
+---
+
+## 2026-03-21 — WEBTRANSPORT-BROWSER-APP-IMPL-1 WTI5 DONE: Validation + Measurement
+
+**WTI5 status**: READY → **DONE**. AC-WTI-16–20 all PASS.
+
+**E2E proof:** 5 daemon integration tests (`wti5_btr_over_wt.rs`) prove WT session accept, framed echo, and BTR sealed chunk transport over real WebTransport connections with self-signed TLS. 7 browser tests prove WT connect + TransferManager delegation + framing coherence.
+
+**Fallback proof:** 3 browser tests prove deterministic WT→WS fallback on timeout, kill-switch, and missing API. WS transport confirmed connected after each.
+
+**Throughput measurement:** `wti5_throughput_bench.rs` scaffold measures WT vs WS round-trip at 256B/1KB/16KB/64KB. Localhost loopback: WS lower latency (expected — TCP vs QUIC overhead). Structured `[BENCH]` output for reproducible comparison.
+
+**BTR parity:** WT tests mirror `rc5_btr_over_ws.rs` exactly — seal/open/tamper at identical payload sizes. Capability set identity verified between `WtDataTransport` and `WsDataTransport`.
+
+**TLS docs:** `bolt-daemon/docs/WEBTRANSPORT_TLS_SETUP.md` — mkcert quick-start, cert generation, LAN SANs, daemon CLI, kill-switch, browser config, troubleshooting.
+
+**Validation:** 381 daemon passed, 417 browser passed. Zero failures.
+
+**WTI6 (closure) now READY.**
+
+---
+
+## 2026-03-21 — WEBTRANSPORT-BROWSER-APP-IMPL-1 WTI4 DONE: Feature Gating + Capability Negotiation
+
+**WTI4 status**: READY → **DONE**. AC-WTI-13–15 PASS. AC-WTI-16 PARTIAL (TLS cert docs deferred to WTI5).
+
+**Capability:** `bolt.transport-webtransport-v1` now advertised in HELLO when WebTransport is enabled. Daemon: `daemon_capabilities(wt_enabled: bool)` — both WS and WT endpoints share same flag. Browser: `WtDataTransport` always advertises; `WsDataTransport` advertises when `webTransportEnabled: true`.
+
+**Kill-switches:** Daemon `--no-wt` flag prevents WT endpoint spawn and capability advertisement. Browser `webTransportEnabled: false` skips WT attempt, falls directly to WS→WebRTC. Default: WT enabled when `webTransportUrl` is present.
+
+**Validation:** Daemon 375 passed, browser 410 passed. `cargo fmt` + `npm run build` clean. 13 WTI4-specific tests (capability gating, CLI parsing, kill-switch, fallback regression).
+
+**WTI5 (validation, measurement, rollout criteria) now READY.**
+
+---
+
+## 2026-03-21 — WEBTRANSPORT-BROWSER-APP-IMPL-1 WTI3 DONE: Browser WebTransport Adapter + Three-Tier Fallback
+
+**WTI3 status**: NOT-STARTED → **DONE**. AC-WTI-09–12 all PASS.
+
+**Implementation:** Browser-side WebTransport adapter (`WtDataTransport`) added to `bolt-transport-web`, mirroring `WsDataTransport` structure. Connects via `globalThis.WebTransport`, opens one bidirectional stream with 4-byte BE length-prefixed framing matching daemon `wt_endpoint.rs`. `FrameDeframer` handles partial-chunk reconstruction. Async `WritableStream.write()` wrapped behind sync-style `send()` with internal queue. Delegates all protocol logic to shared `HandshakeManager` and `TransferManager`. Full BTR support.
+
+**Fallback chain:** `BrowserAppTransport` updated from 2-tier (WS→WebRTC) to 3-tier (WT→WS→WebRTC). WebTransport attempted only when `webTransportUrl` configured and `globalThis.WebTransport` available. Safari/WebKit falls to WS transparently. Transport mode reporting extended to `'webtransport' | 'ws' | 'webrtc'`.
+
+**Validation:** `npm test` — 401 passed, 0 failed. `npm run build` clean. 26 WTI3-specific tests (framing, deframing, feature detection, fallback paths, mode reporting, lifecycle).
+
+**WTI4 (feature gating + capability negotiation + TLS provisioning) now READY.**
+
+---
+
+## 2026-03-21 — WEBTRANSPORT-BROWSER-APP-IMPL-1 WTI2 DONE: Daemon HTTP/3 WebTransport Endpoint
+
+**WTI2 status**: NOT-STARTED → **DONE**. AC-WTI-05–08 all PASS.
+
+**Implementation:** Daemon-side WebTransport/HTTP3 endpoint added as `bolt-daemon/src/wt_endpoint.rs`, feature-gated behind `transport-webtransport`. Uses `wtransport` 0.7 (built on quinn 0.11 + rustls 0.23). Mirrors existing `ws_endpoint.rs` protocol flow: session-key exchange → encrypted HELLO → capability negotiation → ProfileEnvelopeV1 envelope decode/route/reply loop. Fails closed on protocol violations.
+
+**Wire format:** 4-byte big-endian length-prefixed JSON frames over one bidirectional stream per session.
+
+**CLI flags:** `--wt-listen <addr>`, `--wt-cert <path>`, `--wt-key <path>`. TLS PEM cert/key compatible with mkcert-style local CA provisioning.
+
+**Validation:** `cargo test --features transport-webtransport,transport-ws` — 371 passed, 0 failed. `cargo fmt` clean. 6 WTI2-specific tests (config, bind, frame roundtrip, run+shutdown, CLI parse).
+
+**WTI3 (browser WebTransport adapter + three-tier fallback) now READY.**
+
+---
+
 ## 2026-03-21 — WEBTRANSPORT-BROWSER-APP-IMPL-1 WTI1 DONE: Implementation Audit
 
 **WTI1 status**: NOT-STARTED → **DONE**. AC-WTI-01–04 all PASS.
