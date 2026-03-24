@@ -8245,7 +8245,9 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ### SIGNAL-ENDPOINT-1 — Signaling Endpoint Security Context
 
-> **Status:** IN PROGRESS
+> **Status:** CLOSED
+> **Closed:** 2026-03-24
+> **Commits:** `c3be58f` (bolt-core-sdk), `bc9a576` (localbolt-v3), `7d64472` (governance)
 > **Priority:** P1 — blocks HTTPS production correctness
 > **Dependency:** None
 
