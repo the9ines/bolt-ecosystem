@@ -8341,6 +8341,18 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
+### RUST-AUTHORITY-MIGRATION-2 — BTR Authority to Rust/WASM (CLOSED)
+
+> **Status:** CLOSED
+> **Closed:** 2026-03-24
+> **Commit:** `b8dc71d` (bolt-core-sdk)
+> **Priority:** P2 — strategic architecture
+> **Dependency:** RUST-AUTHORITY-MIGRATION-1 (CLOSED)
+
+**Result:** Removed TS BTR fallback from `createBtrAdapter()`. Rust/WASM is now the sole BTR authority in browser contexts. When WASM is unavailable, BTR is disabled (downgrade to static NaCl box). TS BTR modules in `bolt-core/src/btr/*.ts` (560 lines) are now dead code — can be deleted in follow-up cleanup.
+
+---
+
 ## No-Push Policy
 
 **Default:** DO NOT push commits or tags to remote repositories during phase execution.
