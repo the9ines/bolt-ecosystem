@@ -8032,9 +8032,11 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
-### SECURITY-MODEL-1 — Canonical Security Model
+### SECURITY-MODEL-1 — Canonical Security Model (CLOSED)
 
-> **Status:** NOT STARTED
+> **Status:** CLOSED
+> **Closed:** 2026-03-24
+> **Commit:** `0811123` (bolt-ecosystem)
 > **Priority:** P0 — gates all other security streams
 
 **Purpose:** Produce the canonical threat model, trust boundaries, and security invariants document for the Bolt ecosystem. ARCHITECTURE.md §10–12 provides the foundation; this stream formalizes it into a standalone auditable artifact.
@@ -8057,13 +8059,19 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
-### DAEMON-BTR-1 — Restore Bolt Transfer Ratchet for Daemon Direct Transport
+### DAEMON-BTR-1 — Restore Bolt Transfer Ratchet for Daemon Direct Transport (CLOSED)
 
-> **Status:** NOT STARTED
+> **Status:** CLOSED
+> **Closed:** 2026-03-24
+> **Commit:** `6d22b8e` (bolt-daemon)
 > **Priority:** P1 — mandatory correctness restoration
 > **Dependency:** BROWSER-APP-DIRECT-1 (CLOSED)
 
-**Purpose:** Re-enable `bolt.transfer-ratchet-v1` capability in daemon direct transport sessions. Currently disabled because the daemon cannot decrypt BTR-sealed chunks.
+**Purpose:** Re-enable `bolt.transfer-ratchet-v1` capability in daemon direct transport sessions.
+
+**Result:** `bolt.transfer-ratchet-v1` truthfully restored. Daemon implements full BTR state machine: session root derivation, per-transfer DH ratchet, per-chunk chain key evolution, NaCl secretbox encrypt/decrypt, replay guard, zeroization. Staged implementation (5 stages), 28 BTR-specific tests, live-validated with real files (PDF, 10MB, 50MB) in bidirectional same-session BTR transfers.
+
+**Deferred to PROTOCOL-HARDENING-1:** Cross-implementation golden-vector consumption (Rust↔TypeScript byte-level conformance tests). Golden vector infrastructure exists (10 vector files in bolt-core/test-vectors/btr/).
 
 **Scope:**
 - Implement `BtrTransferContext` (DH ratchet + chain key derivation) in daemon WS endpoint
