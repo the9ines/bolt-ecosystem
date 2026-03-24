@@ -8243,6 +8243,29 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
+### SIGNAL-ENDPOINT-1 — Signaling Endpoint Security Context
+
+> **Status:** IN PROGRESS
+> **Priority:** P1 — blocks HTTPS production correctness
+> **Dependency:** None
+
+**Purpose:** Eliminate mixed-content signaling attempts from HTTPS origins. The live site (`https://localbolt.app`) attempts `ws://localbolt.app:3001` which browsers block as mixed content.
+
+**Scope:**
+- Audit signaling endpoint selection logic
+- Make endpoint construction origin/protocol-aware
+- HTTPS pages must never attempt `ws://`
+- Localhost/dev continues using `ws://` where valid
+- Cloud signaling (`wss://`) unaffected
+
+**Exit criteria:**
+- No mixed-content console errors on HTTPS production site
+- Local dev signaling still works
+- Cloud signaling still works
+- Endpoint selection is deterministic and documented
+
+---
+
 ## No-Push Policy
 
 **Default:** DO NOT push commits or tags to remote repositories during phase execution.

@@ -470,6 +470,24 @@ The canonical browser↔desktop path is **direct transport** via daemon WS/WT en
 
 WebRTC is retained for **browser↔browser only**. MUST NOT be extended as the browser↔daemon transport path.
 
+### Signaling Endpoint Policy
+
+Signaling endpoint selection MUST be security-context-aware:
+
+1. **HTTPS origins MUST NOT attempt insecure `ws://` signaling connections.** Browsers block mixed content (HTTPS page → ws:// WebSocket). Attempting `ws://` from an HTTPS page is a bug, not acceptable fallback behavior.
+
+2. **Localhost/dev origins (`http://localhost`, `http://127.0.0.1`) MAY use `ws://`.** Browser mixed-content policy does not apply to localhost origins.
+
+3. **Public HTTPS deployments MUST use `wss://` for cloud signaling.** This is already the case for Fly.io-hosted rendezvous.
+
+4. **Local/LAN signaling (embedded rendezvous) is only available when:**
+   - The page is served from `http://` (dev mode), OR
+   - The desktop app embeds the signaling server and connects locally (not subject to browser mixed-content rules)
+
+5. **Endpoint selection logic MUST be deterministic and origin-aware.** The app MUST inspect its own origin protocol (`https:` vs `http:`) before constructing signaling URLs.
+
+6. **Mixed-content signaling attempts are protocol violations**, not graceful degradation. They MUST NOT be attempted.
+
 ---
 
 ## 10. Security Model
