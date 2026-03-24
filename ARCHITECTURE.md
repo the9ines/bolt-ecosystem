@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Architecture
 
 > **Status:** Normative
-> **Last Updated:** 2026-02-21
+> **Last Updated:** 2026-03-22
 > **Canonical Protocol Spec:** `bolt-protocol/PROTOCOL.md` (canonical)
 
 This document defines architectural invariants, security guarantees, protocol structure, and repository boundaries for the Bolt ecosystem. It uses RFC 2119 language: MUST, MUST NOT, NEVER, REQUIRED, SHOULD.
@@ -196,12 +196,14 @@ MUST preserve:
 | Bolt Core SDK (Rust) | bolt-core-sdk | Reference implementation |
 | Bolt Core SDK (TypeScript) | bolt-core-sdk | Same repo, separate package |
 | Conformance test vectors | bolt-core-sdk | Shared between Rust and TS |
+| App runtime core | bolt-core-sdk (`bolt-app-core`) | Shell-agnostic daemon lifecycle, IPC, watchdog, platform (ADR-001) |
+| Desktop UI shell | bolt-core-sdk (`bolt-ui`) | egui/eframe native binary, consumes bolt-app-core |
 | Rendezvous server (Rust) | bolt-rendezvous | Canonical implementation |
 | Rendezvous (vendored) | localbolt, localbolt-app | Via git subtree only |
 | Daemon (Rust) | bolt-daemon | Canonical implementation |
 | Relay infrastructure | bytebolt-relay | Commercial |
 | Web lite app | localbolt | Open source |
-| Native multi-platform app | localbolt-app | Open source |
+| Native multi-platform app | localbolt-app | Open source (**retired** — Tauri adapter. Desktop rollback CLOSED all platforms. Replaced by bolt-ui.) |
 | Web app (Netlify) | localbolt-v3 | Open source |
 | Commercial global app | bytebolt-app | Commercial |
 | Protocol spec (stubs) | bolt-core-sdk | Stubs pointing to bolt-protocol |
@@ -228,11 +230,11 @@ MUST preserve:
 | Repo | Allowed | Forbidden |
 |------|---------|-----------|
 | bolt-protocol | Markdown specs only | Code, configs, CI |
-| bolt-core-sdk | SDK code, tests, spec stubs | Product UI, transport impl |
+| bolt-core-sdk | SDK code, tests, spec stubs, bolt-app-core, bolt-ui | Product-specific policy, Tauri deps |
 | bolt-rendezvous | Rendezvous server code | Protocol logic, UI |
 | bolt-daemon | Daemon code, IPC API | Protocol logic, UI |
 | localbolt | Web app, vendored signal | SDK internals, spec |
-| localbolt-app | Tauri app, vendored signal+daemon | SDK internals, spec |
+| localbolt-app | Tauri shell adapter (**retired** — replaced by bolt-ui) | Runtime logic (moved to bolt-app-core) |
 | localbolt-v3 | Web app (TS only) | Servers, daemons, native code |
 | bytebolt-app | Commercial app | Open-source protocol changes |
 | bytebolt-relay | Relay infra | Protocol changes, free features |
@@ -356,3 +358,226 @@ These invariants REQUIRE explicit human approval to change:
 | ARCH-10 | Identity keys are persistent and TOFU-pinned |
 
 Violation of any ARCH invariant MUST be escalated to human immediately.
+
+---
+
+## 8. Canonical Ownership & Promotion Order
+
+### Canonical Authority
+
+| Domain | Canonical Owner | Consumers |
+|--------|----------------|-----------|
+| Protocol specification | bolt-protocol | All repos |
+| Protocol SDK (Rust + TS) | bolt-core-sdk | bolt-daemon, bolt-transport-web, product repos |
+| App runtime core | bolt-core-sdk (`bolt-app-core`) | bolt-ui, localbolt-app, future mobile shells |
+| Desktop UI shell | bolt-core-sdk (`bolt-ui`) | Standalone binary, future packaging |
+| BTR (transfer ratchet) | bolt-core-sdk (`bolt-btr`) | bolt-daemon, bolt-transport-web |
+| Daemon runtime | bolt-daemon | Product apps (sidecar or embedded) |
+| Signaling server | bolt-rendezvous | Product apps (embedded or hosted) |
+| Browser transport | bolt-core-sdk (`bolt-transport-web`) | localbolt-v3, localbolt |
+
+- `bolt-core-sdk` is the canonical shared-code authority. Protocol, BTR, transport, app runtime, and desktop shell all live here.
+- `bolt-app-core` is canonical app/runtime truth. Future shells (SwiftUI, Kotlin) consume it via FFI.
+- `bolt-ui` is the canonical desktop shell. It is a standalone binary — no WebView dependency.
+- Product repos (`localbolt-v3`, `localbolt`, `localbolt-app`) are **consumers only**. They MUST NOT own protocol, runtime, or transport logic.
+- `localbolt-app` is **retired**. Desktop rollback window CLOSED for all platforms (2026-03-22). `bolt-ui` is the canonical desktop shell. Tauri desktop path is no longer maintained.
+
+### Product Policy Rule
+
+- SDK/core provides capability (LAN and WAN capable).
+- Products choose policy (e.g., `localbolt` is local-only by product policy, not SDK limitation).
+- WAN/relay enablement belongs in product configuration, not in shared core.
+- MUST NOT restrict shared core to serve a single product's policy.
+
+### CI/CD Promotion Order
+
+Release promotion follows the dependency graph. Upstream repos MUST pass before downstream consumers tag:
+
+```
+1. bolt-core-sdk        ←── canonical core: Rust + TS tests, bolt-app-core, bolt-ui
+2. bolt-daemon          ←── daemon runtime tests, transport tests
+   bolt-rendezvous      ←── server/protocol tests (parallel with daemon)
+3. bolt-ui              ←── desktop shell build + tests (part of bolt-core-sdk workspace)
+4. localbolt-v3         ←── consumer build/test
+   localbolt-app        ←── retired (Tauri desktop path replaced by bolt-ui)
+   future mobile shells ←── binding generation + shell smoke
+5. bolt-ecosystem       ←── governance/docs sync (after code repos)
+```
+
+### Per-Repo CI Expectations
+
+| Repo | Required CI | Notes |
+|------|------------|-------|
+| bolt-core-sdk | Rust unit/integration, TS package tests/build, cross-language vectors, bolt-app-core tests, bolt-ui tests/build | Canonical. All shared logic tested here. |
+| bolt-daemon | Daemon tests (`cargo test --features transport-webtransport,transport-ws`), `cargo fmt`, `cargo clippy` | Includes WT/WS/QUIC transport tests. |
+| bolt-rendezvous | Server + protocol tests | Independent of daemon. |
+| localbolt-v3 | Consumer build + test only | MUST NOT duplicate SDK tests. |
+| localbolt-app | **Retired** — no CI required | Freeze/archive. No new strategic work. |
+| future iOS/Android | UniFFI binding generation + shell smoke | Platform CI (Xcode Cloud, Android SDK). |
+| bolt-ecosystem | Docs/governance consistency checks | No code tests. |
+
+### Release Tag Gate
+
+- Tags MUST NOT be created until the repo's full CI suite passes.
+- Downstream consumers SHOULD pin to upstream tags, not branches.
+- Tag format per repo is defined in the ecosystem's SRE Policy (see CLAUDE.md § Tag Discipline).
+
+---
+
+## 9. Language Ownership & Drift Policy
+
+> Audited: 2026-03-23. See `docs/evidence/ARCHITECTURE_AUDIT_2026-03-23.md`.
+
+### Rust-First Principle
+
+Rust is the canonical language for protocol, crypto, transfer, runtime, and daemon logic. TypeScript owns browser-only concerns (WebRTC, DOM, IndexedDB, signaling WebSocket client). TS MUST NOT grow into protocol authority.
+
+### Language Ownership Table
+
+| Domain | Canonical Language | Notes |
+|--------|-------------------|-------|
+| Protocol / wire format | Rust | TS mirrors; does not author |
+| Crypto (NaCl, BTR, key management) | Rust / WASM | TS is fallback only |
+| Transfer state machine | Rust (bolt-transfer-core) | TS adapter layer acceptable |
+| App runtime / lifecycle | Rust (bolt-app-core) | Shells consume via API/FFI |
+| Desktop shell | Rust (bolt-ui / egui) | No WebView dependency |
+| Daemon transport | Rust (WS/WT/QUIC endpoints) | Canonical transport authority |
+| Browser↔app transport | Rust daemon + TS adapter (BrowserAppTransport) | Direct WS/WT, not WebRTC |
+| Browser↔browser transport | TS (WebRTCService) | Necessarily browser-side |
+| Signaling server | Rust (bolt-rendezvous) | Canonical |
+| Browser signaling client | TS (WebSocketSignaling) | Browser API binding |
+| Web shell | TS (localbolt-v3) | Consumer only |
+
+### Anti-Patterns (Prohibited)
+
+These patterns MUST NOT be introduced. Violations should be escalated.
+
+| ID | Anti-Pattern | Rationale |
+|----|-------------|-----------|
+| AP-01 | New strategic work in `localbolt-app` | Desktop is `bolt-ui`. Tauri is retired. |
+| AP-02 | Deepening daemon↔browser WebRTC interop | Direct transport (WS/WT) is the browser↔app path. |
+| AP-03 | New TS crypto logic | Rust/WASM is crypto authority. |
+| AP-04 | New TS transfer orchestration authority | Rust SM is canonical. |
+| AP-05 | TS protocol wire format changes | Wire format owned by Rust core. |
+
+### Browser↔App Transport Direction
+
+The canonical browser↔desktop path is **direct transport** via daemon WS/WT endpoints:
+- Browser uses `BrowserAppTransport` (WS primary, WT upgrade)
+- Daemon serves via `ws_endpoint.rs` / `wt_endpoint.rs`
+- Protocol: session-key → HELLO → ProfileEnvelopeV1 → file transfer
+- Discovery/approval flows through signaling relay; transport is direct
+
+WebRTC is retained for **browser↔browser only**. MUST NOT be extended as the browser↔daemon transport path.
+
+---
+
+## 10. Security Model
+
+### Trust Boundaries
+
+| Boundary | Trust Level | Notes |
+|----------|------------|-------|
+| **Rendezvous server** | Untrusted | Routes encrypted envelopes. Cannot read contents. Sees IP addresses, peer codes, connection metadata. Compromise reveals who is talking to whom, not what they say. |
+| **Daemon (local)** | Trusted local agent | Owns identity keys, session keys, crypto operations. Compromise of the daemon process is full compromise of that endpoint — keys, plaintext, transfer data. Protected by OS process isolation and filesystem permissions. |
+| **Browser endpoint** | Trusted local agent | Same authority as daemon when daemon is absent. Identity keys in IndexedDB (origin-scoped). Compromise of the browser tab/origin is full compromise of that endpoint. |
+| **Native endpoint (bolt-ui)** | Trusted local UI | Communicates with daemon via local IPC. Does not hold crypto keys directly — daemon is the crypto authority. Compromise of bolt-ui without daemon compromise reveals UI state but not plaintext content in transit. |
+| **Local IPC (Unix socket)** | Trusted local channel | Protected by filesystem permissions (0600). Compromise requires local root or same-user access — equivalent to daemon compromise. |
+| **Network transport (WS/WT)** | Untrusted | All data is envelope-encrypted. Transport is untrusted by design. MitM sees ciphertext only. |
+
+### Attacker Model
+
+| Attacker | Can do | Cannot do |
+|----------|--------|-----------|
+| **Network observer** | See encrypted frames, connection timing, frame sizes | Read plaintext, forge messages, replay (transfer_id+chunk_index dedup) |
+| **Compromised rendezvous** | Inject signals, drop connections, log metadata | Read envelope contents, forge HELLO, break SAS verification |
+| **Compromised daemon** | Read all plaintext, forge messages, steal identity | Compromise other endpoints not connected to this daemon |
+| **Compromised browser** | Same as daemon for that session | Compromise other browsers or native endpoints |
+| **Local user (same OS user)** | Access daemon IPC socket, read identity keys from disk | Nothing beyond what the daemon itself can do |
+
+### Asset Classes
+
+| Asset | Storage | Protection |
+|-------|---------|------------|
+| Identity keypair (Ed25519) | Daemon: `data_dir/identity.key` (0600). Browser: IndexedDB (origin-scoped). | Filesystem perms / browser sandbox. |
+| Ephemeral session keys (X25519) | Memory only | Discarded on disconnect. Never persisted. |
+| TOFU pin store | Browser: IndexedDB. Daemon: `trust.json` in data_dir. | Filesystem perms / browser sandbox. |
+| File contents in transit | Envelope-encrypted over WS/WT | NaCl-box (XSalsa20-Poly1305). Per-chunk encryption. |
+| File contents at rest (received) | Written to ~/Downloads (daemon) or browser download | No at-rest encryption by Bolt. OS responsibility. |
+
+### Compromise Consequences
+
+| Component compromised | Impact | Blast radius |
+|----------------------|--------|-------------- |
+| Rendezvous | Signal injection, metadata exposure, DoS | Connection layer only. No plaintext exposure. |
+| Single daemon | Full endpoint compromise for that device | That device's sessions only. Other peers unaffected. |
+| Single browser tab | Full endpoint compromise for that origin | That browser session only. |
+| Local IPC | Equivalent to daemon compromise | Same as daemon. |
+| Network transport | None (untrusted by design) | Ciphertext only. |
+
+---
+
+## 11. Daemon Role
+
+### Authority Model
+
+When present, bolt-daemon is the **canonical local protocol authority** for native apps and CLI clients:
+
+1. **Identity**: Daemon owns the persistent identity keypair. Native UI (bolt-ui) does NOT hold identity keys — it delegates to the daemon.
+2. **Trust/Pinning**: Daemon maintains the TOFU pin store. Pin decisions are made by the daemon based on UI input via IPC.
+3. **Session Establishment**: Daemon performs HELLO exchange, capability negotiation, SAS computation. Native UI receives session state via IPC events.
+4. **Crypto Operations**: All envelope encryption/decryption happens in the daemon. Native UI never touches plaintext in transit.
+5. **Transfer Engine**: Daemon chunks, encrypts, and sends files. Daemon receives, decrypts, and saves files. Native UI triggers send via signal file; receives completion notification via daemon stderr/IPC.
+6. **IPC Contract**: NDJSON over Unix socket (0600). Daemon → UI: events. UI → daemon: decisions. Bidirectional. Single-client at a time.
+
+### Truthful Capability Advertisement
+
+The daemon MUST NOT advertise capabilities it does not implement. Capability advertisement in HELLO is a protocol-level contract:
+
+- If `bolt.transfer-ratchet-v1` is advertised, the daemon MUST be able to seal and open BTR-encrypted chunks.
+- If `bolt.profile-envelope-v1` is advertised, the daemon MUST correctly encode and decode ProfileEnvelopeV1 frames.
+- Advertising a capability the daemon cannot fulfill is a protocol violation.
+
+### Daemon Is Not Mandatory
+
+The daemon is the authority **when present**. Browser-only sessions (no daemon) are fully valid:
+
+- Browser generates its own ephemeral keypair
+- Browser manages its own identity and TOFU pin store (IndexedDB)
+- Browser performs HELLO, SAS, envelope encryption directly
+- Protocol guarantees are identical in both modes
+
+The daemon adds: persistent identity across sessions, native file system access, CLI/automation support, and centralized crypto authority for multiple native UI clients.
+
+---
+
+## 12. WebRTC Disposition
+
+### Current State
+
+bolt-daemon contains WebRTC/DataChannel code from the rendezvous transport path. This code is **transitional legacy**.
+
+### Target State
+
+| Product | WebRTC | Direct Transport (WS/WT) |
+|---------|--------|--------------------------|
+| LocalBolt web (browser↔browser) | Retained (only path) | N/A |
+| LocalBolt web↔desktop | **Deprecated** | **Canonical** (BROWSER-APP-DIRECT-1) |
+| ByteBolt (all) | **Never** | **Only path** |
+| bolt-daemon | **Legacy** | **Forward direction** |
+
+### Governance Rules
+
+1. **No new product work may deepen WebRTC paths.** Anti-pattern AP-02 (ARCHITECTURE.md §9) prohibits extending browser↔daemon WebRTC interoperability.
+2. **ByteBolt is zero-WebRTC by design.** bytebolt-relay and bytebolt-app MUST NOT contain WebRTC dependencies.
+3. **Bolt target state is zero WebRTC.** The direct WS/WT transport path replaces WebRTC for all non-browser-to-browser connections.
+4. **DEWEBRTC-1** will formalize retirement of WebRTC code from bolt-daemon when the direct transport path is fully hardened.
+
+### Drift Tracking
+
+| Item | Severity | Current State | Target |
+|------|----------|--------------|--------|
+| `localbolt-app` not frozen | MEDIUM | Retired but not archived | Freeze/archive repo |
+| Browser transfer TS thickness | MEDIUM | `TransferManager.ts` ~865 lines | Converge toward Rust/WASM SM |
+| Browser crypto dual-path | LOW | TS NaCl + Rust/WASM both active | WASM-first, TS fallback only |
+| `localbolt-core` TS orchestration | LOW | Session state, peer code gen | Acceptable adapter layer |

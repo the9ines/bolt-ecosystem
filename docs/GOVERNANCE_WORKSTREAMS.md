@@ -8013,6 +8013,216 @@ BROWSER-APP-DIRECT-1 establishes the direct WS transport as the forward path for
 
 ---
 
+## Security & Hardening Program
+
+> **Status:** Defined
+> **Authority:** PM-approved governance. Phase execution requires separate phase prompts.
+
+The following streams codify the security and hardening program for the Bolt ecosystem. They are ordered by dependency and risk priority.
+
+### Execution Order
+
+1. SECURITY-MODEL-1 (foundational — gates all others)
+2. DAEMON-BTR-1 (restore forward secrecy for direct transport)
+3. DAEMON-HARDENING-1 (harden the local protocol authority)
+4. RENDEZVOUS-HARDENING-1 (harden the untrusted relay)
+5. PROTOCOL-HARDENING-1 (protocol-level enforcement)
+6. DEWEBRTC-1 (reduce attack surface by removing legacy code)
+7. ENDPOINT-SECURITY-1 (harden browser + native endpoints)
+
+---
+
+### SECURITY-MODEL-1 — Canonical Security Model
+
+> **Status:** NOT STARTED
+> **Priority:** P0 — gates all other security streams
+
+**Purpose:** Produce the canonical threat model, trust boundaries, and security invariants document for the Bolt ecosystem. ARCHITECTURE.md §10–12 provides the foundation; this stream formalizes it into a standalone auditable artifact.
+
+**Scope:**
+- Formal threat model (STRIDE or equivalent) for each component
+- Trust boundary diagrams
+- Attacker capability matrix per component compromise
+- Cryptographic inventory (algorithms, key sizes, nonce strategies, key lifecycle)
+- Security invariant registry with test coverage mapping
+- Identify gaps between documented invariants and actual enforcement
+
+**Exit criteria:**
+- `docs/SECURITY_MODEL.md` exists as normative
+- Every security invariant in ARCHITECTURE.md §3 has a corresponding test citation
+- Cryptographic inventory covers all seal/open/hash/SAS paths
+- PM-reviewed and accepted
+
+**Why it matters:** Without a formal security model, hardening work is ad hoc. This stream produces the map that all other security streams navigate by.
+
+---
+
+### DAEMON-BTR-1 — Restore Bolt Transfer Ratchet for Daemon Direct Transport
+
+> **Status:** NOT STARTED
+> **Priority:** P1 — mandatory correctness restoration
+> **Dependency:** BROWSER-APP-DIRECT-1 (CLOSED)
+
+**Purpose:** Re-enable `bolt.transfer-ratchet-v1` capability in daemon direct transport sessions. Currently disabled because the daemon cannot decrypt BTR-sealed chunks.
+
+**Scope:**
+- Implement `BtrTransferContext` (DH ratchet + chain key derivation) in daemon WS endpoint
+- Receive path: detect BTR envelope fields, initialize receiver context, decrypt chunks with ratcheted keys
+- Send path: initialize sender context, seal chunks with ratcheted keys, include BTR envelope fields
+- Cross-implementation conformance: daemon Rust BTR output must be decryptable by browser TS BTR, and vice versa
+- Golden-vector tests between `bolt-btr` (Rust) and `BtrTransferAdapter` (TypeScript)
+
+**Exit criteria:**
+- Daemon advertises `bolt.transfer-ratchet-v1` truthfully
+- `rc5_btr_over_ws.rs` assertion flipped back to `assert!(contains)`
+- New integration tests prove bidirectional BTR chunk decrypt (daemon ↔ browser)
+- Golden vectors pass across Rust and TypeScript implementations
+- Live transfer test with BTR active (hash-verified)
+
+**Why it matters:** BTR provides per-transfer forward secrecy and per-chunk key rotation. Without it, a session key compromise exposes all transfers in that session. BTR limits exposure to the current transfer's ratchet generation.
+
+---
+
+### DAEMON-HARDENING-1 — Daemon Process & IPC Hardening
+
+> **Status:** NOT STARTED
+> **Priority:** P2
+> **Dependency:** SECURITY-MODEL-1
+
+**Purpose:** Harden bolt-daemon as the local protocol authority — the most security-critical component in native deployments.
+
+**Scope:**
+- IPC authentication: validate that connected UI client is the expected process (PID verification or shared secret)
+- IPC message validation: strict schema enforcement, reject oversized/malformed messages fail-closed
+- Identity key file protection: validate permissions on load, refuse if world-readable
+- Daemon process isolation: drop unnecessary privileges after startup, restrict file system access
+- Memory safety audit: ensure ephemeral keys are zeroed on disconnect (Rust `Zeroize` trait)
+- Signal file race conditions: atomic rename for send_file.signal, validate file path is within allowed directories
+- Crash recovery: daemon must not leave identity keys in inconsistent state on SIGKILL
+
+**Exit criteria:**
+- IPC accepts only validated clients
+- All identity key operations verify filesystem permissions
+- Ephemeral key memory is zeroed on session end (verified by test)
+- Signal file path is restricted to data_dir (no path traversal)
+- PM-reviewed hardening report
+
+**Why it matters:** Daemon holds identity keys and plaintext. It is the highest-value local target. Hardening it is the most impactful security investment.
+
+---
+
+### RENDEZVOUS-HARDENING-1 — Rendezvous Server Hardening
+
+> **Status:** NOT STARTED
+> **Priority:** P3
+> **Dependency:** SECURITY-MODEL-1
+
+**Purpose:** Harden bolt-rendezvous against abuse, denial-of-service, and metadata leakage.
+
+**Scope:**
+- Rate limiting: per-IP connection rate, signal relay rate, room join rate
+- Room size limits: maximum peers per room
+- Signal validation: reject oversized signals, validate signal type before relay
+- Metadata minimization: reduce what the rendezvous server logs and retains
+- TLS enforcement: rendezvous MUST require TLS for cloud deployments
+- Connection lifecycle: idle timeout, maximum session duration
+- Abuse detection: detect and block signal flooding, rapid room cycling
+
+**Exit criteria:**
+- Rate limits enforced per-IP
+- Signal validation rejects invalid payloads before relay
+- Metadata retention policy documented and enforced
+- Cloud deployment requires TLS (no plaintext WS)
+- Load test demonstrates graceful degradation under abuse
+
+**Why it matters:** Rendezvous is the only always-online component. It's the natural DoS target and the primary metadata exposure point.
+
+---
+
+### PROTOCOL-HARDENING-1 — Protocol-Level Enforcement
+
+> **Status:** NOT STARTED
+> **Priority:** P4
+> **Dependency:** SECURITY-MODEL-1
+
+**Purpose:** Close any gaps between the protocol specification and actual enforcement across all implementations.
+
+**Scope:**
+- Audit every MUST/MUST NOT in PROTOCOL.md against actual enforcement in: daemon (Rust), browser SDK (TypeScript), WASM bindings
+- Handshake gating: verify all implementations reject non-HELLO messages pre-handshake
+- Capability negotiation: verify no implementation acts on unnegotiated capabilities
+- Error code validation: verify inbound error codes are from the canonical set only
+- Envelope version enforcement: verify version != 1 is rejected
+- Transfer replay protection: verify (transfer_id, chunk_index) dedup is enforced
+- Produce compliance matrix: PROTOCOL.md rule → implementation file → test citation
+
+**Exit criteria:**
+- Compliance matrix covers every MUST/MUST NOT in PROTOCOL.md
+- Every non-compliant path has a fix or documented exception
+- Cross-implementation test suite validates interop for all protocol rules
+- PM-reviewed compliance report
+
+**Why it matters:** Protocol correctness is the foundation of security. A rule that exists in spec but not in code is a vulnerability.
+
+---
+
+### DEWEBRTC-1 — WebRTC Retirement from bolt-daemon
+
+> **Status:** NOT STARTED
+> **Priority:** P5
+> **Dependency:** DAEMON-BTR-1 (direct transport fully hardened first)
+
+**Purpose:** Remove legacy WebRTC/DataChannel code from bolt-daemon to reduce attack surface and maintenance burden.
+
+**Scope:**
+- Remove `datachannel` dependency from bolt-daemon
+- Remove `run_offerer`, `run_answerer` (file-signal WebRTC paths)
+- Remove WebRTC-specific rendezvous protocol handling
+- Remove `webrtc-sdp` dependency
+- Update DaemonMode to remove Default mode (WsEndpoint becomes the default)
+- Retain rendezvous signaling for discovery/approval (signal relay still needed)
+- Verify browser↔browser WebRTC in localbolt is unaffected (no daemon involvement)
+
+**Exit criteria:**
+- `datachannel` and `webrtc-sdp` removed from bolt-daemon Cargo.toml
+- No WebRTC imports or SDP handling in daemon source
+- bolt-daemon binary size reduced
+- Browser↔browser localbolt transfers still work (unaffected)
+- All daemon tests pass
+
+**Why it matters:** Dead code is attack surface. WebRTC in the daemon is no longer the forward path. Removing it simplifies the codebase and eliminates a C dependency (libdatachannel).
+
+---
+
+### ENDPOINT-SECURITY-1 — Browser & Native Endpoint Hardening
+
+> **Status:** NOT STARTED
+> **Priority:** P6
+> **Dependency:** SECURITY-MODEL-1, PROTOCOL-HARDENING-1
+
+**Purpose:** Harden the browser and native endpoints against application-level attacks.
+
+**Scope:**
+- Browser: CSP enforcement (currently blocking inline scripts — fix or accept)
+- Browser: WASM load failure handling (currently falling back to TS — validate fallback is equally secure)
+- Browser: IndexedDB pin store security (origin isolation, no cross-origin access)
+- Browser: WebSocket URL validation (prevent connecting to arbitrary daemon URLs from signal injection)
+- Native: bolt-ui input validation (file paths, peer codes)
+- Native: file save path validation (prevent directory traversal in received filenames)
+- Native: transfer size limits (prevent memory exhaustion from malicious large transfers)
+- Cross-endpoint: SAS display consistency (both endpoints must show identical code)
+
+**Exit criteria:**
+- CSP policy is intentional and documented (not accidentally blocking)
+- WASM fallback security equivalence documented
+- File save path traversal prevented (test with `../` filenames)
+- Transfer size limits enforced
+- SAS display consistency verified cross-implementation
+
+**Why it matters:** Endpoints are where users interact with the protocol. Application-layer vulnerabilities (path traversal, XSS, memory exhaustion) bypass protocol-level encryption entirely.
+
+---
+
 ## No-Push Policy
 
 **Default:** DO NOT push commits or tags to remote repositories during phase execution.
