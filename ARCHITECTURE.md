@@ -448,6 +448,22 @@ Rust is the canonical language for protocol, crypto, transfer, runtime, and daem
 | Browser signaling client | TS (WebSocketSignaling) | Browser API binding |
 | Web shell | TS (localbolt-v3) | Consumer only |
 
+### Rust-Authority Principle
+
+Rust is the preferred authority layer for protocol-critical logic:
+
+1. **Protocol semantics, crypto operations, transfer state machines, and capability negotiation** SHOULD be implemented in Rust first. TypeScript implementations SHOULD be adapters/bindings, not independent authority.
+
+2. **New protocol/crypto/transfer authority MUST NOT be introduced in TypeScript** unless there is a strong, documented reason (e.g., browser API that cannot be reached from WASM).
+
+3. **Browser apps still require TypeScript** for: DOM integration, WebSocket/WebRTC API binding, UI components, signaling client, event handling, file picker interaction. This is not authority — it is integration/glue.
+
+4. **Migration toward Rust/WASM is pragmatic and phased.** The goal is not "eliminate TypeScript" but "keep authority in Rust, keep integration in TypeScript." Migration should be justified by correctness, auditability, or single-source-of-truth benefits.
+
+5. **ByteBolt products are Rust-native.** No TypeScript authority path. ByteBolt uses Rust daemon + CLI directly.
+
+6. **LocalBolt browser products** use Rust/WASM for crypto and transfer core, with TypeScript for browser integration. The TS surface should shrink over time as WASM coverage grows.
+
 ### Anti-Patterns (Prohibited)
 
 These patterns MUST NOT be introduced. Violations should be escalated.

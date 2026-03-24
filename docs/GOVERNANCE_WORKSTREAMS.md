@@ -8315,6 +8315,32 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
+### RUST-AUTHORITY-MIGRATION-1 — TS-to-Rust Authority Migration Planning
+
+> **Status:** IN PROGRESS
+> **Priority:** P2 — strategic architecture
+> **Dependency:** None
+
+**Purpose:** Audit the TypeScript authority surface in `bolt-core-sdk` and produce a phased migration roadmap for moving protocol-critical logic to Rust/WASM.
+
+**Scope:**
+- Inventory all TS code that currently acts as authority for protocol, crypto, or transfer semantics
+- Classify each area as: keep-TS (integration/glue), migrate-to-WASM (authority candidate), or already-Rust (done)
+- Identify the highest-value migration candidates based on: correctness risk, auditability gain, single-source-of-truth benefit
+- Produce a phased migration roadmap with clear rationale for each phase
+
+**Non-goals:**
+- This stream does not eliminate TypeScript from browser products
+- This stream does not mandate WASM for all browser code
+- This stream does not change the daemon (already Rust-native)
+
+**Exit criteria:**
+- TS authority audit complete with classification
+- Migration roadmap produced and PM-reviewed
+- Top 3 migration candidates identified with scope estimates
+
+---
+
 ## No-Push Policy
 
 **Default:** DO NOT push commits or tags to remote repositories during phase execution.
