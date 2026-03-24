@@ -8280,11 +8280,17 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
-### MODULARITY-AUDITABILITY-1 — Codebase Modularity & Auditability
+### MODULARITY-AUDITABILITY-1 — Codebase Modularity & Auditability (CLOSED — Phase 1)
 
-> **Status:** NOT STARTED
+> **Status:** CLOSED (Phase 1 — governance + contracts + inventory)
+> **Closed:** 2026-03-24
+> **Commits:** `41c0127` (ARCHITECTURE.md §13), `102ea99` (module contracts) — bolt-daemon + bolt-ecosystem
 > **Priority:** P3 — structural quality
 > **Dependency:** None (benefits from DEWEBRTC-1 Phase 1 isolation)
+
+**Phase 1 result:** ARCHITECTURE.md §13 codified 8 modularity principles, component ownership table, and boundary rules. Module contract headers added to 3 critical daemon files (main.rs, ws_endpoint.rs, envelope.rs). Full inventory produced: 9 oversized files identified, 1 global state hotspot documented, phased cleanup roadmap defined.
+
+**Follow-on: MODULARITY-AUDITABILITY-2** — execute the module splits identified in the roadmap (ws_endpoint.rs → ws_transfer.rs + ws_btr.rs, TransferManager.ts split, bolt-ui app.rs split).
 
 **Purpose:** Reduce hidden coupling, oversized modules, and undocumented behavior across the ecosystem so the codebase is defensible under external review.
 
