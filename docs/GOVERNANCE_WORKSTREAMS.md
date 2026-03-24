@@ -8123,13 +8123,17 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
-### RENDEZVOUS-HARDENING-1 — Rendezvous Server Hardening
+### RENDEZVOUS-HARDENING-1 — Rendezvous Server Hardening (CLOSED)
 
-> **Status:** NOT STARTED
+> **Status:** CLOSED
+> **Closed:** 2026-03-24
+> **Commits:** `f5d42ec` (P0-P2), `82fa02b` (P4-P5) — bolt-rendezvous
 > **Priority:** P3
-> **Dependency:** SECURITY-MODEL-1
+> **Dependency:** SECURITY-MODEL-1 (CLOSED)
 
 **Purpose:** Harden bolt-rendezvous against abuse, denial-of-service, and metadata leakage.
+
+**Result:** Resource exhaustion vectors closed. Max 256 peers per room, max 65,536 rooms, 5-minute idle timeout on registered connections. Proxy header IP validation (Fly-Client-IP, X-Forwarded-For). Device name moved to DEBUG log level (privacy). 7 new tests, 69 total pass. P3 (slow-read) evaluated redundant — P2 idle timeout already bounds the case.
 
 **Scope:**
 - Rate limiting: per-IP connection rate, signal relay rate, room join rate
