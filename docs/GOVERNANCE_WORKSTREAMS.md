@@ -8186,19 +8186,17 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
-### DEWEBRTC-1 — WebRTC Retirement from bolt-daemon (CLOSED — Phase 1)
+### DEWEBRTC-1/2 — WebRTC Retirement from bolt-daemon (CLOSED — COMPLETE)
 
-> **Status:** CLOSED (Phase 1 — extraction and feature-gating)
+> **Status:** CLOSED (COMPLETE — Phase 1 extraction + Phase 2 deletion)
 > **Closed:** 2026-03-24
-> **Commits:** `7f443f4` (optional deps), `a06e43e` (code extraction) — bolt-daemon
+> **Commits:** `7f443f4`, `a06e43e` (Phase 1), `f730501` (Phase 2) — bolt-daemon
 > **Priority:** P5
 > **Dependency:** DAEMON-BTR-1 (CLOSED)
 
-**Phase 1 result:** All WebRTC/DataChannel code extracted to `src/legacy_webrtc.rs` and gated behind `legacy-webrtc` feature. Default builds no longer compile WebRTC code or link `datachannel`/`webrtc-sdp`. WsEndpoint is the default daemon mode. Legacy flags produce explicit errors directing to `--features legacy-webrtc`. 320 non-legacy tests pass; 420+ legacy tests pass.
+**Phase 1:** Extracted WebRTC code behind `legacy-webrtc` feature gate. Default builds non-WebRTC.
 
-**Remaining legacy surface:** 618 lines in `legacy_webrtc.rs`, plus `rendezvous.rs` (3307 lines), `smoke.rs`, `web_signal.rs` — all behind `#[cfg(feature = "legacy-webrtc")]`. Not compiled in default builds. Preserved for transitional compatibility only.
-
-**Follow-on: DEWEBRTC-2** — actual deletion of legacy code, removal of `datachannel`/`webrtc-sdp` from Cargo.toml entirely, cleanup of rendezvous.rs WebRTC paths. Can proceed once no consumer needs the `legacy-webrtc` feature.
+**Phase 2:** Deleted all remaining WebRTC/DataChannel code. 7,757 lines removed. 5 source files + 1 test file deleted. `datachannel` and `webrtc-sdp` removed from all dependency sections. `legacy-webrtc` feature flag removed. bolt-daemon is now fully zero-WebRTC. 320 tests pass.
 
 **Purpose:** Remove legacy WebRTC/DataChannel code from bolt-daemon to reduce attack surface and maintenance burden.
 
