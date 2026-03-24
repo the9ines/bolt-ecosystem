@@ -8155,11 +8155,15 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
-### PROTOCOL-HARDENING-1 — Protocol-Level Enforcement
+### PROTOCOL-HARDENING-1 — Protocol-Level Enforcement (CLOSED)
 
-> **Status:** NOT STARTED
+> **Status:** CLOSED
+> **Closed:** 2026-03-24
+> **Commits:** `9834524` (bolt-daemon golden vectors), governance (bolt-ecosystem)
 > **Priority:** P4
-> **Dependency:** SECURITY-MODEL-1
+> **Dependency:** SECURITY-MODEL-1 (CLOSED)
+
+**Result:** Full spec-vs-enforcement compliance matrix produced (docs/PROTOCOL_COMPLIANCE.md). All 8 audited protocol rules ENFORCED on both daemon and browser with fail-closed behavior. BTR golden vector conformance tests added (6 tests consuming canonical vectors). No enforcement gaps found — the protocol implementation is compliant.
 
 **Purpose:** Close any gaps between the protocol specification and actual enforcement across all implementations.
 
