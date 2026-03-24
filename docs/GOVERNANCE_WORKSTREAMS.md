@@ -8317,7 +8317,7 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ### RUST-AUTHORITY-MIGRATION-1 — TS-to-Rust Authority Migration Planning
 
-> **Status:** IN PROGRESS
+> **Status:** CLOSED (audit complete, roadmap produced)
 > **Priority:** P2 — strategic architecture
 > **Dependency:** None
 
