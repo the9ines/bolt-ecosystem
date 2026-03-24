@@ -6079,6 +6079,72 @@ Stream closes when a browser can connect to bolt-daemon via WebTransport over HT
 
 ---
 
+## WEBTRANSPORT-BROWSER-APP-E2E-1 — Browser Runtime WebTransport Validation
+
+> **Stream ID:** WEBTRANSPORT-BROWSER-APP-E2E-1
+> **Backlog Item:** Browser-runtime WebTransport validation (post-ship proof for WEBTRANSPORT-BROWSER-APP-IMPL-1)
+> **Priority:** ~~NEXT~~ CLOSED
+> **Repos:** bolt-daemon (echo server + Playwright harness), bolt-ecosystem (governance)
+> **Codified:** 2026-03-21
+> **Status:** **COMPLETE** (2026-03-21). All 6 acceptance criteria PASS. Stream CLOSED.
+
+---
+
+### Purpose
+
+Real browser-runtime validation of the shipped browser↔app WebTransport path. Proves that a real Chrome browser can connect to the daemon's WT endpoint and exchange length-prefixed frames, and that the WS fallback path works in the same session.
+
+**Scope:** Transport-layer runtime connectivity and framing proof. Does NOT validate the full application protocol (HELLO + ProfileEnvelopeV1 + file transfer) over WebTransport in a browser — that would require bundling the SDK into a browser page and is a separate future concern.
+
+---
+
+### Predecessor
+
+| Stream | Relationship |
+|--------|-------------|
+| WEBTRANSPORT-BROWSER-APP-IMPL-1 | **Implementation predecessor.** CLOSED (`ecosystem-v0.1.196`). This E2E stream validates the shipped transport path in a real browser runtime. |
+
+---
+
+### Acceptance Criteria (6, All PASS)
+
+| # | Criterion | Status |
+|---|-----------|--------|
+| 1 | Runnable browser harness | **PASS** — `bolt-daemon/tests/e2e-browser/`, `npm test` |
+| 2 | Real browser→daemon WT connectivity | **PASS** — Chrome 146 `WebTransport` via `serverCertificateHashes` |
+| 3 | WT length-prefixed frame echo | **PASS** — 4-byte BE framing, 18-byte payload |
+| 4 | WT multi-frame round-trip | **PASS** — 3 frames (7B, 16B, 1000B) |
+| 5 | Real browser→daemon WS fallback | **PASS** — WebSocket text echo in same session |
+| 6 | Reproducible run instructions | **PASS** — `tests/e2e-browser/README.md` |
+
+---
+
+### Implementation
+
+- **Echo server:** `bolt-daemon/examples/wt_e2e_echo.rs` — WT+WS echo with 13-day self-signed cert, JSON config on stdout
+- **Playwright harness:** `bolt-daemon/tests/e2e-browser/wt-e2e-browser.mjs` — spawns server, launches real Chrome, 4 tests
+- **Run:** `cd bolt-daemon/tests/e2e-browser && npm install && npm test`
+
+---
+
+### Known Limits
+
+| Item | Notes |
+|------|-------|
+| Full HELLO + ProfileEnvelopeV1 + file transfer over WT | Not tested. Transport-layer proof only. |
+| Playwright bundled Chromium | Lacks WebTransport API. Harness requires real Chrome. |
+| Localhost only | No LAN/WAN network condition testing. |
+
+---
+
+### Stream-Level Done
+
+Stream CLOSED. Transport-layer browser-runtime proof delivered. All 6 acceptance criteria satisfied.
+
+Evidence: `docs/evidence/WTE1_EVIDENCE.md`
+
+---
+
 ## DISCOVERY-MODE-1 — Dual Discovery Mode Policy Codification
 
 > **Stream ID:** DISCOVERY-MODE-1
@@ -7827,6 +7893,17 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | LOCALBOLT-RELIABILITY-UX-1 | Transfer reliability + UX hardening | ~~NEXT~~ CLOSED | localbolt-v3 + bolt-transport-web + consumers + ecosystem | **CLOSED** (`ecosystem-v0.1.185`, 2026-03-19). All 17 ACs satisfied. 10 UX improvements. Zero regressions. |
 | LOCALBOLT-PERF-1 | Transfer throughput + performance hardening | ~~NEXT~~ CLOSED | bolt-core-sdk + localbolt-v3 + ecosystem | **CLOSED** (`ecosystem-v0.1.193`, 2026-03-20). Baseline ~33–38 Mbps → tuned ~47 Mbps (+42% at 50 MiB). Practical ceiling assessed. |
 | WEBTRANSPORT-BROWSER-APP-IMPL-1 | Browser↔app WebTransport implementation | ~~NEXT~~ CLOSED | bolt-daemon + bolt-core-sdk + ecosystem | **CLOSED** (2026-03-21). All 23 ACs satisfied. WTI1–WTI6 DONE. 381 daemon + 417 browser tests. |
+| WEBTRANSPORT-BROWSER-APP-E2E-1 | Browser-runtime WT validation | ~~NEXT~~ CLOSED | bolt-daemon + ecosystem | **CLOSED** (2026-03-21). Real Chrome WT + WS proof. 4 Playwright tests. Transport-layer only. |
+| NATIVE-APP-CORE-1 | Shared app logic extraction (bolt-app-core) | NEXT | bolt-core-sdk + bolt-ui + localbolt-app + ecosystem | **NAC1–NAC3 DONE** (2026-03-22). bolt-app-core: 9 modules, 75 tests. bolt-ui refactored. NAC4 READY. |
+| NATIVE-DESKTOP-PKG-1 | Desktop egui packaging (Tauri removal) | ~~NEXT~~ CLOSED | bolt-core-sdk + localbolt-app + ecosystem | **CLOSED** (2026-03-22). PM-EN-03 resolved. macOS + Linux rollback CLOSED. Windows conditional. bolt-ui is primary desktop path. |
+| NATIVE-IOS-1 | iOS SwiftUI shell + UniFFI | NEXT (unblocked) | localbolt-ios (new) + bolt-core-sdk + ecosystem | NOT-STARTED. NAC2 DONE — bolt-app-core exists. |
+| NATIVE-ANDROID-1 | Android Kotlin shell + UniFFI | NEXT (unblocked) | localbolt-android (new) + bolt-core-sdk + ecosystem | NOT-STARTED. NAC2 DONE — bolt-app-core exists. |
+| NATIVE-DESKTOP-WINDOWS-1 | Windows desktop validation | ~~NEXT~~ CLOSED | bolt-core-sdk (CI) + ecosystem | **CLOSED** (2026-03-22). Windows `.exe` proven on CI. 84 tests pass. Desktop rollback CLOSED all platforms. Tauri retired. |
+| DESKTOP-INSTALLER-POLISH-1 | Desktop packaging polish + cleanup | LOW | bolt-core-sdk + localbolt-app (cleanup) + ecosystem | NOT-STARTED. MSI fix, icon design, retired Tauri code cleanup. Non-blocking. |
+| BROWSER-APP-DIRECT-1 | Browser↔desktop direct transport | NEXT | bolt-core-sdk + localbolt-v3 + bolt-daemon + ecosystem | **IN PROGRESS** (2026-03-23). WS endpoint wired. `BrowserAppTransport` adopted for desktop peers. |
+| WASM-CRYPTO-FIRST-1 | Browser crypto → Rust/WASM authority | NEXT | bolt-core-sdk + ecosystem | NOT-STARTED. Converge dual TS/WASM crypto to WASM-first. |
+| TRANSFER-SM-CONVERGENCE-1 | Browser transfer → Rust SM authority | LOW | bolt-core-sdk + ecosystem | NOT-STARTED. Thin TS TransferManager toward Rust/WASM. |
+| LOCALBOLT-APP-FREEZE-1 | Archive retired Tauri repo | LOW | localbolt-app + ecosystem | NOT-STARTED. Prevent AP-01 drift. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 
@@ -7867,6 +7944,72 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 - **EGUI-NATIVE-1** depends on RUSTIFY-CORE-1 RC4 for EN2+ execution. EN1 (PM framework lock) is a governance-only gate and may open in parallel with RUSTIFY-CORE-1 RC1–RC4. Within EN-stream: EN1 → EN2 → EN3 → EN4 → EN5 (fully serial). Independent of CONSUMER-BTR1, N-STREAM-1, and all other streams except RUSTIFY-CORE-1.
 - **DISCOVERY-MODE-1** has no upstream stream dependencies. Fully orthogonal to RUSTIFY-CORE-1, CONSUMER-BTR1, EGUI-NATIVE-1, and all other streams. Within DM-stream: DM1 → DM2 → DM3 → DM4 (fully serial). DM1 (PM gate) unblocked immediately.
 - **BTR-SPEC-1** has no upstream stream dependencies. COMPLEMENTS SEC-BTR1 (complete), CONSUMER-BTR1 (in-progress), RUSTIFY-CORE-1 (codified). Within BS-stream: BS1 → BS2 → BS3 → BS4 → BS5 (fully serial). BS1 unblocked immediately. May run in parallel with all other streams.
+
+---
+
+## BROWSER-APP-DIRECT-1 — Browser↔Desktop Direct Transport (CLOSED)
+
+> **Status:** CLOSED
+> **Opened:** 2026-03-23
+> **Closed:** 2026-03-24
+> **Evidence:** Hash-verified bidirectional file transfer (1MB, 10MB, 50MB)
+
+### Scope completed
+
+End-to-end encrypted browser↔desktop file transfer over direct WebSocket transport. The desktop app (bolt-ui/egui) connects to the browser via a daemon WS endpoint, bypassing WebRTC entirely for desktop peers.
+
+- Discovery via dual signaling (local embedded + cloud Fly.io)
+- Connection approval (request/accept via signaling relay)
+- Session-key exchange + encrypted HELLO
+- SAS verification with verification-gated transfer (matches web app policy)
+- Bidirectional file transfer in the same session
+- File integrity proven by MD5 hash match across 1MB, 10MB, 50MB files
+- Throughput: 83–129 Mbps (browser→desktop over localhost WS)
+- 372 daemon tests pass
+
+### Commits
+
+| Repo | Hash | Title |
+|------|------|-------|
+| bolt-daemon | `e56c35a` | feat: WS-only endpoint mode for browser↔desktop direct transport |
+| bolt-core-sdk | `cc61346` | feat: land direct browser transport plus required desktop prerequisites |
+| localbolt-v3 | `a553e34` | feat: direct browser↔desktop transport support in peer-connection |
+
+### Known temporary downgrade
+
+The daemon does NOT advertise `bolt.transfer-ratchet-v1` capability. File transfer chunks use static NaCl-box encryption (session ephemeral keys) instead of BTR (per-transfer DH ratchet + per-chunk chain keys). This is a truthful capability advertisement — the daemon does not implement the BTR state machine. Security is not degraded (NaCl-box envelope encryption is still active), but per-transfer forward secrecy is absent for browser↔daemon sessions. Restoration is mandatory via DAEMON-BTR-1.
+
+### Architectural note: WebRTC disposition
+
+BROWSER-APP-DIRECT-1 establishes the direct WS transport as the forward path for browser↔desktop communication. The daemon today remains hybrid — it still contains WebRTC/DataChannel code from the rendezvous path. However:
+
+- **Bolt target state is zero WebRTC.** The direct WS/WT transport path replaces WebRTC for all desktop peer connections.
+- **ByteBolt forward architecture excludes WebRTC entirely.** bytebolt-relay and bytebolt-app will use direct transport only.
+- **WebRTC is deprecated/legacy for Bolt.** It remains available for browser↔browser connections in localbolt products only. A future DAEMON-DEWEBRTC-1 stream may formalize its retirement from bolt-daemon.
+
+### Follow-on streams
+
+| Stream | Purpose | Why not DIRECT-1 |
+|--------|---------|-------------------|
+| **DAEMON-BTR-1** | Restore `bolt.transfer-ratchet-v1` by implementing BTR state machine in daemon | Significant crypto work with conformance testing |
+| **DESKTOP-UX-1** | Desktop transfer progress/telemetry matching web app quality | UX polish, not correctness |
+| **SIGNAL-RESILIENCE-1** | Data transport survives signaling plane reconnects | Operational hardening |
+| **DAEMON-DEWEBRTC-1** (optional) | Formalize WebRTC retirement from bolt-daemon | Architectural cleanup |
+
+### DAEMON-BTR-1 scope definition
+
+**Purpose:** Re-enable per-transfer forward secrecy for browser↔daemon file transfers.
+
+**Technical work:**
+1. Port `BtrTransferContext` (DH ratchet + chain key derivation) from `bolt-btr` crate into daemon WS endpoint receive/send paths
+2. On receive: detect BTR envelope fields (`chain_index`, `ratchet_public_key`), initialize receiver context, decrypt chunks with ratcheted keys
+3. On send: initialize sender context, seal chunks with ratcheted keys, include BTR envelope fields
+4. Cross-implementation golden-vector conformance tests (Rust `bolt-btr` ↔ TypeScript `BtrTransferAdapter`)
+5. Flip `rc5_btr_over_ws.rs` assertion back to `assert!(contains)`
+
+**Re-enable criteria:** Daemon passes all BTR-over-WS tests with capability restored, plus new integration tests proving bidirectional BTR chunk decrypt between daemon and browser.
+
+**Risks:** Key schedule divergence between Rust and TypeScript BTR implementations. Mitigated by shared golden vectors.
 
 ---
 
