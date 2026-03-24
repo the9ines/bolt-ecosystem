@@ -8222,11 +8222,15 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
-### ENDPOINT-SECURITY-1 — Browser & Native Endpoint Hardening
+### ENDPOINT-SECURITY-1 — Browser & Native Endpoint Hardening (CLOSED)
 
-> **Status:** NOT STARTED
+> **Status:** CLOSED
+> **Closed:** 2026-03-24
+> **Commits:** `9a4e7ec` (bolt-core-sdk), `a7fa5eb` (localbolt-v3)
 > **Priority:** P6
-> **Dependency:** SECURITY-MODEL-1, PROTOCOL-HARDENING-1
+> **Dependency:** SECURITY-MODEL-1 (CLOSED), PROTOCOL-HARDENING-1 (CLOSED)
+
+**Result:** Closed F-HIGH-01 (browser identity key zeroization on page unload) and F-MED-01 (TS crypto nonce zeroization in seal/open). P3 (ephemeral key cleanup) was already implemented in WsDataTransport. Best-effort JavaScript zeroization — fills active buffers with zeros; GC copies are a known platform limitation.
 
 **Purpose:** Harden the browser and native endpoints against application-level attacks.
 
