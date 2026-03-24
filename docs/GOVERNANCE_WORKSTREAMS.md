@@ -8091,13 +8091,17 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
-### DAEMON-HARDENING-1 — Daemon Process & IPC Hardening
+### DAEMON-HARDENING-1 — Daemon Process & IPC Hardening (CLOSED)
 
-> **Status:** NOT STARTED
+> **Status:** CLOSED
+> **Closed:** 2026-03-24
+> **Commits:** `0fe627c` (P0-P2), `6a078a8` (P3) — bolt-daemon
 > **Priority:** P2
-> **Dependency:** SECURITY-MODEL-1
+> **Dependency:** SECURITY-MODEL-1 (CLOSED)
 
 **Purpose:** Harden bolt-daemon as the local protocol authority — the most security-critical component in native deployments.
+
+**Result:** All HIGH and MEDIUM audit findings in scope resolved. 15 new hardening tests. Findings closed: F-HIGH-02 (filename path traversal), F-MED-05 (transfer size limit), F-LOW-02 (signal file path validation), IP-04 (IPC trust boundary documented). Deferred: F-LOW-01 (trust store schema validation) → future hardening pass or PROTOCOL-HARDENING-1.
 
 **Scope:**
 - IPC authentication: validate that connected UI client is the expected process (PID verification or shared secret)
