@@ -8276,6 +8276,37 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
+### MODULARITY-AUDITABILITY-1 — Codebase Modularity & Auditability
+
+> **Status:** NOT STARTED
+> **Priority:** P3 — structural quality
+> **Dependency:** None (benefits from DEWEBRTC-1 Phase 1 isolation)
+
+**Purpose:** Reduce hidden coupling, oversized modules, and undocumented behavior across the ecosystem so the codebase is defensible under external review.
+
+**Scope:**
+- Identify modules exceeding 500 lines that serve multiple concerns → split plan
+- Define short module contracts (what each module exports, what it depends on)
+- Audit for hidden shared mutable state, undocumented env vars, implicit fallbacks
+- Align module boundaries with test ownership (each module's invariants have tests in that module)
+- Produce phased cleanup roadmap for:
+  - `bolt-daemon` (main.rs is still ~1500 lines after extraction)
+  - `bolt-rendezvous` (server.rs ~976 lines)
+  - `bolt-core-sdk` (TransferManager.ts ~865 lines, WsDataTransport.ts ~600 lines)
+
+**Exit criteria:**
+- No module over 500 lines without documented justification
+- Every ARCHITECTURE.md §13 boundary rule verified by grep/test
+- Every SECURITY_MODEL.md invariant has a test citation
+- Phased cleanup roadmap accepted by PM
+
+**Relationship to closed streams:**
+- DEWEBRTC-1 Phase 1 proved the extraction approach (legacy_webrtc.rs)
+- DAEMON-HARDENING-1 proved invariant-to-test mapping
+- PROTOCOL-HARDENING-1 compliance matrix is the template for invariant coverage
+
+---
+
 ## No-Push Policy
 
 **Default:** DO NOT push commits or tags to remote repositories during phase execution.

@@ -599,3 +599,39 @@ bolt-daemon contains WebRTC/DataChannel code from the rendezvous transport path.
 | Browser transfer TS thickness | MEDIUM | `TransferManager.ts` ~865 lines | Converge toward Rust/WASM SM |
 | Browser crypto dual-path | LOW | TS NaCl + Rust/WASM both active | WASM-first, TS fallback only |
 | `localbolt-core` TS orchestration | LOW | Session state, peer code gen | Acceptable adapter layer |
+
+---
+
+## 13. Modularity & Auditability
+
+### Principles
+
+1. **Small components.** Prefer modules/files under 500 lines. Split when a file serves multiple unrelated concerns.
+2. **Clear ownership.** Every module belongs to exactly one repo. Cross-repo imports go through published packages, not path hacks.
+3. **Narrow contracts.** Module interfaces should be small and typed. Avoid passing `Args`-sized structs across module boundaries when a subset suffices.
+4. **Minimal hidden coupling.** No global mutable state unless explicitly documented (e.g., `ACTIVE_SESSION` in ws_endpoint). Shared state must be `Mutex`-protected and documented.
+5. **Few magic paths.** Runtime behavior should be deterministic from CLI flags and feature gates. No undocumented environment variables or implicit fallbacks that change security properties.
+6. **Legacy quarantine.** Legacy code paths MUST be behind feature gates or clearly marked modules (`legacy_webrtc.rs`). Legacy paths MUST NOT grow. New code MUST NOT depend on legacy modules.
+7. **Invariants backed by tests.** Every MUST/MUST NOT in this document and SECURITY_MODEL.md should have a corresponding test citation. New invariants require tests before the invariant is accepted.
+8. **Build surprises minimized.** Feature-gated code that changes security properties (e.g., `legacy-webrtc` enabling WebRTC) must be explicitly documented in Cargo.toml and README. Default builds must be the secure forward path.
+
+### Component Ownership
+
+| Component | Owner repo | Responsibility | Contract |
+|-----------|-----------|----------------|----------|
+| Protocol crypto + primitives | `bolt-core-sdk/rust/bolt-core` | NaCl box, SAS, key generation, encoding | Rust canonical, WASM/TS bridge |
+| BTR ratchet | `bolt-core-sdk/rust/bolt-btr` | Per-transfer forward secrecy | Used by daemon + browser via WASM |
+| Transfer state machine | `bolt-core-sdk/rust/bolt-transfer-core` | Chunk scheduling, send/receive SM | Rust canonical |
+| Browser transport SDK | `bolt-core-sdk/ts/bolt-transport-web` | WS/WT/WebRTC transport, signaling, UI components | TypeScript, consumes bolt-core |
+| Daemon | `bolt-daemon` | Local protocol authority, WS/WT endpoint, IPC, identity | Rust |
+| Rendezvous | `bolt-rendezvous` | Untrusted signal relay, room management | Rust |
+| Desktop app | `bolt-core-sdk/rust/bolt-ui` | Native UI, daemon lifecycle, file picker | Rust (egui) |
+| Web app | `localbolt-v3` | Browser UI, peer-connection wiring | TypeScript |
+
+### Boundary Rules
+
+- Daemon MUST NOT import from `localbolt-v3` or `bolt-ui`.
+- `bolt-ui` MUST NOT implement protocol crypto — delegates to daemon.
+- `bolt-transport-web` MUST NOT import from `localbolt-v3` — it is a library, not an app.
+- Rendezvous MUST NOT import from daemon or SDK — it is an independent relay.
+- Legacy modules (`legacy_webrtc.rs`, gated `mod rendezvous` in daemon) MUST NOT be imported by non-legacy code paths.
