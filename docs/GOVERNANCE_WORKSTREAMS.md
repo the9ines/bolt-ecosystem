@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-21 (WEBTRANSPORT-BROWSER-APP-IMPL-1 WTI1 DONE — implementation audit complete)
+> **Updated:** 2026-03-25 (DESKTOP-UX-1 CLOSED — desktop transfer visibility + progress)
 > **Tag:** ecosystem-v0.1.195-webtransport-impl1-wti1-audit
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
@@ -7992,7 +7992,7 @@ BROWSER-APP-DIRECT-1 establishes the direct WS transport as the forward path for
 | Stream | Purpose | Why not DIRECT-1 |
 |--------|---------|-------------------|
 | **DAEMON-BTR-1** | Restore `bolt.transfer-ratchet-v1` by implementing BTR state machine in daemon | Significant crypto work with conformance testing |
-| **DESKTOP-UX-1** | Desktop transfer progress/telemetry matching web app quality | UX polish, not correctness |
+| **DESKTOP-UX-1** (**CLOSED** 2026-03-25) | Desktop transfer progress/telemetry matching web app quality | UX polish, not correctness |
 | **SIGNAL-RESILIENCE-1** | Data transport survives signaling plane reconnects | Operational hardening |
 | **DAEMON-DEWEBRTC-1** (optional) | Formalize WebRTC retirement from bolt-daemon | Architectural cleanup |
 
@@ -8350,6 +8350,53 @@ The following streams codify the security and hardening program for the Bolt eco
 > **Dependency:** RUST-AUTHORITY-MIGRATION-1 (CLOSED)
 
 **Result:** Removed TS BTR fallback from `createBtrAdapter()`. Rust/WASM is now the sole BTR authority in browser contexts. When WASM is unavailable, BTR is disabled (downgrade to static NaCl box). TS BTR modules in `bolt-core/src/btr/*.ts` (560 lines) are now dead code — can be deleted in follow-up cleanup.
+
+---
+
+### DESKTOP-UX-1 — Desktop Transfer Visibility & Progress (CLOSED)
+
+> **Status:** CLOSED
+> **Closed:** 2026-03-25
+> **Repos:** bolt-daemon, bolt-core-sdk (bolt-ui)
+> **Priority:** P3 — UX polish
+> **Dependency:** BROWSER-APP-DIRECT-1 (CLOSED)
+
+**Scope completed:**
+
+1. **Send completion detection (bug fix):** bolt-ui matched `"send complete"` but daemon emits `"all N chunks queued"`. Fixed to match actual daemon output.
+2. **Receive completion with save path:** `TransferState::Complete` enriched with `save_path: Option<String>`. Parsed from daemon `"saved: name (bytes) → /path"` format. Displayed in UI below completion message.
+3. **macOS Finder reveal:** Automatic `open -R <path>` on receive save. Manual "SHOW IN FINDER" button on completion screen. Both `#[cfg(target_os = "macos")]` gated.
+4. **Per-chunk progress:** Daemon emits `[WS_TRANSFER] progress: {done}/{total} chunks ({name})` on both send and receive paths. bolt-ui parses fractional progress into real-time progress bar updates.
+
+**Files changed:**
+
+| File | Repo | Change |
+|------|------|--------|
+| `rust/bolt-ui/src/state.rs` | bolt-core-sdk | `Complete` variant gains `save_path`, `status_text()` renders path |
+| `rust/bolt-ui/src/app.rs` | bolt-core-sdk | Send completion match fixed, save path extraction, progress parser, auto Finder reveal |
+| `rust/bolt-ui/src/screens/main_card.rs` | bolt-core-sdk | Path display, SHOW IN FINDER button |
+| `src/ws_endpoint.rs` | bolt-daemon | Per-chunk progress logging on send + receive |
+
+**Validation:**
+
+- bolt-daemon: 320 tests pass, 0 failures
+- bolt-ui: 17 tests pass, 0 failures
+- Event format matching confirmed by direct code inspection (daemon emit ↔ UI parser)
+- Live end-to-end transfer not re-validated (deferred to next manual test pass)
+
+**Non-blocking caveats:**
+
+- `recent_stderr(30)` sliding window means `saved:` and `open -R` may fire across multiple poll cycles. Harmless — Finder re-select is idempotent.
+- Non-macOS platforms show save path but have no reveal button or auto-reveal. Future work could add `xdg-open` / `explorer.exe`.
+- Progress is per-chunk granularity (16 KiB chunks). For small files (< 30 chunks), progress jumps in large increments.
+
+**Follow-on candidates (not blocking closure):**
+
+| Item | Stream | Notes |
+|------|--------|-------|
+| Linux/Windows file reveal | DESKTOP-UX-2 | `xdg-open -R` equivalent, `explorer.exe /select,` |
+| Transfer speed / ETA display | DESKTOP-UX-2 | Requires timestamp-annotated progress events |
+| Transfer history list | DESKTOP-UX-2 | Persist completed transfers for session lifetime |
 
 ---
 
