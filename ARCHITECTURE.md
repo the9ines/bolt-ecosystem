@@ -323,6 +323,37 @@ bolt-rendezvous-protocol = {
 bump the `tag` field in Cargo.toml, run `cargo build` to update Cargo.lock,
 verify tests pass, and commit both files.
 
+### npm Package Release & Deploy Rule
+
+When a workspace app (e.g., `localbolt-v3`) consumes `@the9ines/*` packages from the npm registry, **git pushes alone are not sufficient to deploy new SDK functionality**. The CI/deploy environment (Netlify) installs from npm, not from the git working tree.
+
+**Required sequence for SDK changes consumed by deployed apps:**
+
+1. **Publish** the SDK package(s) to the correct npm registry (`registry.npmjs.org`)
+2. **Bump version** — npm does not allow republishing the same version
+3. **Update ALL consuming `package.json` files** — both root AND workspace-level. Root-level bumps do NOT override workspace-local dependency pins.
+4. **Update `package-lock.json`** — run `npm install` and verify the resolved URL points to the new version on the correct registry
+5. **Commit and push** lockfile + all `package.json` changes
+6. **Verify** the deploy environment installs the expected version (check build logs for version in `npm install` output)
+
+**Common failure modes this rule prevents:**
+- Publishing to GitHub Packages but consuming from npmjs.org (registry mismatch)
+- Updating root `package.json` but not workspace-level `packages/*/package.json` (pin mismatch)
+- Pushing SDK source to git but not publishing to npm (Netlify gets old version)
+- Netlify cache serving stale `node_modules` despite lockfile change (clear cache)
+
+**Pre-deploy checklist for published package consumers:**
+
+```
+□ SDK package published to registry.npmjs.org (not GitHub Packages)
+□ Version bumped (npm rejects same-version republish)
+□ Root package.json updated
+□ Workspace package.json files updated (packages/localbolt-web, packages/localbolt-core)
+□ package-lock.json updated (npm install run, resolved URLs verified)
+□ All changes committed and pushed
+□ Netlify cache cleared if previous build used old version
+```
+
 ### Rendezvous Trust Model
 
 - Rendezvous is UNTRUSTED for confidentiality and integrity.
