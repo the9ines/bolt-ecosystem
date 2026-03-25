@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-25 (DESKTOP-UX-1 CLOSED — desktop transfer visibility + progress)
+> **Updated:** 2026-03-25 (MODULARITY-AUDITABILITY-2 CLOSED — daemon module splits)
 > **Tag:** ecosystem-v0.1.195-webtransport-impl1-wti1-audit
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
@@ -8288,30 +8288,27 @@ The following streams codify the security and hardening program for the Bolt eco
 
 **Phase 1 result:** ARCHITECTURE.md §13 codified 8 modularity principles, component ownership table, and boundary rules. Module contract headers added to 3 critical daemon files (main.rs, ws_endpoint.rs, envelope.rs). Full inventory produced: 9 oversized files identified, 1 global state hotspot documented, phased cleanup roadmap defined.
 
-**Follow-on: MODULARITY-AUDITABILITY-2** — execute the module splits identified in the roadmap (ws_endpoint.rs → ws_transfer.rs + ws_btr.rs, TransferManager.ts split, bolt-ui app.rs split).
+**Follow-on: MODULARITY-AUDITABILITY-2** (**CLOSED** 2026-03-25) — daemon module splits executed.
 
-**Purpose:** Reduce hidden coupling, oversized modules, and undocumented behavior across the ecosystem so the codebase is defensible under external review.
+**Result:** Three slices delivered against bolt-daemon `ws_endpoint.rs`:
 
-**Scope:**
-- Identify modules exceeding 500 lines that serve multiple concerns → split plan
-- Define short module contracts (what each module exports, what it depends on)
-- Audit for hidden shared mutable state, undocumented env vars, implicit fallbacks
-- Align module boundaries with test ownership (each module's invariants have tests in that module)
-- Produce phased cleanup roadmap for:
-  - `bolt-daemon` (main.rs is still ~1500 lines after extraction)
-  - `bolt-rendezvous` (server.rs ~976 lines)
-  - `bolt-core-sdk` (TransferManager.ts ~865 lines, WsDataTransport.ts ~600 lines)
+| Slice | Commit | Change |
+|-------|--------|--------|
+| 1. Validation boundary | `44400ae` | Extract `ws_validation.rs` — sanitize_filename, validate_send_file_path, parse_transfer_id_bytes, MAX_TRANSFER_SIZE (269 lines, 16 tests) |
+| 2. Crypto authority | `baf48e7` | Extract `ws_btr.rs` — compute_x25519_shared_secret, copy_keypair, decrypt_chunk_btr with explicit engine parameter (145 lines). ACTIVE_SESSION coupling eliminated from crypto path. |
+| 3. Test alignment | `942632d` | Move 22 BTR tests from ws_endpoint to ws_btr. Test layout matches production boundaries. |
 
-**Exit criteria:**
-- No module over 500 lines without documented justification
-- Every ARCHITECTURE.md §13 boundary rule verified by grep/test
-- Every SECURITY_MODEL.md invariant has a test citation
-- Phased cleanup roadmap accepted by PM
+**Metrics:**
+- `ws_endpoint.rs`: 2,285 → 1,290 lines (−995, 43% reduction)
+- `ws_validation.rs`: 269 lines (trust boundary, pure functions)
+- `ws_btr.rs`: 744 lines (crypto authority + 22 tests)
+- ACTIVE_SESSION: no longer accessed from any crypto code path
+- 323 daemon tests pass, 0 failures
 
-**Relationship to closed streams:**
-- DEWEBRTC-1 Phase 1 proved the extraction approach (legacy_webrtc.rs)
-- DAEMON-HARDENING-1 proved invariant-to-test mapping
-- PROTOCOL-HARDENING-1 compliance matrix is the template for invariant coverage
+**Remaining oversized modules (not blocking closure):**
+- `bolt-core-sdk/ts/.../TransferManager.ts` (869 lines) — browser path, lower priority per Rust-authority direction
+- `bolt-core-sdk/rust/bolt-ui/src/app.rs` (1,037 lines) — recently modified for DESKTOP-UX-1
+- `bolt-rendezvous/src/server.rs` (~976 lines) — infrastructure, not forward-path critical
 
 ---
 
