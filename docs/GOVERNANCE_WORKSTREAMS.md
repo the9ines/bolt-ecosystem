@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-25 (MODULARITY-AUDITABILITY-2 CLOSED — daemon module splits)
+> **Updated:** 2026-03-25 (PERF-1 CLOSED — daemon transfer performance)
 > **Tag:** ecosystem-v0.1.195-webtransport-impl1-wti1-audit
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
@@ -8394,6 +8394,30 @@ The following streams codify the security and hardening program for the Bolt eco
 | Linux/Windows file reveal | DESKTOP-UX-2 | `xdg-open -R` equivalent, `explorer.exe /select,` |
 | Transfer speed / ETA display | DESKTOP-UX-2 | Requires timestamp-annotated progress events |
 | Transfer history list | DESKTOP-UX-2 | Persist completed transfers for session lifetime |
+
+---
+
+### PERF-1 — Daemon Transfer Performance (CLOSED)
+
+> **Status:** CLOSED
+> **Closed:** 2026-03-25
+> **Repos:** bolt-daemon
+> **Priority:** P2 — production readiness
+
+**Scope completed:**
+
+| Slice | Commit | Change |
+|-------|--------|--------|
+| 1. Progress throttling | `798c8fd` | Throttle per-chunk `eprintln!` to ~5% intervals. For 100MB (6,400 chunks): 12,800 stderr syscalls → ~40 (99.7% reduction). Eliminates async runtime blocking during transfer. |
+| 2. Streaming send | `c98e8ee` | Replace `std::fs::read()` with per-chunk `File::read()`. Send memory bounded at ~16KB regardless of file size (was up to 2.5GB). |
+
+**Validation:**
+- 323 daemon tests pass, 0 failures
+- No protocol or UI behavior change
+- Wire format identical
+
+**Non-blocking follow-on (PERF-2 if needed):**
+- Receive-side chunk accumulation: currently HashMap of per-chunk Vecs assembled at end. Could pre-allocate single buffer with offset writes. Lower priority — only matters during active receive, bounded by MAX_TRANSFER_SIZE.
 
 ---
 
