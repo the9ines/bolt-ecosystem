@@ -463,6 +463,18 @@ Release promotion follows the dependency graph. Upstream repos MUST pass before 
 
 Rust is the canonical language for protocol, crypto, transfer, runtime, and daemon logic. TypeScript owns browser-only concerns (WebRTC, DOM, IndexedDB, signaling WebSocket client). TS MUST NOT grow into protocol authority.
 
+### TS Extraction Direction (PM-codified 2026-03-26)
+
+**No new TypeScript in `bolt-core-sdk`.** Existing TS will be extracted:
+
+1. **Product UI components** (device-discovery, file-upload, etc.) → `localbolt-v3`
+2. **Browser↔browser legacy code** (WebRTCService) → shared browser package in product layer
+3. **Browser signaling/persistence** (DualSignaling, IndexedDB stores) → shared browser package
+4. **Duplicated authority** (TS crypto, SAS, BTR) → DELETE (WASM is sole authority)
+5. **Forward-path browser↔app adapters** (WsDataTransport, WtDataTransport) → last to leave, only after TS authority migrated to WASM
+
+`bolt-core-sdk` becomes Rust-only when this extraction is complete. Browser-specific shared code lives in the product layer (`localbolt-v3/packages/localbolt-transport`), published as an npm package for `localbolt` to consume.
+
 ### Language Ownership Table
 
 | Domain | Canonical Language | Notes |
