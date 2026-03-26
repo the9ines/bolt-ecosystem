@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-26 (SECURE-DIRECT-1 CLOSED, TRANSPORT-UX-1 PROPOSED, ecosystem direction codified)
+> **Updated:** 2026-03-26 (TS-EXTRACTION-1 CLOSED, SECURE-DIRECT-1 CLOSED, TRANSPORT-UX-1 PROPOSED, ecosystem direction codified)
 > **Tag:** ecosystem-v0.1.195-webtransport-impl1-wti1-audit
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
@@ -8489,13 +8489,53 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
+### TS-EXTRACTION-1 — Browser-Layer Extraction from bolt-core-sdk (CLOSED)
+
+> **Stream ID:** TS-EXTRACTION-1
+> **Status:** CLOSED (2026-03-26)
+> **Repos:** bolt-core-sdk, localbolt-v3
+> **PM directive:** "bolt-core-sdk must end Rust-only, including WASM glue TS"
+
+**Goal:** Extract all TypeScript source from `bolt-core-sdk` into product-layer packages in `localbolt-v3`, making the SDK exclusively Rust.
+
+**Execution phases:**
+
+| Phase | Description | Commit (localbolt-v3) | Commit (bolt-core-sdk) |
+|-------|-------------|----------------------|----------------------|
+| Phase 1 | Extract product UI/state to `@the9ines/localbolt-browser` | `6aa74e7` | `8fdf6b5` |
+| Phase 2 | Extract signaling + identity | `2fff6be` | `0e2f6c0` |
+| Phase 3 | Extract all remaining transport code | `dd0025f` | `b1a0872` |
+| BTR cleanup | Delete dead TS BTR, add scalarMult/BtrMode to crypto | — | `3befdd7` |
+| bolt-core source | Move bolt-core TS source to `bolt-core-browser` package | `d550340` | `05c1852` |
+| Import fixes | Replace stale bolt-transport-web type imports | `308cb31` | — |
+| Test migration | Move 28 test files + fix mock infrastructure | `3526df4` | — |
+| Stabilization | Fix stale vi.mock targets + dynamic imports | `0870840` | — |
+| Final deletion | Delete `ts/` entirely from bolt-core-sdk | — | `199d11e` |
+
+**End state:**
+
+- `bolt-core-sdk` is **Rust-only**. Zero TypeScript source. `ts/` directory deleted.
+- `localbolt-v3/packages/localbolt-browser` (`@the9ines/localbolt-browser`) — browser transport, signaling, identity, UI components, state, WASM binaries. 28 test files, 344 pass.
+- `localbolt-v3/packages/bolt-core-browser` (`@the9ines/bolt-core`) — browser crypto primitives (encoding, SAS, peer-code, identity, errors, wasm-crypto). Published to npm.
+- All consumer packages (`localbolt-web`, `localbolt-core`) import from `@the9ines/localbolt-browser`. Zero `bolt-transport-web` references in code or test mocks.
+- 489 tests pass across localbolt-v3 workspace (localbolt-browser: 344, localbolt-core: 70, localbolt-web: 75).
+
+**What was NOT changed:**
+
+- No protocol, wire-format, or crypto changes.
+- No runtime behavior changes. Extraction was move-only + import rewiring.
+- Published `@the9ines/bolt-core` npm package continues to work for external consumers.
+- `localbolt` (self-hosted) not yet migrated to `localbolt-browser` — still consumes published `bolt-transport-web` from npm.
+
+---
+
 ## Ecosystem Direction (PM-codified 2026-03-26)
 
 ### Canonical Layers
 
 | Layer | Repo | Role |
 |-------|------|------|
-| **Shared authority** | `bolt-core-sdk` | Canonical protocol, crypto, BTR, app runtime. **Rust-only long-term.** All TS extracting to product-layer browser package. |
+| **Shared authority** | `bolt-core-sdk` | Canonical protocol, crypto, BTR, app runtime. **Rust-only (TS-EXTRACTION-1 CLOSED 2026-03-26).** |
 | **Local runtime** | `bolt-daemon` | Canonical local transport/session/transfer authority. WS + WT + QUIC endpoints. |
 | **Signaling** | `bolt-rendezvous` | Canonical signaling/discovery authority. Untrusted by design. |
 | **Protocol spec** | `bolt-protocol` | Canonical wire-level specification (Markdown). |

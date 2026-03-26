@@ -405,9 +405,10 @@ Violation of any ARCH invariant MUST be escalated to human immediately.
 | BTR (transfer ratchet) | bolt-core-sdk (`bolt-btr`) | bolt-daemon, browser via WASM |
 | Daemon runtime | bolt-daemon | Product apps (sidecar or embedded) |
 | Signaling server | bolt-rendezvous | Product apps (embedded or hosted) |
-| Browser transport | **localbolt-v3** (`localbolt-transport`) | localbolt-v3, localbolt. **Extracting from bolt-core-sdk.** |
+| Browser transport | **localbolt-v3** (`@the9ines/localbolt-browser`) | localbolt-v3, localbolt. **Extracted from bolt-core-sdk (TS-EXTRACTION-1 CLOSED).** |
+| Browser crypto/primitives (TS) | **localbolt-v3** (`@the9ines/bolt-core`) | Browser-side re-export of bolt-core TS source. Published from `localbolt-v3/packages/bolt-core-browser`. |
 
-- `bolt-core-sdk` is the canonical shared Rust authority. Protocol, BTR, app runtime, and WASM compilation live here. No TS source long-term.
+- `bolt-core-sdk` is the canonical shared Rust authority. Protocol, BTR, app runtime, and WASM compilation live here. **Rust-only as of TS-EXTRACTION-1 (2026-03-26).** Zero TS source.
 - `bolt-app-core` is canonical app/runtime truth. Future shells (SwiftUI, Kotlin) consume it via FFI.
 - `bolt-ui` is the canonical desktop shell. It is a standalone binary — no WebView dependency.
 - Product repos (`localbolt-v3`, `localbolt`, `localbolt-app`) are **consumers only**. They MUST NOT own protocol, runtime, or transport logic.
@@ -465,15 +466,18 @@ Rust is the canonical language for protocol, crypto, transfer, runtime, and daem
 
 ### TS Extraction Direction (PM-codified 2026-03-26)
 
-**No new TypeScript in `bolt-core-sdk`.** Existing TS will be extracted:
+**No TypeScript in `bolt-core-sdk`.** TS extraction completed (TS-EXTRACTION-1, 2026-03-26):
 
-1. **Product UI components** (device-discovery, file-upload, etc.) → `localbolt-v3`
-2. **Browser↔browser legacy code** (WebRTCService) → shared browser package in product layer
-3. **Browser signaling/persistence** (DualSignaling, IndexedDB stores) → shared browser package
-4. **Duplicated authority** (TS crypto, SAS, BTR) → DELETE (WASM is sole authority)
-5. **Forward-path browser↔app adapters** (WsDataTransport, WtDataTransport) → last to leave, only after TS authority migrated to WASM
+1. **Product UI components** (device-discovery, file-upload, etc.) → `localbolt-v3/packages/localbolt-browser` ✅
+2. **Browser↔browser legacy code** (WebRTCService) → `localbolt-v3/packages/localbolt-browser` ✅
+3. **Browser signaling/persistence** (DualSignaling, IndexedDB stores) → `localbolt-v3/packages/localbolt-browser` ✅
+4. **Duplicated authority** (TS BTR implementation) → DELETED (WASM is sole authority) ✅
+5. **Forward-path browser↔app adapters** (WsDataTransport, WtDataTransport) → `localbolt-v3/packages/localbolt-browser` ✅
+6. **bolt-core TS source** (crypto, encoding, SAS, peer-code, etc.) → `localbolt-v3/packages/bolt-core-browser` (published as `@the9ines/bolt-core`) ✅
 
-`bolt-core-sdk` becomes Rust-only when this extraction is complete. Browser-specific shared code lives in the product layer (`localbolt-v3/packages/localbolt-transport`), published as an npm package for `localbolt` to consume.
+`bolt-core-sdk` is now Rust-only. Browser-specific shared code lives in the product layer:
+- `@the9ines/localbolt-browser` — transport, signaling, UI, state, identity (npm workspace package)
+- `@the9ines/bolt-core` — browser crypto primitives (npm workspace package, published to registry)
 
 ### Language Ownership Table
 
@@ -710,7 +714,8 @@ bolt-daemon contains WebRTC/DataChannel code from the rendezvous transport path.
 | Protocol crypto + primitives | `bolt-core-sdk/rust/bolt-core` | NaCl box, SAS, key generation, encoding | Rust canonical, WASM for browser |
 | BTR ratchet | `bolt-core-sdk/rust/bolt-btr` | Per-transfer forward secrecy | Used by daemon + browser via WASM |
 | Transfer state machine | `bolt-core-sdk/rust/bolt-transfer-core` | Chunk scheduling, send/receive SM | Rust canonical |
-| Browser transport | `localbolt-v3/packages/localbolt-transport` | WS/WT/WebRTC transport, signaling, UI components | TypeScript. **Extracting from bolt-core-sdk.** |
+| Browser transport | `localbolt-v3/packages/localbolt-browser` | WS/WT/WebRTC transport, signaling, UI components | TypeScript. Published as `@the9ines/localbolt-browser`. |
+| Browser crypto (TS) | `localbolt-v3/packages/bolt-core-browser` | crypto, encoding, SAS, peer-code, identity, errors | TypeScript. Published as `@the9ines/bolt-core`. |
 | Daemon | `bolt-daemon` | Local protocol authority, WS/WT endpoint, IPC, identity | Rust |
 | Rendezvous | `bolt-rendezvous` | Untrusted signal relay, room management | Rust |
 | Desktop app (transitional) | `bolt-core-sdk/rust/bolt-ui` | Native UI, daemon lifecycle, file picker | Rust (egui). Transitional. |
@@ -721,6 +726,6 @@ bolt-daemon contains WebRTC/DataChannel code from the rendezvous transport path.
 
 - Daemon MUST NOT import from `localbolt-v3` or `bolt-ui`.
 - `bolt-ui` MUST NOT implement protocol crypto — delegates to daemon.
-- `bolt-transport-web` MUST NOT import from `localbolt-v3` — it is a library, not an app.
+- `localbolt-browser` MUST NOT import from `localbolt-web` — it is a library, not an app.
 - Rendezvous MUST NOT import from daemon or SDK — it is an independent relay.
 - Legacy modules (`legacy_webrtc.rs`, gated `mod rendezvous` in daemon) MUST NOT be imported by non-legacy code paths.
