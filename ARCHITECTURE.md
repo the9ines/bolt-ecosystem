@@ -471,7 +471,8 @@ Rust is the canonical language for protocol, crypto, transfer, runtime, and daem
 | Crypto (NaCl, BTR, key management) | Rust / WASM | TS is fallback only |
 | Transfer state machine | Rust (bolt-transfer-core) | TS adapter layer acceptable |
 | App runtime / lifecycle | Rust (bolt-app-core) | Shells consume via API/FFI |
-| Desktop shell | Rust (bolt-ui / egui) | No WebView dependency |
+| Desktop shell (current) | Rust (bolt-ui / egui) | Transitional. No WebView dependency. |
+| Desktop shell (future) | Platform-native (SwiftUI, WinUI, etc.) | Consumes bolt-app-core via FFI. Lives in localbolt-app. |
 | Daemon transport | Rust (WS/WT/QUIC endpoints) | Canonical transport authority |
 | Browser↔app transport | Rust daemon + TS adapter (BrowserAppTransport) | Direct WS/WT, not WebRTC |
 | Browser↔browser transport | TS (WebRTCService) | Necessarily browser-side |
@@ -494,6 +495,34 @@ Rust is the preferred authority layer for protocol-critical logic:
 5. **ByteBolt products are Rust-native.** No TypeScript authority path. ByteBolt uses Rust daemon + CLI directly.
 
 6. **LocalBolt browser products** use Rust/WASM for crypto and transfer core, with TypeScript for browser integration. The TS surface should shrink over time as WASM coverage grows.
+
+### Native Shell Architecture (PM-codified 2026-03-26)
+
+**Current state:** `bolt-ui` (egui) is the production desktop shell. It is functional, tested, and ships. It is not the long-term multi-platform answer.
+
+**Target state:** Platform-native shells consuming `bolt-app-core` via FFI.
+
+| Component | Current | Target |
+|-----------|---------|--------|
+| Desktop shell | bolt-ui (egui, in bolt-core-sdk) | Platform-native shells (in localbolt-app) |
+| Shell authority | bolt-app-core (Rust) | Same — no change |
+| Visual language | Hardcoded per shell | Shared design system (tokens + spec) |
+| Shell repo | bolt-core-sdk/rust/bolt-ui | localbolt-app/{macos,windows,linux}/ |
+
+**Design system:** No shared design system exists yet. This is a prerequisite for multi-platform shell consistency. The design system should define:
+- State model (connection, transfer, verification states)
+- Color tokens, typography, spacing
+- Component contracts (device card, transfer progress, verification prompt)
+- Format: JSON tokens + Markdown spec, consumed by each platform shell
+
+**Migration sequence:**
+1. Codify design system foundation
+2. Structure localbolt-app with FFI bindings to bolt-app-core
+3. Build first platform shell (macOS/SwiftUI as likely candidate)
+4. Validate feature parity with bolt-ui
+5. Retire bolt-ui when platform shells cover all supported platforms
+
+**bolt-ui disposition:** Remains in `bolt-core-sdk/rust/bolt-ui/` as the current production shell. Will be maintained for bug fixes and parity with new features. Will not receive major UX investment. Migration to platform shells is the exit path, not a rewrite.
 
 ### Anti-Patterns (Prohibited)
 
