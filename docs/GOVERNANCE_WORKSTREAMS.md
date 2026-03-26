@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-25 (SECURE-DIRECT-1 PROPOSED — WebTransport browser↔desktop)
+> **Updated:** 2026-03-26 (SECURE-DIRECT-1 CLOSED, TRANSPORT-UX-1 PROPOSED, ecosystem direction codified)
 > **Tag:** ecosystem-v0.1.195-webtransport-impl1-wti1-audit
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
@@ -8421,78 +8421,113 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
-### SECURE-DIRECT-1 — Secure Browser↔Desktop Direct Transport
+### SECURE-DIRECT-1 — Secure Browser↔Desktop Direct Transport (CLOSED)
 
-> **Status:** PROPOSED (codified 2026-03-25, not yet in progress)
+> **Status:** CLOSED
+> **Closed:** 2026-03-26
+> **Repos:** bolt-daemon, bolt-core-sdk (bolt-transport-web, bolt-ui), localbolt-v3
 > **Priority:** P1 — production path for hosted HTTPS origin
-> **Repos:** bolt-daemon, bolt-core-sdk (bolt-transport-web), localbolt-v3
-> **Dependency:** WEBTRANSPORT-BROWSER-APP-IMPL-1 (CLOSED), WEBTRANSPORT-BROWSER-APP-E2E-1 (CLOSED)
 
-**Purpose:** Enable secure direct browser↔desktop file transfer from HTTPS origins using WebTransport over HTTP/3 with self-signed certificate hash pinning. Replaces the invalid `ws://LAN` path that was removed due to mixed-content policy (`84f9c3f`, localbolt-v3).
+**Result:** Secure direct browser↔desktop file transfer from HTTPS origins via WebTransport over HTTP/3 with self-signed certificate hash pinning.
 
-**Architecture:**
-- Daemon generates an ephemeral self-signed TLS cert at startup (≤14 days, browser requirement for `serverCertificateHashes`)
-- Daemon computes SHA-256 hash of the DER-encoded cert and serves HTTP/3 via `wt_endpoint.rs`
-- bolt-ui captures cert hash from daemon stderr and includes `wtUrl` + `certHash` in signaling payloads
-- Browser uses `new WebTransport(wtUrl, { serverCertificateHashes: [{ algorithm: 'sha-256', value: certHash }] })`
-- HELLO exchange and file transfer (ProfileEnvelopeV1) flow over a WT bidirectional stream
-- BTR operates at the envelope layer — transport-agnostic, works identically over WT
+**What was delivered:**
 
-**Transport selection by origin:**
+| Phase | What | Key commits |
+|-------|------|-------------|
+| SD1 | Daemon ephemeral TLS cert gen + hash advertisement in signaling | `68b36be` (daemon), `e006db0` (bolt-ui) |
+| SD2 | Browser WT connect with `serverCertificateHashes`, three-tier transport selection | `6ad70c0` (SDK), `53617d9` (localbolt-v3) |
+| SD3 | Session-key exchange + HELLO + SAS + file transfer over WT bidi stream | `e053ef6` (SDK), `11adea3` (daemon), `4447e8b` (localbolt-v3) |
+| SD4 | Desktop→web sends via ACTIVE_SESSION, pause/cancel/disconnect wiring | `a597e82` (daemon), `b9143fc` (SDK), `2afc110` (localbolt-v3) |
 
-| Origin | WebTransport available? | Path |
-|--------|------------------------|------|
-| `http://localhost:*` | Any | Direct WS (fastest, no TLS overhead) |
-| `https://localbolt.app` | Yes (Chrome, Edge, Firefox) | **WebTransport with cert-hash pinning** |
-| `https://localbolt.app` | No (Safari) | WebRTC fallback |
-| `https://localbolt.app` | Old daemon (no `wtUrl`) | WebRTC fallback |
+**Transport selection (production):**
+
+| Origin | Browser | Path |
+|--------|---------|------|
+| `http://localhost:*` | Any | Direct WS |
+| `https://localbolt.app` | Chrome/Edge/Firefox | WebTransport with cert-hash pinning |
+| `https://localbolt.app` | Safari | WebRTC fallback |
+
+**Validated:** Bidirectional file transfer (614 MB at 328–555 Mbps), session establishment, SAS verification, pause, cancel. All from `https://localbolt.app` to desktop daemon over WT.
+
+**Non-blocking follow-on items (→ TRANSPORT-UX-1):**
+- Send button debouncing (multiple clicks during transfer)
+- Pause/cancel state conflict with completed transfers
+- Desktop not detecting web-initiated disconnect promptly
+- Disconnect UI feedback on web side
+
+---
+
+### TRANSPORT-UX-1 — Transport Session State & Control Parity (PROPOSED)
+
+> **Status:** PROPOSED (codified 2026-03-26, not yet in progress)
+> **Priority:** P2 — UX correctness
+> **Repos:** bolt-core-sdk (bolt-transport-web), localbolt-v3
+> **Dependency:** SECURE-DIRECT-1 (CLOSED)
+
+**Purpose:** Fix transport-neutral session state and control issues that affect both WS and WT paths. These are UX-state bugs, not transport bugs — they exist regardless of which transport is active.
 
 **Scope:**
-- Daemon ephemeral self-signed cert generation + SHA-256 hash computation
-- `wt_endpoint.rs` starts alongside `ws_endpoint` in same daemon process
-- bolt-ui captures cert hash, includes `wtUrl` + `certHash` in signaling
-- `WtDataTransport.ts` accepts `serverCertificateHashes` option
-- `peer-connection.ts` selects WT path when `wtUrl` + `certHash` present from HTTPS origin
-- Three-tier transport selection: WT (HTTPS+capable) → WS (localhost/HTTP) → WebRTC (fallback)
-- Full session + transfer lifecycle over WT bidirectional stream
+
+| Issue | Description | Affects |
+|-------|-------------|---------|
+| Symmetric disconnect | Desktop must detect when web disconnects; web must visibly reset when desktop disconnects | WS + WT |
+| Send button debouncing | Prevent multiple `sendFile()` calls from repeated clicks during active transfer | WS + WT |
+| Pause/cancel state | Transfer that completes on the wire while UI shows "paused" should not error | WS + WT |
+| Transfer terminal state | After transfer completes or errors, UI should allow new transfer without reconnect | WS + WT |
+| Disconnect UI feedback | Web UI must visibly return to device list when session ends | WT |
 
 **Non-goals:**
-- CA-signed certificates (ACME/Let's Encrypt for LAN — deferred per PM-WT-03)
-- Replacing browser↔browser WebRTC (G1 invariant preserved)
-- Modifying the Bolt Protocol wire format (envelope layer unchanged)
-- Supporting Safari WebTransport (not shipped — fallback to WebRTC)
+- Transport-layer changes (WT/WS/WebRTC protocol)
+- New transport paths or capability negotiation
+- Verification UX redesign (separate stream if needed)
 
 **Exit criteria:**
-- Chrome/Edge/Firefox from `https://localbolt.app` can transfer files to desktop daemon via WT
-- Safari falls back to WebRTC gracefully (no error, no stall)
-- Localhost/HTTP LAN behavior unchanged (direct WS)
-- No regression in existing browser↔browser WebRTC path
-- Cert generation adds ≤50ms to daemon startup
+- Disconnect from either side resets both sides to device list within 2 seconds
+- Send button is disabled or debounced during active transfer
+- Pause → cancel → new transfer works without errors
+- No infinite recursion or stack overflow on disconnect
 
-**Risks:**
+---
 
-| Risk | Severity | Mitigation |
-|------|----------|-----------|
-| Chrome cert-hash max lifetime: 14 days | Medium | Ephemeral cert regenerated per daemon startup |
-| Safari has no WebTransport | High | WebRTC fallback. Re-evaluate when Safari ships WT. |
-| Firefox cert-hash pinning support varies | Medium | Runtime feature detection, WT connect timeout → fallback |
-| LAN firewall may block UDP/QUIC | Medium | Three-tier fallback: WT → WS (localhost) → WebRTC |
+## Ecosystem Direction (PM-codified 2026-03-26)
 
-**Building blocks already proven:**
-- `bolt-daemon/src/wt_endpoint.rs` (524 lines) — HTTP/3 server with TLS PEM loading
-- `bolt-core-sdk/ts/bolt-transport-web/.../WtDataTransport.ts` (714 lines) — browser WT client
-- `bolt-daemon/tests/e2e-browser/wt-e2e-browser.mjs` — Chrome + `serverCertificateHashes` + self-signed cert (E2E validated)
-- `bolt-daemon/examples/wt_e2e_echo.rs` — self-signed cert generation + hash output
-- Three-tier fallback framework (WTI3, DONE)
+### Canonical Layers
 
-**Phases:**
+| Layer | Repo | Role |
+|-------|------|------|
+| **Shared authority** | `bolt-core-sdk` | Canonical protocol, crypto, BTR, transport, app runtime. Rust-first. TS only where browser bindings require it. |
+| **Local runtime** | `bolt-daemon` | Canonical local transport/session/transfer authority. WS + WT + QUIC endpoints. |
+| **Signaling** | `bolt-rendezvous` | Canonical signaling/discovery authority. Untrusted by design. |
+| **Protocol spec** | `bolt-protocol` | Canonical wire-level specification (Markdown). |
 
-| Phase | Description | Type | Gate | Dependencies |
-|-------|-------------|------|------|-------------|
-| **SD1** | Daemon cert generation + signaling advertisement | Engineering | YES — gates SD2 | None |
-| **SD2** | Browser WebTransport connect with cert pinning | Engineering | YES — gates SD3 | SD1 complete |
-| **SD3** | Session + transfer over WT bidirectional stream | Engineering | YES — gates SD4 | SD2 complete |
-| **SD4** | Fallback + compatibility validation | Engineering/PM | YES — closes stream | SD3 complete |
+### Product Surfaces
+
+| Product | Repo | Role |
+|---------|------|------|
+| **Hosted web** | `localbolt-v3` | `localbolt.app` — hosted browser product. Netlify-deployed. Cloud signaling. |
+| **Self-hosted web** | `localbolt` | Self-hosted web/lite product. Embeds signaling. LAN-first. |
+| **Native app** | `localbolt-app` | Native app repo. Currently retired (Tauri path closed). Future shells here. |
+| **Current desktop shell** | `bolt-ui` (in `bolt-core-sdk`) | egui native shell. Current production desktop. Not the permanent universal shell. |
+
+### Path Doctrine
+
+**Forward path (main architecture):**
+- Browser ↔ Desktop App (daemon-centered, WT/QUIC)
+- App ↔ App (daemon-centered, QUIC)
+- Daemon is the local authority for all non-browser peers
+- WebTransport is the forward transport for hosted-origin browser↔desktop
+
+**Compatibility path (retained):**
+- Browser ↔ Browser (WebRTC)
+- Available for users who need it
+- Shared between `localbolt-v3` and `localbolt` via `bolt-core-sdk`
+- Must not define the main architecture or block forward-path work
+
+**Native shell direction:**
+- Long-term: shared Rust authority (`bolt-app-core`) + native platform shells (SwiftUI, Kotlin, etc.)
+- `bolt-ui` (egui) is the current production shell — functional, not permanent
+- Tauri/WebView is not the long-term answer (retired in `localbolt-app`)
+- Future shell strategy is a separate governance decision, not yet started
 
 ---
 
