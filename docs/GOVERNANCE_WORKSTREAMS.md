@@ -8489,6 +8489,38 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
+### NATIVE-SHELL-1 — Native Platform Shell for localbolt-app (ACTIVE)
+
+> **Stream ID:** NATIVE-SHELL-1
+> **Status:** ACTIVE (opened 2026-03-26)
+> **Repo:** localbolt-app (primary), bolt-core-sdk (bolt-app-core consumed via FFI)
+> **Dependency:** N-STREAM-1 (CLOSED — daemon lifecycle/IPC contract), NATIVE-DESKTOP-PKG-1 (bolt-ui packaging)
+
+**Goal:** Implement a native macOS desktop shell (SwiftUI) consuming `bolt-app-core` via C-ABI FFI, progressing from peer discovery through full session/transfer capability.
+
+**Scope:**
+- macOS SwiftUI shell in `localbolt-app/native/macos/`
+- Rust FFI bridge in `localbolt-app/native/shared/`
+- IPC bridge, pairing/session flow, verification, transfer — phased
+- macOS first; other platforms are separate governance decisions
+
+**Explicitly excluded:**
+- Protocol, wire-format, or crypto changes
+- egui/bolt-ui work
+- Android/iOS implementation
+- Daemon protocol modifications (consumed as-is from B-stream)
+
+**Phase plan:**
+
+| Phase | Slice | Status |
+|-------|-------|--------|
+| NS1-P1 | IPC bridge FFI + incoming pairing request handling | IN PROGRESS |
+| NS1-P2 | Outbound connection initiation (signal → pair) | PLANNED |
+| NS1-P3 | Verification/SAS flow | PLANNED |
+| NS1-P4 | File transfer (send/receive) | PLANNED |
+
+---
+
 ### POST-EXTRACTION-STABILIZATION-1 — Ecosystem Coherence After TS Extraction (CLOSED)
 
 > **Stream ID:** POST-EXTRACTION-STABILIZATION-1
