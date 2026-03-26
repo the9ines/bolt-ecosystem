@@ -194,8 +194,8 @@ MUST preserve:
 |---------|-----------|-------|
 | Bolt Core specification | bolt-protocol | PROTOCOL.md, profile docs, no code |
 | Bolt Core SDK (Rust) | bolt-core-sdk | Reference implementation |
-| Bolt Core SDK (TypeScript) | bolt-core-sdk | **Transitional — extracting to product layer.** Target: no TS in bolt-core-sdk. |
-| Conformance test vectors | bolt-core-sdk | Shared between Rust and TS (vectors stay; TS test runners leave with extraction) |
+| Browser transport + crypto (TypeScript) | localbolt-v3 | Extracted from bolt-core-sdk (TS-EXTRACTION-1). Published as `@the9ines/localbolt-browser` and `@the9ines/bolt-core`. |
+| Conformance test vectors | bolt-core-sdk | Shared between Rust and browser test suites (vectors remain in SDK) |
 | App runtime core | bolt-core-sdk (`bolt-app-core`) | Shell-agnostic daemon lifecycle, IPC, watchdog, platform (ADR-001) |
 | Desktop UI shell | bolt-core-sdk (`bolt-ui`) | egui/eframe native binary, consumes bolt-app-core |
 | Rendezvous server (Rust) | bolt-rendezvous | Canonical implementation |

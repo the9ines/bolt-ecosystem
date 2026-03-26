@@ -8489,6 +8489,36 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
+### POST-EXTRACTION-STABILIZATION-1 — Ecosystem Coherence After TS Extraction (CLOSED)
+
+> **Stream ID:** POST-EXTRACTION-STABILIZATION-1
+> **Status:** CLOSED (2026-03-26)
+> **Repos:** localbolt-v3, bolt-ecosystem, localbolt-app, localbolt
+> **Dependency:** TS-EXTRACTION-1 (CLOSED)
+
+**Goal:** Bring the ecosystem into a coherent post-extraction state: CI reflects the real package graph, dead guards are removed, current-state docs reflect reality, architecture docs are internally consistent, and localbolt-app docs/workflows match actual platform strategy.
+
+**Scope:**
+- localbolt-v3 CI/deploy/doc stabilization after TS extraction
+- Architecture doc normalization after Rust-only SDK cutover
+- localbolt-app truth alignment for Tauri-retired/native-shell direction
+- localbolt posture clarification
+
+**Explicitly excluded:**
+- Protocol, wire-format, or crypto changes
+- New feature work
+- Native-shell product implementation beyond doc/workflow alignment
+- Reopening TS extraction
+
+**End state:**
+- localbolt-v3 CI builds the full 4-package chain, dead transport guards deleted
+- localbolt-v3 README/STATE.md reflect actual package topology
+- ARCHITECTURE.md internally consistent with Rust-only SDK
+- localbolt-app README/STATE/CI aligned to Tauri-retired + native-shell scaffold reality
+- localbolt posture clarified (still on published bolt-transport-web)
+
+---
+
 ### TS-EXTRACTION-1 — Browser-Layer Extraction from bolt-core-sdk (CLOSED)
 
 > **Stream ID:** TS-EXTRACTION-1
