@@ -8504,9 +8504,9 @@ The following streams codify the security and hardening program for the Bolt eco
 
 | Product | Repo | Role |
 |---------|------|------|
-| **Hosted web** | `localbolt-v3` | `localbolt.app` — hosted browser product. Netlify-deployed. Cloud signaling. |
-| **Self-hosted web** | `localbolt` | Self-hosted web/lite product. Embeds signaling. LAN-first. |
-| **Native app** | `localbolt-app` | Native app repo. Currently retired (Tauri path closed). Future shells here. |
+| **Hosted web** | `localbolt-v3` | `localbolt.app` — hosted browser product. Netlify-deployed. Cloud signaling. Consumer of `bolt-core-sdk` browser transport layer. Not the architectural center — daemon/native path is the forward direction. |
+| **Self-hosted web** | `localbolt` | Self-hosted web/lite product. Embeds signaling. LAN-first. Consumes shared browser↔browser compatibility layer from `bolt-core-sdk`. |
+| **Native app** | `localbolt-app` | Native app repo. Tauri implementation retired. Repo reserved for future native platform shells (SwiftUI, Kotlin). Not dead — just between implementations. |
 | **Current desktop shell** | `bolt-ui` (in `bolt-core-sdk`) | egui native shell. Current production desktop. Not the permanent universal shell. |
 
 ### Path Doctrine

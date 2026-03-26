@@ -203,7 +203,7 @@ MUST preserve:
 | Daemon (Rust) | bolt-daemon | Canonical implementation |
 | Relay infrastructure | bytebolt-relay | Commercial |
 | Web lite app | localbolt | Open source |
-| Native multi-platform app | localbolt-app | Open source (**retired** — Tauri adapter. Desktop rollback CLOSED all platforms. Replaced by bolt-ui.) |
+| Native multi-platform app | localbolt-app | Open source. Tauri implementation retired. Repo reserved for future native platform shells. |
 | Web app (Netlify) | localbolt-v3 | Open source |
 | Commercial global app | bytebolt-app | Commercial |
 | Protocol spec (stubs) | bolt-core-sdk | Stubs pointing to bolt-protocol |
@@ -234,7 +234,7 @@ MUST preserve:
 | bolt-rendezvous | Rendezvous server code | Protocol logic, UI |
 | bolt-daemon | Daemon code, IPC API | Protocol logic, UI |
 | localbolt | Web app, vendored signal | SDK internals, spec |
-| localbolt-app | Tauri shell adapter (**retired** — replaced by bolt-ui) | Runtime logic (moved to bolt-app-core) |
+| localbolt-app | Tauri shell adapter (retired). Repo reserved for future native shells. | Runtime logic (in bolt-app-core) |
 | localbolt-v3 | Web app (TS only) | Servers, daemons, native code |
 | bytebolt-app | Commercial app | Open-source protocol changes |
 | bytebolt-relay | Relay infra | Protocol changes, free features |
@@ -411,7 +411,7 @@ Violation of any ARCH invariant MUST be escalated to human immediately.
 - `bolt-app-core` is canonical app/runtime truth. Future shells (SwiftUI, Kotlin) consume it via FFI.
 - `bolt-ui` is the canonical desktop shell. It is a standalone binary — no WebView dependency.
 - Product repos (`localbolt-v3`, `localbolt`, `localbolt-app`) are **consumers only**. They MUST NOT own protocol, runtime, or transport logic.
-- `localbolt-app` is **retired**. Desktop rollback window CLOSED for all platforms (2026-03-22). `bolt-ui` is the canonical desktop shell. Tauri desktop path is no longer maintained.
+- `localbolt-app` Tauri implementation is **retired** (desktop rollback window CLOSED 2026-03-22). Repo is reserved for future native platform shells (SwiftUI, Kotlin). `bolt-ui` is the current production desktop shell.
 
 ### Product Policy Rule
 
@@ -430,7 +430,7 @@ Release promotion follows the dependency graph. Upstream repos MUST pass before 
    bolt-rendezvous      ←── server/protocol tests (parallel with daemon)
 3. bolt-ui              ←── desktop shell build + tests (part of bolt-core-sdk workspace)
 4. localbolt-v3         ←── consumer build/test
-   localbolt-app        ←── retired (Tauri desktop path replaced by bolt-ui)
+   localbolt-app        ←── Tauri retired; repo reserved for future native shells
    future mobile shells ←── binding generation + shell smoke
 5. bolt-ecosystem       ←── governance/docs sync (after code repos)
 ```
@@ -501,7 +501,7 @@ These patterns MUST NOT be introduced. Violations should be escalated.
 
 | ID | Anti-Pattern | Rationale |
 |----|-------------|-----------|
-| AP-01 | New strategic work in `localbolt-app` | Desktop is `bolt-ui`. Tauri is retired. |
+| AP-01 | New Tauri work in `localbolt-app` | Tauri path retired. Desktop is `bolt-ui`. Future native shells (SwiftUI, Kotlin) will use `localbolt-app` repo but not Tauri. |
 | AP-02 | Deepening daemon↔browser WebRTC interop | Direct transport (WS/WT) is the browser↔app path. |
 | AP-03 | New TS crypto logic | Rust/WASM is crypto authority. |
 | AP-04 | New TS transfer orchestration authority | Rust SM is canonical. |
