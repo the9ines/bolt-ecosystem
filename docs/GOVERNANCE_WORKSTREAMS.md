@@ -8495,7 +8495,7 @@ The following streams codify the security and hardening program for the Bolt eco
 
 | Layer | Repo | Role |
 |-------|------|------|
-| **Shared authority** | `bolt-core-sdk` | Canonical protocol, crypto, BTR, transport, app runtime. Rust-first. TS only where browser bindings require it. |
+| **Shared authority** | `bolt-core-sdk` | Canonical protocol, crypto, BTR, app runtime. **Rust-only long-term.** All TS extracting to product-layer browser package. |
 | **Local runtime** | `bolt-daemon` | Canonical local transport/session/transfer authority. WS + WT + QUIC endpoints. |
 | **Signaling** | `bolt-rendezvous` | Canonical signaling/discovery authority. Untrusted by design. |
 | **Protocol spec** | `bolt-protocol` | Canonical wire-level specification (Markdown). |

@@ -194,8 +194,8 @@ MUST preserve:
 |---------|-----------|-------|
 | Bolt Core specification | bolt-protocol | PROTOCOL.md, profile docs, no code |
 | Bolt Core SDK (Rust) | bolt-core-sdk | Reference implementation |
-| Bolt Core SDK (TypeScript) | bolt-core-sdk | Same repo, separate package |
-| Conformance test vectors | bolt-core-sdk | Shared between Rust and TS |
+| Bolt Core SDK (TypeScript) | bolt-core-sdk | **Transitional — extracting to product layer.** Target: no TS in bolt-core-sdk. |
+| Conformance test vectors | bolt-core-sdk | Shared between Rust and TS (vectors stay; TS test runners leave with extraction) |
 | App runtime core | bolt-core-sdk (`bolt-app-core`) | Shell-agnostic daemon lifecycle, IPC, watchdog, platform (ADR-001) |
 | Desktop UI shell | bolt-core-sdk (`bolt-ui`) | egui/eframe native binary, consumes bolt-app-core |
 | Rendezvous server (Rust) | bolt-rendezvous | Canonical implementation |
@@ -399,15 +399,15 @@ Violation of any ARCH invariant MUST be escalated to human immediately.
 | Domain | Canonical Owner | Consumers |
 |--------|----------------|-----------|
 | Protocol specification | bolt-protocol | All repos |
-| Protocol SDK (Rust + TS) | bolt-core-sdk | bolt-daemon, bolt-transport-web, product repos |
-| App runtime core | bolt-core-sdk (`bolt-app-core`) | bolt-ui, localbolt-app, future mobile shells |
-| Desktop UI shell | bolt-core-sdk (`bolt-ui`) | Standalone binary, future packaging |
-| BTR (transfer ratchet) | bolt-core-sdk (`bolt-btr`) | bolt-daemon, bolt-transport-web |
+| Protocol SDK (Rust) | bolt-core-sdk | bolt-daemon, product repos (via WASM or FFI) |
+| App runtime core | bolt-core-sdk (`bolt-app-core`) | bolt-ui, localbolt-app (via FFI), future mobile shells |
+| Desktop UI shell (transitional) | bolt-core-sdk (`bolt-ui`) | Transitional egui shell. Moves to localbolt-app when native shells replace it. |
+| BTR (transfer ratchet) | bolt-core-sdk (`bolt-btr`) | bolt-daemon, browser via WASM |
 | Daemon runtime | bolt-daemon | Product apps (sidecar or embedded) |
 | Signaling server | bolt-rendezvous | Product apps (embedded or hosted) |
-| Browser transport | bolt-core-sdk (`bolt-transport-web`) | localbolt-v3, localbolt |
+| Browser transport | **localbolt-v3** (`localbolt-transport`) | localbolt-v3, localbolt. **Extracting from bolt-core-sdk.** |
 
-- `bolt-core-sdk` is the canonical shared-code authority. Protocol, BTR, transport, app runtime, and desktop shell all live here.
+- `bolt-core-sdk` is the canonical shared Rust authority. Protocol, BTR, app runtime, and WASM compilation live here. No TS source long-term.
 - `bolt-app-core` is canonical app/runtime truth. Future shells (SwiftUI, Kotlin) consume it via FFI.
 - `bolt-ui` is the canonical desktop shell. It is a standalone binary — no WebView dependency.
 - Product repos (`localbolt-v3`, `localbolt`, `localbolt-app`) are **consumers only**. They MUST NOT own protocol, runtime, or transport logic.
@@ -425,7 +425,7 @@ Violation of any ARCH invariant MUST be escalated to human immediately.
 Release promotion follows the dependency graph. Upstream repos MUST pass before downstream consumers tag:
 
 ```
-1. bolt-core-sdk        ←── canonical core: Rust + TS tests, bolt-app-core, bolt-ui
+1. bolt-core-sdk        ←── canonical core: Rust crates, WASM compilation, bolt-app-core, bolt-ui
 2. bolt-daemon          ←── daemon runtime tests, transport tests
    bolt-rendezvous      ←── server/protocol tests (parallel with daemon)
 3. bolt-ui              ←── desktop shell build + tests (part of bolt-core-sdk workspace)
@@ -439,7 +439,7 @@ Release promotion follows the dependency graph. Upstream repos MUST pass before 
 
 | Repo | Required CI | Notes |
 |------|------------|-------|
-| bolt-core-sdk | Rust unit/integration, TS package tests/build, cross-language vectors, bolt-app-core tests, bolt-ui tests/build | Canonical. All shared logic tested here. |
+| bolt-core-sdk | Rust unit/integration, WASM build, cross-language vectors, bolt-app-core tests, bolt-ui tests/build | Canonical. All shared Rust logic tested here. TS tests move with extraction. |
 | bolt-daemon | Daemon tests (`cargo test --features transport-webtransport,transport-ws`), `cargo fmt`, `cargo clippy` | Includes WT/WS/QUIC transport tests. |
 | bolt-rendezvous | Server + protocol tests | Independent of daemon. |
 | localbolt-v3 | Consumer build + test only | MUST NOT duplicate SDK tests. |
@@ -707,13 +707,14 @@ bolt-daemon contains WebRTC/DataChannel code from the rendezvous transport path.
 
 | Component | Owner repo | Responsibility | Contract |
 |-----------|-----------|----------------|----------|
-| Protocol crypto + primitives | `bolt-core-sdk/rust/bolt-core` | NaCl box, SAS, key generation, encoding | Rust canonical, WASM/TS bridge |
+| Protocol crypto + primitives | `bolt-core-sdk/rust/bolt-core` | NaCl box, SAS, key generation, encoding | Rust canonical, WASM for browser |
 | BTR ratchet | `bolt-core-sdk/rust/bolt-btr` | Per-transfer forward secrecy | Used by daemon + browser via WASM |
 | Transfer state machine | `bolt-core-sdk/rust/bolt-transfer-core` | Chunk scheduling, send/receive SM | Rust canonical |
-| Browser transport SDK | `bolt-core-sdk/ts/bolt-transport-web` | WS/WT/WebRTC transport, signaling, UI components | TypeScript, consumes bolt-core |
+| Browser transport | `localbolt-v3/packages/localbolt-transport` | WS/WT/WebRTC transport, signaling, UI components | TypeScript. **Extracting from bolt-core-sdk.** |
 | Daemon | `bolt-daemon` | Local protocol authority, WS/WT endpoint, IPC, identity | Rust |
 | Rendezvous | `bolt-rendezvous` | Untrusted signal relay, room management | Rust |
-| Desktop app | `bolt-core-sdk/rust/bolt-ui` | Native UI, daemon lifecycle, file picker | Rust (egui) |
+| Desktop app (transitional) | `bolt-core-sdk/rust/bolt-ui` | Native UI, daemon lifecycle, file picker | Rust (egui). Transitional. |
+| Desktop app (future) | `localbolt-app/native/` | Native platform shells via FFI to bolt-app-core | SwiftUI, WinUI, etc. |
 | Web app | `localbolt-v3` | Browser UI, peer-connection wiring | TypeScript |
 
 ### Boundary Rules
