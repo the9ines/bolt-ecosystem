@@ -8489,35 +8489,56 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
-### NATIVE-SHELL-1 — Native Platform Shell for localbolt-app (ACTIVE)
+### NATIVE-SHELL-UX-1 — macOS Shell Productization (ACTIVE)
 
-> **Stream ID:** NATIVE-SHELL-1
-> **Status:** ACTIVE (opened 2026-03-26)
-> **Repo:** localbolt-app (primary), bolt-core-sdk (bolt-app-core consumed via FFI)
-> **Dependency:** N-STREAM-1 (CLOSED — daemon lifecycle/IPC contract), NATIVE-DESKTOP-PKG-1 (bolt-ui packaging)
+> **Stream ID:** NATIVE-SHELL-UX-1
+> **Status:** ACTIVE (opened 2026-03-28)
+> **Repo:** localbolt-app
+> **Dependency:** NATIVE-SHELL-1 (CLOSED)
 
-**Goal:** Implement a native macOS desktop shell (SwiftUI) consuming `bolt-app-core` via C-ABI FFI, progressing from peer discovery through full session/transfer capability.
+**Goal:** Transform the macOS native shell from an engineering control panel into a product-grade user experience while preserving the working runtime path.
 
 **Scope:**
-- macOS SwiftUI shell in `localbolt-app/native/macos/`
-- Rust FFI bridge in `localbolt-app/native/shared/`
-- IPC bridge, pairing/session flow, verification, transfer — phased
-- macOS first; other platforms are separate governance decisions
+- Implicit daemon lifecycle (auto-start, no user-facing controls)
+- Primary UI focused on peers, sessions, and transfers
+- Diagnostics moved behind secondary/debug surface
+- Information architecture refinement
+- macOS-native interaction patterns
 
 **Explicitly excluded:**
 - Protocol, wire-format, or crypto changes
-- egui/bolt-ui work
-- Android/iOS implementation
-- Daemon protocol modifications (consumed as-is from B-stream)
+- New transport or session capabilities
+- iOS/Android implementation
+- Code signing / notarization / distribution (separate stream)
 
-**Phase plan:**
+---
+
+### NATIVE-SHELL-1 — Native Platform Shell for localbolt-app (CLOSED)
+
+> **Stream ID:** NATIVE-SHELL-1
+> **Status:** CLOSED (2026-03-28)
+> **Repo:** localbolt-app (primary), bolt-core-sdk (bolt-app-core consumed via FFI), bolt-daemon
+> **Dependency:** N-STREAM-1 (CLOSED), NATIVE-DESKTOP-PKG-1
+
+**Goal:** Implement a native macOS desktop shell (SwiftUI) consuming `bolt-app-core` via C-ABI FFI, progressing from peer discovery through full session/transfer capability.
+
+**End state:** macOS SwiftUI shell is a runnable `.app` bundle with bundled daemon sidecar. Complete vertical: peer discovery → connection initiation → pairing accept/decline → session/trust state → file send (NSOpenPanel) → file receive (~/Downloads + Finder reveal) → live progress bar → proper app bundle packaging.
+
+**Phase history:**
 
 | Phase | Slice | Status |
 |-------|-------|--------|
-| NS1-P1 | IPC bridge FFI + incoming pairing request handling | IN PROGRESS |
-| NS1-P2 | Outbound connection initiation (signal → pair) | PLANNED |
-| NS1-P3 | Verification/SAS flow | PLANNED |
-| NS1-P4 | File transfer (send/receive) | PLANNED |
+| NS1-P1 | IPC bridge FFI + incoming pairing request handling | DONE |
+| NS1-P2 | Outbound connection initiation + IPC socket-path fix | DONE |
+| NS1-P3 | Session state model + verification UI (Swift side) | DONE |
+| NS1-P4 | Live session lifecycle events from daemon (Rust side) | DONE |
+| NS1-P5 | File transfer send/receive + IPC transfer events | DONE |
+| NS1-P6 | Integration validation — runtime bug fixes (permissions, version) | DONE |
+| NS1-P7 | Real browser integration validation | DONE |
+| NS1-P8 | Transfer progress events + progress bar UI | DONE |
+| NS1-P9 | App bundle packaging + daemon sidecar | DONE |
+
+**Repos touched:** localbolt-app, bolt-daemon, bolt-core-sdk
 
 ---
 
