@@ -8489,6 +8489,32 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
+### NATIVE-DISTRIBUTION-1 — macOS Native App Distribution (ACTIVE)
+
+> **Stream ID:** NATIVE-DISTRIBUTION-1
+> **Status:** ACTIVE (opened 2026-03-28)
+> **Repo:** localbolt-app
+> **Dependency:** NATIVE-SHELL-1 (CLOSED), NATIVE-SHELL-UX-1 (CLOSED)
+
+**Goal:** Take the macOS native shell from "runnable dev app" to "signed, notarized, distributable macOS application."
+
+**Scope:**
+- Static linking (eliminate dylib dependency on dev paths)
+- App bundle structure correctness for code signing
+- Code signing with Apple Developer ID
+- Notarization for Gatekeeper
+- DMG/installer packaging
+- Release build script
+- Distribution documentation
+
+**Explicitly excluded:**
+- Visual UX polish
+- App icon design
+- iOS/Android
+- Architecture changes
+
+---
+
 ### NATIVE-SHELL-UX-1 — macOS Shell Productization (CLOSED)
 
 > **Stream ID:** NATIVE-SHELL-UX-1
