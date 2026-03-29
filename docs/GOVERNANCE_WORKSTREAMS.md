@@ -8489,10 +8489,10 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
-### TRANSPORT-VALIDATION-1 — Cross-Path Transport Validation (ACTIVE)
+### TRANSPORT-VALIDATION-1 — Cross-Path Transport Validation (CLOSED)
 
 > **Stream ID:** TRANSPORT-VALIDATION-1
-> **Status:** ACTIVE (opened 2026-03-29)
+> **Status:** CLOSED (2026-03-29)
 > **Repos:** bolt-daemon, localbolt-v3, localbolt-app
 > **Type:** Validation/evidence — not a feature stream
 
@@ -8748,3 +8748,84 @@ The following streams codify the security and hardening program for the Bolt eco
 Pushes require explicit PM authorization. Phase reports are filed locally. The PM reviews and authorizes push as a separate action after phase report review.
 
 This policy prevents half-completed workstream states from appearing on remote branches and ensures the PM has review authority over every remote state change.
+
+---
+
+## SRE Validation Protocol (codified 2026-03-29)
+
+All validation and audit slices MUST follow this protocol.
+
+### Result Classification
+
+Every finding/test result must be classified as exactly one of:
+
+| Classification | Meaning | Can we claim it works? |
+|---------------|---------|----------------------|
+| **CONFIRMED** | Fresh runtime or automated evidence exists | Yes |
+| **FALSIFIED** | Tested and failed | No — fix required |
+| **BLOCKED** | Cannot test due to environmental/credential constraint | No — document the blocker |
+| **INSUFFICIENT EVIDENCE** | Not tested, or only stale/unit evidence | No — qualify any claims |
+
+### Evidence Tiers
+
+Distinguish explicitly:
+
+| Tier | Description | Confidence |
+|------|-------------|-----------|
+| **Runtime-validated** | Real process/browser/device test with fresh evidence | Highest |
+| **Automated-test-validated** | CI/unit/integration test suite passes | High for code path, medium for runtime |
+| **Compile-validated** | Builds without error | Low — proves linkage, not behavior |
+| **Doc/governance truth** | Written in docs | None — docs can be stale |
+
+### Operational Rules
+
+1. State the hypothesis before running anything.
+2. Define success and failure signals before executing.
+3. Prefer the smallest reversible validation step first.
+4. Do not change architecture while validating.
+5. Preserve known-good paths — do not destabilize validated paths while testing others.
+6. If blocked, stop and document the blocker. Do not hand-wave.
+7. No optimistic wording. Evidence only.
+
+---
+
+## Manual Validation Checklist (pending)
+
+These validations require real devices/interaction and cannot be automated in CI.
+
+### App ↔ App (Mac Studio ↔ MacBook)
+
+**Status: NOT YET EXECUTED**
+
+| Step | Action | Success signal |
+|------|--------|---------------|
+| 1 | Build localbolt-app on both machines | Both produce `.app` bundles |
+| 2 | Launch both apps | Both show ONLINE, daemon auto-starts |
+| 3 | Both register on cloud signaling | Each sees the other in Devices list |
+| 4 | Machine A taps Connect on Machine B | Machine B shows incoming request inline |
+| 5 | Machine B accepts | Session established, trust state shown |
+| 6 | Machine A sends file via drop zone | Transfer progress shown, file saved to ~/Downloads on B |
+| 7 | Machine B sends file back | Transfer in reverse direction succeeds |
+| 8 | Either disconnects | Session ended, both return to discovery |
+
+**Transport under test:** Signaling (cloud WSS) → connection negotiation → daemon WS or QUIC between machines.
+
+**Blocker if any:** Requires daemon binary built for both architectures (arm64 confirmed, x64 untested).
+
+### App ↔ Browser (native app + localbolt.app)
+
+**Status: NOT YET EXECUTED**
+
+| Step | Action | Success signal |
+|------|--------|---------------|
+| 1 | Launch localbolt-app on Mac | ONLINE, daemon running |
+| 2 | Open localbolt.app in browser on same or different machine | ONLINE via cloud signaling |
+| 3 | Browser sees native app in Devices list | Peer code + device name visible |
+| 4 | Browser taps Connect | Native app shows incoming request |
+| 5 | Native accepts | Browser connects to daemon via wsUrl (WS direct or WT) |
+| 6 | Browser sends file | Native receives, saves to ~/Downloads |
+| 7 | Native sends file | Browser receives encrypted envelope |
+
+**Transport under test:** Signaling → connection_request/accepted with wsUrl → WS direct (HTTP origin) or WebTransport (HTTPS origin).
+
+**Blocker if any:** HTTPS origin requires WebTransport with cert-hash pinning. HTTP localhost origin uses WS direct (already CONFIRMED in automated tests).
