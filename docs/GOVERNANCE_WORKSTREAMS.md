@@ -8509,6 +8509,19 @@ The following streams codify the security and hardening program for the Bolt eco
 
 **Explicitly excluded:** Feature work, UX changes, architecture changes.
 
+**Validation results (2026-03-29):**
+
+| Path | Transport | Status | Evidence |
+|------|-----------|--------|----------|
+| Browser → App | WS direct | **VALIDATED** | Full chain: WS connect → session-key → HELLO → file transfer → IPC events. All session lifecycle events confirmed. |
+| Browser → App | WebTransport/HTTP3 | **BLOCKED** | Daemon WT endpoint starts (UDP:9101) with cert hash. Cannot validate from CLI — requires real Chromium with `serverCertificateHashes`. Feature builds correctly with `--features transport-webtransport`. |
+| Browser ↔ Browser | WebRTC | **VALIDATED (unit)** | 344/345 tests pass. WebRTCService lifecycle, handshake, transfer, BTR covered. No real-browser e2e test (requires two browser tabs on signaling). |
+| App ↔ App | QUIC/quinn | **BROKEN** | `--features transport-quic` does not compile. `main.rs` struct construction missing `quic_connect`/`quic_listen` fields. QUIC transport module (647 lines) and e2e test exist but cannot be exercised. |
+
+**Blockers identified:**
+1. QUIC feature gate drift in `bolt-daemon/src/main.rs` — compilation error (missing struct fields)
+2. WebTransport validation requires real Chromium browser session (not CLI-automatable without workaround)
+
 ---
 
 ### NATIVE-DISTRIBUTION-1 — macOS Native App Distribution (ACTIVE)
