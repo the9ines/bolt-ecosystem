@@ -8489,27 +8489,47 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
-### NATIVE-SHELL-UX-1 — macOS Shell Productization (ACTIVE)
+### NATIVE-SHELL-UX-1 — macOS Shell Productization (CLOSED)
 
 > **Stream ID:** NATIVE-SHELL-UX-1
-> **Status:** ACTIVE (opened 2026-03-28)
+> **Status:** CLOSED (2026-03-28)
 > **Repo:** localbolt-app
 > **Dependency:** NATIVE-SHELL-1 (CLOSED)
 
 **Goal:** Transform the macOS native shell from an engineering control panel into a product-grade user experience while preserving the working runtime path.
 
-**Scope:**
-- Implicit daemon lifecycle (auto-start, no user-facing controls)
-- Primary UI focused on peers, sessions, and transfers
-- Diagnostics moved behind secondary/debug surface
-- Information architecture refinement
-- macOS-native interaction patterns
+**End state:** macOS SwiftUI shell matches the `localbolt-v3` web product flow across all major states. Daemon lifecycle is implicit, diagnostics are secondary (Cmd+Opt+D), and the transfer card is the center of the experience with visual/interaction parity to the web product.
 
-**Explicitly excluded:**
-- Protocol, wire-format, or crypto changes
-- New transport or session capabilities
-- iOS/Android implementation
-- Code signing / notarization / distribution (separate stream)
+**Phase history:**
+
+| Phase | Slice | Status |
+|-------|-------|--------|
+| NSUX1-P1 | Implicit daemon lifecycle + UI restructure | DONE |
+| NSUX1-P2 | localbolt-v3 visual/flow parity + drag-and-drop | DONE |
+| NSUX1-P3 | Connecting/requesting state UX (3-phase) | DONE |
+| NSUX1-P3 hotfix | Signaling OFFLINE fix + signal protocol fix + wsUrl | DONE |
+| NSUX1-P4 | IPC startup retry + incoming request inline UX | DONE |
+| NSUX1-P5 | Connected session card refinement | DONE |
+
+**Parity audit (closure):**
+
+| State | Verdict |
+|-------|---------|
+| Header (brand + status) | Matched |
+| Peer code | Matched (subtle) |
+| Devices button + list | Matched |
+| Connecting (3 phases) | Matched |
+| Incoming request (inline) | Matched |
+| Connected session | Matched |
+| Trust/verification (verified, unverified, legacy) | Matched |
+| Transfer (drop zone, progress, complete, failed) | Matched |
+| Diagnostics | Native-appropriate (secondary sheet) |
+
+**Out of scope (deferred to separate streams):**
+- App icon
+- Code signing / notarization / distribution
+- iOS/Android shells
+- Menu bar polish
 
 ---
 
