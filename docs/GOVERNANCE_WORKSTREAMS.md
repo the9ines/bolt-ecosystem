@@ -8509,18 +8509,19 @@ The following streams codify the security and hardening program for the Bolt eco
 
 **Explicitly excluded:** Feature work, UX changes, architecture changes.
 
-**Validation results (2026-03-29):**
+**Validation results (2026-03-29, SRE protocol):**
 
-| Path | Transport | Status | Evidence |
-|------|-----------|--------|----------|
-| Browser → App | WS direct | **VALIDATED** | Full chain: WS connect → session-key → HELLO → file transfer → IPC events. All session lifecycle events confirmed. |
-| Browser → App | WebTransport/HTTP3 | **BLOCKED** | Daemon WT endpoint starts (UDP:9101) with cert hash. Cannot validate from CLI — requires real Chromium with `serverCertificateHashes`. Feature builds correctly with `--features transport-webtransport`. |
-| Browser ↔ Browser | WebRTC | **VALIDATED (unit)** | 344/345 tests pass. WebRTCService lifecycle, handshake, transfer, BTR covered. No real-browser e2e test (requires two browser tabs on signaling). |
-| App ↔ App | QUIC/quinn | **BROKEN** | `--features transport-quic` does not compile. `main.rs` struct construction missing `quic_connect`/`quic_listen` fields. QUIC transport module (647 lines) and e2e test exist but cannot be exercised. |
+| Path | Transport | Status | Classification | Evidence |
+|------|-----------|--------|---------------|----------|
+| Browser → App | WS direct | Fresh | **CONFIRMED** | Full chain: WS → session-key → HELLO → file transfer → IPC events (session.connected, transfer.started/complete, session.ended). |
+| Browser → App | WebTransport/HTTP3 | Fresh | **CONFIRMED** | Playwright headless Chromium → `new WebTransport('https://127.0.0.1:9101', {serverCertificateHashes})` → `wt.ready` resolved. Daemon WT endpoint accepts browser connections. |
+| Browser ↔ Browser | WebRTC signaling | Fresh | **CONFIRMED** | Two headless Chromium tabs on cloud signaling: mutual peer discovery confirmed. Both tabs see each other's peer codes. |
+| Browser ↔ Browser | WebRTC data channel | Not tested | **INSUFFICIENT EVIDENCE** | Requires interactive approval flow (click Connect → approve). Signaling + discovery confirmed; WebRTC offer/answer + data channel not exercised. 344/345 unit tests cover the code path. |
+| App ↔ App | QUIC/quinn | Fresh | **CONFIRMED** | Feature gate compilation fixed (TV1-P2). 4/4 e2e tests pass: small, 1MiB, multiple, throughput. 353 total tests green. |
 
-**Blockers identified:**
-1. QUIC feature gate drift in `bolt-daemon/src/main.rs` — compilation error (missing struct fields)
-2. WebTransport validation requires real Chromium browser session (not CLI-automatable without workaround)
+**Resolved blockers:**
+1. ~~QUIC feature gate drift~~ → Fixed in TV1-P2 (`b012d39`)
+2. ~~WebTransport requires browser~~ → Validated via Playwright bundled Chromium (TV1-P3)
 
 ---
 
