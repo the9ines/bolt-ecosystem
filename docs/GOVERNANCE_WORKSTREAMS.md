@@ -8489,6 +8489,28 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
+### TRANSPORT-VALIDATION-1 — Cross-Path Transport Validation (ACTIVE)
+
+> **Stream ID:** TRANSPORT-VALIDATION-1
+> **Status:** ACTIVE (opened 2026-03-29)
+> **Repos:** bolt-daemon, localbolt-v3, localbolt-app
+> **Type:** Validation/evidence — not a feature stream
+
+**Goal:** Build a current validation matrix for all three transport paths and identify any runtime gaps before making confidence claims.
+
+**Paths under validation:**
+
+| Path | Transport | Expected status |
+|------|-----------|----------------|
+| Browser → App | WS direct (HTTP origins) | Recently validated (NS1-P7) |
+| Browser → App | WebTransport/HTTP3 (HTTPS origins) | Stale — SECURE-DIRECT-1 era |
+| Browser ↔ Browser | WebRTC | Stale — not tested in recent streams |
+| App ↔ App | QUIC/quinn | Unverified — code exists but no recent e2e test |
+
+**Explicitly excluded:** Feature work, UX changes, architecture changes.
+
+---
+
 ### NATIVE-DISTRIBUTION-1 — macOS Native App Distribution (ACTIVE)
 
 > **Stream ID:** NATIVE-DISTRIBUTION-1
