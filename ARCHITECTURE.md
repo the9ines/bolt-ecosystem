@@ -203,7 +203,7 @@ MUST preserve:
 | Daemon (Rust) | bolt-daemon | Canonical implementation |
 | Relay infrastructure | bytebolt-relay | Commercial |
 | Web lite app | localbolt | Open source |
-| Native multi-platform app | localbolt-app | Open source. Tauri implementation retired. Repo reserved for future native platform shells. |
+| Native app (forward) | localbolt-app | Open source. macOS SwiftUI shell with daemon sidecar. Forward native product path. |
 | Web app (Netlify) | localbolt-v3 | Open source |
 | Commercial global app | bytebolt-app | Commercial |
 | Protocol spec (stubs) | bolt-core-sdk | Stubs pointing to bolt-protocol |
@@ -234,7 +234,7 @@ MUST preserve:
 | bolt-rendezvous | Rendezvous server code | Protocol logic, UI |
 | bolt-daemon | Daemon code, IPC API | Protocol logic, UI |
 | localbolt | Web app, vendored signal | SDK internals, spec |
-| localbolt-app | Tauri shell adapter (retired). Repo reserved for future native shells. | Runtime logic (in bolt-app-core) |
+| localbolt-app | Native shells (SwiftUI) + FFI bridge + daemon sidecar. Forward native product path. | Runtime logic (in bolt-app-core) |
 | localbolt-v3 | Web app (TS only) | Servers, daemons, native code |
 | bytebolt-app | Commercial app | Open-source protocol changes |
 | bytebolt-relay | Relay infra | Protocol changes, free features |
@@ -400,8 +400,9 @@ Violation of any ARCH invariant MUST be escalated to human immediately.
 |--------|----------------|-----------|
 | Protocol specification | bolt-protocol | All repos |
 | Protocol SDK (Rust) | bolt-core-sdk | bolt-daemon, product repos (via WASM or FFI) |
-| App runtime core | bolt-core-sdk (`bolt-app-core`) | bolt-ui, localbolt-app (via FFI), future mobile shells |
-| Desktop UI shell (transitional) | bolt-core-sdk (`bolt-ui`) | Transitional egui shell. Moves to localbolt-app when native shells replace it. |
+| App runtime core | bolt-core-sdk (`bolt-app-core`) | localbolt-app (via FFI), bolt-ui (legacy), future mobile shells |
+| Desktop UI shell (legacy) | bolt-core-sdk (`bolt-ui`) | egui shell. Historical production desktop, superseded by localbolt-app native shells. |
+| Native app (forward) | localbolt-app (`native/`) | macOS SwiftUI shell with daemon sidecar. Forward native product path. |
 | BTR (transfer ratchet) | bolt-core-sdk (`bolt-btr`) | bolt-daemon, browser via WASM |
 | Daemon runtime | bolt-daemon | Product apps (sidecar or embedded) |
 | Signaling server | bolt-rendezvous | Product apps (embedded or hosted) |
@@ -410,9 +411,9 @@ Violation of any ARCH invariant MUST be escalated to human immediately.
 
 - `bolt-core-sdk` is the canonical shared Rust authority. Protocol, BTR, app runtime, and WASM compilation live here. **Rust-only as of TS-EXTRACTION-1 (2026-03-26).** Zero TS source.
 - `bolt-app-core` is canonical app/runtime truth. Future shells (SwiftUI, Kotlin) consume it via FFI.
-- `bolt-ui` is the canonical desktop shell. It is a standalone binary — no WebView dependency.
+- `localbolt-app` is the forward native product path. macOS SwiftUI shell with full transfer vertical (NATIVE-SHELL-1 CLOSED). Tauri implementation retired.
+- `bolt-ui` is the historical production desktop shell. Superseded by localbolt-app for forward development. Standalone egui binary — no WebView dependency.
 - Product repos (`localbolt-v3`, `localbolt`, `localbolt-app`) are **consumers only**. They MUST NOT own protocol, runtime, or transport logic.
-- `localbolt-app` Tauri implementation is **retired** (desktop rollback window CLOSED 2026-03-22). Repo is reserved for future native platform shells (SwiftUI, Kotlin). `bolt-ui` is the current production desktop shell.
 
 ### Product Policy Rule
 
@@ -429,9 +430,9 @@ Release promotion follows the dependency graph. Upstream repos MUST pass before 
 1. bolt-core-sdk        ←── canonical core: Rust crates, WASM compilation, bolt-app-core, bolt-ui
 2. bolt-daemon          ←── daemon runtime tests, transport tests
    bolt-rendezvous      ←── server/protocol tests (parallel with daemon)
-3. bolt-ui              ←── desktop shell build + tests (part of bolt-core-sdk workspace)
-4. localbolt-v3         ←── consumer build/test
-   localbolt-app        ←── Tauri retired; repo reserved for future native shells
+3. localbolt-app        ←── native shell build + tests (Rust FFI bridge + Swift)
+   bolt-ui              ←── legacy desktop shell (part of bolt-core-sdk workspace)
+4. localbolt-v3         ←── browser product build/test
    future mobile shells ←── binding generation + shell smoke
 5. bolt-ecosystem       ←── governance/docs sync (after code repos)
 ```
@@ -487,8 +488,8 @@ Rust is the canonical language for protocol, crypto, transfer, runtime, and daem
 | Crypto (NaCl, BTR, key management) | Rust / WASM | TS is fallback only |
 | Transfer state machine | Rust (bolt-transfer-core) | TS adapter layer acceptable |
 | App runtime / lifecycle | Rust (bolt-app-core) | Shells consume via API/FFI |
-| Desktop shell (current) | Rust (bolt-ui / egui) | Transitional. No WebView dependency. |
-| Desktop shell (future) | Platform-native (SwiftUI, WinUI, etc.) | Consumes bolt-app-core via FFI. Lives in localbolt-app. |
+| Desktop shell (forward) | Platform-native (SwiftUI on macOS) | Consumes bolt-app-core via C-ABI FFI. Lives in localbolt-app. |
+| Desktop shell (legacy) | Rust (bolt-ui / egui) | Historical. Superseded by localbolt-app native shells. |
 | Daemon transport | Rust (WS/WT/QUIC endpoints) | Canonical transport authority |
 | Browser↔app transport | Rust daemon + TS adapter (BrowserAppTransport) | Direct WS/WT, not WebRTC |
 | Browser↔browser transport | TS (WebRTCService) | Necessarily browser-side |
@@ -512,33 +513,21 @@ Rust is the preferred authority layer for protocol-critical logic:
 
 6. **LocalBolt browser products** use Rust/WASM for crypto and transfer core, with TypeScript for browser integration. The TS surface should shrink over time as WASM coverage grows.
 
-### Native Shell Architecture (PM-codified 2026-03-26)
+### Native Shell Architecture (updated 2026-03-29)
 
-**Current state:** `bolt-ui` (egui) is the production desktop shell. It is functional, tested, and ships. It is not the long-term multi-platform answer.
+**Current state:** `localbolt-app` macOS SwiftUI shell is the forward native product path. Complete transfer vertical: discovery → connect → pair → verify → send/receive with progress → app bundle with daemon sidecar. Streams NATIVE-SHELL-1 and NATIVE-SHELL-UX-1 both CLOSED.
 
-**Target state:** Platform-native shells consuming `bolt-app-core` via FFI.
+**Architecture:** Platform-native shells consuming `bolt-app-core` via C-ABI FFI.
 
-| Component | Current | Target |
-|-----------|---------|--------|
-| Desktop shell | bolt-ui (egui, in bolt-core-sdk) | Platform-native shells (in localbolt-app) |
-| Shell authority | bolt-app-core (Rust) | Same — no change |
-| Visual language | Hardcoded per shell | Shared design system (tokens + spec) |
-| Shell repo | bolt-core-sdk/rust/bolt-ui | localbolt-app/{macos,windows,linux}/ |
+| Component | Status | Location |
+|-----------|--------|----------|
+| macOS shell (SwiftUI) | Complete — full transfer vertical, UX parity with web | localbolt-app/native/macos/ |
+| Rust FFI bridge | Complete — 25 FFI functions | localbolt-app/native/shared/ |
+| Shell authority (Rust) | Stable — bolt-app-core | bolt-core-sdk/rust/bolt-app-core/ |
+| bolt-ui (egui) | Historical — superseded | bolt-core-sdk/rust/bolt-ui/ |
+| Other platforms | Future governance decisions | localbolt-app/native/{platform}/ |
 
-**Design system:** No shared design system exists yet. This is a prerequisite for multi-platform shell consistency. The design system should define:
-- State model (connection, transfer, verification states)
-- Color tokens, typography, spacing
-- Component contracts (device card, transfer progress, verification prompt)
-- Format: JSON tokens + Markdown spec, consumed by each platform shell
-
-**Migration sequence:**
-1. Codify design system foundation
-2. Structure localbolt-app with FFI bindings to bolt-app-core
-3. Build first platform shell (macOS/SwiftUI as likely candidate)
-4. Validate feature parity with bolt-ui
-5. Retire bolt-ui when platform shells cover all supported platforms
-
-**bolt-ui disposition:** Remains in `bolt-core-sdk/rust/bolt-ui/` as the current production shell. Will be maintained for bug fixes and parity with new features. Will not receive major UX investment. Migration to platform shells is the exit path, not a rewrite.
+**bolt-ui disposition:** Historical production shell. Remains in `bolt-core-sdk/rust/bolt-ui/` for reference and as a fallback on platforms not yet covered by native shells. Not receiving forward feature investment.
 
 ### Anti-Patterns (Prohibited)
 
@@ -718,8 +707,8 @@ bolt-daemon contains WebRTC/DataChannel code from the rendezvous transport path.
 | Browser crypto (TS) | `localbolt-v3/packages/bolt-core-browser` | crypto, encoding, SAS, peer-code, identity, errors | TypeScript. Published as `@the9ines/bolt-core`. |
 | Daemon | `bolt-daemon` | Local protocol authority, WS/WT endpoint, IPC, identity | Rust |
 | Rendezvous | `bolt-rendezvous` | Untrusted signal relay, room management | Rust |
-| Desktop app (transitional) | `bolt-core-sdk/rust/bolt-ui` | Native UI, daemon lifecycle, file picker | Rust (egui). Transitional. |
-| Desktop app (future) | `localbolt-app/native/` | Native platform shells via FFI to bolt-app-core | SwiftUI, WinUI, etc. |
+| Native app (forward) | `localbolt-app/native/` | macOS SwiftUI shell, FFI bridge, daemon sidecar | Swift + Rust. Forward native product path. |
+| Desktop app (legacy) | `bolt-core-sdk/rust/bolt-ui` | egui shell | Rust. Historical, superseded. |
 | Web app | `localbolt-v3` | Browser UI, peer-connection wiring | TypeScript |
 
 ### Boundary Rules

@@ -8675,28 +8675,33 @@ The following streams codify the security and hardening program for the Bolt eco
 |---------|------|------|
 | **Hosted web** | `localbolt-v3` | `localbolt.app` — hosted browser product. Netlify-deployed. Cloud signaling. Consumer of `bolt-core-sdk` browser transport layer. Not the architectural center — daemon/native path is the forward direction. |
 | **Self-hosted web** | `localbolt` | Self-hosted web/lite product. Embeds signaling. LAN-first. Consumes shared browser↔browser compatibility layer from `bolt-core-sdk`. |
-| **Native app** | `localbolt-app` | Native app repo. Tauri implementation retired. Repo reserved for future native platform shells (SwiftUI, Kotlin). Not dead — just between implementations. |
-| **Current desktop shell** | `bolt-ui` (in `bolt-core-sdk`) | egui native shell. Current production desktop. Not the permanent universal shell. |
+| **Native app** | `localbolt-app` | Forward native product path. macOS SwiftUI shell with daemon sidecar, FFI bridge, full transfer vertical. Tauri implementation retired. |
+| **Desktop shell (legacy)** | `bolt-ui` (in `bolt-core-sdk`) | egui native shell. Historical production desktop. Superseded by localbolt-app native shells for forward development. |
 
 ### Path Doctrine
 
 **Forward path (main architecture):**
-- Browser ↔ Desktop App (daemon-centered, WT/QUIC)
-- App ↔ App (daemon-centered, QUIC)
+- Browser → App (daemon-centered, WebTransport/HTTP3 where available, WS direct fallback)
+- App ↔ App (daemon-centered, QUIC/quinn)
 - Daemon is the local authority for all non-browser peers
-- WebTransport is the forward transport for hosted-origin browser↔desktop
+- `localbolt-app` is the forward native product path (macOS SwiftUI shell, NATIVE-SHELL-1 CLOSED)
 
 **Compatibility path (retained):**
 - Browser ↔ Browser (WebRTC)
-- Available for users who need it
-- Shared between `localbolt-v3` and `localbolt` via `bolt-core-sdk`
+- Available for users who need browser-only file sharing
+- Shared between `localbolt-v3` and `localbolt` via workspace packages
 - Must not define the main architecture or block forward-path work
 
-**Native shell direction:**
-- Long-term: shared Rust authority (`bolt-app-core`) + native platform shells (SwiftUI, Kotlin, etc.)
-- `bolt-ui` (egui) is the current production shell — functional, not permanent
-- Tauri/WebView is not the long-term answer (retired in `localbolt-app`)
-- Future shell strategy is a separate governance decision, not yet started
+**Transport precision:**
+- App ↔ App: native QUIC via quinn (Rust)
+- Browser → App: WebTransport over HTTP/3 (HTTPS origins) or WS direct (localhost/HTTP origins). Browser does NOT use raw quinn — WebTransport is the browser-compatible QUIC surface.
+- Browser ↔ Browser: WebRTC data channels (legacy/tribute path)
+
+**Native shell status:**
+- `localbolt-app` macOS SwiftUI shell: complete transfer vertical (NATIVE-SHELL-1 CLOSED, NATIVE-SHELL-UX-1 CLOSED)
+- `bolt-app-core` (Rust, in bolt-core-sdk): shared runtime consumed via C-ABI FFI
+- `bolt-ui` (egui, in bolt-core-sdk): historical production desktop shell, superseded by localbolt-app for forward work
+- Other platforms (iOS, Android, Windows, Linux): future governance decisions
 
 ---
 
