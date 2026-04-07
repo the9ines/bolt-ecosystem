@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-03-26 (TS-EXTRACTION-1 CLOSED, SECURE-DIRECT-1 CLOSED, TRANSPORT-UX-1 PROPOSED, ecosystem direction codified)
+> **Updated:** 2026-04-07 (GOVERNANCE-CODIFICATION-1: SPEC-FREEZE-1 codified, E2E-VERIFICATION-1/SIGNALING-FFI-CRASH-FIX-1/NATIVE-UX-PARITY-SPEC-1/NATIVE-UX-SAFETY-CONTROLS-1 CLOSED, RECONNECT-INTEGRITY-1/NATIVE-UX-PARITY-IMPL-2 PROPOSED, NDIST1 status updated, stale Tauri refs fixed)
 > **Tag:** ecosystem-v0.1.195-webtransport-impl1-wti1-audit
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
@@ -4046,7 +4046,7 @@ CONSUMER-BTR-1 is a rollout stream, not a feature stream. No protocol or SDK cha
 |-------|-------------|------|--------------|--------|
 | **CBTR-1** | localbolt-v3 (localbolt.app) BTR rollout | localbolt-v3 | BTR-STREAM-1 complete | **DONE** — `v3.0.89-consumer-btr1-p1` (`e34e617`). Burn-in PASSED. |
 | **CBTR-2** | localbolt (web) BTR rollout | localbolt | BTR-STREAM-1 complete + CBTR-F1 fixed | **DONE** — `localbolt-v1.0.36-consumer-btr1-p2` (`e75271a`). Burn-in PASSED (24h02m). |
-| **CBTR-3** | localbolt-app (Tauri native) BTR rollout | localbolt-app | BTR-STREAM-1 complete + CBTR-F1 fixed | **DONE** — `localbolt-app-v1.2.24-consumer-btr1-p3` (`ff33747`). Burn-in waived (`PM-CBTR-EX-01`). |
+| **CBTR-3** | localbolt-app BTR rollout (historical: Tauri path, now native SwiftUI) | localbolt-app | BTR-STREAM-1 complete + CBTR-F1 fixed | **DONE** — `localbolt-app-v1.2.24-consumer-btr1-p3` (`ff33747`). Burn-in waived (`PM-CBTR-EX-01`). Note: Tauri path retired post-CBTR-3; native SwiftUI shell is forward path. |
 
 **Parallelization:** CBTR-1, CBTR-2, CBTR-3 are fully independent and MAY run in parallel. Each operates in a separate repo with no shared code changes. Recommended sequencing: CBTR-1 first (primary reproducer for prior BTR testing), then CBTR-2 and CBTR-3 in parallel.
 
@@ -7903,7 +7903,9 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | BROWSER-APP-DIRECT-1 | Browser↔desktop direct transport | NEXT | bolt-core-sdk + localbolt-v3 + bolt-daemon + ecosystem | **IN PROGRESS** (2026-03-23). WS endpoint wired. `BrowserAppTransport` adopted for desktop peers. |
 | WASM-CRYPTO-FIRST-1 | Browser crypto → Rust/WASM authority | NEXT | bolt-core-sdk + ecosystem | NOT-STARTED. Converge dual TS/WASM crypto to WASM-first. |
 | TRANSFER-SM-CONVERGENCE-1 | Browser transfer → Rust SM authority | LOW | bolt-core-sdk + ecosystem | NOT-STARTED. Thin TS TransferManager toward Rust/WASM. |
-| LOCALBOLT-APP-FREEZE-1 | Archive retired Tauri repo | LOW | localbolt-app + ecosystem | NOT-STARTED. Prevent AP-01 drift. |
+| LOCALBOLT-APP-FREEZE-1 | Clean up retired Tauri code within localbolt-app | LOW | localbolt-app + ecosystem | PARTIAL — src-tauri reduced to thin glue (`14094ed`). Full removal deferred. Note: localbolt-app repo itself is the forward native path, NOT retired. Only the Tauri code within it is retired. |
+| RECONNECT-INTEGRITY-1 | Session reset integrity (trust state leakage on reconnect) | P1 | localbolt-app + localbolt-v3 | PROPOSED. Safety-critical. See dedicated section. |
+| NATIVE-UX-PARITY-IMPL-2 | Remaining MUST-MATCH parity items (M4-M7) | P2 | localbolt-app | PROPOSED. Depends on RECONNECT-INTEGRITY-1 for M7. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 
@@ -8525,14 +8527,23 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
-### NATIVE-DISTRIBUTION-1 — macOS Native App Distribution (ACTIVE)
+### NATIVE-DISTRIBUTION-1 — macOS Native App Distribution (IN-PROGRESS)
 
 > **Stream ID:** NATIVE-DISTRIBUTION-1
-> **Status:** ACTIVE (opened 2026-03-28)
+> **Status:** IN-PROGRESS (opened 2026-03-28, NDIST1-P1 + NDIST1-P2 DONE)
 > **Repo:** localbolt-app
 > **Dependency:** NATIVE-SHELL-1 (CLOSED), NATIVE-SHELL-UX-1 (CLOSED)
 
 **Goal:** Take the macOS native shell from "runnable dev app" to "signed, notarized, distributable macOS application."
+
+**Completed phases:**
+
+| Phase | Description | Status | Commit |
+|-------|-------------|--------|--------|
+| NDIST1-P1 | Static link Rust bridge + signed app bundle | DONE | `e34325a` |
+| NDIST1-P2 | DMG packaging script for macOS distribution | DONE | `401d56a` |
+
+**Remaining:** Apple Developer ID code signing, notarization, Gatekeeper, distribution docs.
 
 **Scope:**
 - Static linking (eliminate dylib dependency on dev paths)
@@ -8548,6 +8559,154 @@ The following streams codify the security and hardening program for the Bolt eco
 - App icon design
 - iOS/Android
 - Architecture changes
+
+---
+
+### SPEC-FREEZE-1 — Protocol and Authority Specification Freeze (CLOSED)
+
+> **Stream ID:** SPEC-FREEZE-1
+> **Status:** CLOSED (2026-03-26)
+> **Repos:** bolt-protocol, bolt-core-sdk, bolt-ecosystem
+> **Type:** Authority event — not a feature stream
+
+**What was frozen:**
+
+| Document | Repo | Tag | Commit |
+|----------|------|-----|--------|
+| Bolt Protocol Core v1 | bolt-protocol | `v1.0.0-spec-freeze` | `79360df` |
+| LocalBolt Profile v1 | bolt-protocol | `v1.0.0-spec-freeze` | `79360df` |
+| SDK authority stack | bolt-core-sdk | `sdk-v0.6.21-spec-freeze` | `96e54dd` |
+
+**What the freeze means:**
+- Protocol semantics (identity, pairing, encryption, message format) are normative and immutable at v1.
+- Breaking changes require a major version bump (v2.0.0) with explicit governance approval.
+- Forward implementation work (transports, UX, native shells) operates within the frozen spec boundary.
+- bolt-core-sdk is Rust-only after TS-EXTRACTION-1. All TypeScript now lives in localbolt-v3 packages.
+
+---
+
+### E2E-VERIFICATION-1 — Browser↔Native Runtime Verification (CLOSED)
+
+> **Stream ID:** E2E-VERIFICATION-1
+> **Status:** CLOSED (2026-04-07, codified by GOVERNANCE-CODIFICATION-1)
+> **Repos:** localbolt-app, localbolt-v3, bolt-daemon, bolt-rendezvous
+> **Type:** Validation/evidence — not a feature stream
+
+**Goal:** Determine whether the full browser↔native file transfer flow actually works end-to-end.
+
+**Results (8 checks):**
+
+| Check | Result |
+|-------|--------|
+| bolt-rendezvous WS connection | PASS |
+| localbolt-v3 dev server | PASS |
+| localbolt-app build/launch | PASS |
+| bolt-daemon spawn (WS + WT + IPC) | PASS |
+| Peer discovery (browser sees native) | PASS (157ms) |
+| Peer discovery (native sees browser) | PASS |
+| App stability after peer poll | **FAIL — SIGSEGV** (fixed in SIGNALING-FFI-CRASH-FIX-1) |
+| Connection/handshake/transfer | BLOCKED by crash (later verified PASS after fix) |
+
+**Findings:**
+1. SIGSEGV in signaling peer poll — stale Rust bridge binary (ABI mismatch). Led to SIGNALING-FFI-CRASH-FIX-1.
+2. WT startup readiness — hardcoded 1s delay replaced with deterministic `wt_info.json` poll.
+3. After crash fix: full E2E flow validated — connect, verify, transfer at 24 MB/s.
+
+---
+
+### SIGNALING-FFI-CRASH-FIX-1 — Stale ABI Crash Fix (CLOSED)
+
+> **Stream ID:** SIGNALING-FFI-CRASH-FIX-1
+> **Status:** CLOSED (2026-04-07, committed `219aedd`)
+> **Repo:** localbolt-app
+> **Type:** Bug fix — safety-critical
+
+**Root cause:** Stale `libbolt_native_bridge.a` compiled against old `BoltPeer` struct layout. Reading `wt_cert_hash` at offset 32 hit memory beyond the struct, producing garbage non-null pointers. Swift's `String(cString:)` called `strlen()` on garbage → SIGSEGV.
+
+**Fix:**
+- `build-app.sh`: always rebuild Rust bridge (prevents ABI mismatch)
+- `signaling.rs`: null-safe WT pointer construction with `unwrap_or(std::ptr::null_mut())`
+- `BoltBridge.swift`: explicit nil comparison before `String(cString:)` for WT fields
+- 5 unit tests (null pointers, valid pointers, 50-cycle stability, serde with/without WT)
+
+**Prevention:** Build script always runs `cargo build --release` — never reuses stale `.a`.
+
+---
+
+### NATIVE-UX-PARITY-SPEC-1 — Native↔Web UX Parity Contract (CLOSED)
+
+> **Stream ID:** NATIVE-UX-PARITY-SPEC-1
+> **Status:** CLOSED (2026-04-07, codified by GOVERNANCE-CODIFICATION-1)
+> **Repos:** localbolt-app (audit target), localbolt-v3 (reference)
+> **Type:** Specification — not an implementation stream
+
+**Deliverable:** Side-by-side audit of all 9 product states, classifying every mismatch.
+
+| Classification | Count | Items |
+|---------------|-------|-------|
+| MUST MATCH (safety-critical) | 7 | M1-M7 |
+| SHOULD MATCH (refinements) | 8 | |
+| MAY DIFFER (native-appropriate) | 7 | |
+
+**M1-M3 implemented in NATIVE-UX-SAFETY-CONTROLS-1. M4-M7 deferred to NATIVE-UX-PARITY-IMPL-2.**
+
+---
+
+### NATIVE-UX-SAFETY-CONTROLS-1 — Native Safety Controls M1-M3 (CLOSED)
+
+> **Stream ID:** NATIVE-UX-SAFETY-CONTROLS-1
+> **Status:** CLOSED (2026-04-07, committed `e0437c9`)
+> **Repo:** localbolt-app
+> **Type:** Safety-critical bug fix
+
+**Scope:** First implementation slice from NATIVE-UX-PARITY-SPEC-1.
+
+| Fix | Description | Status |
+|-----|-------------|--------|
+| M1 | Cancel outgoing request sends `connection_declined` signal to remote | DONE |
+| M2 | Declined-by-remote shows inline notice (3s auto-dismiss) | DONE |
+| M3 | SAS reject button (bordered red, disconnects + 4s notice) | DONE |
+
+**Validation:** Build passes, live E2E validated (browser↔native connect, verify, transfer).
+
+---
+
+### RECONNECT-INTEGRITY-1 — Session Reset Integrity (PROPOSED)
+
+> **Stream ID:** RECONNECT-INTEGRITY-1
+> **Status:** PROPOSED (identified 2026-04-07 during E2E-VERIFICATION-1)
+> **Repos:** localbolt-app, localbolt-v3 (both must implement same rule)
+> **Priority:** P1 — safety-critical
+> **Type:** Bug fix
+
+**Problem:** After disconnect + reconnect between the same peers, SAS verification is asymmetric — one side shows "Verified" immediately while the other presents SAS. Transfer resend fails. Likely causes: stale trust state, stale session generation, or asymmetric pinned-peer logic.
+
+**Why safety-critical:** Trust state divergence means one peer may transfer files without the other having verified identity.
+
+**Scope:**
+- Audit disconnect/reset paths in both products
+- Determine whether reconnect should show SAS again or not
+- Ensure both products implement the same rule
+- Fix stale state leakage
+
+---
+
+### NATIVE-UX-PARITY-IMPL-2 — Native Parity Remaining MUST-MATCH Items (PROPOSED)
+
+> **Stream ID:** NATIVE-UX-PARITY-IMPL-2
+> **Status:** PROPOSED (identified 2026-04-07 in NATIVE-UX-PARITY-SPEC-1)
+> **Repo:** localbolt-app
+> **Priority:** P2 — behavioral parity
+> **Dependency:** RECONNECT-INTEGRITY-1 (M7 TOFU mismatch alert may depend on trust-reset correctness)
+
+**Remaining MUST-MATCH items:**
+
+| Item | Description |
+|------|-------------|
+| M4 | Transfer must not auto-send — user must explicitly initiate |
+| M5 | Multi-file support (queue + individual remove + explicit send) |
+| M6 | Cancel transfer must be available during active transfer |
+| M7 | TOFU identity mismatch must surface a security alert |
 
 ---
 
@@ -8829,3 +8988,45 @@ These validations require real devices/interaction and cannot be automated in CI
 **Transport under test:** Signaling → connection_request/accepted with wsUrl → WS direct (HTTP origin) or WebTransport (HTTPS origin).
 
 **Blocker if any:** HTTPS origin requires WebTransport with cert-hash pinning. HTTP localhost origin uses WS direct (already CONFIRMED in automated tests).
+
+---
+
+## BOLT-ECOSYSTEM-1 Remaining Streams (2026-03-29)
+
+Tracked in ROADMAP.md under `BOLT-ECOSYSTEM-1 — Cross-Product Contract + Transport Program`.
+Entries below are for workstream-level tracking consistency.
+
+### W2-RUNTIME-VALIDATION-1 — WebTransport Runtime Validation (PENDING)
+
+> **Status:** PENDING
+> **Repos:** localbolt-v3, localbolt-app
+> **Blocks:** W3, M4
+> **DoD:** Chrome on HTTPS establishes WT session with native daemon. Session + verification confirmed.
+
+### M4-PARITY-1 — Cross-Product Contract Parity Tests (PENDING)
+
+> **Status:** PENDING
+> **Repos:** bolt-core-sdk, localbolt-v3, localbolt-app
+> **Blocks:** NONCORE-ADOPTER-1
+> **DoD:** Both products' transition tables validated against contract validators in CI.
+
+### ECOSYSTEM-DOCS-1 — Integration Documentation (PENDING)
+
+> **Status:** PENDING
+> **Repos:** bolt-core-sdk
+> **Blocks:** NONCORE-ADOPTER-1
+> **DoD:** `docs/INTEGRATION_GUIDE.md` covering contract consumption, transport adapters, signaling registration.
+
+### NONCORE-ADOPTER-1 — External Contract Adopter (PENDING)
+
+> **Status:** PENDING
+> **Repos:** TBD (candidate: localbolt Lite or bytebolt-app)
+> **Blocks:** Program exit
+> **DoD:** Non-core consumer implements canonical 5 session phases, passes contract parity test.
+
+### SIDECHANNEL-REDUCTION-1 — Product Exception Audit (PENDING)
+
+> **Status:** PENDING
+> **Repos:** localbolt-app, localbolt-v3
+> **Blocks:** None (quality improvement)
+> **DoD:** Product-specific state outside canonical contract documented. Reduced where practical.

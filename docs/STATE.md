@@ -1,18 +1,55 @@
 ---
 Snapshot Derived From:
-- sdk-v0.5.32-tstream1-wasm-policy-wiring (2d4792f)
-- daemon-v0.2.38-relarch1-multiarch-matrix (ab56606)
-- v3.0.87-domain-rename (69ec25c)
-- localbolt-v1.0.34-domain-rename (c8f9fdc)
-- localbolt-app-v1.2.22-domain-rename (beb8891)
-- ecosystem-v0.1.94-relarch1-multiarch-matrix
-Last Refreshed By: REL-ARCH1 — multi-arch daemon build/package matrix (ecosystem-v0.1.94)
+- sdk-v0.6.21-spec-freeze (96e54dd)
+- daemon-v0.2.48-webtransport-impl1-wti2-wti5 (b012d39)
+- v3.0.100-pf3-pf4-perf-tuning (ab880d8)
+- localbolt-v1.0.37-br5-wasm-init (40c387d)
+- localbolt-app HEAD e0437c9 (post localbolt-app-v1.2.26-br5-wasm-init + 3 uncommitted-then-committed governance reconciliation commits)
+- rendezvous-v0.2.14-fly-client-ip (82fa02b)
+- v1.0.0-spec-freeze (79360df) [bolt-protocol]
+- ecosystem-v0.1.196-webtransport-impl1-closed (d2cfb9e)
+Last Refreshed By: GOVERNANCE-CODIFICATION-1 (2026-04-07)
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-03-20 (LOCALBOLT-PERF-1 PF2 IN-PROGRESS — metrics enabled, baseline runs pending.)
-> **Authority:** Informational. Updated after each tagged release or H-phase completion.
+> **Last Updated:** 2026-04-07 (GOVERNANCE-CODIFICATION-1 — state reconciliation against repo reality)
+> **Authority:** Informational. Updated after each tagged release or governance reconciliation.
+
+---
+
+## Current Repo State (2026-04-07)
+
+| Repo | Latest Tag | HEAD | Branch | Status |
+|------|-----------|------|--------|--------|
+| bolt-protocol | `v1.0.0-spec-freeze` | `79360df` | main | **Frozen.** Bolt Core v1 + LocalBolt Profile v1 spec-frozen. |
+| bolt-core-sdk | `sdk-v0.6.21-spec-freeze` | `96e54dd` | main | Active. Rust-only (TS extracted). WASM authority shipped. |
+| bolt-rendezvous | `rendezvous-v0.2.14-fly-client-ip` | `82fa02b` | main | Active. Hardening complete (P4+P5). |
+| bolt-daemon | `daemon-v0.2.48-webtransport-impl1-wti2-wti5` | `b012d39` | main | Active. WT + WS + IPC event emission. |
+| localbolt | `localbolt-v1.0.37-br5-wasm-init` | `40c387d` | main | Active. WASM authority init. |
+| localbolt-v3 | `v3.0.100-pf3-pf4-perf-tuning` | `ab880d8` | main | Active. Primary web product. Netlify deployed. |
+| localbolt-app | `localbolt-app-v1.2.26-br5-wasm-init` | `e0437c9` | main | Active. macOS SwiftUI native shell (forward path). Tauri retired. |
+| bytebolt-app | `bytebolt-v0.0.1` | `d27dfd8` | main | Minimal placeholder. |
+| bytebolt-relay | `relay-v0.0.1` | `4a8dffb` | main | Minimal placeholder. |
+| bolt-ecosystem | `ecosystem-v0.1.196-webtransport-impl1-closed` | `d2cfb9e` | main | Governance root. |
+
+### Key state changes since last refresh (2026-03-20)
+
+1. **SPEC-FREEZE-1** — Bolt Protocol Core v1 and LocalBolt Profile v1 frozen (`v1.0.0-spec-freeze`). SDK authority stack frozen (`sdk-v0.6.21-spec-freeze`).
+2. **TS-EXTRACTION-1** — All TypeScript extracted from bolt-core-sdk to localbolt-v3 packages. SDK is Rust-only.
+3. **NATIVE-SHELL-1 + NATIVE-SHELL-UX-1** — macOS SwiftUI shell complete. Full transfer vertical. Tauri retired.
+4. **NATIVE-DISTRIBUTION-1** — Static linking + signed app bundle + DMG packaging (NDIST1-P1/P2).
+5. **E2E-VERIFICATION-1** — Full browser↔native runtime validation. SIGSEGV crash found and fixed.
+6. **SIGNALING-FFI-CRASH-FIX-1** — Stale ABI root cause fixed, build discipline enforced.
+7. **NATIVE-UX-SAFETY-CONTROLS-1** — M1-M3 safety controls implemented (cancel-decline, declined feedback, SAS reject).
+8. **WEBTRANSPORT-BROWSER-APP-IMPL-1** — Browser↔app WT implementation closed.
+9. **LOCALBOLT-PERF-1** — Transfer throughput tuned (~33→47 Mbps).
+10. **LOCALBOLT-RELIABILITY-UX-1** — 10 UX improvements, zero regressions.
+
+### Known open issues
+
+- **RECONNECT-INTEGRITY-1** (PROPOSED) — After disconnect + reconnect, SAS verification asymmetric between peers. Trust state leakage across sessions. Safety-critical.
+- **NATIVE-UX-PARITY-IMPL-2** (PROPOSED) — 4 remaining MUST-MATCH items: M4 (explicit transfer initiation), M5 (multi-file), M6 (cancel transfer), M7 (TOFU mismatch alert).
 
 ---
 

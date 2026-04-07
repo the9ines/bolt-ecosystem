@@ -535,7 +535,7 @@ These patterns MUST NOT be introduced. Violations should be escalated.
 
 | ID | Anti-Pattern | Rationale |
 |----|-------------|-----------|
-| AP-01 | New Tauri work in `localbolt-app` | Tauri path retired. Desktop is `bolt-ui`. Future native shells (SwiftUI, Kotlin) will use `localbolt-app` repo but not Tauri. |
+| AP-01 | New Tauri work in `localbolt-app` | Tauri path retired. Desktop forward path is `localbolt-app` native shells (macOS SwiftUI, future Kotlin). `bolt-ui` (egui) is historical — superseded. No new Tauri or egui investment. |
 | AP-02 | Deepening daemon↔browser WebRTC interop | Direct transport (WS/WT) is the browser↔app path. |
 | AP-03 | New TS crypto logic | Rust/WASM is crypto authority. |
 | AP-04 | New TS transfer orchestration authority | Rust SM is canonical. |
