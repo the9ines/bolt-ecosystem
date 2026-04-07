@@ -4,16 +4,16 @@ Snapshot Derived From:
 - daemon-v0.2.48-webtransport-impl1-wti2-wti5 (b012d39)
 - v3.0.100-pf3-pf4-perf-tuning (ab880d8)
 - localbolt-v1.0.37-br5-wasm-init (40c387d)
-- localbolt-app HEAD e0437c9 (post localbolt-app-v1.2.26-br5-wasm-init + 3 uncommitted-then-committed governance reconciliation commits)
+- localbolt-app HEAD a0f9d91 (localbolt-app-v1.2.28-ux-parity-m4-m7)
 - rendezvous-v0.2.14-fly-client-ip (82fa02b)
 - v1.0.0-spec-freeze (79360df) [bolt-protocol]
 - ecosystem-v0.1.196-webtransport-impl1-closed (d2cfb9e)
-Last Refreshed By: GOVERNANCE-CODIFICATION-1 (2026-04-07)
+Last Refreshed By: GOVERNANCE-CODIFICATION-2 (2026-04-07)
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-04-07 (GOVERNANCE-CODIFICATION-1 — state reconciliation against repo reality)
+> **Last Updated:** 2026-04-07 (GOVERNANCE-CODIFICATION-2 — parity completion codification)
 > **Authority:** Informational. Updated after each tagged release or governance reconciliation.
 
 ---
@@ -28,7 +28,7 @@ Last Refreshed By: GOVERNANCE-CODIFICATION-1 (2026-04-07)
 | bolt-daemon | `daemon-v0.2.48-webtransport-impl1-wti2-wti5` | `b012d39` | main | Active. WT + WS + IPC event emission. |
 | localbolt | `localbolt-v1.0.37-br5-wasm-init` | `40c387d` | main | Active. WASM authority init. |
 | localbolt-v3 | `v3.0.100-pf3-pf4-perf-tuning` | `ab880d8` | main | Active. Primary web product. Netlify deployed. |
-| localbolt-app | `localbolt-app-v1.2.26-br5-wasm-init` | `e0437c9` | main | Active. macOS SwiftUI native shell (forward path). Tauri retired. |
+| localbolt-app | `localbolt-app-v1.2.28-ux-parity-m4-m7` | `a0f9d91` | main | Active. macOS SwiftUI native shell. All 7 MUST-MATCH parity items complete. TOFU pin persistence. Tauri retired. |
 | bytebolt-app | `bytebolt-v0.0.1` | `d27dfd8` | main | Minimal placeholder. |
 | bytebolt-relay | `relay-v0.0.1` | `4a8dffb` | main | Minimal placeholder. |
 | bolt-ecosystem | `ecosystem-v0.1.196-webtransport-impl1-closed` | `d2cfb9e` | main | Governance root. |
@@ -45,11 +45,18 @@ Last Refreshed By: GOVERNANCE-CODIFICATION-1 (2026-04-07)
 8. **WEBTRANSPORT-BROWSER-APP-IMPL-1** — Browser↔app WT implementation closed.
 9. **LOCALBOLT-PERF-1** — Transfer throughput tuned (~33→47 Mbps).
 10. **LOCALBOLT-RELIABILITY-UX-1** — 10 UX improvements, zero regressions.
+11. **RECONNECT-INTEGRITY-1** — TOFU pin store added to native app. Reconnect now symmetric (both products skip SAS for known verified peers). `e93a7cc`.
+12. **NATIVE-UX-PARITY-IMPL-2** — M4-M7 implemented: file queue, multi-file, cancel transfer, TOFU mismatch alert. All 7 MUST-MATCH parity items complete. `a0f9d91`.
 
 ### Known open issues
 
-- **RECONNECT-INTEGRITY-1** (PROPOSED) — After disconnect + reconnect, SAS verification asymmetric between peers. Trust state leakage across sessions. Safety-critical.
-- **NATIVE-UX-PARITY-IMPL-2** (PROPOSED) — 4 remaining MUST-MATCH items: M4 (explicit transfer initiation), M5 (multi-file), M6 (cancel transfer), M7 (TOFU mismatch alert).
+- **No safety-critical open issues.** All P1 items (RECONNECT-INTEGRITY-1) and all MUST-MATCH parity items (M1-M7) are closed.
+
+### Remaining refinement work (not blockers)
+
+- **SHOULD-MATCH parity items (S1-S8)** — 8 refinement-level items from NATIVE-UX-PARITY-SPEC-1. Not safety-critical, not blocking.
+- **M6 cancel semantics** — Currently disconnect-based. Per-transfer cancel requires `bolt_daemon_cancel_transfer` FFI (daemon enhancement).
+- **M7 mismatch detection** — Currently deviceName-based. Transport-layer identity enforcement requires daemon trust.rs enhancement.
 
 ---
 

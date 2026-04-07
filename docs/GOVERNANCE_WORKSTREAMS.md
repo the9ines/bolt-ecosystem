@@ -7904,8 +7904,8 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | WASM-CRYPTO-FIRST-1 | Browser crypto → Rust/WASM authority | NEXT | bolt-core-sdk + ecosystem | NOT-STARTED. Converge dual TS/WASM crypto to WASM-first. |
 | TRANSFER-SM-CONVERGENCE-1 | Browser transfer → Rust SM authority | LOW | bolt-core-sdk + ecosystem | NOT-STARTED. Thin TS TransferManager toward Rust/WASM. |
 | LOCALBOLT-APP-FREEZE-1 | Clean up retired Tauri code within localbolt-app | LOW | localbolt-app + ecosystem | PARTIAL — src-tauri reduced to thin glue (`14094ed`). Full removal deferred. Note: localbolt-app repo itself is the forward native path, NOT retired. Only the Tauri code within it is retired. |
-| RECONNECT-INTEGRITY-1 | Session reset integrity (trust state leakage on reconnect) | P1 | localbolt-app + localbolt-v3 | PROPOSED. Safety-critical. See dedicated section. |
-| NATIVE-UX-PARITY-IMPL-2 | Remaining MUST-MATCH parity items (M4-M7) | P2 | localbolt-app | PROPOSED. Depends on RECONNECT-INTEGRITY-1 for M7. |
+| RECONNECT-INTEGRITY-1 | Session reset integrity (trust state leakage on reconnect) | P1 | localbolt-app | **CLOSED** (2026-04-07). TOFU pin store added. Both products now symmetric on reconnect. `e93a7cc`. |
+| NATIVE-UX-PARITY-IMPL-2 | Remaining MUST-MATCH parity items (M4-M7) | P2 | localbolt-app | **CLOSED** (2026-04-07). All 7 MUST-MATCH items complete (M1-M3 via CONTROLS-1, M4-M7 via IMPL-2). `a0f9d91`. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 
@@ -8648,7 +8648,7 @@ The following streams codify the security and hardening program for the Bolt eco
 | SHOULD MATCH (refinements) | 8 | |
 | MAY DIFFER (native-appropriate) | 7 | |
 
-**M1-M3 implemented in NATIVE-UX-SAFETY-CONTROLS-1. M4-M7 deferred to NATIVE-UX-PARITY-IMPL-2.**
+**All 7 MUST-MATCH items complete:** M1-M3 via NATIVE-UX-SAFETY-CONTROLS-1 (`e0437c9`). M4-M7 via NATIVE-UX-PARITY-IMPL-2 (`a0f9d91`). SHOULD-MATCH (S1-S8) remain open as refinements.
 
 ---
 
@@ -8671,42 +8671,47 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
-### RECONNECT-INTEGRITY-1 — Session Reset Integrity (PROPOSED)
+### RECONNECT-INTEGRITY-1 — Session Reset Integrity (CLOSED)
 
 > **Stream ID:** RECONNECT-INTEGRITY-1
-> **Status:** PROPOSED (identified 2026-04-07 during E2E-VERIFICATION-1)
-> **Repos:** localbolt-app, localbolt-v3 (both must implement same rule)
+> **Status:** CLOSED (2026-04-07, committed `e93a7cc`, tag `localbolt-app-v1.2.27-tofu-pin-store`)
+> **Repos:** localbolt-app (fix applied), localbolt-v3 (already correct), bolt-daemon (read-only analysis)
 > **Priority:** P1 — safety-critical
 > **Type:** Bug fix
 
-**Problem:** After disconnect + reconnect between the same peers, SAS verification is asymmetric — one side shows "Verified" immediately while the other presents SAS. Transfer resend fails. Likely causes: stale trust state, stale session generation, or asymmetric pinned-peer logic.
+**Problem:** After disconnect + reconnect between the same peers, SAS verification was asymmetric — web showed "Verified" immediately (IndexedDB pin store) while native always presented SAS (no pin persistence).
 
-**Why safety-critical:** Trust state divergence means one peer may transfer files without the other having verified identity.
+**Root cause:** Three-layer trust gap. Web had IndexedDB pin store implementing PROTOCOL.md §2 TOFU. Native had no pin persistence. Daemon's trust.rs with `--pairing-policy allow` returned AllowOnce (no TOFU persistence at Stage B).
 
-**Scope:**
-- Audit disconnect/reset paths in both products
-- Determine whether reconnect should show SAS again or not
-- Ensure both products implement the same rule
-- Fix stale state leakage
+**Fix:** Added `PinStore` class to `BoltBridge.swift` — persists verified identity public keys to `<dataDir>/pins/identity_pins.json`. On reconnect, checks if `remote_identity_pk_b64` is already pinned+verified → skips SAS per PROTOCOL.md §2 ("Known key match: proceed without user interaction").
+
+**Validation:** Live E2E: connect → verify SAS → disconnect → reconnect → both sides show Verified immediately. Pin store confirmed on disk.
 
 ---
 
-### NATIVE-UX-PARITY-IMPL-2 — Native Parity Remaining MUST-MATCH Items (PROPOSED)
+### NATIVE-UX-PARITY-IMPL-2 — Native Parity Remaining MUST-MATCH Items (CLOSED)
 
 > **Stream ID:** NATIVE-UX-PARITY-IMPL-2
-> **Status:** PROPOSED (identified 2026-04-07 in NATIVE-UX-PARITY-SPEC-1)
+> **Status:** CLOSED (2026-04-07, committed `a0f9d91`, tag `localbolt-app-v1.2.28-ux-parity-m4-m7`)
 > **Repo:** localbolt-app
 > **Priority:** P2 — behavioral parity
-> **Dependency:** RECONNECT-INTEGRITY-1 (M7 TOFU mismatch alert may depend on trust-reset correctness)
+> **Dependency:** RECONNECT-INTEGRITY-1 (CLOSED — unblocked M7)
 
-**Remaining MUST-MATCH items:**
+**All MUST-MATCH items implemented:**
 
-| Item | Description |
-|------|-------------|
-| M4 | Transfer must not auto-send — user must explicitly initiate |
-| M5 | Multi-file support (queue + individual remove + explicit send) |
-| M6 | Cancel transfer must be available during active transfer |
-| M7 | TOFU identity mismatch must surface a security alert |
+| Item | Description | Status |
+|------|-------------|--------|
+| M4 | Transfer must not auto-send — user must explicitly initiate | DONE — file queue replaces auto-send |
+| M5 | Multi-file support (queue + individual remove + explicit send) | DONE — NSOpenPanel multi-select + queue UI |
+| M6 | Cancel transfer must be available during active transfer | DONE — Cancel Transfer button (disconnect-based) |
+| M7 | TOFU identity mismatch must surface a security alert | DONE — PinStore deviceName tracking + red security panel |
+
+**With M1-M3 (NATIVE-UX-SAFETY-CONTROLS-1) and M4-M7 (this stream), all 7 MUST-MATCH parity items from the NATIVE-UX-PARITY-SPEC-1 contract are complete.**
+
+**Residual notes (refinement-only, not blockers):**
+- M6: Cancel uses session disconnect (no per-transfer cancel IPC in daemon). A future `bolt_daemon_cancel_transfer` FFI would allow cancel-without-disconnect.
+- M7: Mismatch detection is deviceName-based (best signal available without daemon changes). A future daemon trust.rs enhancement could enforce identity mappings at the transport layer.
+- SHOULD-MATCH items (S1-S8) remain open as refinements, not safety-critical.
 
 ---
 
