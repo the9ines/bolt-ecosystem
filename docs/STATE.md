@@ -52,6 +52,7 @@ Last Refreshed By: GOVERNANCE-CODIFICATION-4 (2026-04-08)
 14. **NATIVE-UX-REFINEMENT-1** — SHOULD-MATCH UX refinements S1-S4, S6-S8 implemented. Peer row cleanup, actionable copy, SAS label, E2E badge, speed/ETA stats, disconnect confirm, incoming subtext. `ebc2bac`.
 15. **DAEMON-TRANSFER-CONTROL-1** — Transfer pause/resume: full vertical across daemon (`899c8fc`), native bridge (`969d355`), SDK (`6c2ee82`). Deadlock fix in `send_file_to_browser()` (ACTIVE_SESSION lock held during chunk loop → early release). 243 daemon tests pass. Runtime-validated: pause halts, resume continues, transfer completes.
 16. **Native↔web parity complete.** All 7 MUST-MATCH and all 8 SHOULD-MATCH items from NATIVE-UX-PARITY-SPEC-1 are closed. No remaining parity backlog. MAY-DIFFER items are intentional native-appropriate divergences.
+17. **WEB-SURFACE-CONSOLIDATION-1 PROPOSED.** Web surface split across `localbolt` and `localbolt-v3` creates parity tax and authority confusion. Proposed: `localbolt` (canonical app) + `localbolt-web` (new hosted site) + `localbolt-v3` sunset. Scope-lock required before implementation.
 
 ### Known open issues
 
