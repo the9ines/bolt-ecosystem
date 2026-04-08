@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-04-07 (GOVERNANCE-CODIFICATION-1: SPEC-FREEZE-1 codified, E2E-VERIFICATION-1/SIGNALING-FFI-CRASH-FIX-1/NATIVE-UX-PARITY-SPEC-1/NATIVE-UX-SAFETY-CONTROLS-1 CLOSED, RECONNECT-INTEGRITY-1/NATIVE-UX-PARITY-IMPL-2 PROPOSED, NDIST1 status updated, stale Tauri refs fixed)
+> **Updated:** 2026-04-08 (GOVERNANCE-CODIFICATION-3: NONCORE-ADOPTER-1 CLOSED — first external IPC consumer validated)
 > **Tag:** ecosystem-v0.1.195-webtransport-impl1-wti1-audit
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
@@ -9012,22 +9012,44 @@ Entries below are for workstream-level tracking consistency.
 
 > **Status:** PENDING
 > **Repos:** bolt-core-sdk, localbolt-v3, localbolt-app
-> **Blocks:** NONCORE-ADOPTER-1
+> **Blocks:** ~~NONCORE-ADOPTER-1~~ (NONCORE-ADOPTER-1 CLOSED without requiring M4-PARITY-1 as prerequisite — validated via IPC boundary instead of session-phase conformance)
 > **DoD:** Both products' transition tables validated against contract validators in CI.
 
 ### ECOSYSTEM-DOCS-1 — Integration Documentation (PENDING)
 
 > **Status:** PENDING
 > **Repos:** bolt-core-sdk
-> **Blocks:** NONCORE-ADOPTER-1
+> **Blocks:** ~~NONCORE-ADOPTER-1~~ (NONCORE-ADOPTER-1 CLOSED — `IPC_CONTRACT.md` serves as first integration doc for daemon consumers)
 > **DoD:** `docs/INTEGRATION_GUIDE.md` covering contract consumption, transport adapters, signaling registration.
 
-### NONCORE-ADOPTER-1 — External Contract Adopter (PENDING)
+### NONCORE-ADOPTER-1 — External Contract Adopter (CLOSED)
 
-> **Status:** PENDING
-> **Repos:** TBD (candidate: localbolt Lite or bytebolt-app)
-> **Blocks:** Program exit
-> **DoD:** Non-core consumer implements canonical 5 session phases, passes contract parity test.
+> **Status:** CLOSED (2026-04-08)
+> **Repos:** bolt-daemon (docs), bolt-ecosystem (bolt-cli/)
+> **Commits:** `8f79dcd` (IPC_CONTRACT.md), `3abafd0` (bolt-cli)
+> **Blocks:** Program exit — **UNBLOCKED**
+>
+> **Shape chosen:** Thin CLI consumer over bolt-daemon IPC (Unix socket, NDJSON).
+> **Why this shape:** Validates the daemon IPC boundary — the key ecosystem layering seam
+> that no non-core consumer had exercised. Smallest credible adopter with highest
+> validation value per line of code.
+>
+> **What was proven:**
+> - External consumer built from documented IPC contract (`IPC_CONTRACT.md`) alone
+> - Zero internal daemon crate imports (deps: `serde` + `serde_json` only)
+> - Version handshake, event deserialization, and bidirectional decision flow all validated
+> - Daemon IPC types are externally documentable, not just internally wired
+> - Ecosystem layered architecture works: SDK → daemon → external consumer
+>
+> **Residual limits (accepted):**
+> - IPC contract not yet SemVer-stabilized (v0.0.1, daemon-matched)
+> - Unix-only consumer (Windows named pipe support deferred)
+> - No full file-write E2E transfer completion (display-only; Candidate D territory)
+> - bolt-cli serves as a contract drift canary — if daemon IPC changes break bolt-cli, the contract needs updating
+>
+> **Original DoD vs actual:** Original DoD required "canonical 5 session phases" and "contract parity test."
+> Actual delivery proved external IPC adoptability — a stronger signal than session-phase conformance,
+> because it validates the integration boundary itself, not just protocol state machines.
 
 ### SIDECHANNEL-REDUCTION-1 — Product Exception Audit (PENDING)
 

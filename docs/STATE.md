@@ -1,37 +1,38 @@
 ---
 Snapshot Derived From:
 - sdk-v0.6.21-spec-freeze (96e54dd)
-- daemon-v0.2.48-webtransport-impl1-wti2-wti5 (b012d39)
+- daemon HEAD 8f79dcd (IPC_CONTRACT.md)
 - v3.0.100-pf3-pf4-perf-tuning (ab880d8)
 - localbolt-v1.0.37-br5-wasm-init (40c387d)
 - localbolt-app HEAD a0f9d91 (localbolt-app-v1.2.28-ux-parity-m4-m7)
 - rendezvous-v0.2.14-fly-client-ip (82fa02b)
 - v1.0.0-spec-freeze (79360df) [bolt-protocol]
 - ecosystem-v0.1.196-webtransport-impl1-closed (d2cfb9e)
-Last Refreshed By: GOVERNANCE-CODIFICATION-2 (2026-04-07)
+- bolt-ecosystem HEAD 3abafd0 (bolt-cli)
+Last Refreshed By: GOVERNANCE-CODIFICATION-3 (2026-04-08)
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-04-07 (GOVERNANCE-CODIFICATION-2 — parity completion codification)
+> **Last Updated:** 2026-04-08 (GOVERNANCE-CODIFICATION-3 — NONCORE-ADOPTER-1 closure)
 > **Authority:** Informational. Updated after each tagged release or governance reconciliation.
 
 ---
 
-## Current Repo State (2026-04-07)
+## Current Repo State (2026-04-08)
 
 | Repo | Latest Tag | HEAD | Branch | Status |
 |------|-----------|------|--------|--------|
 | bolt-protocol | `v1.0.0-spec-freeze` | `79360df` | main | **Frozen.** Bolt Core v1 + LocalBolt Profile v1 spec-frozen. |
 | bolt-core-sdk | `sdk-v0.6.21-spec-freeze` | `96e54dd` | main | Active. Rust-only (TS extracted). WASM authority shipped. |
 | bolt-rendezvous | `rendezvous-v0.2.14-fly-client-ip` | `82fa02b` | main | Active. Hardening complete (P4+P5). |
-| bolt-daemon | `daemon-v0.2.48-webtransport-impl1-wti2-wti5` | `b012d39` | main | Active. WT + WS + IPC event emission. |
+| bolt-daemon | `daemon-v0.2.48-webtransport-impl1-wti2-wti5` | `8f79dcd` | main | Active. WT + WS + IPC event emission. IPC contract documented. |
 | localbolt | `localbolt-v1.0.37-br5-wasm-init` | `40c387d` | main | Active. WASM authority init. |
 | localbolt-v3 | `v3.0.100-pf3-pf4-perf-tuning` | `ab880d8` | main | Active. Primary web product. Netlify deployed. |
 | localbolt-app | `localbolt-app-v1.2.28-ux-parity-m4-m7` | `a0f9d91` | main | Active. macOS SwiftUI native shell. All 7 MUST-MATCH parity items complete. TOFU pin persistence. Tauri retired. |
 | bytebolt-app | `bytebolt-v0.0.1` | `d27dfd8` | main | Minimal placeholder. |
 | bytebolt-relay | `relay-v0.0.1` | `4a8dffb` | main | Minimal placeholder. |
-| bolt-ecosystem | `ecosystem-v0.1.196-webtransport-impl1-closed` | `d2cfb9e` | main | Governance root. |
+| bolt-ecosystem | `ecosystem-v0.1.196-webtransport-impl1-closed` | `3abafd0` | main | Governance root. bolt-cli (first non-core adopter). |
 
 ### Key state changes since last refresh (2026-03-20)
 
@@ -47,6 +48,7 @@ Last Refreshed By: GOVERNANCE-CODIFICATION-2 (2026-04-07)
 10. **LOCALBOLT-RELIABILITY-UX-1** — 10 UX improvements, zero regressions.
 11. **RECONNECT-INTEGRITY-1** — TOFU pin store added to native app. Reconnect now symmetric (both products skip SAS for known verified peers). `e93a7cc`.
 12. **NATIVE-UX-PARITY-IMPL-2** — M4-M7 implemented: file queue, multi-file, cancel transfer, TOFU mismatch alert. All 7 MUST-MATCH parity items complete. `a0f9d91`.
+13. **NONCORE-ADOPTER-1** — First external adopter validation. `bolt-cli` built from `IPC_CONTRACT.md` alone, zero daemon crate imports. Proves daemon IPC is externally adoptable. `8f79dcd` (contract), `3abafd0` (bolt-cli).
 
 ### Known open issues
 
