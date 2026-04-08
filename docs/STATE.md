@@ -9,12 +9,12 @@ Snapshot Derived From:
 - v1.0.0-spec-freeze (79360df) [bolt-protocol]
 - ecosystem-v0.1.196-webtransport-impl1-closed (d2cfb9e)
 - bolt-ecosystem HEAD 3abafd0 (bolt-cli)
-Last Refreshed By: GOVERNANCE-CODIFICATION-4 (2026-04-08)
+Last Refreshed By: WEB-SURFACE-CONSOLIDATION-1-PLAN (2026-04-08)
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-04-08 (GOVERNANCE-CODIFICATION-4 — native↔web parity complete)
+> **Last Updated:** 2026-04-08 (WEB-SURFACE-CONSOLIDATION-1-PLAN — consolidation approved, 4-phase plan locked)
 > **Authority:** Informational. Updated after each tagged release or governance reconciliation.
 
 ---
@@ -52,7 +52,7 @@ Last Refreshed By: GOVERNANCE-CODIFICATION-4 (2026-04-08)
 14. **NATIVE-UX-REFINEMENT-1** — SHOULD-MATCH UX refinements S1-S4, S6-S8 implemented. Peer row cleanup, actionable copy, SAS label, E2E badge, speed/ETA stats, disconnect confirm, incoming subtext. `ebc2bac`.
 15. **DAEMON-TRANSFER-CONTROL-1** — Transfer pause/resume: full vertical across daemon (`899c8fc`), native bridge (`969d355`), SDK (`6c2ee82`). Deadlock fix in `send_file_to_browser()` (ACTIVE_SESSION lock held during chunk loop → early release). 243 daemon tests pass. Runtime-validated: pause halts, resume continues, transfer completes.
 16. **Native↔web parity complete.** All 7 MUST-MATCH and all 8 SHOULD-MATCH items from NATIVE-UX-PARITY-SPEC-1 are closed. No remaining parity backlog. MAY-DIFFER items are intentional native-appropriate divergences.
-17. **WEB-SURFACE-CONSOLIDATION-1 PROPOSED.** Web surface split across `localbolt` and `localbolt-v3` creates parity tax and authority confusion. Proposed: `localbolt` (canonical app) + `localbolt-web` (new hosted site) + `localbolt-v3` sunset. Scope-lock required before implementation.
+17. **WEB-SURFACE-CONSOLIDATION-1 APPROVED.** Planning audit confirmed: `localbolt` has full app parity (324 tests, 91% coverage, zero functional gaps). Gap is site-only (marketing/SEO → `localbolt-web`). Critical finding: `localbolt-v3` can't fully archive — it's the source for 3 published npm packages. Plan: 4 phases (P1: verify standalone, P2: create Astro site shell, P3: Netlify cutover, P4: localbolt-v3 web app sunset → package monorepo only). Full package rehoming deferred to future PACKAGE-REHOME-1 stream.
 
 ### Known open issues
 
@@ -60,9 +60,9 @@ Last Refreshed By: GOVERNANCE-CODIFICATION-4 (2026-04-08)
 
 ### Remaining refinement work (not blockers)
 
-- **SHOULD-MATCH parity items (S1-S8)** — 8 refinement-level items from NATIVE-UX-PARITY-SPEC-1. Not safety-critical, not blocking.
 - **M6 cancel semantics** — Currently disconnect-based. Per-transfer cancel requires `bolt_daemon_cancel_transfer` FFI (daemon enhancement).
 - **M7 mismatch detection** — Currently deviceName-based. Transport-layer identity enforcement requires daemon trust.rs enhancement.
+- **WEB-SURFACE-CONSOLIDATION-1** — APPROVED, 4-phase plan ready to execute (P1 first).
 
 ---
 

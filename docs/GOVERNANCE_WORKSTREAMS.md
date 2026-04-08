@@ -7908,7 +7908,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | NATIVE-UX-PARITY-IMPL-2 | Remaining MUST-MATCH parity items (M4-M7) | P2 | localbolt-app | **CLOSED** (2026-04-07). All 7 MUST-MATCH items complete (M1-M3 via CONTROLS-1, M4-M7 via IMPL-2). `a0f9d91`. |
 | NATIVE-UX-REFINEMENT-1 | SHOULD-MATCH UX refinements S1-S4, S6-S8 | P3 | localbolt-app | **CLOSED** (2026-04-08). 7 of 8 SHOULD-MATCH items. S5 (pause/resume) deferred to DAEMON-TRANSFER-CONTROL-1. `ebc2bac`. |
 | DAEMON-TRANSFER-CONTROL-1 | Transfer pause/resume daemon→native (S5) | P3 | bolt-daemon + bolt-core-sdk + localbolt-app | **CLOSED** (2026-04-08). Full vertical: daemon AtomicBool + signal files + IPC events + native bridge + SwiftUI toggle. Deadlock fix. 243 tests. `899c8fc` (daemon), `969d355` (app), `6c2ee82` (sdk). |
-| WEB-SURFACE-CONSOLIDATION-1 | Consolidate web surface: localbolt (app) + localbolt-web (site) + sunset localbolt-v3 | P1 | localbolt + localbolt-web (new) + localbolt-v3 (sunset) + ecosystem | **PROPOSED** (2026-04-08). Spec-only. No implementation until scope locked. |
+| WEB-SURFACE-CONSOLIDATION-1 | Consolidate web surface: localbolt (app) + localbolt-web (site) + sunset localbolt-v3 | P1 | localbolt + localbolt-web (new) + localbolt-v3 (sunset) + ecosystem | **APPROVED** (2026-04-08). 4-phase plan locked. P1 ready to execute. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 
@@ -8803,11 +8803,11 @@ The following streams codify the security and hardening program for the Bolt eco
 
 ---
 
-### WEB-SURFACE-CONSOLIDATION-1 — Web Surface Consolidation (PROPOSED)
+### WEB-SURFACE-CONSOLIDATION-1 — Web Surface Consolidation (APPROVED)
 
 > **Stream ID:** WEB-SURFACE-CONSOLIDATION-1
-> **Status:** PROPOSED (2026-04-08). Scope-lock required before any implementation.
-> **Repos:** localbolt (canonical app), localbolt-web (new — hosted site), localbolt-v3 (sunset target), ecosystem
+> **Status:** APPROVED (2026-04-08). 4-phase plan locked. P1 ready to execute.
+> **Repos:** localbolt (canonical app), localbolt-web (new — hosted site), localbolt-v3 (partial sunset), ecosystem
 > **Priority:** P1 — strategic architecture
 > **Type:** Architecture + migration
 > **Prerequisite:** Native↔web parity arc CLOSED (all MUST + SHOULD items complete)
@@ -8819,31 +8819,71 @@ The web surface is split across two active repos with overlapping responsibiliti
 | Repo | Stack | Role | Deployed | Latest |
 |------|-------|------|----------|--------|
 | `localbolt` | Vite + React + TS (`web/`) + vendored signal (`signal/`) | Self-hosted web app + start scripts | No | `localbolt-v1.0.37-br5-wasm-init` (`40c387d`) |
-| `localbolt-v3` | npm workspaces: 5 packages (bolt-core-browser, localbolt-browser, localbolt-core, localbolt-signal, localbolt-web) | Primary deployed web app (Netlify) | **Yes** — `localbolt.app` | `v3.0.100-pf3-pf4-perf-tuning` (`ab880d8`) |
+| `localbolt-v3` | npm workspaces: 5 packages (bolt-core-browser, localbolt-browser, localbolt-core, localbolt-signal, localbolt-web) | Primary deployed web app (Netlify) + npm package source | **Yes** — `localbolt.app` | `v3.0.100-pf3-pf4-perf-tuning` (`ab880d8`) |
 
 **Consequences of the split:**
 1. **Parity tax.** Changes to web app behavior may need to land in both repos, or one falls behind.
 2. **Authority confusion.** `localbolt-v3` is the live product but named as a version iteration. `localbolt` is the canonical product name but not the live deployment.
-3. **Package sprawl.** `localbolt-v3` has 5 internal packages (`@the9ines/bolt-core`, `@the9ines/localbolt-browser`, `@the9ines/localbolt-core`, `@localbolt/web`, `localbolt-signal`), some of which duplicate SDK concerns already in `bolt-core-sdk`.
+3. **Package sprawl.** `localbolt-v3` has 5 internal packages, some of which duplicate SDK concerns already in `bolt-core-sdk`.
 4. **Naming inversion.** The repo called `localbolt` is not the canonical web app authority. The repo called `localbolt-v3` is.
 
-#### Proposed Target Architecture
+#### Audit Findings (2026-04-08)
+
+**localbolt-v3 package graph (5 packages in npm workspaces):**
+
+| Package | LOC | Published Name | Role | Consumers |
+|---------|-----|---------------|------|-----------|
+| bolt-core-browser | 716 | `@the9ines/bolt-core` | Crypto + WASM authority | localbolt-browser, localbolt (npm) |
+| localbolt-browser | 6,741 | `@the9ines/bolt-transport-web` | WebRTC transport, signaling, chunked transfer | localbolt-core, localbolt (npm) |
+| localbolt-core | 276 | `@the9ines/localbolt-core` | Session state machine | localbolt-web, localbolt (npm) |
+| localbolt-signal | 465 | — (internal) | Rust signal wrapper, pure re-export | localbolt-browser |
+| localbolt-web | 2,507 | — (internal) | Vite SPA, the deployed web app at localbolt.app | Netlify |
+
+Build order: bolt-core-browser → localbolt-browser → localbolt-core → localbolt-web. No circular deps. Clean stratification.
+
+**localbolt standalone capability:**
+- Builds in 618ms, 324 tests pass, 91% coverage
+- Consumes `@the9ines/bolt-core` 0.6.2, `@the9ines/bolt-transport-web` 0.7.2, `@the9ines/localbolt-core` 0.1.2 from npm
+- Has all core app features: peer discovery, file transfer, SAS, WASM authority, self-hosted path
+- Self-hosted path works via `start.sh` (starts signal server + web app)
+
+**Capability gap (localbolt vs localbolt-v3/localbolt-web):**
+- Missing marketing/SEO content sections: hero, how-it-works, features grid, FAQ, trust-strip
+- These are **site concerns**, not app behavior — they belong in `localbolt-web`, not `localbolt`
+- Zero app-behavior gaps. `localbolt` already has full functional parity with `localbolt-v3`'s `localbolt-web` package.
+
+#### Package Disposition
+
+| Package | Disposition | Rationale |
+|---------|------------|-----------|
+| bolt-core-browser | **STAYS** in localbolt-v3 (published as `@the9ines/bolt-core`) | Active npm dependency of `localbolt`. Cannot move without breaking consumers. |
+| localbolt-browser | **STAYS** in localbolt-v3 (published as `@the9ines/bolt-transport-web`) | Active npm dependency of `localbolt`. 6,741 LOC — largest package. |
+| localbolt-core | **STAYS** in localbolt-v3 (published as `@the9ines/localbolt-core`) | Active npm dependency of `localbolt`. |
+| localbolt-signal | **DISSOLVE** | Pure re-export wrapper (465 LOC). localbolt-browser can import directly. |
+| localbolt-web | **REPLACED** by `localbolt-web` repo (Astro site shell) | The Vite SPA is superseded by `localbolt` as canonical app. |
+
+**Critical finding:** `localbolt-v3` cannot fully sunset to read-only archive because it is the development home for 3 published npm packages that `localbolt` consumes. Full package rehoming is a separate future stream (PACKAGE-REHOME-1). Until then, `localbolt-v3` transitions from "web app + package monorepo" to "package monorepo only" — its `localbolt-web` package becomes dormant, but the other packages remain actively maintained.
+
+#### Target Architecture (Approved)
 
 ```
 localbolt          → canonical web app behavior (React + TS + WASM)
-                     npm package: @localbolt/app (or similar)
+                     consumes published npm packages from localbolt-v3
                      self-hosted: `start.sh` / `start.bat` preserved
                      no hosting/SEO/marketing concerns
 
-localbolt-web      → hosted shell + site (Astro or similar)
+localbolt-web      → hosted shell + site (Astro)
   (new repo)         domain: localbolt.app
-                     embeds/consumes localbolt web app
+                     embeds localbolt web app as build artifact
                      owns: landing page, SEO, docs, download links, marketing
                      Netlify deploy target
                      the9ines insignia
 
-localbolt-v3       → sunset after migration
-                     read-only archive (like localbolt-v1-main-legacy, localbolt-v2-main-legacy)
+localbolt-v3       → package monorepo only (NOT full archive)
+                     localbolt-web package: dormant (replaced)
+                     bolt-core-browser, localbolt-browser, localbolt-core: active
+                     Netlify deploy: disconnected
+                     Full archive deferred to PACKAGE-REHOME-1
 ```
 
 **Repo-Role Map (target state):**
@@ -8853,6 +8893,7 @@ localbolt-v3       → sunset after migration
 | Web app transfer UX, peer discovery, SAS verification | `localbolt` |
 | WASM authority integration (bolt-core-sdk) | `localbolt` |
 | Protocol compliance (bolt-protocol) | `localbolt` (via bolt-core-sdk) |
+| npm packages: @the9ines/bolt-core, bolt-transport-web, localbolt-core | `localbolt-v3` (until PACKAGE-REHOME-1) |
 | Hosted site at `localbolt.app` | `localbolt-web` |
 | SEO, docs, download links, marketing copy | `localbolt-web` |
 | Netlify config + deploy pipeline | `localbolt-web` |
@@ -8861,12 +8902,12 @@ localbolt-v3       → sunset after migration
 #### In-Scope
 
 1. Define canonical app boundary (what is "the web app" vs "the site")
-2. Plan `localbolt-v3` package consolidation (which packages move where, which dissolve)
-3. Create `localbolt-web` repo structure
+2. Plan `localbolt-v3` package disposition (which stay, which dissolve, which move)
+3. Create `localbolt-web` repo structure (Astro site shell)
 4. Migrate Netlify deployment from `localbolt-v3` to `localbolt-web`
 5. Verify `localbolt.app` serves correctly from new pipeline
 6. Verify `localbolt` self-hosted path works standalone
-7. Sunset `localbolt-v3` to read-only archive
+7. Transition `localbolt-v3` to package-monorepo-only (disconnect Netlify, mark localbolt-web package dormant)
 
 #### Out-of-Scope
 
@@ -8875,46 +8916,107 @@ localbolt-v3       → sunset after migration
 - New web features (this is a consolidation, not a feature stream)
 - Renaming the public domain (`localbolt.app` stays)
 - bytebolt-app or any commercial surface
+- Full package rehoming from localbolt-v3 (deferred to PACKAGE-REHOME-1)
 
 #### Risks
 
 | Risk | Severity | Mitigation |
 |------|----------|------------|
-| Regression in live `localbolt.app` during migration | HIGH | Feature-freeze `localbolt-v3` during migration. Parallel deploy to staging before cutover. |
-| Package dependency tangle from `localbolt-v3` workspaces | MEDIUM | Audit package graph first. Dissolve internal packages that duplicate SDK. |
-| Self-hosted path breaks | MEDIUM | `localbolt` must build and serve standalone before any `localbolt-v3` sunset. |
-| Three active web repos during transition | MEDIUM | Strict rule: `localbolt-web` is a shell only — no app logic. `localbolt` is app logic only — no site concerns. `localbolt-v3` is frozen, not forked. |
-| Netlify config/redirects break | LOW | Copy and test `netlify.toml` + headers early. |
+| Regression in live `localbolt.app` during migration | HIGH | Feature-freeze `localbolt-v3` during P2-P3. Parallel deploy to Netlify staging before cutover. Rollback: revert Netlify to localbolt-v3 build. |
+| Package dependency tangle from `localbolt-v3` workspaces | MEDIUM | Audited — clean stratification confirmed. 3 published packages stay in localbolt-v3. No moves needed for this stream. |
+| Self-hosted path breaks | MEDIUM | P1 gate: `localbolt` must build and serve standalone before proceeding. |
+| Three active web repos during transition | MEDIUM | Strict rule: `localbolt-web` is shell only, `localbolt` is app only, `localbolt-v3` is frozen for app code (packages still active). |
+| Netlify config/redirects break | LOW | Copy and test `netlify.toml` + headers in P2. Staging validation in P3 before cutover. |
+| npm package updates blocked by localbolt-v3 partial sunset | LOW | localbolt-v3 remains writable for package directories. Only localbolt-web package is dormant. |
+
+#### Phased Migration Plan
+
+**Phase 1 (WSC1-P1): Verify localbolt standalone parity**
+> Gate: localbolt builds, serves, and passes all functional checks without localbolt-v3
+
+| Step | Task | Rollback |
+|------|------|----------|
+| P1.1 | `npm install && npm run build` in localbolt — verify clean build (618ms baseline) | N/A — read-only |
+| P1.2 | `npm test` — verify 324 tests pass, 91% coverage maintained | N/A — read-only |
+| P1.3 | `start.sh` — verify self-hosted path: signal server starts, web app serves, peer discovery works | N/A — read-only |
+| P1.4 | Manual functional check: open in browser, complete a file transfer between two tabs | N/A — read-only |
+| P1.5 | Verify npm package versions consumed match latest published from localbolt-v3 | N/A — read-only |
+
+**AC covered:** AC-1, AC-2
+
+**Phase 2 (WSC1-P2): Create localbolt-web site shell**
+> Gate: localbolt-web repo exists with Astro structure, embeds localbolt app, builds locally
+
+| Step | Task | Rollback |
+|------|------|----------|
+| P2.1 | Create `localbolt-web` repo with Astro project scaffold | Delete repo |
+| P2.2 | Build localbolt web app → copy dist into localbolt-web as embedded artifact | Revert commit |
+| P2.3 | Add site shell: landing page (hero, how-it-works, features, FAQ from localbolt-v3's marketing sections) | Revert commit |
+| P2.4 | Add SEO metadata, the9ines insignia, download links | Revert commit |
+| P2.5 | Add `netlify.toml` (copy security headers from localbolt-v3, adapt build command) | Revert commit |
+| P2.6 | Local build + serve — verify app loads at `/` route, marketing content renders, transfer works | Revert to P2.1 |
+
+**AC covered:** AC-3, AC-4, AC-6, AC-7, AC-10
+
+**Phase 3 (WSC1-P3): Netlify cutover**
+> Gate: localbolt.app serves from localbolt-web with zero regressions
+
+| Step | Task | Rollback |
+|------|------|----------|
+| P3.1 | Deploy localbolt-web to Netlify staging site (separate from production) | Delete staging site |
+| P3.2 | Full regression test on staging: transfer, discovery, SAS, WASM authority, security headers | Abort — no production change |
+| P3.3 | Switch Netlify production site from localbolt-v3 build to localbolt-web build | **Rollback: revert Netlify site to localbolt-v3 build directory** (< 2 min) |
+| P3.4 | Verify `localbolt.app` serves correctly from new pipeline (DNS unchanged — same Netlify site, different build source) | Same as P3.3 |
+| P3.5 | Smoke test production: complete a real file transfer at localbolt.app | Same as P3.3 |
+
+**AC covered:** AC-5, AC-9
+
+**Phase 4 (WSC1-P4): localbolt-v3 web app sunset**
+> Gate: localbolt-v3's localbolt-web package marked dormant, Netlify disconnected
+
+| Step | Task | Rollback |
+|------|------|----------|
+| P4.1 | Disconnect Netlify deploy hook from localbolt-v3 repo | Re-add webhook |
+| P4.2 | Add README notice to localbolt-v3/packages/localbolt-web: "DORMANT — replaced by localbolt-web repo" | Revert commit |
+| P4.3 | Tag localbolt-v3 with `v3.0.101-web-sunset` | N/A (tags are immutable, but this is informational) |
+| P4.4 | Update ecosystem GOVERNANCE_WORKSTREAMS.md and STATE.md: localbolt-v3 status → "Package monorepo (web app sunset)" | Revert commit |
+| P4.5 | Register PACKAGE-REHOME-1 as a PROPOSED future stream for full localbolt-v3 archive | Revert commit |
+
+**AC covered:** AC-8 (partial — package monorepo, not full archive)
 
 #### Acceptance Criteria
 
-| AC | Description |
-|----|-------------|
-| AC-1 | `localbolt` builds and runs standalone as a self-hosted web app (existing `start.sh` path works) |
-| AC-2 | `localbolt` contains the canonical web app: peer discovery, transfer, SAS, WASM authority |
-| AC-3 | `localbolt-web` repo exists with Astro (or chosen SSG) site structure |
-| AC-4 | `localbolt-web` embeds/consumes the `localbolt` web app (iframe, build artifact, or package import) |
-| AC-5 | `localbolt.app` domain serves correctly from `localbolt-web` Netlify pipeline |
-| AC-6 | No app-behavior code exists in `localbolt-web` — it is a shell/site only |
-| AC-7 | No site/SEO/marketing code exists in `localbolt` — it is app-only |
-| AC-8 | `localbolt-v3` enters read-only archive status (like v1/v2 legacy repos) |
-| AC-9 | Zero regressions: transfer, discovery, SAS, WASM authority all work at `localbolt.app` |
-| AC-10 | the9ines insignia present on `localbolt-web` site |
+| AC | Description | Phase |
+|----|-------------|-------|
+| AC-1 | `localbolt` builds and runs standalone as a self-hosted web app (existing `start.sh` path works) | P1 |
+| AC-2 | `localbolt` contains the canonical web app: peer discovery, transfer, SAS, WASM authority | P1 |
+| AC-3 | `localbolt-web` repo exists with Astro site structure | P2 |
+| AC-4 | `localbolt-web` embeds/consumes the `localbolt` web app as build artifact | P2 |
+| AC-5 | `localbolt.app` domain serves correctly from `localbolt-web` Netlify pipeline | P3 |
+| AC-6 | No app-behavior code exists in `localbolt-web` — it is a shell/site only | P2 |
+| AC-7 | No site/SEO/marketing code exists in `localbolt` — it is app-only | P2 |
+| AC-8 | `localbolt-v3` web app marked dormant, Netlify disconnected (full archive deferred to PACKAGE-REHOME-1) | P4 |
+| AC-9 | Zero regressions: transfer, discovery, SAS, WASM authority all work at `localbolt.app` | P3 |
+| AC-10 | the9ines insignia present on `localbolt-web` site | P2 |
 
 #### Closure Evidence Required
 
-1. `localbolt` standalone build + serve verified
-2. `localbolt-web` deployed to staging, all AC-1 through AC-10 checked
-3. `localbolt.app` DNS cutover (or Netlify site swap) verified
-4. `localbolt-v3` tagged with final sunset tag, branch protection enabled
-5. Governance updated: `localbolt-v3` status → SUNSET, `localbolt-web` added to repo landscape
+1. `localbolt` standalone build + serve verified (P1 gate)
+2. `localbolt-web` deployed to staging, AC-1 through AC-10 checked (P3 gate)
+3. `localbolt.app` Netlify cutover verified (P3.4)
+4. `localbolt-v3` tagged `v3.0.101-web-sunset`, Netlify disconnected (P4)
+5. Governance updated: `localbolt-v3` status → "Package monorepo", `localbolt-web` added to repo landscape
 
 #### Decision
 
-**PROPOSED.** This stream is ready for implementation planning. No implementation may begin until:
-1. The problem statement and target architecture are reviewed
-2. A planning phase produces a phased migration plan with rollback points
-3. The plan is codified as sub-phases within this stream
+**APPROVED (2026-04-08).** Planning audit confirmed:
+1. `localbolt` has full app-behavior parity with `localbolt-v3`'s web app (324 tests, 91% coverage, zero functional gaps)
+2. Capability gap is site-only (marketing/SEO content) — belongs in `localbolt-web`, not `localbolt`
+3. Package dependency graph is clean — 3 published packages stay in localbolt-v3, no moves needed
+4. Critical risk mitigated: localbolt-v3 cannot fully sunset (it's the npm package source). Plan transitions it to "package monorepo only" instead of full archive. Full rehoming deferred to PACKAGE-REHOME-1.
+5. Rollback at every phase boundary. Netlify cutover (highest risk) is reversible in < 2 minutes.
+
+**Implementation may proceed phase-by-phase. Each phase must pass its gate before the next begins.**
 
 ---
 
