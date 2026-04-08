@@ -7906,6 +7906,8 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | LOCALBOLT-APP-FREEZE-1 | Clean up retired Tauri code within localbolt-app | LOW | localbolt-app + ecosystem | PARTIAL — src-tauri reduced to thin glue (`14094ed`). Full removal deferred. Note: localbolt-app repo itself is the forward native path, NOT retired. Only the Tauri code within it is retired. |
 | RECONNECT-INTEGRITY-1 | Session reset integrity (trust state leakage on reconnect) | P1 | localbolt-app | **CLOSED** (2026-04-07). TOFU pin store added. Both products now symmetric on reconnect. `e93a7cc`. |
 | NATIVE-UX-PARITY-IMPL-2 | Remaining MUST-MATCH parity items (M4-M7) | P2 | localbolt-app | **CLOSED** (2026-04-07). All 7 MUST-MATCH items complete (M1-M3 via CONTROLS-1, M4-M7 via IMPL-2). `a0f9d91`. |
+| NATIVE-UX-REFINEMENT-1 | SHOULD-MATCH UX refinements S1-S4, S6-S8 | P3 | localbolt-app | **CLOSED** (2026-04-08). 7 of 8 SHOULD-MATCH items. S5 (pause/resume) deferred to DAEMON-TRANSFER-CONTROL-1. `ebc2bac`. |
+| DAEMON-TRANSFER-CONTROL-1 | Transfer pause/resume daemon→native (S5) | P3 | bolt-daemon + bolt-core-sdk + localbolt-app | **CLOSED** (2026-04-08). Full vertical: daemon AtomicBool + signal files + IPC events + native bridge + SwiftUI toggle. Deadlock fix. 243 tests. `899c8fc` (daemon), `969d355` (app), `6c2ee82` (sdk). |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 
@@ -8648,7 +8650,11 @@ The following streams codify the security and hardening program for the Bolt eco
 | SHOULD MATCH (refinements) | 8 | |
 | MAY DIFFER (native-appropriate) | 7 | |
 
-**All 7 MUST-MATCH items complete:** M1-M3 via NATIVE-UX-SAFETY-CONTROLS-1 (`e0437c9`). M4-M7 via NATIVE-UX-PARITY-IMPL-2 (`a0f9d91`). SHOULD-MATCH (S1-S8) remain open as refinements.
+**All 7 MUST-MATCH items complete:** M1-M3 via NATIVE-UX-SAFETY-CONTROLS-1 (`e0437c9`). M4-M7 via NATIVE-UX-PARITY-IMPL-2 (`a0f9d91`).
+
+**All 8 SHOULD-MATCH items complete:** S1-S4, S6-S8 via NATIVE-UX-REFINEMENT-1 (`ebc2bac`). S5 (pause/resume) via DAEMON-TRANSFER-CONTROL-1 (`899c8fc`, `969d355`, `6c2ee82`).
+
+**Native↔web parity is complete at the current contract level.** No remaining parity backlog. MAY-DIFFER items are intentional native-appropriate divergences, not gaps.
 
 ---
 
@@ -8711,7 +8717,88 @@ The following streams codify the security and hardening program for the Bolt eco
 **Residual notes (refinement-only, not blockers):**
 - M6: Cancel uses session disconnect (no per-transfer cancel IPC in daemon). A future `bolt_daemon_cancel_transfer` FFI would allow cancel-without-disconnect.
 - M7: Mismatch detection is deviceName-based (best signal available without daemon changes). A future daemon trust.rs enhancement could enforce identity mappings at the transport layer.
-- SHOULD-MATCH items (S1-S8) remain open as refinements, not safety-critical.
+- SHOULD-MATCH items (S1-S8) now ALL COMPLETE via NATIVE-UX-REFINEMENT-1 and DAEMON-TRANSFER-CONTROL-1.
+
+---
+
+### NATIVE-UX-REFINEMENT-1 — SHOULD-MATCH UX Refinements S1-S4, S6-S8 (CLOSED)
+
+> **Stream ID:** NATIVE-UX-REFINEMENT-1
+> **Status:** CLOSED (2026-04-08, committed `ebc2bac`)
+> **Repo:** localbolt-app
+> **Priority:** P3 — refinement
+> **Dependency:** NATIVE-UX-PARITY-SPEC-1 (CLOSED — defines S1-S8)
+
+**Scope:** Implement highest-value SHOULD-MATCH items from the parity spec. S5 (pause/resume) deferred to DAEMON-TRANSFER-CONTROL-1 due to daemon-side dependency.
+
+| Item | Description | Status |
+|------|-------------|--------|
+| S1 | Peer row: name only (remove peer code subtitle) | DONE |
+| S2 | Slow connection: actionable copy ("Check that both devices are on the same network") | DONE |
+| S3 | SAS confirm button label: "I Verified" | DONE |
+| S4 | E2E badge prominent when connected, dimmed when idle | DONE |
+| S5 | Transfer pause/resume | DEFERRED → DAEMON-TRANSFER-CONTROL-1 |
+| S6 | Transfer speed + ETA stats (derived from progress × file size × elapsed) | DONE |
+| S7 | Disconnect confirmation dialog | DONE |
+| S8 | Incoming request subtext: "Accept to start sharing files" | DONE |
+
+**7 of 8 items implemented.** S5 required daemon-level pause mechanism — completed separately.
+
+---
+
+### DAEMON-TRANSFER-CONTROL-1 — Transfer Pause/Resume Control (CLOSED)
+
+> **Stream ID:** DAEMON-TRANSFER-CONTROL-1
+> **Status:** CLOSED (2026-04-08, runtime-validated)
+> **Repos:** bolt-daemon (`899c8fc`), localbolt-app (`969d355`), bolt-core-sdk (`6c2ee82`)
+> **Priority:** P3 — final SHOULD-MATCH item (S5)
+> **Dependency:** NATIVE-UX-REFINEMENT-1 (CLOSED — identified S5 as daemon-dependent)
+
+**Scope:** Smallest correct daemon/native boundary addition for pause/resume transfer control. Full vertical slice across 3 repos.
+
+**Implementation (daemon — `899c8fc`):**
+- `PAUSE_REQUESTED: AtomicBool` global (mirrors `DISCONNECT_REQUESTED` pattern)
+- `request_pause()` / `request_resume()` public functions with IPC event emission
+- Pause check in `send_file_to_browser()` chunk loop — sleep-poll 100ms while paused
+- `transfer_pause.signal` / `transfer_resume.signal` watchers in main.rs (250ms poll)
+- `transfer.pause` / `transfer.resume` / `transfer.paused` / `transfer.resumed` recognized in IPC server
+- `IPC_CONTRACT.md` updated with new event types and signal-file command table
+
+**Implementation (native bridge — `969d355`):**
+- `bolt_daemon_pause_transfer()` / `bolt_daemon_resume_transfer()` C-ABI FFI
+- `DaemonManager.pauseTransfer()` / `resumeTransfer()` Swift wrappers
+- `IpcManager.transferPaused` state + event handling for `daemon://transfer-paused` / `daemon://transfer-resumed`
+- Pause/Resume toggle button in `transferProgress()` view (send-only)
+
+**Implementation (SDK — `6c2ee82`):**
+- `transfer.paused` / `transfer.resumed` added to IPC bridge core event dispatch
+
+**Deadlock fix (pre-existing, surfaced by pause):**
+`send_file_to_browser()` held `ACTIVE_SESSION` mutex lock across the entire chunk loop. Without pause, this was a latent risk (lock held for transfer duration). With pause, it became critical (indefinite lock hold blocking session teardown at line ~929). Fixed by cloning `Arc<SessionContext>`, `Arc<Mutex<BtrEngine>>`, and `UnboundedSender` from the handle, then releasing the lock immediately. Lock now held for ~microseconds instead of the transfer lifetime.
+
+**Runtime verification (DAEMON-TRANSFER-CONTROL-1-VERIFY):**
+
+| # | Behavior | Result |
+|---|----------|--------|
+| T1 | Pause signal consumed by daemon | PASS |
+| T2 | Resume signal consumed by daemon | PASS |
+| T3 | Disconnect signal unaffected | PASS |
+| T4 | Send without session fails gracefully | PASS |
+| T5 | Daemon survives all signals | PASS |
+| T6 | Transfer starts normally (16 chunks, BTR ratchet) | PASS |
+| T7 | Pause halts progress without disconnecting (500ms window, zero messages) | PASS |
+| T8 | Resume continues same transfer | PASS |
+| T9 | Transfer completes after resume | PASS |
+| T10 | No regression on existing tests (243/243 pass) | PASS |
+| T11 | Deadlock fix verified (early lock release) | PASS |
+| T12 | bolt-app-core event mapping correct | PASS |
+
+**Residual limitations (optional future enhancements, not gaps):**
+- Pause is send-side only (outbound transfers). Inbound pause would require DC protocol-level pause message exchange with the remote peer.
+- Pause granularity is per-chunk (16KB). A chunk in-flight when pause is requested will complete delivery before the pause takes effect.
+- No per-transfer-ID pause targeting. `PAUSE_REQUESTED` is a global flag — pauses whichever outbound transfer is active.
+
+**With this stream, S5 is complete and all 8 SHOULD-MATCH items from NATIVE-UX-PARITY-SPEC-1 are closed.**
 
 ---
 
