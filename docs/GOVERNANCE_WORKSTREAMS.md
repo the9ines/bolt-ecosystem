@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-04-08 (GOVERNANCE-CODIFICATION-3: NONCORE-ADOPTER-1 CLOSED — first external IPC consumer validated)
+> **Updated:** 2026-04-09 (WEB-SURFACE-CONSOLIDATION-1 OPERATIONALLY VALIDATED — localbolt.app serving canonical build)
 > **Tag:** ecosystem-v0.1.195-webtransport-impl1-wti1-audit
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
@@ -7908,7 +7908,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | NATIVE-UX-PARITY-IMPL-2 | Remaining MUST-MATCH parity items (M4-M7) | P2 | localbolt-app | **CLOSED** (2026-04-07). All 7 MUST-MATCH items complete (M1-M3 via CONTROLS-1, M4-M7 via IMPL-2). `a0f9d91`. |
 | NATIVE-UX-REFINEMENT-1 | SHOULD-MATCH UX refinements S1-S4, S6-S8 | P3 | localbolt-app | **CLOSED** (2026-04-08). 7 of 8 SHOULD-MATCH items. S5 (pause/resume) deferred to DAEMON-TRANSFER-CONTROL-1. `ebc2bac`. |
 | DAEMON-TRANSFER-CONTROL-1 | Transfer pause/resume daemon→native (S5) | P3 | bolt-daemon + bolt-core-sdk + localbolt-app | **CLOSED** (2026-04-08). Full vertical: daemon AtomicBool + signal files + IPC events + native bridge + SwiftUI toggle. Deadlock fix. 243 tests. `899c8fc` (daemon), `969d355` (app), `6c2ee82` (sdk). |
-| WEB-SURFACE-CONSOLIDATION-1 | Consolidate web surface: localbolt (canonical app) + localbolt-v3 (site consumer) | P2 | localbolt + localbolt-v3 + ecosystem | **REVISED** (2026-04-08). Astro shell scrapped. localbolt-v3 stays as site layer consuming localbolt. Rename deferred to pre-launch. |
+| WEB-SURFACE-CONSOLIDATION-1 | Consolidate web surface: localbolt (canonical app) + localbolt-v3 (site consumer) | P2 | localbolt + localbolt-v3 + ecosystem | **OPERATIONALLY VALIDATED** (2026-04-09). IMPL-1/2/3 complete. localbolt.app serving canonical build. Netlify git-deploy broken (manual API deploy used). AC-6 (SEO copy) pending PM. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 
@@ -8806,7 +8806,7 @@ The following streams codify the security and hardening program for the Bolt eco
 ### WEB-SURFACE-CONSOLIDATION-1 — Web Surface Consolidation (REVISED)
 
 > **Stream ID:** WEB-SURFACE-CONSOLIDATION-1
-> **Status:** REVISED (2026-04-08). Astro shell approach scrapped after staging review. Simplified plan adopted.
+> **Status:** OPERATIONALLY VALIDATED (2026-04-09). IMPL-1/2/3 complete. localbolt.app serving canonical build.
 > **Repos:** localbolt (canonical app), localbolt-v3 (site layer / consumer), ecosystem
 > **Priority:** P2 — strategic architecture
 > **Type:** Architecture (simplified)
@@ -8905,13 +8905,25 @@ localbolt-v3       → site layer + deployment + package source
 | AC-1 | `localbolt` builds and runs standalone as a self-hosted web app | **DONE** (P1 + P1-FIX) |
 | AC-2 | `localbolt` contains the canonical web app: peer discovery, transfer, SAS, WASM authority | **DONE** (P1) |
 | AC-3 | `localbolt` package versions aligned with latest published from localbolt-v3 | **DONE** (P1-FIX) |
-| AC-4 | `localbolt-v3` consumes localbolt as canonical app source | PENDING |
-| AC-5 | `localbolt.app` continues serving correctly (zero regressions) | PASS (no production change) |
+| AC-4 | `localbolt-v3` consumes localbolt as canonical app source | **DONE** (IMPL-2: `v3.0.101`, Vite alias + byte-identical peer-connection.ts) |
+| AC-5 | `localbolt.app` continues serving correctly (zero regressions) | **DONE** (IMPL-3: manual deploy, verified multi-transport symbols in production bundle) |
 | AC-6 | SEO/marketing copy updated for current project state | PENDING (PM task) |
 
 #### Decision
 
-**REVISED (2026-04-08).** Astro shell approach scrapped after staging review. Simplified to: `localbolt` is canonical app, `localbolt-v3` stays as site layer consuming it. Less friction, more cohesion. Rename deferred to pre-launch.
+**OPERATIONALLY VALIDATED (2026-04-09).** Implementation phases:
+
+| Phase | Commit | Tag | Repo | What |
+|-------|--------|-----|------|------|
+| IMPL-1 | `a6b88c2` | `localbolt-v1.0.38-impl1-multi-transport` | localbolt | Ported v3 multi-transport peer-connection into canonical app (795 lines, 329 tests) |
+| IMPL-2 | `026ded0` | `v3.0.101-impl2-consume-canonical` | localbolt-v3 | Vite alias + byte-identical peer-connection.ts (canonical import names) |
+| IMPL-3 | — | — | — | Push, manual Netlify deploy (git-triggered builds broken: "Unsupported repository type"), production verified |
+
+**Production verification (2026-04-09):** Bundle hashes `index-DtmK3g6a.js`/`index-BbqhG1tv.css` confirmed at `localbolt.app`. Multi-transport symbols present in deployed bundle (`BrowserAppTransport`, `WtDataTransport`, `SECURE-DIRECT`, `connectingPhase`). WASM files accessible (HTTP 200). Signaling endpoint: `wss://bolt-rendezvous.fly.dev`.
+
+**Known issue:** Netlify GitHub App integration broken ("Unsupported repository type"). Git-triggered deploys will fail until re-authorized. IMPL-3 used manual API deploy as workaround. Fix requires re-installing the Netlify GitHub App for `the9ines/localbolt-v3`.
+
+**Remaining:** AC-6 (SEO/marketing copy) is a PM task, not engineering. Repo rename (`localbolt-v3` → TBD) deferred to pre-launch.
 
 ---
 
