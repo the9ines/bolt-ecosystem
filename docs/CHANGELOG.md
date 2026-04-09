@@ -5,6 +5,152 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-04-09 — WEB-SURFACE-CONSOLIDATION-1 Operationally Validated (GOVERNANCE-CODIFICATION-5)
+
+**Status: OPERATIONALLY VALIDATED WITH FOLLOW-UPS.**
+
+Engineering consolidation complete:
+- **IMPL-1** (`a6b88c2`): Canonical multi-transport peer-connection ported into `localbolt` (795 lines, 329 tests).
+- **IMPL-2** (`026ded0`): `localbolt-v3` consumes canonical via Vite alias (`@the9ines/bolt-transport-web` → workspace package). Byte-identical `peer-connection.ts`.
+- **IMPL-3**: Production verified at `localbolt.app`. Multi-transport symbols confirmed in deployed bundle.
+- **OSS-READINESS** (`da39a12`): CODE_OF_CONDUCT.md added, `localbolt-v3` repo made public.
+- **Netlify Git-triggered deploys restored**: Making repo public resolved "Unsupported repository type" error. Deploy `69d742fa` confirmed successful Git-triggered production deploy.
+
+**Consolidation accuracy**: Critical app behavior aligned across both repos. Some v3-owned files (components, site chrome) remain divergent — this is "operationally validated" not "fully inverted."
+
+**Remaining follow-ups (optional, not blocking)**: SEO/marketing copy refresh (PM), further v3 file convergence, repo rename at pre-launch.
+
+**Netlify lesson**: Private org repos on Netlify free tier cause "Unsupported repository type." Public visibility is the fix.
+
+---
+
+## 2026-03-23 — Architecture & Language Ownership Audit Codified
+
+**Full multi-repo audit.** All repos audited for language ownership alignment. Findings codified in `docs/evidence/ARCHITECTURE_AUDIT_2026-03-23.md`.
+
+**Aligned:** Protocol, BTR, transfer SM, daemon lifecycle, app runtime, signaling, desktop shell — all Rust canonical. Browser-only concerns (WebRTC, DOM, IndexedDB) correctly TS.
+
+**Drift tracked:** `localbolt-app` not frozen (MEDIUM), browser transfer TS thickness (MEDIUM), browser crypto dual-path (LOW).
+
+**Anti-patterns codified (AP-01–AP-05):** No new Tauri work, no browser↔daemon WebRTC deepening, no new TS crypto, no new TS transfer authority, no TS wire format changes. Added to `ARCHITECTURE.md` § 9.
+
+**Migration streams added (Items 31–34):** BROWSER-APP-DIRECT-1 (in progress), WASM-CRYPTO-FIRST-1, TRANSFER-SM-CONVERGENCE-1, LOCALBOLT-APP-FREEZE-1.
+
+---
+
+## 2026-03-23 — DESKTOP-INSTALLER-POLISH-1 Codified
+
+**New stream (LOW priority):** Desktop packaging polish + retired code cleanup. Non-blocking follow-on after full desktop rollback closure.
+
+Three tasks: (1) MSI installer fix (cargo-bundle WiX bug), (2) professional icon design, (3) `localbolt-app/src-tauri/` deletion. Grouped as one unphased stream — all are low-priority, no gates, no dependencies.
+
+---
+
+## 2026-03-22 — NATIVE-DESKTOP-WINDOWS-1 COMPLETE: Windows Validated, Desktop Rollback CLOSED
+
+**Windows rollback window: CLOSED.** `bolt-ui.exe` builds on Windows (6.7 MB), 84 tests pass (69 bolt-app-core + 15 bolt-ui). `.exe` distribution accepted. **Tauri desktop path is retired across all platforms.**
+
+**CI proof:** GitHub Actions run [23412620528](https://github.com/the9ines/bolt-core-sdk/actions/runs/23412620528) on `windows-latest`. Binary build PASS, all tests PASS, artifact uploaded. MSI packaging failed (cargo-bundle/WiX `KeyPath` bug) — non-blocking, `.exe` is valid Windows distribution.
+
+**Desktop closure summary:** macOS `.app` + Linux `.deb` + Windows `.exe` all proven. `bolt-ui` is the canonical desktop shell. `localbolt-app` Tauri path is **retired**.
+
+---
+
+## 2026-03-22 — NATIVE-DESKTOP-WINDOWS-1: Windows CI Scaffold + Platform Audit
+
+**New stream:** Windows-specific desktop validation. Cross-compilation from macOS confirmed infeasible (missing Windows sysroot). Created `ci-windows-desktop.yml` GitHub Actions workflow targeting `windows-latest`.
+
+**Windows platform code audited:** bolt-app-core has correct `#[cfg(windows)]` gates across IPC transport (named pipes), platform paths (LOCALAPPDATA), and daemon lifecycle. No code changes needed.
+
+**Next step:** Push workflow to bolt-core-sdk. When CI runs on Windows: binary builds + tests pass → close Windows rollback window.
+
+---
+
+## 2026-03-22 — NATIVE-DESKTOP-PKG-1 NDP3 DONE: Desktop Rollback Window CLOSED (macOS + Linux)
+
+**PM-EN-03 RESOLVED (Option A):** Rollback window CLOSED for macOS + Linux desktop. Windows conditionally open pending MSI CI validation. **Stream CLOSED.**
+
+**What this means:**
+- `bolt-ui` is the **primary desktop path** for macOS and Linux. Tauri is legacy/transitional only.
+- macOS: `LocalBolt.app` (7.4 MB, embedded rendezvous, one-app model)
+- Linux: `bolt-ui_0.2.0_arm64.deb` (4.0 MB, `.deb` accepted as Linux deliverable)
+- Windows: MSI config-ready, closure deferred to Windows CI validation
+- `localbolt-app` Tauri code is **legacy**. Not the desktop target architecture.
+
+**Stream summary:** NDP1 (packaging scaffold + embedded runtime) → NDP2 (cross-platform validation) → NDP3 (PM rollback closure). All phases DONE. See `docs/evidence/NDP3_CLOSURE.md`.
+
+---
+
+## 2026-03-22 — NATIVE-DESKTOP-PKG-1 NDP2 DONE: Cross-Platform Packaging Validated
+
+**NDP2 status**: READY → **DONE**. macOS `.app` and Linux `.deb` proven. Windows MSI and Linux AppImage config-ready but CI-host blocked.
+
+**Proven artifacts:** macOS `LocalBolt.app` (7.4 MB) + Linux `bolt-ui_0.2.0_arm64.deb` (4.0 MB). Icon assets created for all platforms (icns/ico/png, RGBA).
+
+**Config-ready but environment-blocked:** Windows MSI (needs WiX/Windows CI), Linux AppImage (needs mksquashfs/Linux CI). Metadata complete — only host tooling missing.
+
+**NDP3 (Tauri removal + PM-EN-03 rollback closure) now READY.** PM can close rollback window for macOS + Linux immediately. Windows closure gates on MSI CI validation.
+
+---
+
+## 2026-03-22 — NATIVE-DESKTOP-PKG-1 NDP1 DONE: Desktop Packaging + Embedded Runtime
+
+**NDP1 status**: NOT-STARTED → **DONE**. macOS app bundle packaging proven.
+
+**Self-contained desktop app:** `bolt-ui` now runs as a fully self-contained desktop application with embedded rendezvous server (0.0.0.0:3001), managed daemon lifecycle, signal health monitoring in UI, and structured logging. No WebView dependency. No external signal server required.
+
+**macOS packaging:** `cargo bundle` produces `LocalBolt.app` (7.4 MB release binary, Mach-O arm64). Bundle metadata: `com.the9ines.localbolt`, category utilities, copyright The9ines.
+
+**Validation:** bolt-app-core 75 tests, bolt-ui 15 tests, localbolt-app 3 tests — all pass, zero warnings.
+
+**PM decision surface:** Technical foundation is complete for macOS rollback-window closure. Windows/Linux packaging validation and app icon asset remain. See PM-EN-03 in `docs/FORWARD_BACKLOG.md` Item 26.
+
+---
+
+## 2026-03-22 — NATIVE-APP-CORE-1 NAC1–NAC3 DONE: Shared Core Extraction + bolt-ui Refactor
+
+**NAC1 DONE:** Audited localbolt-app Tauri backend. 9 modules identified for extraction. Crate boundary defined: pure runtime logic (no Tauri deps) moves to `bolt-app-core`.
+
+**NAC2 DONE:** `bolt-app-core` crate created in `bolt-core-sdk/rust/`. 9 modules extracted (watchdog, IPC types/transport/client, platform paths, daemon log, signal monitor, daemon lifecycle, IPC bridge core). Callback-based event model replaces Tauri emission. 75 tests pass. localbolt-app reduced from ~3,100 lines of inline runtime to ~410 lines of thin Tauri adapter.
+
+**NAC3 DONE:** `bolt-ui` refactored to consume `bolt-app-core`. Inline IPC type duplication removed. Cross-platform IPC transport replaces Unix-only. Shared daemon binary resolution replaces hardcoded search. bolt-ui builds as standalone 21 MB native binary (Mach-O arm64, no WebView). 15 tests pass.
+
+**NAC4 status:** READY. Validation + closure pending.
+
+**NATIVE-DESKTOP-PKG-1 now unblocked** (NAC3 complete). Remaining before full Tauri retirement: platform packaging (DMG/MSI/AppImage), embedded signal server in bolt-ui, PM-EN-03 rollback window closure.
+
+---
+
+## 2026-03-22 — ADR-001: Native App Architecture — Rust-First, Tauri Deprecated
+
+**Architecture decision:** Adopt Rust-first native app stack. Desktop: egui (bolt-ui, already built). iPhone: SwiftUI thin shell. Android: Kotlin/Compose thin shell. All share Rust core via FFI (UniFFI). Tauri deprecated as WebView bridge layer.
+
+**New crate:** `bolt-app-core` (proposed) — shared app-level state machine, connection orchestration, transfer management, event types. Extracted from localbolt-app Tauri backend. Foundation for desktop, iOS, and Android.
+
+**Options analyzed:** (A) egui desktop + native mobile shells — **RECOMMENDED**. (B) Platform-native everywhere — rejected (4 UI implementations, unsustainable). (C) egui everywhere including mobile — rejected (experimental, poor touch UX). (D) egui including browser — dead (EGUI-WASM-1 killed, 1.3 MiB bundle).
+
+**Proposed streams:** NATIVE-APP-CORE-1 (extract shared Rust core), NATIVE-DESKTOP-PKG-1 (egui packaging), NATIVE-IOS-1 (SwiftUI shell), NATIVE-ANDROID-1 (Kotlin shell).
+
+**Repo strategy:** Evolve localbolt-app (desktop). New repos: localbolt-ios, localbolt-android.
+
+See `docs/ADR-001-NATIVE-APP-ARCHITECTURE.md` for full analysis.
+
+---
+
+## 2026-03-21 — WEBTRANSPORT-BROWSER-APP-E2E-1 COMPLETE: Browser Runtime Validation
+
+**New stream:** WEBTRANSPORT-BROWSER-APP-E2E-1 — real browser-runtime validation of shipped WebTransport path. **Stream CLOSED.**
+
+**Proof:** Playwright harness drives real Chrome 146 against daemon echo server. WebTransport connects via `serverCertificateHashes` (self-signed, 13-day cert), sends 4-byte BE length-prefixed frames, receives echo. WebSocket fallback verified in same browser session. 4 deterministic tests, all pass.
+
+**Scope caveat:** This proves transport-layer runtime connectivity and framing in a real browser. It does NOT prove full app-protocol E2E (HELLO + ProfileEnvelopeV1 + file transfer) over WebTransport in a browser — that would require bundling the SDK. Transport-layer proof only.
+
+**Harness:** `bolt-daemon/examples/wt_e2e_echo.rs` (server), `bolt-daemon/tests/e2e-browser/` (Playwright test). Run: `cd bolt-daemon/tests/e2e-browser && npm install && npm test`.
+
+**Dependencies:** WEBTRANSPORT-BROWSER-APP-IMPL-1 CLOSED (`ecosystem-v0.1.196`).
+
+---
+
 ## 2026-03-21 — WEBTRANSPORT-BROWSER-APP-IMPL-1 WTI6 DONE: Stream CLOSED
 
 **WTI6 status**: READY → **DONE**. AC-WTI-21–23 PASS. **Stream CLOSED.**

@@ -9,17 +9,17 @@ Snapshot Derived From:
 - v1.0.0-spec-freeze (79360df) [bolt-protocol]
 - ecosystem-v0.1.196-webtransport-impl1-closed (d2cfb9e)
 - bolt-ecosystem HEAD 3abafd0 (bolt-cli)
-Last Refreshed By: WEB-SURFACE-CONSOLIDATION-1-REVISED (2026-04-08)
+Last Refreshed By: GOVERNANCE-CODIFICATION-5 (2026-04-09)
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-04-08 (WEB-SURFACE-CONSOLIDATION-1-REVISED — Astro shell scrapped, simplified to localbolt canonical + localbolt-v3 consumer)
+> **Last Updated:** 2026-04-09 (GOVERNANCE-CODIFICATION-5 — WEB-SURFACE-CONSOLIDATION-1 operationally validated, Netlify Git deploys restored)
 > **Authority:** Informational. Updated after each tagged release or governance reconciliation.
 
 ---
 
-## Current Repo State (2026-04-08)
+## Current Repo State (2026-04-09)
 
 | Repo | Latest Tag | HEAD | Branch | Status |
 |------|-----------|------|--------|--------|
@@ -27,8 +27,8 @@ Last Refreshed By: WEB-SURFACE-CONSOLIDATION-1-REVISED (2026-04-08)
 | bolt-core-sdk | `sdk-v0.6.21-spec-freeze` | `6c2ee82` | main | Active. Rust-only (TS extracted). WASM authority shipped. IPC bridge: transfer.paused/resumed events. |
 | bolt-rendezvous | `rendezvous-v0.2.14-fly-client-ip` | `82fa02b` | main | Active. Hardening complete (P4+P5). |
 | bolt-daemon | `daemon-v0.2.48-webtransport-impl1-wti2-wti5` | `899c8fc` | main | Active. WT + WS + IPC events + transfer pause/resume. Deadlock fix. 243 tests. |
-| localbolt | `localbolt-v1.0.37-br5-wasm-init` | `40c387d` | main | Active. WASM authority init. |
-| localbolt-v3 | `v3.0.100-pf3-pf4-perf-tuning` | `ab880d8` | main | Active. Primary web product. Netlify deployed. |
+| localbolt | `localbolt-v1.0.38-impl1-multi-transport` | `a6b88c2` | main | Active. Canonical web app. Multi-transport peer-connection (IMPL-1). |
+| localbolt-v3 | `v3.0.101-impl2-consume-canonical` | `026ded0` | main | Active. Site/deployment layer. Consumes localbolt canonical via Vite alias. Netlify Git-triggered deploys. Public repo. |
 | localbolt-app | `localbolt-app-v1.2.28-ux-parity-m4-m7` | `969d355` | main | Active. macOS SwiftUI native shell. All MUST-MATCH + SHOULD-MATCH parity complete. Transfer pause/resume. TOFU pin persistence. Tauri retired. |
 | bytebolt-app | `bytebolt-v0.0.1` | `d27dfd8` | main | Minimal placeholder. |
 | bytebolt-relay | `relay-v0.0.1` | `4a8dffb` | main | Minimal placeholder. |
@@ -52,7 +52,7 @@ Last Refreshed By: WEB-SURFACE-CONSOLIDATION-1-REVISED (2026-04-08)
 14. **NATIVE-UX-REFINEMENT-1** — SHOULD-MATCH UX refinements S1-S4, S6-S8 implemented. Peer row cleanup, actionable copy, SAS label, E2E badge, speed/ETA stats, disconnect confirm, incoming subtext. `ebc2bac`.
 15. **DAEMON-TRANSFER-CONTROL-1** — Transfer pause/resume: full vertical across daemon (`899c8fc`), native bridge (`969d355`), SDK (`6c2ee82`). Deadlock fix in `send_file_to_browser()` (ACTIVE_SESSION lock held during chunk loop → early release). 243 daemon tests pass. Runtime-validated: pause halts, resume continues, transfer completes.
 16. **Native↔web parity complete.** All 7 MUST-MATCH and all 8 SHOULD-MATCH items from NATIVE-UX-PARITY-SPEC-1 are closed. No remaining parity backlog. MAY-DIFFER items are intentional native-appropriate divergences.
-17. **WEB-SURFACE-CONSOLIDATION-1 REVISED.** P1 confirmed localbolt has full app parity (329 tests, packages aligned). Astro shell approach scrapped after staging review — unnecessary churn over localbolt-v3's existing polished site. Revised: `localbolt` is canonical app, `localbolt-v3` stays as site/deployment layer consuming it. `localbolt-web` repo deleted. Repo rename deferred to pre-launch.
+17. **WEB-SURFACE-CONSOLIDATION-1 OPERATIONALLY VALIDATED WITH FOLLOW-UPS.** P1 confirmed localbolt has full app parity (329 tests, packages aligned). Astro shell approach scrapped after staging review. IMPL-1 (`a6b88c2`): canonical multi-transport peer-connection in localbolt. IMPL-2 (`026ded0`): localbolt-v3 consumes canonical via Vite alias. IMPL-3: production verified at localbolt.app. OSS-READINESS (`da39a12`): CODE_OF_CONDUCT.md, repo made public, Netlify Git-triggered deploys restored. Critical app behavior aligned; some v3-owned files remain divergent. SEO copy refresh, further file convergence, and repo rename are optional follow-ups.
 
 ### Known open issues
 
@@ -62,7 +62,7 @@ Last Refreshed By: WEB-SURFACE-CONSOLIDATION-1-REVISED (2026-04-08)
 
 - **M6 cancel semantics** — Currently disconnect-based. Per-transfer cancel requires `bolt_daemon_cancel_transfer` FFI (daemon enhancement).
 - **M7 mismatch detection** — Currently deviceName-based. Transport-layer identity enforcement requires daemon trust.rs enhancement.
-- **WEB-SURFACE-CONSOLIDATION-1** — REVISED. Remaining: make localbolt-v3 consume localbolt as canonical, update SEO copy (PM), rename repo at pre-launch.
+- **WEB-SURFACE-CONSOLIDATION-1** — OPERATIONALLY VALIDATED WITH FOLLOW-UPS. Engineering core complete (IMPL-1/2/3 + Netlify restored). Optional follow-ups: SEO copy refresh (PM), further v3 file convergence, repo rename at pre-launch.
 
 ---
 

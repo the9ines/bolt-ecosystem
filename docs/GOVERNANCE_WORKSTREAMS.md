@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-02
-> **Updated:** 2026-04-09 (WEB-SURFACE-CONSOLIDATION-1 OPERATIONALLY VALIDATED — localbolt.app serving canonical build)
+> **Updated:** 2026-04-09 (WEB-SURFACE-CONSOLIDATION-1 OPERATIONALLY VALIDATED WITH FOLLOW-UPS — Git-triggered deploys restored, canonical build live)
 > **Tag:** ecosystem-v0.1.195-webtransport-impl1-wti1-audit
 > **Authority:** PM-approved. Phase execution requires separate phase prompts.
 
@@ -7908,7 +7908,7 @@ The WT transport path adds a new rollback lever to the RC6 framework:
 | NATIVE-UX-PARITY-IMPL-2 | Remaining MUST-MATCH parity items (M4-M7) | P2 | localbolt-app | **CLOSED** (2026-04-07). All 7 MUST-MATCH items complete (M1-M3 via CONTROLS-1, M4-M7 via IMPL-2). `a0f9d91`. |
 | NATIVE-UX-REFINEMENT-1 | SHOULD-MATCH UX refinements S1-S4, S6-S8 | P3 | localbolt-app | **CLOSED** (2026-04-08). 7 of 8 SHOULD-MATCH items. S5 (pause/resume) deferred to DAEMON-TRANSFER-CONTROL-1. `ebc2bac`. |
 | DAEMON-TRANSFER-CONTROL-1 | Transfer pause/resume daemon→native (S5) | P3 | bolt-daemon + bolt-core-sdk + localbolt-app | **CLOSED** (2026-04-08). Full vertical: daemon AtomicBool + signal files + IPC events + native bridge + SwiftUI toggle. Deadlock fix. 243 tests. `899c8fc` (daemon), `969d355` (app), `6c2ee82` (sdk). |
-| WEB-SURFACE-CONSOLIDATION-1 | Consolidate web surface: localbolt (canonical app) + localbolt-v3 (site consumer) | P2 | localbolt + localbolt-v3 + ecosystem | **OPERATIONALLY VALIDATED** (2026-04-09). IMPL-1/2/3 complete. localbolt.app serving canonical build. Netlify git-deploy broken (manual API deploy used). AC-6 (SEO copy) pending PM. |
+| WEB-SURFACE-CONSOLIDATION-1 | Consolidate web surface: localbolt (canonical app) + localbolt-v3 (site consumer) | P2 | localbolt + localbolt-v3 + ecosystem | **OPERATIONALLY VALIDATED WITH FOLLOW-UPS** (2026-04-09). IMPL-1/2/3 complete. localbolt.app serving canonical build. Netlify Git-triggered deploys restored (repo made public). AC-6 (SEO copy) pending PM. Remaining divergent v3-owned files + deferred repo rename are optional follow-ups. |
 
 **SEC-DR1 → SUPERSEDED-BY: SEC-BTR1:** DR-STREAM-1 (Double Ratchet) frozen per PM-BTR-01 through PM-BTR-04. Replaced by BTR-STREAM-1 (Bolt Transfer Ratchet) — purpose-built transfer-scoped key agreement. DR P0 audit findings inherited. Full spec: `docs/GOVERNANCE_WORKSTREAMS.md` § BTR-STREAM-1. Frozen DR spec: `docs/GOVERNANCE_WORKSTREAMS.md` § DR-STREAM-1 [SUPERSEDED].
 
@@ -8806,7 +8806,7 @@ The following streams codify the security and hardening program for the Bolt eco
 ### WEB-SURFACE-CONSOLIDATION-1 — Web Surface Consolidation (REVISED)
 
 > **Stream ID:** WEB-SURFACE-CONSOLIDATION-1
-> **Status:** OPERATIONALLY VALIDATED (2026-04-09). IMPL-1/2/3 complete. localbolt.app serving canonical build.
+> **Status:** OPERATIONALLY VALIDATED WITH FOLLOW-UPS (2026-04-09). IMPL-1/2/3 complete. Netlify Git-triggered deploys restored. localbolt.app serving canonical build.
 > **Repos:** localbolt (canonical app), localbolt-v3 (site layer / consumer), ecosystem
 > **Priority:** P2 — strategic architecture
 > **Type:** Architecture (simplified)
@@ -8906,24 +8906,42 @@ localbolt-v3       → site layer + deployment + package source
 | AC-2 | `localbolt` contains the canonical web app: peer discovery, transfer, SAS, WASM authority | **DONE** (P1) |
 | AC-3 | `localbolt` package versions aligned with latest published from localbolt-v3 | **DONE** (P1-FIX) |
 | AC-4 | `localbolt-v3` consumes localbolt as canonical app source | **DONE** (IMPL-2: `v3.0.101`, Vite alias + byte-identical peer-connection.ts) |
-| AC-5 | `localbolt.app` continues serving correctly (zero regressions) | **DONE** (IMPL-3: manual deploy, verified multi-transport symbols in production bundle) |
-| AC-6 | SEO/marketing copy updated for current project state | PENDING (PM task) |
+| AC-5 | `localbolt.app` continues serving correctly (zero regressions) | **DONE** (IMPL-3: production verified. Git-triggered deploy restored after repo made public) |
+| AC-6 | SEO/marketing copy updated for current project state | PENDING (PM task, optional follow-up) |
 
 #### Decision
 
-**OPERATIONALLY VALIDATED (2026-04-09).** Implementation phases:
+**OPERATIONALLY VALIDATED WITH FOLLOW-UPS (2026-04-09).** Implementation phases:
 
 | Phase | Commit | Tag | Repo | What |
 |-------|--------|-----|------|------|
 | IMPL-1 | `a6b88c2` | `localbolt-v1.0.38-impl1-multi-transport` | localbolt | Ported v3 multi-transport peer-connection into canonical app (795 lines, 329 tests) |
 | IMPL-2 | `026ded0` | `v3.0.101-impl2-consume-canonical` | localbolt-v3 | Vite alias + byte-identical peer-connection.ts (canonical import names) |
-| IMPL-3 | — | — | — | Push, manual Netlify deploy (git-triggered builds broken: "Unsupported repository type"), production verified |
+| IMPL-3 | — | — | — | Push, manual Netlify deploy (git-triggered builds initially broken), production verified |
+| OSS-READINESS | `da39a12` | — | localbolt-v3 | CODE_OF_CONDUCT.md added, repo made public, Git-triggered Netlify deploys restored |
 
 **Production verification (2026-04-09):** Bundle hashes `index-DtmK3g6a.js`/`index-BbqhG1tv.css` confirmed at `localbolt.app`. Multi-transport symbols present in deployed bundle (`BrowserAppTransport`, `WtDataTransport`, `SECURE-DIRECT`, `connectingPhase`). WASM files accessible (HTTP 200). Signaling endpoint: `wss://bolt-rendezvous.fly.dev`.
 
-**Known issue:** Netlify GitHub App integration broken ("Unsupported repository type"). Git-triggered deploys will fail until re-authorized. IMPL-3 used manual API deploy as workaround. Fix requires re-installing the Netlify GitHub App for `the9ines/localbolt-v3`.
+**Netlify integration resolved (2026-04-09):** Git-triggered deploys restored. Root cause: private org repo caused "Unsupported repository type" error from Netlify GitHub App integration. Making `the9ines/localbolt-v3` public resolved the issue. Deploy `69d742fa` (2026-04-09T06:11Z) confirmed as a successful Git-triggered production deploy from `main` (commit `da39a12`, 16s build). Manual API/CLI deploys are no longer required as the primary deploy path.
 
-**Remaining:** AC-6 (SEO/marketing copy) is a PM task, not engineering. Repo rename (`localbolt-v3` → TBD) deferred to pre-launch.
+**Operational lesson:** Netlify's GitHub App integration does not support private repos on the free tier for org-owned repositories. The "Unsupported repository type" error is the symptom. The fix is repo visibility (public), not re-authorization.
+
+#### Consolidation Accuracy Statement
+
+The current state is stronger than "parallel authority" but weaker than "full dependency inversion":
+- **Aligned:** The critical canonical app behavior (`peer-connection.ts`) is byte-identical across both repos via Vite alias consuming `@the9ines/bolt-transport-web`.
+- **Not yet fully inverted:** Some v3-owned files (components, site chrome, other transport-adjacent code) remain divergent from or absent in `localbolt`. `localbolt-v3` is not yet a thin shell over `localbolt` — it retains its own implementations for non-critical-path code.
+- **Deployment layer confirmed:** `localbolt-v3` is the validated deployment path for `localbolt.app`. This is operationally stable.
+
+#### Remaining Open Items
+
+1. **AC-6: SEO/marketing copy refresh** — Current copy on localbolt.app is outdated for the project's current state. PM/content task, not engineering.
+2. **Further v3 file convergence** — Remaining divergent v3-owned files (beyond `peer-connection.ts`) could be aligned with canonical `localbolt` implementations. Optional engineering follow-up, not blocking.
+3. **Repo rename** — `localbolt-v3` → TBD. Deferred to pre-launch. Non-blocking.
+
+#### Stream Disposition
+
+**Status: OPERATIONALLY VALIDATED WITH FOLLOW-UPS.** The engineering core of this workstream is complete. The remaining items (SEO copy, further file convergence, repo rename) are independent optional follow-ups that do not share dependencies or blocking relationships with each other. This stream should be **closed for active engineering** with the follow-ups tracked as standalone backlog items if/when they become priorities.
 
 ---
 
