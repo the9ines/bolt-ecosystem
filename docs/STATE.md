@@ -28,7 +28,7 @@ Last Refreshed By: GOVERNANCE-CODIFICATION-5 (2026-04-09)
 | bolt-rendezvous | `rendezvous-v0.2.14-fly-client-ip` | `82fa02b` | main | Active. Hardening complete (P4+P5). |
 | bolt-daemon | `daemon-v0.2.48-webtransport-impl1-wti2-wti5` | `899c8fc` | main | Active. WT + WS + IPC events + transfer pause/resume. Deadlock fix. 243 tests. |
 | localbolt | `localbolt-v1.0.38-impl1-multi-transport` | `a6b88c2` | main | Active. Canonical web app. Multi-transport peer-connection (IMPL-1). |
-| localbolt-v3 | `v3.0.101-impl2-consume-canonical` | `026ded0` | main | Active. Site/deployment layer. Consumes localbolt canonical via Vite alias. Netlify Git-triggered deploys. Public repo. |
+| localbolt-v3 | `v3.0.102-seo-copy-refresh` | `9a6667a` | main | Active. Site/deployment layer. Consumes localbolt canonical via Vite alias. SEO copy refreshed. Netlify Git-triggered deploys. Public repo. |
 | localbolt-app | `localbolt-app-v1.2.28-ux-parity-m4-m7` | `969d355` | main | Active. macOS SwiftUI native shell. All MUST-MATCH + SHOULD-MATCH parity complete. Transfer pause/resume. TOFU pin persistence. Tauri retired. |
 | bytebolt-app | `bytebolt-v0.0.1` | `d27dfd8` | main | Minimal placeholder. |
 | bytebolt-relay | `relay-v0.0.1` | `4a8dffb` | main | Minimal placeholder. |
@@ -62,7 +62,7 @@ Last Refreshed By: GOVERNANCE-CODIFICATION-5 (2026-04-09)
 
 - **M6 cancel semantics** — Currently disconnect-based. Per-transfer cancel requires `bolt_daemon_cancel_transfer` FFI (daemon enhancement).
 - **M7 mismatch detection** — Currently deviceName-based. Transport-layer identity enforcement requires daemon trust.rs enhancement.
-- **WEB-SURFACE-CONSOLIDATION-1** — OPERATIONALLY VALIDATED WITH FOLLOW-UPS. Engineering core complete (IMPL-1/2/3 + Netlify restored). Optional follow-ups: SEO copy refresh (PM), further v3 file convergence, repo rename at pre-launch.
+- **WEB-SURFACE-CONSOLIDATION-1** — CLOSED. All 6 ACs met: IMPL-1/2/3, Netlify restored, AC-6 SEO copy deployed (`v3.0.102-seo-copy-refresh`). Optional standalone items: further v3 file convergence, repo rename at pre-launch.
 
 ---
 
