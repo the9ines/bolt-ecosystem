@@ -98,7 +98,7 @@ Encrypted peer-to-peer file transfer ecosystem built on the Bolt Protocol. Open-
 | bolt-daemon | Infrastructure | Active | Rust |
 | bolt-protocol | Specification | Planned | Markdown only |
 | localbolt | Product (open) | Active | React, TS, Vite, Tailwind |
-| localbolt-app | Product (open) | Active | Tauri v2, React, Rust |
+| localbolt-app | Product (open) | Active | SwiftUI, Rust FFI, bolt-daemon |
 | localbolt-v3 | Product (open) | Active | React, TS, npm workspaces, Netlify |
 | bytebolt-app | Product (commercial) | Planned | TBD |
 | bytebolt-relay | Infrastructure (commercial) | Planned | Rust |
