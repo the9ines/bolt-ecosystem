@@ -2,7 +2,7 @@
 
 > **Status:** Normative
 > **Created:** 2026-03-08
-> **Updated:** 2026-03-21 (WEBTRANSPORT-BROWSER-APP-IMPL-1 **COMPLETE** — all 23 ACs, WTI1–WTI6 DONE. Stream CLOSED.)
+> **Updated:** 2026-03-23 (Architecture audit codified. Drift tracking + anti-patterns + 4 migration streams added.)
 > **Codified:** ecosystem-v0.1.120-rustify-core1-rc1-executed
 > **Authority:** PM-approved. Execution requires separate phase prompts per item.
 
@@ -765,6 +765,242 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 
 ---
 
+## Item 24: WEBTRANSPORT-BROWSER-APP-E2E-1 — Browser Runtime WebTransport Validation
+
+**Priority:** NEXT (unblocked)
+**Status:** **COMPLETE** (2026-03-21). Real browser-runtime WT + WS proof. 4 Playwright tests pass. Stream CLOSED.
+**Routing:** bolt-daemon (echo server + harness), bolt-ecosystem (governance)
+**Category:** Validation — real browser-runtime transport proof
+**Stream:** WEBTRANSPORT-BROWSER-APP-E2E-1 (single-phase)
+**Dependencies:** WEBTRANSPORT-BROWSER-APP-IMPL-1 CLOSED (`ecosystem-v0.1.196`).
+
+**Context:** Post-ship validation for the WEBTRANSPORT-BROWSER-APP-IMPL-1 stream. Proves that a real Chrome browser can connect to the daemon's WebTransport endpoint and exchange length-prefixed frames, and that the WebSocket fallback path works in the same browser session. Scope is transport-layer runtime connectivity — not full app-protocol E2E (HELLO + ProfileEnvelopeV1 + file transfer).
+
+**Harness:** `bolt-daemon/examples/wt_e2e_echo.rs` (WT+WS echo server), `bolt-daemon/tests/e2e-browser/` (Playwright). Run: `cd bolt-daemon/tests/e2e-browser && npm install && npm test`.
+
+**Acceptance Criteria:** 6 criteria, all PASS. See `docs/evidence/WTE1_EVIDENCE.md`.
+
+**Scope caveat:** Transport-layer runtime proof only. Full browser HELLO + envelope + file transfer over WT would require bundling the SDK into a browser page — deferred.
+
+---
+
+## Item 25: NATIVE-APP-CORE-1 — Shared App Logic Extraction
+
+**Priority:** NEXT (unblocked)
+**Status:** **NAC1–NAC3 DONE** (2026-03-22). `bolt-app-core` extracted (9 modules, 75 tests). `bolt-ui` refactored to consume shared core (15 tests). Standalone native binary builds. NAC4 READY.
+**Routing:** bolt-core-sdk (`bolt-app-core` crate + `bolt-ui` refactor), localbolt-app (thin adapter), bolt-ecosystem (governance)
+**Category:** Architecture — shared app-level Rust core
+**Stream:** NATIVE-APP-CORE-1 (phased, 4 phases NAC1–NAC4)
+**Dependencies:** EGUI-NATIVE-1 CLOSED. RUSTIFY-CORE-1 CLOSED.
+**ADR:** `docs/ADR-001-NATIVE-APP-ARCHITECTURE.md`
+
+**Context:** Extract shared app-level logic from localbolt-app Tauri backend into `bolt-app-core` crate. Daemon lifecycle, IPC contract/transport/bridge, watchdog SM, platform paths, signal monitoring, crash diagnostics. Foundation for egui desktop (bolt-ui), SwiftUI iOS, and Kotlin Android shells.
+
+**Phased Plan:**
+
+| Phase | Description | Gate | Status |
+|-------|-------------|------|--------|
+| NAC1 | Audit Tauri backend, define crate boundary | YES (gates NAC2) | **DONE** (2026-03-22) |
+| NAC2 | Create bolt-app-core crate, extract logic | YES (gates NAC3) | **DONE** (2026-03-22). 9 modules, 75 tests. |
+| NAC3 | Refactor bolt-ui to use bolt-app-core | YES (gates NAC4) | **DONE** (2026-03-22). 15 bolt-ui tests pass. |
+| NAC4 | Validation + closure | YES (closes stream) | READY |
+
+---
+
+## Item 26: NATIVE-DESKTOP-PKG-1 — Desktop egui Packaging
+
+**Priority:** NEXT (unblocked — NATIVE-APP-CORE-1 NAC3 DONE)
+**Status:** **COMPLETE** (2026-03-22). PM-EN-03 resolved: rollback CLOSED for macOS + Linux. Windows conditionally open. Stream CLOSED.
+**Routing:** bolt-core-sdk (bolt-ui packaging), localbolt-app (legacy/transitional), bolt-ecosystem (governance)
+**Category:** Packaging — desktop native binary distribution
+**Stream:** NATIVE-DESKTOP-PKG-1 (phased, 3 phases NDP1–NDP3)
+**Dependencies:** NATIVE-APP-CORE-1 NAC3 DONE (bolt-ui using bolt-app-core).
+
+**Context:** Replaced Tauri WebView build with egui-only binary. Platform installers proven. PM-EN-03 rollback window closed for macOS + Linux.
+
+**Phased Plan:**
+
+| Phase | Description | Gate | Status |
+|-------|-------------|------|--------|
+| NDP1 | Packaging scaffold (cargo-bundle or equivalent) | YES (gates NDP2) | **DONE** (2026-03-22). macOS `LocalBolt.app`. Embedded rendezvous. |
+| NDP2 | Platform installer generation + smoke test | YES (gates NDP3) | **DONE** (2026-03-22). macOS + Linux deb proven. Win/AppImage config-ready. |
+| NDP3 | Tauri removal + rollback window closure (PM-EN-03) | YES (closes stream) | **DONE** (2026-03-22). PM-EN-03 Option A approved. |
+
+**PM-EN-03 Resolution:**
+
+| Platform | Rollback Window | Rationale |
+|----------|----------------|-----------|
+| **macOS** | **CLOSED** | `LocalBolt.app` (7.4 MB) proven, embedded rendezvous, one-app model |
+| **Linux** | **CLOSED** | `bolt-ui_0.2.0_arm64.deb` (4.0 MB) proven, `.deb` accepted as deliverable |
+| **Windows** | **Conditionally open** | MSI config-ready, closure pending Windows CI (WiX toolset) |
+
+**Desktop authority (historical, 2026-03-22):** `bolt-ui` was the primary desktop path when this stream closed. **Superseded (2026-04-12):** Forward desktop path is platform-native shells. macOS: `localbolt-app` SwiftUI shell (shipping v2.0.0). `bolt-ui` (egui) is historical.
+
+**Remaining follow-on items (not stream blockers):**
+- Windows MSI: CI validation when Windows runner available
+- Professional icon design: operational polish
+- `localbolt-app/src-tauri/` cleanup: after Windows closure or explicit PM approval
+
+---
+
+## Item 27: NATIVE-IOS-1 — iOS App
+
+**Priority:** NEXT (unblocked — NATIVE-APP-CORE-1 NAC2 DONE)
+**Status:** NOT-STARTED
+**Routing:** localbolt-ios (new repo), bolt-core-sdk, bolt-ecosystem (governance)
+**Category:** Product — iOS native app
+**Stream:** NATIVE-IOS-1 (phased, 4 phases NI1–NI4)
+**Dependencies:** NATIVE-APP-CORE-1 NAC2 DONE (bolt-app-core crate exists).
+
+**Context:** SwiftUI thin shell + UniFFI-generated Swift bindings + bolt-app-core. Native file picker, share sheet, backgrounding.
+
+**Phased Plan:**
+
+| Phase | Description | Gate | Status |
+|-------|-------------|------|--------|
+| NI1 | UniFFI scaffold + bolt-app-core Swift bindings | YES (gates NI2) | NOT-STARTED |
+| NI2 | SwiftUI launcher + peer discovery screen | YES (gates NI3) | NOT-STARTED |
+| NI3 | Transfer screen + file picker + share sheet | YES (gates NI4) | NOT-STARTED |
+| NI4 | App Store packaging + TestFlight | YES (closes stream) | NOT-STARTED |
+
+---
+
+## Item 28: NATIVE-ANDROID-1 — Android App
+
+**Priority:** NEXT (unblocked — NATIVE-APP-CORE-1 NAC2 DONE)
+**Status:** NOT-STARTED
+**Routing:** localbolt-android (new repo), bolt-core-sdk, bolt-ecosystem (governance)
+**Category:** Product — Android native app
+**Stream:** NATIVE-ANDROID-1 (phased, 4 phases NA1–NA4)
+**Dependencies:** NATIVE-APP-CORE-1 NAC2 DONE (bolt-app-core crate exists).
+
+**Context:** Kotlin/Compose thin shell + UniFFI-generated Kotlin bindings + bolt-app-core. Native file picker, share intent, background service.
+
+**Phased Plan:**
+
+| Phase | Description | Gate | Status |
+|-------|-------------|------|--------|
+| NA1 | UniFFI scaffold + bolt-app-core Kotlin bindings | YES (gates NA2) | NOT-STARTED |
+| NA2 | Compose launcher + peer discovery screen | YES (gates NA3) | NOT-STARTED |
+| NA3 | Transfer screen + file picker + share intent | YES (gates NA4) | NOT-STARTED |
+| NA4 | Play Store packaging + internal testing | YES (closes stream) | NOT-STARTED |
+
+---
+
+## Item 29: NATIVE-DESKTOP-WINDOWS-1 — Windows Desktop Validation
+
+**Priority:** ~~NEXT~~ CLOSED
+**Status:** **COMPLETE** (2026-03-22). Windows `.exe` build proven on `windows-latest`. 84 tests pass. PM approved. Desktop rollback CLOSED all platforms. Stream CLOSED.
+**Routing:** bolt-core-sdk (CI workflow + bolt-ui), bolt-ecosystem (governance)
+**Category:** Validation — Windows desktop packaging proof
+**Stream:** NATIVE-DESKTOP-WINDOWS-1 (single-phase)
+**Dependencies:** NATIVE-DESKTOP-PKG-1 CLOSED.
+
+**CI Evidence:**
+- Run: [23412620528](https://github.com/the9ines/bolt-core-sdk/actions/runs/23412620528) (`windows-latest`, Windows Server 2025)
+- `bolt-ui.exe`: 7,044,096 bytes — **PASS**
+- `bolt-app-core` tests: 69 passed, 0 failed — **PASS**
+- `bolt-ui` tests: 15 passed, 0 failed — **PASS**
+- MSI: cargo-bundle WiX `KeyPath` bug — non-blocking (`.exe` accepted as distribution)
+- Artifact: `windows-desktop-artifacts` uploaded
+
+**Desktop rollback closure (all platforms):**
+
+| Platform | Artifact | Status |
+|----------|----------|--------|
+| macOS | `LocalBolt.app` (7.4 MB) | **CLOSED** |
+| Linux | `bolt-ui_0.2.0_arm64.deb` (4.0 MB) | **CLOSED** |
+| Windows | `bolt-ui.exe` (6.7 MB) | **CLOSED** |
+
+**Tauri desktop path: RETIRED.** `localbolt-app/src-tauri/` is legacy code, safe for removal.
+
+**Non-blocking follow-on:** MSI installer (fix cargo-bundle WiX config or use alternative tooling).
+
+---
+
+## Item 30: DESKTOP-INSTALLER-POLISH-1 — Desktop Packaging Polish + Retired Code Cleanup
+
+**Priority:** LOW (non-blocking follow-on)
+**Status:** NOT-STARTED
+**Routing:** bolt-core-sdk (bolt-ui packaging), localbolt-app (cleanup), bolt-ecosystem (governance)
+**Category:** Polish — installer, assets, retired-code cleanup
+**Stream:** DESKTOP-INSTALLER-POLISH-1 (unphased, task list)
+**Dependencies:** NATIVE-DESKTOP-WINDOWS-1 CLOSED. Desktop rollback CLOSED all platforms.
+
+**Context:** Low-priority operational polish after full desktop-native migration. Desktop rollback is CLOSED. `bolt-ui` was the canonical desktop shell; **superseded by localbolt-app native shells (2026-04-12)**. These items are non-blocking improvements, not architecture or rollback gates.
+
+**This stream does NOT reopen any rollback decisions.**
+
+**Task list (execute in any order, when convenient):**
+
+| Task | Description | Priority | Notes |
+|------|-------------|----------|-------|
+| MSI installer fix | Fix cargo-bundle WiX `KeyPath` bug or switch to `wix` crate | Low | `.exe` is the accepted Windows distribution. MSI is installer polish only. |
+| Icon design asset | Replace placeholder gradient icons with professional design | Low | Functional placeholders exist (icns/ico/png). Design task, not engineering. |
+| Retired Tauri cleanup | Delete `localbolt-app/src-tauri/` and `localbolt-app/web/` | Low | Safe — desktop rollback is CLOSED. Code is inert. Do when convenient. |
+
+**Why this is one stream (not three):**
+- All three items are low-priority, non-blocking, desktop-packaging-related polish
+- None have upstream dependencies or downstream consumers
+- None require phased gates or PM decisions
+- Splitting would create governance overhead disproportionate to the work
+
+**Why these are non-blocking:**
+- Desktop rollback is CLOSED across macOS, Linux, and Windows
+- `.exe` is accepted as the Windows distribution format
+- Placeholder icons are functional
+- `localbolt-app/src-tauri/` is retired code with no active consumers
+
+---
+
+## Item 31: BROWSER-APP-DIRECT-1 — Browser↔Desktop Direct Transport Adoption
+
+**Priority:** NEXT (in progress)
+**Status:** **IN PROGRESS** (2026-03-23). Desktop daemon WS endpoint exposed after approval. localbolt-v3 wired to use `BrowserAppTransport` for desktop peers.
+**Routing:** bolt-core-sdk (bolt-ui), localbolt-v3, bolt-daemon, bolt-ecosystem
+**Category:** Integration — browser↔app direct transport (WS/WT, not WebRTC)
+**Stream:** BROWSER-APP-DIRECT-1
+
+**Context:** Wire the already-built direct browser↔app transport stack into the production web app. After approval, browser uses `BrowserAppTransport` to connect to daemon WS endpoint instead of WebRTC. Browser↔browser keeps WebRTC.
+
+---
+
+## Item 32: WASM-CRYPTO-FIRST-1 — Browser Crypto Convergence
+
+**Priority:** NEXT (unblocked)
+**Status:** NOT-STARTED
+**Routing:** bolt-core-sdk (Rust WASM + TS transport-web), bolt-ecosystem
+**Category:** Architecture — converge browser crypto to Rust/WASM authority
+**Stream:** WASM-CRYPTO-FIRST-1
+
+**Context:** Browser currently has dual crypto paths: TS NaCl (fallback) + Rust/WASM NaCl (preferred when available). Make WASM the default and sole authority. Remove or gate TS crypto as legacy fallback only. Prevents AP-03 (new TS crypto logic) from growing.
+
+---
+
+## Item 33: TRANSFER-SM-CONVERGENCE-1 — Browser Transfer Orchestration Convergence
+
+**Priority:** LOW (acceptable drift, not urgent)
+**Status:** NOT-STARTED
+**Routing:** bolt-core-sdk (Rust SM + TS TransferManager), bolt-ecosystem
+**Category:** Architecture — converge browser transfer toward Rust SM authority
+**Stream:** TRANSFER-SM-CONVERGENCE-1
+
+**Context:** `TransferManager.ts` (~865 lines) owns chunk processing, backpressure, progress, stall detection. Rust SM (bolt-transfer-core) + WASM already exist. Over time, thin the TS layer and let Rust/WASM own transfer orchestration. Not urgent — current TS layer works correctly.
+
+---
+
+## Item 34: LOCALBOLT-APP-FREEZE-1 — Archive Retired Tauri Repo
+
+**Priority:** LOW (non-blocking cleanup)
+**Status:** NOT-STARTED
+**Routing:** localbolt-app (archive), bolt-ecosystem
+**Category:** Cleanup — archive retired Tauri desktop path
+**Stream:** LOCALBOLT-APP-FREEZE-1
+
+**Context:** `localbolt-app` is retired (desktop rollback CLOSED all platforms). Repo should be archived on GitHub to prevent accidental new commits. Violates AP-01 if left open.
+
+---
+
 ## Routing Summary
 
 | Item | Routing | Certainty |
@@ -792,6 +1028,17 @@ Two compounding root causes in `packages/localbolt-web/src/components/peer-conne
 | LOCALBOLT-RELIABILITY-UX-1 | localbolt-v3 + bolt-transport-web + consumers + bolt-ecosystem | Confirmed |
 | LOCALBOLT-PERF-1 | bolt-core-sdk + localbolt-v3 + bolt-ecosystem | Confirmed |
 | WEBTRANSPORT-BROWSER-APP-IMPL-1 | bolt-daemon + bolt-core-sdk + bolt-ecosystem | Confirmed |
+| WEBTRANSPORT-BROWSER-APP-E2E-1 | bolt-daemon + bolt-ecosystem | Confirmed |
+| NATIVE-APP-CORE-1 | bolt-core-sdk + bolt-ui + bolt-ecosystem | Confirmed |
+| NATIVE-DESKTOP-PKG-1 | localbolt-app + bolt-ecosystem | Confirmed |
+| NATIVE-IOS-1 | localbolt-ios (new) + bolt-core-sdk + bolt-ecosystem | Confirmed |
+| NATIVE-ANDROID-1 | localbolt-android (new) + bolt-core-sdk + bolt-ecosystem | Confirmed |
+| NATIVE-DESKTOP-WINDOWS-1 | bolt-core-sdk (CI) + bolt-ecosystem | Confirmed |
+| DESKTOP-INSTALLER-POLISH-1 | bolt-core-sdk + localbolt-app (cleanup) + bolt-ecosystem | Confirmed |
+| BROWSER-APP-DIRECT-1 | bolt-core-sdk + localbolt-v3 + bolt-daemon + bolt-ecosystem | Confirmed |
+| WASM-CRYPTO-FIRST-1 | bolt-core-sdk (Rust WASM + TS) + bolt-ecosystem | Confirmed |
+| TRANSFER-SM-CONVERGENCE-1 | bolt-core-sdk (Rust SM + TS) + bolt-ecosystem | Confirmed |
+| LOCALBOLT-APP-FREEZE-1 | localbolt-app (archive) + bolt-ecosystem | Confirmed |
 
 ---
 

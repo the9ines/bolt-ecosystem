@@ -16,7 +16,7 @@ This document is the canonical threat model, trust boundary definition, and secu
 | Component | Trust Level | Rationale |
 |-----------|------------|-----------|
 | **Browser endpoint** | Trusted local agent | Holds identity keys (IndexedDB), performs crypto. Origin-sandboxed. Full session authority when no daemon present. |
-| **Native app wrapper (bolt-ui)** | Trusted local UI | Does not hold crypto keys directly. Delegates to daemon via IPC. Compromise reveals UI state but not in-transit plaintext without daemon compromise. |
+| **Native app wrapper (localbolt-app native shell)** | Trusted local UI | Does not hold crypto keys directly. Delegates to daemon via IPC or embedded sidecar. Compromise reveals UI state but not in-transit plaintext without daemon compromise. |
 | **CLI client** | Trusted local agent | Same trust model as native wrapper — delegates crypto to daemon. |
 | **Daemon (bolt-daemon)** | Trusted local authority | Highest-privilege local component. Owns identity, session, crypto, transfer engine. Compromise is full endpoint compromise. |
 | **Local IPC** | Trusted local channel | Unix socket with 0600 permissions. Protected by OS user isolation. Equivalent trust to daemon process boundary. |
@@ -31,9 +31,9 @@ This document is the canonical threat model, trust boundary definition, and secu
 ┌─────────────────────────────────────────────────────┐
 │                  Local Device                        │
 │                                                     │
-│  ┌──────────┐   IPC (0600)   ┌──────────────────┐  │
-│  │ bolt-ui  │◄──────────────►│   bolt-daemon    │  │
-│  │ (native) │                │  identity keys   │  │
+│  ┌──────────┐  IPC / sidecar  ┌──────────────────┐  │
+│  │ native   │◄──────────────►│   bolt-daemon    │  │
+│  │  shell   │                │  identity keys   │  │
 │  └──────────┘                │  session crypto  │  │
 │                              │  transfer engine │  │
 │                              └────────┬─────────┘  │
@@ -334,7 +334,7 @@ The following validation is required before any endpoint may claim full BTR supp
 | **Blast radius** | Discovery/signaling layer. All users of that rendezvous instance affected for metadata. No plaintext exposure. |
 | **Containment** | Protocol design: rendezvous is untrusted. End-to-end encryption is independent of rendezvous integrity. |
 
-### Native Wrapper (bolt-ui) Compromised
+### Native Wrapper (Native Shell) Compromised
 
 | Aspect | Impact |
 |--------|--------|

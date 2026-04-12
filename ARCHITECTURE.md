@@ -1,7 +1,7 @@
 # Bolt Ecosystem — Architecture
 
 > **Status:** Normative
-> **Last Updated:** 2026-03-22
+> **Last Updated:** 2026-04-12
 > **Canonical Protocol Spec:** `bolt-protocol/PROTOCOL.md` (canonical)
 
 This document defines architectural invariants, security guarantees, protocol structure, and repository boundaries for the Bolt ecosystem. It uses RFC 2119 language: MUST, MUST NOT, NEVER, REQUIRED, SHOULD.
@@ -197,7 +197,7 @@ MUST preserve:
 | Browser transport + crypto (TypeScript) | localbolt-v3 | Extracted from bolt-core-sdk (TS-EXTRACTION-1). Published as `@the9ines/localbolt-browser` and `@the9ines/bolt-core`. |
 | Conformance test vectors | bolt-core-sdk | Shared between Rust and browser test suites (vectors remain in SDK) |
 | App runtime core | bolt-core-sdk (`bolt-app-core`) | Shell-agnostic daemon lifecycle, IPC, watchdog, platform (ADR-001) |
-| Desktop UI shell | bolt-core-sdk (`bolt-ui`) | egui/eframe native binary, consumes bolt-app-core |
+| Desktop UI shell (historical) | bolt-core-sdk (`bolt-ui`) | egui/eframe binary. Historical — superseded by localbolt-app native shells (2026-04-12). |
 | Rendezvous server (Rust) | bolt-rendezvous | Canonical implementation |
 | Rendezvous (vendored) | localbolt, localbolt-app | Via git subtree only |
 | Daemon (Rust) | bolt-daemon | Canonical implementation |
@@ -230,7 +230,7 @@ MUST preserve:
 | Repo | Allowed | Forbidden |
 |------|---------|-----------|
 | bolt-protocol | Markdown specs only | Code, configs, CI |
-| bolt-core-sdk | SDK code, tests, spec stubs, bolt-app-core, bolt-ui | Product-specific policy, Tauri deps |
+| bolt-core-sdk | SDK code, tests, spec stubs, bolt-app-core, bolt-ui (legacy, retained) | Product-specific policy, Tauri deps |
 | bolt-rendezvous | Rendezvous server code | Protocol logic, UI |
 | bolt-daemon | Daemon code, IPC API | Protocol logic, UI |
 | localbolt | Web app, vendored signal | SDK internals, spec |
@@ -427,7 +427,7 @@ Violation of any ARCH invariant MUST be escalated to human immediately.
 Release promotion follows the dependency graph. Upstream repos MUST pass before downstream consumers tag:
 
 ```
-1. bolt-core-sdk        ←── canonical core: Rust crates, WASM compilation, bolt-app-core, bolt-ui
+1. bolt-core-sdk        ←── canonical core: Rust crates, WASM compilation, bolt-app-core
 2. bolt-daemon          ←── daemon runtime tests, transport tests
    bolt-rendezvous      ←── server/protocol tests (parallel with daemon)
 3. localbolt-app        ←── native shell build + tests (Rust FFI bridge + Swift)
@@ -441,11 +441,11 @@ Release promotion follows the dependency graph. Upstream repos MUST pass before 
 
 | Repo | Required CI | Notes |
 |------|------------|-------|
-| bolt-core-sdk | Rust unit/integration, WASM build, cross-language vectors, bolt-app-core tests, bolt-ui tests/build | Canonical. All shared Rust logic tested here. TS tests move with extraction. |
+| bolt-core-sdk | Rust unit/integration, WASM build, cross-language vectors, bolt-app-core tests | Canonical. All shared Rust logic tested here. bolt-ui tests retained but legacy. |
 | bolt-daemon | Daemon tests (`cargo test --features transport-webtransport,transport-ws`), `cargo fmt`, `cargo clippy` | Includes WT/WS/QUIC transport tests. |
 | bolt-rendezvous | Server + protocol tests | Independent of daemon. |
 | localbolt-v3 | Consumer build + test only | MUST NOT duplicate SDK tests. |
-| localbolt-app | **Retired** — no CI required | Freeze/archive. No new strategic work. |
+| localbolt-app | Native shell build + tests (SwiftUI + Rust FFI) | Forward native product path. macOS shell shipping (v2.0.0). |
 | future iOS/Android | UniFFI binding generation + shell smoke | Platform CI (Xcode Cloud, Android SDK). |
 | bolt-ecosystem | Docs/governance consistency checks | No code tests. |
 
@@ -540,6 +540,7 @@ These patterns MUST NOT be introduced. Violations should be escalated.
 | AP-03 | New TS crypto logic | Rust/WASM is crypto authority. |
 | AP-04 | New TS transfer orchestration authority | Rust SM is canonical. |
 | AP-05 | TS protocol wire format changes | Wire format owned by Rust core. |
+| AP-06 | Cross-platform UI shell as default product path | Do not introduce a cross-platform UI shell (egui, Electron, Flutter) as the default product path when platform-native shells are the architectural target. Platform-native shells (SwiftUI, Kotlin/Compose, etc.) are the forward direction. egui and Tauri are historical. |
 
 ### Browser↔App Transport Direction
 
@@ -580,7 +581,7 @@ Signaling endpoint selection MUST be security-context-aware:
 | **Rendezvous server** | Untrusted | Routes encrypted envelopes. Cannot read contents. Sees IP addresses, peer codes, connection metadata. Compromise reveals who is talking to whom, not what they say. |
 | **Daemon (local)** | Trusted local agent | Owns identity keys, session keys, crypto operations. Compromise of the daemon process is full compromise of that endpoint — keys, plaintext, transfer data. Protected by OS process isolation and filesystem permissions. |
 | **Browser endpoint** | Trusted local agent | Same authority as daemon when daemon is absent. Identity keys in IndexedDB (origin-scoped). Compromise of the browser tab/origin is full compromise of that endpoint. |
-| **Native endpoint (bolt-ui)** | Trusted local UI | Communicates with daemon via local IPC. Does not hold crypto keys directly — daemon is the crypto authority. Compromise of bolt-ui without daemon compromise reveals UI state but not plaintext content in transit. |
+| **Native endpoint (native shell / localbolt-app)** | Trusted local UI | Communicates with daemon via local IPC or embedded sidecar. Does not hold crypto keys directly — daemon is the crypto authority. Compromise of native shell without daemon compromise reveals UI state but not plaintext content in transit. |
 | **Local IPC (Unix socket)** | Trusted local channel | Protected by filesystem permissions (0600). Compromise requires local root or same-user access — equivalent to daemon compromise. |
 | **Network transport (WS/WT)** | Untrusted | All data is envelope-encrypted. Transport is untrusted by design. MitM sees ciphertext only. |
 
@@ -622,7 +623,7 @@ Signaling endpoint selection MUST be security-context-aware:
 
 When present, bolt-daemon is the **canonical local protocol authority** for native apps and CLI clients:
 
-1. **Identity**: Daemon owns the persistent identity keypair. Native UI (bolt-ui) does NOT hold identity keys — it delegates to the daemon.
+1. **Identity**: Daemon owns the persistent identity keypair. Native UI (native shell) does NOT hold identity keys — it delegates to the daemon.
 2. **Trust/Pinning**: Daemon maintains the TOFU pin store. Pin decisions are made by the daemon based on UI input via IPC.
 3. **Session Establishment**: Daemon performs HELLO exchange, capability negotiation, SAS computation. Native UI receives session state via IPC events.
 4. **Crypto Operations**: All envelope encryption/decryption happens in the daemon. Native UI never touches plaintext in transit.
