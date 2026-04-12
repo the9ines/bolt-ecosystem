@@ -9,17 +9,17 @@ Snapshot Derived From:
 - v1.0.0-spec-freeze (79360df) [bolt-protocol]
 - ecosystem-v0.1.196-webtransport-impl1-closed (d2cfb9e)
 - bolt-ecosystem HEAD 3abafd0 (bolt-cli)
-Last Refreshed By: GOVERNANCE-CODIFICATION-5 (2026-04-09)
+Last Refreshed By: GOVERNANCE-CODIFICATION-7 (2026-04-12)
 ---
 
 # Bolt Ecosystem — State
 
-> **Last Updated:** 2026-04-09 (GOVERNANCE-CODIFICATION-5 — WEB-SURFACE-CONSOLIDATION-1 operationally validated, Netlify Git deploys restored)
+> **Last Updated:** 2026-04-12 (GOVERNANCE-CODIFICATION-7 — native macOS distribution live, multi-arch build pipeline hardened)
 > **Authority:** Informational. Updated after each tagged release or governance reconciliation.
 
 ---
 
-## Current Repo State (2026-04-09)
+## Current Repo State (2026-04-12)
 
 | Repo | Latest Tag | HEAD | Branch | Status |
 |------|-----------|------|--------|--------|
@@ -28,8 +28,8 @@ Last Refreshed By: GOVERNANCE-CODIFICATION-5 (2026-04-09)
 | bolt-rendezvous | `rendezvous-v0.2.14-fly-client-ip` | `82fa02b` | main | Active. Hardening complete (P4+P5). |
 | bolt-daemon | `daemon-v0.2.48-webtransport-impl1-wti2-wti5` | `899c8fc` | main | Active. WT + WS + IPC events + transfer pause/resume. Deadlock fix. 243 tests. |
 | localbolt | `localbolt-v1.0.38-impl1-multi-transport` | `a6b88c2` | main | Active. Canonical web app. Multi-transport peer-connection (IMPL-1). |
-| localbolt-v3 | `v3.0.102-seo-copy-refresh` | `9a6667a` | main | Active. Site/deployment layer. Consumes localbolt canonical via Vite alias. SEO copy refreshed. Netlify Git-triggered deploys. Public repo. |
-| localbolt-app | `localbolt-app-v1.2.28-ux-parity-m4-m7` | `969d355` | main | Active. macOS SwiftUI native shell. All MUST-MATCH + SHOULD-MATCH parity complete. Transfer pause/resume. TOFU pin persistence. Tauri retired. |
+| localbolt-v3 | `v3.0.108-intel-download` | `1416203` | main | Active. Site/deployment layer. macOS download links (Apple Silicon + Intel). Netlify Git-triggered deploys. Public repo. |
+| localbolt-app | `localbolt-app-v2.0.1-multiarch-build` | `7482aa7` | main | Active. macOS SwiftUI native shell. **v2.0.0 released** (arm64 + x86_64 DMGs). Multi-arch build pipeline. Ad-hoc signed. Tauri retired. |
 | bytebolt-app | `bytebolt-v0.0.1` | `d27dfd8` | main | Minimal placeholder. |
 | bytebolt-relay | `relay-v0.0.1` | `4a8dffb` | main | Minimal placeholder. |
 | bolt-ecosystem | `ecosystem-v0.1.196-webtransport-impl1-closed` | `3abafd0` | main | Governance root. bolt-cli (first non-core adopter). |

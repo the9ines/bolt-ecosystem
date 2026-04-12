@@ -5,6 +5,32 @@ Per-repo details live in each repo's `docs/CHANGELOG.md`.
 
 ---
 
+## 2026-04-12 — Native macOS Distribution Live (GOVERNANCE-CODIFICATION-7)
+
+**Status: INITIAL RELEASE SHIPPED. SIGNING/NOTARIZATION FOLLOW-UP PENDING.**
+
+Native macOS desktop app distribution is live with multi-architecture support:
+
+- **Release:** `localbolt-app-v2.0.0` on GitHub Releases (`the9ines/localbolt-native`)
+- **Artifacts:** Apple Silicon DMG (`arm64`) + Intel DMG (`x86_64`) + SHA256SUMS.txt
+- **Download links:** `localbolt.app/download/macos`, `/download/macos/apple-silicon`, `/download/macos/intel` — all 302-verified
+- **Build pipeline:** `build-app.sh release [arm64|x86_64]` + `create-dmg.sh` — deterministic, no manual lib staging (`localbolt-app-v2.0.1-multiarch-build`, `7482aa7`)
+- **Site integration:** Feature card shows both download links. Footer links to app repo. (`v3.0.108-intel-download`, `1416203`)
+- **Tauri audit:** PRD/ROADMAP marked superseded, README rewritten, ecosystem CLAUDE.md corrected (`localbolt-app-v2.0.0-tauri-audit`, `b57f19c`)
+- **Repo name:** `localbolt-native` (interim — `localbolt-app` name retired by GitHub, support contacted)
+
+**Caveats (not blocking initial release):**
+- Ad-hoc signed, not notarized — first launch requires right-click → Open
+- macOS 14 (Sonoma)+ only
+- No auto-update mechanism
+
+**Follow-ups registered:**
+1. Apple Developer ID signing + notarization (gates: $99/yr enrollment)
+2. Auto-update mechanism (gates: signing, at least one shipped release)
+3. Repo rename `localbolt-native` → `localbolt-app` (gates: GitHub support)
+
+---
+
 ## 2026-04-09 — WEB-SURFACE-CONSOLIDATION-1 Operationally Validated (GOVERNANCE-CODIFICATION-5)
 
 **Status: OPERATIONALLY VALIDATED WITH FOLLOW-UPS.**
