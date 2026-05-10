@@ -386,6 +386,119 @@ C0 (PM policy decision) ← BLOCKER
 
 ---
 
+## Workstream Q — APP-TO-APP-QUIC-MIGRATION-1
+
+**Status:** NOT-STARTED (PM decision locked 2026-05-10)
+**Scope:** Promote QUIC from RC3 reference to production native↔native transport in bolt-daemon.
+**Repos:** bolt-daemon (primary), localbolt-app (integration), bolt-core-sdk (doc authority)
+**Dependency:** None blocking. WS client mode remains production until QUIC graduates.
+
+### PM Constraints
+
+1. **Accept-any TLS (`Rc3SkipVerification`) is NOT an acceptable production end state.** QUIC must ship with real transport-layer authentication.
+2. **Identity binding is the preferred strategy.** Bind daemon persistent Ed25519 identity key to QUIC TLS cert so transport-layer authentication is tied to Bolt identity, not external CA infrastructure.
+3. **WS client mode remains fallback** after QUIC graduation — not removed.
+
+### Current State
+
+| | Status |
+|---|---|
+| **Production app↔app transport** | WebSocket client mode (NATIVE-CONNECT-1) |
+| **QUIC transport layer** | Functional (tests pass: connect, framing, 1 MiB transfer) |
+| **QUIC cert validation** | `Rc3SkipVerification` — accepts any cert (INSECURE) |
+| **QUIC signaling integration** | None — not wired into rendezvous or WsEndpoint mode |
+| **QUIC IPC/pairing** | None — no session events, no pairing approval |
+| **QUIC feature flag** | `transport-quic` (opt-in, not in default features) |
+
+### Phase Plan
+
+| Phase | Description | Status | Dependencies |
+|-------|-------------|--------|-------------|
+| Q0 | Policy lock (this section) | **DONE** | None |
+| Q1 | Transport auth — replace `Rc3SkipVerification` with identity-bound cert validation | NOT-STARTED | None |
+| Q2 | Signaling + WsEndpoint integration — QUIC starts in default mode, address shared via signaling | NOT-STARTED | Q1 |
+| Q3 | IPC/pairing + disconnect propagation — full session lifecycle parity with WS | NOT-STARTED | Q2 |
+| Q4 | Feature flag promotion + localbolt-app wiring — end-to-end native↔native QUIC | NOT-STARTED | Q3 |
+| Q5 | E2E validation + WS fallback — two-device proof, fallback tested | NOT-STARTED | Q4 |
+| Q6 | Docs graduation — TRANSPORT_CONTRACT.md: QUIC → Production, WS → Fallback | NOT-STARTED | Q5 |
+
+### Q1 — Transport Auth (Security Gate)
+
+**Objective:** Replace `Rc3SkipVerification` with identity-bound TLS certificate validation.
+
+**Approach (PM-preferred):** Bind daemon's persistent Ed25519 identity key to the QUIC TLS certificate. Verifier checks that the TLS cert's public key matches the Bolt identity key received via signaling. This ties transport-layer authentication to the existing Bolt identity/TOFU system rather than depending on external CA infrastructure.
+
+**Acceptance criteria:**
+- [ ] `Rc3SkipVerification` removed from production code
+- [ ] QUIC client validates server cert against Bolt identity key
+- [ ] QUIC server presents cert bound to its Bolt identity
+- [ ] Cert mismatch = connection refused (fail-closed)
+- [ ] Unit tests for valid cert, mismatched cert, expired cert
+- [ ] No regression in existing QUIC transport tests
+
+**Alternative rejected:** Accept-any + rely on Bolt envelope only. Rationale: transport-layer MitM would be possible even though payload remains secure. PM decision: real transport auth is required.
+
+### Q2 — Signaling + WsEndpoint Integration
+
+**Objective:** Wire QUIC into the default daemon startup path and signaling protocol.
+
+**Acceptance criteria:**
+- [ ] QUIC listener starts alongside WS + WT in WsEndpoint mode
+- [ ] Daemon writes QUIC listen address to data dir (like `wt_info.json`)
+- [ ] Native app reads QUIC info and includes `quicAddr` in signaling payloads
+- [ ] Receiving side extracts `quicAddr` and passes to daemon for dialing
+- [ ] Backward compat: if `quicAddr` absent, fall back to `wsUrl`
+
+### Q3 — IPC/Pairing + Disconnect
+
+**Objective:** QUIC sessions have full lifecycle parity with WS sessions.
+
+**Acceptance criteria:**
+- [ ] `session.connected` / `session.ended` / `session.error` IPC events for QUIC
+- [ ] Pairing approval flow (trust store check before accepting QUIC connection)
+- [ ] `DISCONNECT_REQUESTED` flag + `request_disconnect()` for QUIC (mirror WS/WT pattern)
+
+### Q4 — Feature Flag + App Wiring
+
+**Objective:** End-to-end native↔native QUIC path operational.
+
+**Acceptance criteria:**
+- [ ] `transport-quic` added to default features (or `native-full` meta-feature)
+- [ ] localbolt-app build enables QUIC feature
+- [ ] `connect_remote.signal` routes to QUIC when available, WS fallback otherwise
+- [ ] All existing daemon tests pass with QUIC enabled
+
+### Q5 — E2E Validation
+
+**Objective:** Production-ready evidence.
+
+**Acceptance criteria:**
+- [ ] Two-device QUIC transfer test (Mac Studio ↔ MacBook Pro)
+- [ ] Disconnect propagation validated
+- [ ] Pairing approval validated
+- [ ] WS fallback tested (QUIC unavailable → WS client mode)
+- [ ] Performance comparison vs WS client mode documented
+
+### Q6 — Docs Graduation
+
+**Objective:** Remove "reference" label, update transport tables.
+
+**Acceptance criteria:**
+- [ ] TRANSPORT_CONTRACT.md: native↔native row updated to QUIC = Production, WS = Fallback
+- [ ] INTEGRATION_GUIDE.md: same update
+- [ ] bolt-daemon STATE.md: QUIC listed as production
+- [ ] N1 invariant note updated or removed
+
+### Risk Register (Q-STREAM)
+
+| ID | Risk | Severity | Status |
+|----|------|----------|--------|
+| QR1 | Identity-key-to-TLS binding may require custom cert extensions or X.509 constraints | Medium | Open |
+| QR2 | QUIC UDP may be blocked by some corporate firewalls (WS fallback mitigates) | Low | Accepted |
+| QR3 | quinn crate major version changes during migration | Low | Open |
+
+---
+
 ## Risk Register
 
 | ID | Risk | Severity | Status | Closes When |
@@ -488,6 +601,9 @@ S-STREAM-R1 (security/foundation recovery, independent of D-stream):
 C-STREAM-R1 (UI/state regression recovery, independent of D-stream):
   Single phase: generation guards + snapshot fix + trust truth table → DONE (v3.0.80-c-stream-r1-ui-state-fix)
 
+Q-STREAM (APP-TO-APP-QUIC-MIGRATION-1 — NOT-STARTED):
+  Q0 (policy lock) ✓ → Q1 (transport auth) → Q2 (signaling) → Q3 (IPC) → Q4 (app wiring) → Q5 (E2E) → Q6 (docs)
+
 N-STREAM-1 (native app + daemon bundling — **CLOSED**):
   N0 (policy lock) ✓ ──┬── N1 (packaging) ✓ ──┐
                        │                      ├── N4 (rollout) ✓ ──┐
@@ -577,3 +693,86 @@ LATER:                        │
 ### Relationship to Existing S-Program
 
 T-STREAM-0 is the concrete extraction backing S2 (Transfer Performance Program). SEC-CORE2 continues S3 (Logic Not Transport). ARCH-WASM1 extends S4 (WASM Protocol Engine). The forward backlog items supersede S2–S4 as actionable execution plans; S2–S4 remain as strategic direction references.
+
+---
+
+## BOLT-ECOSYSTEM-1 — Cross-Product Contract + Transport Program
+
+> **Status:** IN-PROGRESS
+> **Codified:** 2026-03-29
+> **Authority:** PM-approved. Execution order below is normative.
+
+### Exit Criteria
+
+Program is COMPLETE when all of:
+1. Canonical session/transfer contract v1 is stable and tested (bolt-core-sdk)
+2. Web and native products demonstrably conform to the contract
+3. Production transport path (HTTPS web ↔ native) is runtime-validated
+4. Parity tests exist across products
+5. Integration docs exist for external adopters
+6. At least one non-core consumer successfully adopts the contract
+
+### Completed Work
+
+| Stream | Description | Status | Evidence |
+|--------|-------------|--------|----------|
+| SESSION-STATE-CONTRACT-1 M1 | Contract scaffold (types, validators, schema, spec) | **DONE** | `bolt-core-sdk/docs/SESSION_CONTRACT.md`, `src/contracts/session_contract.rs` (19 tests) |
+| SESSION-STATE-CONTRACT-1 M2 | Web conformance audit | **DONE** | localbolt-v3 CONFORMANT across all 5 session phases, 3 verification states, all invariants. Both RECOMMENDED invariants (INV-4/5) exceeded. |
+| SESSION-STATE-CONTRACT-1 M3 | Native alignment | **DONE** | localbolt-app models 5 canonical phases + presentation-only `disconnected`. Generation counter, transfer gating (P1), canonical reset implemented. |
+| NATIVE-CONNECT-1 | Native app↔app direct WS connection | **DONE** | WS client dialer in daemon, signal file mechanism, IPC session events. Runtime-confirmed: connect, transfer, disconnect. |
+| NATIVE-SESSION-UX-2 | Native session/transfer state hardening | **DONE** | Disconnect propagation (daemon signal file), transfer cleanup on session end, declined handling. |
+| TRANSPORT-VALIDATION-1 | Cross-path transport validation (SRE protocol) | **DONE (CLOSED)** | WS-direct CONFIRMED, WebTransport CONFIRMED (handshake), QUIC CONFIRMED (4/4 e2e), WebRTC signaling CONFIRMED. |
+| WEB-NATIVE-TRANSPORT W1 | WT metadata plumbing through discovery | **DONE** | `wtUrl`/`wtCertHash` fields added: rendezvous protocol → signaling client → native FFI → web DiscoveredDevice. Backward-compatible. |
+| WEB-NATIVE-TRANSPORT W2 | WT connection wiring (web → native) | **DONE (code)** | Native signals now include WT metadata. Web's existing WtDataTransport wired to native peers. |
+| NATIVE-STABILITY-CRASH-1 | Native app crash fix | **DONE** | Root cause: dangling C string pointer in FFI `bolt_signaling_start` call (W1 regression). Fixed with nested `withCString` scoping. |
+
+### Remaining Streams (Execution Order)
+
+| # | Stream | Description | Repos | Blocks | Definition of Done |
+|---|--------|-------------|-------|--------|--------------------|
+| 1 | **W2-RUNTIME-VALIDATION-1** | Runtime-validate HTTPS browser ↔ native via WebTransport | localbolt-v3, localbolt-app | W3 | Chrome on HTTPS origin establishes WT session with native daemon. Session-connected + SAS verification confirmed. File transfer at least attempted. |
+| 2 | **M4-PARITY-1** | Cross-product contract parity tests | bolt-core-sdk, localbolt-v3, localbolt-app | NONCORE-ADOPTER-1 | Both products export transition tables. CI validates both against contract validators. Any divergence is a test failure. |
+| 3 | **ECOSYSTEM-DOCS-1** | Integration docs for external apps | bolt-core-sdk | NONCORE-ADOPTER-1 | `docs/INTEGRATION_GUIDE.md` in bolt-core-sdk: how to consume the session contract, implement a transport adapter, register with signaling. Covers Rust + TS paths. |
+| 4 | **NONCORE-ADOPTER-1** | First non-core consumer adopts the contract | TBD (candidate: localbolt Lite or bytebolt-app) | Program exit | External consumer implements canonical 5 session phases, passes parity test against contract validators. |
+| 5 | **SIDECHANNEL-REDUCTION-1** | Reduce product-specific exceptions and side channels | localbolt-app, localbolt-v3 | None (quality) | Audit product code for state managed outside canonical contract. Document remaining exceptions. Reduce where practical without UX regression. |
+
+Deferred (non-blocking):
+- **DESKTOP-SHELL-UX-1** — Native shell UX polish. Not a contract/transport concern. Execute when product priorities allow.
+- **W3-TRANSFER-1** — Full file transfer validation over WebTransport. Blocked by W2-RUNTIME-VALIDATION-1.
+- **W4-FALLBACK-1** — Unsupported-browser UX for non-WT browsers connecting to native peers.
+
+### Dependency Map
+
+```
+W2-RUNTIME-VALIDATION-1 (next)
+  │
+  └── M4-PARITY-1
+       │
+       ├── ECOSYSTEM-DOCS-1
+       │    │
+       │    └── NONCORE-ADOPTER-1 ──► PROGRAM EXIT
+       │
+       └── SIDECHANNEL-REDUCTION-1 (parallel, non-blocking)
+```
+
+### Repo/Component Ownership
+
+| Component | Owner Repo | Authority |
+|-----------|-----------|-----------|
+| Session/transfer contract (types, validators, schema) | bolt-core-sdk | Canonical — Rust validators are executable authority |
+| Signaling protocol (PeerData, Register, signals) | bolt-rendezvous (protocol crate) | Canonical wire format |
+| WT endpoint + WS endpoint | bolt-daemon | Transport authority |
+| WT metadata (cert hash, port) | bolt-daemon (generates), signaling (carries) | Daemon is source of truth |
+| Web session state machine | localbolt-v3 (localbolt-core) | Conforms to contract |
+| Native session state machine | localbolt-app (BoltBridge.swift) | Conforms to contract |
+| Product-specific UX (animation, disconnect display) | Each product repo | Out of contract scope |
+
+### Risks
+
+| ID | Risk | Severity | Status |
+|----|------|----------|--------|
+| R18 | WT browser support gaps (Firefox, Safari) | Medium | Accepted — Chrome/Edge cover majority. W4-FALLBACK-1 addresses messaging. |
+| R19 | WT cert rotation on long-running daemon | Low | Mitigated — daemon generates fresh cert on each start. New hash distributed via signaling. |
+| R20 | No non-core consumer exists yet to validate contract portability | Medium | Open — NONCORE-ADOPTER-1 is the resolution. |
+| R21 | Native automated test coverage limited (Swift, no unit test infra) | Medium | Accepted — contract conformance verified by code review + runtime testing. M4 will add CI-level parity checks. |
+| R22 | TRANSPORT_CONTRACT.md falsely claimed QUIC as production app↔app path | Medium | **Closed** | Corrected 2026-05-10: WS client mode documented as current production, QUIC as RC3 strategic target. APP-TO-APP-QUIC-MIGRATION-1 codified. |
