@@ -388,16 +388,33 @@ C0 (PM policy decision) ← BLOCKER
 
 ## Workstream Q — APP-TO-APP-QUIC-MIGRATION-1
 
-**Status:** NOT-STARTED (PM decision locked 2026-05-10)
+**Status:** NOT-STARTED (PM scope locked 2026-05-10; security model locked 2026-05-10 via APP-TO-APP-QUIC-SECURITY-DECISION-1, see Security Decision below)
 **Scope:** Promote QUIC from RC3 reference to production native↔native transport in bolt-daemon.
 **Repos:** bolt-daemon (primary), localbolt-app (integration), bolt-core-sdk (doc authority)
-**Dependency:** None blocking. WS client mode remains production until QUIC graduates.
+**Dependency:** None blocking. WS client mode remains the production native↔native path until QUIC clears every promotion gate, including the transport-auth gate in Q2.
 
 ### PM Constraints
 
 1. **Accept-any TLS (`Rc3SkipVerification`) is NOT an acceptable production end state.** QUIC must ship with real transport-layer authentication.
-2. **Identity binding is the preferred strategy.** Bind daemon persistent Ed25519 identity key to QUIC TLS cert so transport-layer authentication is tied to Bolt identity, not external CA infrastructure.
+2. **Production transport authentication = mutual cert-hash pinning** (locked 2026-05-10 via APP-TO-APP-QUIC-SECURITY-DECISION-1; see Security Decision below). Bolt HELLO / SAS / TOFU remains the identity-authentication layer; cert-hash pinning is the transport-authentication layer.
 3. **WS client mode remains fallback** after QUIC graduation — not removed.
+
+### Security Decision — APP-TO-APP-QUIC-SECURITY-DECISION-1 (CLOSED 2026-05-10)
+
+**Decision:** Native↔native QUIC production authentication will use mutual cert-hash pinning. Each daemon presents an ephemeral self-signed QUIC certificate, shares the expected certificate hash through rendezvous signaling, and verifies the peer certificate hash during the QUIC TLS handshake. Bolt HELLO / SAS / TOFU remains the identity-authentication layer; cert-hash pinning is the transport-authentication layer. The model mirrors the proven WebTransport cert-hash flow, adapted for symmetric daemon↔daemon where both peers can present certificates.
+
+**Production promotion blocker:** QUIC must NOT be promoted to the production app↔app path while `Rc3SkipVerification`, accept-any certificate verification, or any equivalent envelope-only transport authentication remains reachable in a default-feature code path.
+
+**Interim milestone allowance:** One-way cert-hash pinning (dialer verifies acceptor only) may be used ONLY as an internal non-production milestone (see Q1) to retire `Rc3SkipVerification` on the dialer side. One-way pinning alone does NOT satisfy the production promotion blocker. Production promotion requires mutual daemon↔daemon pinning (Q2) or a later explicit PM / security exception that is recorded as a separate decision.
+
+**Rejected alternatives (do not revisit without a new decision record):**
+- *"Accept any TLS certificate and rely only on the Bolt envelope."* Rejected for production. Transport-layer MitM remains possible even with payload encryption, and defense-in-depth at the transport layer is required.
+- *"Embed the X25519 identity public key inside an X.509 certificate extension and treat the extension as identity binding."* Rejected because it provides no cryptographic binding — the X25519 public key is exchanged via signaling, so any party aware of it can forge a certificate that carries the same extension without proving possession of the X25519 private key.
+- *"Migrate the Bolt identity key from X25519 to Ed25519 solely to enable identity-bound QUIC TLS certificates."* Rejected for this migration. Bolt identity keys are X25519 / Curve25519 (DH-only) by design; X25519 cannot sign TLS certificates. An identity migration would touch identity storage, trust-store keying, SAS derivation, and HELLO payloads across bolt-core-sdk, bolt-daemon, localbolt-app, and localbolt-v3. The cost / risk ratio is wrong relative to cert-hash pinning, which provides equivalent practical security with zero changes to the identity model. This decision does not preclude a future Ed25519 migration driven by independent requirements (e.g., signed profile metadata).
+
+**Out of scope of this decision:**
+- TLS-exporter channel binding inside Bolt HELLO is a future hardening option, not a Q-stream gate.
+- The WT (browser↔native) cert-hash model is unaffected; this decision applies only to native↔native QUIC.
 
 ### Current State
 
@@ -414,40 +431,54 @@ C0 (PM policy decision) ← BLOCKER
 
 | Phase | Description | Status | Dependencies |
 |-------|-------------|--------|-------------|
-| Q0 | Policy lock (this section) | **DONE** | None |
-| Q1 | Transport auth — replace `Rc3SkipVerification` with identity-bound cert validation | NOT-STARTED | None |
-| Q2 | Signaling + WsEndpoint integration — QUIC starts in default mode, address shared via signaling | NOT-STARTED | Q1 |
+| Q0 | Policy + security decision lock (this section; APP-TO-APP-QUIC-SECURITY-DECISION-1 closed 2026-05-10) | **DONE** | None |
+| Q1 | Transport auth milestone (internal, non-production) — replace `Rc3SkipVerification` with one-way cert-hash pinning verifier on the dialer | NOT-STARTED | None |
+| Q2 | Signaling integration + mutual cert-hash pinning (production transport-auth gate) — when implemented, both daemons must exchange cert hashes via rendezvous and verify the peer cert during the QUIC TLS handshake. Not started; mutual pinning does not yet exist. | NOT-STARTED | Q1 |
 | Q3 | IPC/pairing + disconnect propagation — full session lifecycle parity with WS | NOT-STARTED | Q2 |
-| Q4 | Feature flag promotion + localbolt-app wiring — end-to-end native↔native QUIC | NOT-STARTED | Q3 |
+| Q4 | Feature flag promotion + localbolt-app wiring (production-promotion gate) — end-to-end native↔native QUIC, with the production promotion blocker (no `Rc3SkipVerification` / accept-any reachable, mutual pinning live) verified | NOT-STARTED | Q3 |
 | Q5 | E2E validation + WS fallback — two-device proof, fallback tested | NOT-STARTED | Q4 |
 | Q6 | Docs graduation — TRANSPORT_CONTRACT.md: QUIC → Production, WS → Fallback | NOT-STARTED | Q5 |
 
-### Q1 — Transport Auth (Security Gate)
+### Q1 — Transport Auth Milestone (Internal, Non-Production)
 
-**Objective:** Replace `Rc3SkipVerification` with identity-bound TLS certificate validation.
+**Objective:** Retire `Rc3SkipVerification` on the dialer side by introducing a one-way cert-hash pinning verifier. This is an internal milestone — sufficient to remove accept-any verification from the dialer, NOT sufficient for production promotion (the acceptor still cannot verify the dialer).
 
-**Approach (PM-preferred):** Bind daemon's persistent Ed25519 identity key to the QUIC TLS certificate. Verifier checks that the TLS cert's public key matches the Bolt identity key received via signaling. This ties transport-layer authentication to the existing Bolt identity/TOFU system rather than depending on external CA infrastructure.
-
-**Acceptance criteria:**
-- [ ] `Rc3SkipVerification` removed from production code
-- [ ] QUIC client validates server cert against Bolt identity key
-- [ ] QUIC server presents cert bound to its Bolt identity
-- [ ] Cert mismatch = connection refused (fail-closed)
-- [ ] Unit tests for valid cert, mismatched cert, expired cert
-- [ ] No regression in existing QUIC transport tests
-
-**Alternative rejected:** Accept-any + rely on Bolt envelope only. Rationale: transport-layer MitM would be possible even though payload remains secure. PM decision: real transport auth is required.
-
-### Q2 — Signaling + WsEndpoint Integration
-
-**Objective:** Wire QUIC into the default daemon startup path and signaling protocol.
+**Approach (per APP-TO-APP-QUIC-SECURITY-DECISION-1):** Mirror the WT cert-hash flow on the dialer:
+- Acceptor daemon generates an ephemeral self-signed QUIC certificate. Reuse `wt_cert.rs` cert-generation logic where practical (extract a shared helper if needed).
+- Acceptor computes `SHA-256(cert_der) → cert_hash_hex` and exposes it through a local mechanism (file in data dir or IPC) suitable for an internal milestone. Q1 does NOT require signaling-protocol changes.
+- Dialer daemon's QUIC client config replaces `Rc3SkipVerification` with a `CertHashPinVerifier` that computes `SHA-256(received_cert_der)` and compares it against the pinned hash. Mismatch → connection refused, fail-closed.
+- After TLS: Bolt HELLO → SAS → TOFU (unchanged).
 
 **Acceptance criteria:**
-- [ ] QUIC listener starts alongside WS + WT in WsEndpoint mode
-- [ ] Daemon writes QUIC listen address to data dir (like `wt_info.json`)
-- [ ] Native app reads QUIC info and includes `quicAddr` in signaling payloads
-- [ ] Receiving side extracts `quicAddr` and passes to daemon for dialing
-- [ ] Backward compat: if `quicAddr` absent, fall back to `wsUrl`
+- [ ] `Rc3SkipVerification` is removed from any code path reachable in a default-feature build.
+- [ ] Dialer-side cert-hash verifier rejects connections when the received cert hash does not match the pinned hash.
+- [ ] Cert mismatch = connection refused (fail-closed); the failure surfaces as a typed transport error.
+- [ ] Unit tests: matching hash succeeds; mismatched hash fails; corrupted hash input fails closed.
+- [ ] No regression in existing QUIC transport tests.
+- [ ] Q1 is explicitly labeled "internal, non-production" in code comments and in `bolt-daemon/docs/STATE.md` transport table.
+
+**Production gating:** Q1 alone does NOT satisfy the APP-TO-APP-QUIC-SECURITY-DECISION-1 production promotion blocker. The acceptor still cannot verify the dialer, and signaling integration is not yet present. Production promotion remains blocked until Q2 lands mutual pinning.
+
+**Rejected at Q1 (per Security Decision):**
+- Accept-any TLS / envelope-only auth as an interim posture beyond Q1 (only acceptable as the existing pre-Q1 RC3 state).
+- Embedding the X25519 identity public key in an X.509 extension as a substitute for cert-hash verification.
+- Migrating Bolt identity keys to Ed25519 to enable identity-bound TLS certificates instead of cert-hash pinning.
+
+### Q2 — Signaling Integration + Mutual Cert-Hash Pinning (Production Transport-Auth Gate)
+
+**Status:** NOT-STARTED. None of the items below currently exist in the codebase. Mutual cert-hash pinning does not yet exist anywhere in bolt-daemon, the rendezvous signaling protocol, or localbolt-app. Q2 is a forward gate that must be crossed; it is not a present-state description.
+
+**Objective:** Q2 will wire QUIC into the default daemon startup path and the rendezvous signaling protocol, and will establish mutual cert-hash pinning between both daemons. Crossing Q2 — i.e., satisfying every acceptance criterion below and verifying the result — is what would satisfy the APP-TO-APP-QUIC-SECURITY-DECISION-1 production promotion blocker at the transport layer. Until Q2 is crossed, the blocker remains in force and QUIC remains a Reference (RC3) transport. Remaining work (Q3–Q5) covers session-lifecycle parity and validation, not transport-auth.
+
+**Acceptance criteria:**
+- [ ] QUIC listener starts alongside WS + WT in WsEndpoint mode.
+- [ ] Acceptor daemon writes its QUIC listen address and `quicCertHash` for the native app to consume (analogous to `wt_info.json` for WT).
+- [ ] Native app includes `quicAddr` and `quicCertHash` in the `connection_accepted` signaling payload.
+- [ ] The dialer also publishes its own cert hash so the acceptor can pin it (exact field name — e.g. `quicClientCertHash` — settled during implementation).
+- [ ] Both daemons present client and server certificates via `with_client_auth()` / `ClientCertVerifier` (rustls/quinn), and both sides verify the peer cert hash against the signaling-supplied hash. Mismatch on either side → connection refused, fail-closed.
+- [ ] No code path reachable in a default-feature build uses `Rc3SkipVerification`, accept-any verification, or otherwise bypasses cert-hash pinning. Static / build-time check preferred where feasible.
+- [ ] Backward compat: if `quicAddr` / `quicCertHash` absent in signaling, fall back to WS client mode.
+- [ ] Unit + integration tests: mutual pin success; one-side mismatch fail-closed; missing-hash fall-back to WS.
 
 ### Q3 — IPC/Pairing + Disconnect
 
@@ -458,15 +489,20 @@ C0 (PM policy decision) ← BLOCKER
 - [ ] Pairing approval flow (trust store check before accepting QUIC connection)
 - [ ] `DISCONNECT_REQUESTED` flag + `request_disconnect()` for QUIC (mirror WS/WT pattern)
 
-### Q4 — Feature Flag + App Wiring
+### Q4 — Feature Flag + App Wiring (Production-Promotion Gate)
 
-**Objective:** End-to-end native↔native QUIC path operational.
+**Objective:** End-to-end native↔native QUIC path operational and promoted to production. Q4 is the production-promotion gate — promotion is blocked until the APP-TO-APP-QUIC-SECURITY-DECISION-1 production blocker is verifiably satisfied.
+
+**Pre-gate (must be true before Q4 can be marked complete):**
+- Q2 mutual cert-hash pinning is live in default-feature code paths.
+- `Rc3SkipVerification`, accept-any cert verification, and any envelope-only transport-auth code paths are not reachable in a default-feature build (verified by code search and, where feasible, a build-time check).
 
 **Acceptance criteria:**
-- [ ] `transport-quic` added to default features (or `native-full` meta-feature)
-- [ ] localbolt-app build enables QUIC feature
-- [ ] `connect_remote.signal` routes to QUIC when available, WS fallback otherwise
-- [ ] All existing daemon tests pass with QUIC enabled
+- [ ] Pre-gate verified (mutual cert-hash pinning live; no accept-any reachable in default features).
+- [ ] `transport-quic` added to default features (or a `native-full` meta-feature) — only after the pre-gate is satisfied.
+- [ ] localbolt-app build enables QUIC feature.
+- [ ] `connect_remote.signal` routes to QUIC when available, WS fallback otherwise.
+- [ ] All existing daemon tests pass with QUIC enabled.
 
 ### Q5 — E2E Validation
 
@@ -493,9 +529,10 @@ C0 (PM policy decision) ← BLOCKER
 
 | ID | Risk | Severity | Status |
 |----|------|----------|--------|
-| QR1 | Identity-key-to-TLS binding may require custom cert extensions or X.509 constraints | Medium | Open |
+| QR1 | Mutual cert-hash pinning requires bidirectional cert-hash exchange in signaling and dual-direction client+server cert verification (rustls `with_client_auth()` + `ClientCertVerifier`) — implementation risk in quinn/rustls integration | Medium | Open |
 | QR2 | QUIC UDP may be blocked by some corporate firewalls (WS fallback mitigates) | Low | Accepted |
 | QR3 | quinn crate major version changes during migration | Low | Open |
+| QR4 | Identity-key-to-TLS-binding alternative (rejected) — rejected by APP-TO-APP-QUIC-SECURITY-DECISION-1 because Bolt identity is X25519/DH-only and an identity migration to Ed25519 is out of scope. Risk: future contributor proposes the rejected approach without consulting the decision record | Low | Mitigated (decision recorded in Security Decision section above) |
 
 ---
 
