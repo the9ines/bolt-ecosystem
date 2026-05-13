@@ -403,7 +403,7 @@ C0 (PM policy decision) ← BLOCKER
 
 **Decision:** Native↔native QUIC production authentication will use mutual cert-hash pinning. Each daemon presents an ephemeral self-signed QUIC certificate, shares the expected certificate hash through rendezvous signaling, and verifies the peer certificate hash during the QUIC TLS handshake. Bolt HELLO / SAS / TOFU remains the identity-authentication layer; cert-hash pinning is the transport-authentication layer. The model mirrors the proven WebTransport cert-hash flow, adapted for symmetric daemon↔daemon where both peers can present certificates.
 
-**Production promotion blocker:** QUIC must NOT be promoted to the production app↔app path while `Rc3SkipVerification`, accept-any certificate verification, or any equivalent envelope-only transport authentication remains reachable in a default-feature code path.
+**Production promotion blocker:** QUIC must NOT be promoted to the production app↔app path while `Rc3SkipVerification`, accept-any certificate verification, or any equivalent envelope-only transport authentication remains reachable in any production app↔app QUIC path.
 
 **Interim milestone allowance:** One-way cert-hash pinning (dialer verifies acceptor only) may be used ONLY as an internal non-production milestone (see Q1) to retire `Rc3SkipVerification` on the dialer side. One-way pinning alone does NOT satisfy the production promotion blocker. Production promotion requires mutual daemon↔daemon pinning (Q2) or a later explicit PM / security exception that is recorded as a separate decision.
 
@@ -450,7 +450,7 @@ C0 (PM policy decision) ← BLOCKER
 - After TLS: Bolt HELLO → SAS → TOFU (unchanged).
 
 **Acceptance criteria:**
-- [ ] `Rc3SkipVerification` is removed from any code path reachable in a default-feature build.
+- [ ] `Rc3SkipVerification` is no longer used by the Q1 dialer-side QUIC path; any remaining accept-any verifier remains isolated to RC3/reference-only code and blocked from production promotion.
 - [ ] Dialer-side cert-hash verifier rejects connections when the received cert hash does not match the pinned hash.
 - [ ] Cert mismatch = connection refused (fail-closed); the failure surfaces as a typed transport error.
 - [ ] Unit tests: matching hash succeeds; mismatched hash fails; corrupted hash input fails closed.
@@ -476,7 +476,7 @@ C0 (PM policy decision) ← BLOCKER
 - [ ] Native app includes `quicAddr` and `quicCertHash` in the `connection_accepted` signaling payload.
 - [ ] The dialer also publishes its own cert hash so the acceptor can pin it (exact field name — e.g. `quicClientCertHash` — settled during implementation).
 - [ ] Both daemons present client and server certificates via `with_client_auth()` / `ClientCertVerifier` (rustls/quinn), and both sides verify the peer cert hash against the signaling-supplied hash. Mismatch on either side → connection refused, fail-closed.
-- [ ] No code path reachable in a default-feature build uses `Rc3SkipVerification`, accept-any verification, or otherwise bypasses cert-hash pinning. Static / build-time check preferred where feasible.
+- [ ] No production app↔app QUIC path uses `Rc3SkipVerification`, accept-any verification, or otherwise bypasses cert-hash pinning. Static / build-time check preferred where feasible.
 - [ ] Backward compat: if `quicAddr` / `quicCertHash` absent in signaling, fall back to WS client mode.
 - [ ] Unit + integration tests: mutual pin success; one-side mismatch fail-closed; missing-hash fall-back to WS.
 
@@ -494,11 +494,11 @@ C0 (PM policy decision) ← BLOCKER
 **Objective:** End-to-end native↔native QUIC path operational and promoted to production. Q4 is the production-promotion gate — promotion is blocked until the APP-TO-APP-QUIC-SECURITY-DECISION-1 production blocker is verifiably satisfied.
 
 **Pre-gate (must be true before Q4 can be marked complete):**
-- Q2 mutual cert-hash pinning is live in default-feature code paths.
-- `Rc3SkipVerification`, accept-any cert verification, and any envelope-only transport-auth code paths are not reachable in a default-feature build (verified by code search and, where feasible, a build-time check).
+- Q2 mutual cert-hash pinning is live in the QUIC-enabled production build.
+- `Rc3SkipVerification`, accept-any cert verification, and any envelope-only transport-auth code paths are not reachable in any production app↔app QUIC path (verified by code search and, where feasible, a build-time check).
 
 **Acceptance criteria:**
-- [ ] Pre-gate verified (mutual cert-hash pinning live; no accept-any reachable in default features).
+- [ ] Pre-gate verified (mutual cert-hash pinning live; no accept-any reachable in any production app↔app QUIC path).
 - [ ] `transport-quic` added to default features (or a `native-full` meta-feature) — only after the pre-gate is satisfied.
 - [ ] localbolt-app build enables QUIC feature.
 - [ ] `connect_remote.signal` routes to QUIC when available, WS fallback otherwise.
@@ -813,3 +813,4 @@ W2-RUNTIME-VALIDATION-1 (next)
 | R20 | No non-core consumer exists yet to validate contract portability | Medium | Open — NONCORE-ADOPTER-1 is the resolution. |
 | R21 | Native automated test coverage limited (Swift, no unit test infra) | Medium | Accepted — contract conformance verified by code review + runtime testing. M4 will add CI-level parity checks. |
 | R22 | TRANSPORT_CONTRACT.md falsely claimed QUIC as production app↔app path | Medium | **Closed** | Corrected 2026-05-10: WS client mode documented as current production, QUIC as RC3 strategic target. APP-TO-APP-QUIC-MIGRATION-1 codified. |
+| R23 | QUIC security-gate wording used "default-feature build", which could pass while insecure QUIC remained reachable in a QUIC-enabled production build | Medium | **Closed** | Corrected 2026-05-13: production blocker now applies to any production app↔app QUIC path. |
