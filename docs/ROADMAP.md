@@ -388,7 +388,7 @@ C0 (PM policy decision) ← BLOCKER
 
 ## Workstream Q — APP-TO-APP-QUIC-MIGRATION-1
 
-**Status:** NOT-STARTED (PM scope locked 2026-05-10; security model locked 2026-05-10 via APP-TO-APP-QUIC-SECURITY-DECISION-1, see Security Decision below)
+**Status:** IN-PROGRESS (Q1 complete 2026-05-14; PM scope locked 2026-05-10; security model locked 2026-05-10 via APP-TO-APP-QUIC-SECURITY-DECISION-1, see Security Decision below)
 **Scope:** Promote QUIC from RC3 reference to production native↔native transport in bolt-daemon.
 **Repos:** bolt-daemon (primary), localbolt-app (integration), bolt-core-sdk (doc authority)
 **Dependency:** None blocking. WS client mode remains the production native↔native path until QUIC clears every promotion gate, including the transport-auth gate in Q2.
@@ -422,7 +422,7 @@ C0 (PM policy decision) ← BLOCKER
 |---|---|
 | **Production app↔app transport** | WebSocket client mode (NATIVE-CONNECT-1) |
 | **QUIC transport layer** | Functional (tests pass: connect, framing, 1 MiB transfer) |
-| **QUIC cert validation** | `Rc3SkipVerification` — accepts any cert (INSECURE) |
+| **QUIC cert validation** | Q1 one-way cert-hash pinning on the dialer side; mutual pinning not implemented |
 | **QUIC signaling integration** | None — not wired into rendezvous or WsEndpoint mode |
 | **QUIC IPC/pairing** | None — no session events, no pairing approval |
 | **QUIC feature flag** | `transport-quic` (opt-in, not in default features) |
@@ -432,7 +432,7 @@ C0 (PM policy decision) ← BLOCKER
 | Phase | Description | Status | Dependencies |
 |-------|-------------|--------|-------------|
 | Q0 | Policy + security decision lock (this section; APP-TO-APP-QUIC-SECURITY-DECISION-1 closed 2026-05-10) | **DONE** | None |
-| Q1 | Transport auth milestone (internal, non-production) — replace `Rc3SkipVerification` with one-way cert-hash pinning verifier on the dialer | NOT-STARTED | None |
+| Q1 | Transport auth milestone (internal, non-production) — replace `Rc3SkipVerification` with one-way cert-hash pinning verifier on the dialer | **DONE** | None |
 | Q2 | Signaling integration + mutual cert-hash pinning (production transport-auth gate) — when implemented, both daemons must exchange cert hashes via rendezvous and verify the peer cert during the QUIC TLS handshake. Not started; mutual pinning does not yet exist. | NOT-STARTED | Q1 |
 | Q3 | IPC/pairing + disconnect propagation — full session lifecycle parity with WS | NOT-STARTED | Q2 |
 | Q4 | Feature flag promotion + localbolt-app wiring (production-promotion gate) — end-to-end native↔native QUIC, with the production promotion blocker (no `Rc3SkipVerification` / accept-any reachable, mutual pinning live) verified | NOT-STARTED | Q3 |
@@ -440,6 +440,12 @@ C0 (PM policy decision) ← BLOCKER
 | Q6 | Docs graduation — TRANSPORT_CONTRACT.md: QUIC → Production, WS → Fallback | NOT-STARTED | Q5 |
 
 ### Q1 — Transport Auth Milestone (Internal, Non-Production)
+
+**Status:** DONE 2026-05-14 in bolt-daemon. The internal QUIC dialer now
+requires an expected listener certificate hash, verifies the received DER
+certificate SHA-256 hash during the rustls verifier path, delegates TLS
+signature verification to the rustls ring crypto provider, and fails closed on
+mismatch. This does not make QUIC the production app-to-app path.
 
 **Objective:** Retire `Rc3SkipVerification` on the dialer side by introducing a one-way cert-hash pinning verifier. This is an internal milestone — sufficient to remove accept-any verification from the dialer, NOT sufficient for production promotion (the acceptor still cannot verify the dialer).
 
@@ -450,12 +456,12 @@ C0 (PM policy decision) ← BLOCKER
 - After TLS: Bolt HELLO → SAS → TOFU (unchanged).
 
 **Acceptance criteria:**
-- [ ] `Rc3SkipVerification` is no longer used by the Q1 dialer-side QUIC path; any remaining accept-any verifier remains isolated to RC3/reference-only code and blocked from production promotion.
-- [ ] Dialer-side cert-hash verifier rejects connections when the received cert hash does not match the pinned hash.
-- [ ] Cert mismatch = connection refused (fail-closed); the failure surfaces as a typed transport error.
-- [ ] Unit tests: matching hash succeeds; mismatched hash fails; corrupted hash input fails closed.
-- [ ] No regression in existing QUIC transport tests.
-- [ ] Q1 is explicitly labeled "internal, non-production" in code comments and in `bolt-daemon/docs/STATE.md` transport table.
+- [x] `Rc3SkipVerification` is no longer used by the Q1 dialer-side QUIC path; any remaining accept-any verifier remains isolated to RC3/reference-only code and blocked from production promotion.
+- [x] Dialer-side cert-hash verifier rejects connections when the received cert hash does not match the pinned hash.
+- [x] Cert mismatch = connection refused (fail-closed); the failure surfaces as a typed transport error.
+- [x] Unit tests: matching hash succeeds; mismatched hash fails; corrupted hash input fails closed.
+- [x] No regression in existing QUIC transport tests.
+- [x] Q1 is explicitly labeled "internal, non-production" in code comments and in `bolt-daemon/docs/STATE.md` transport table.
 
 **Production gating:** Q1 alone does NOT satisfy the APP-TO-APP-QUIC-SECURITY-DECISION-1 production promotion blocker. The acceptor still cannot verify the dialer, and signaling integration is not yet present. Production promotion remains blocked until Q2 lands mutual pinning.
 
@@ -638,8 +644,8 @@ S-STREAM-R1 (security/foundation recovery, independent of D-stream):
 C-STREAM-R1 (UI/state regression recovery, independent of D-stream):
   Single phase: generation guards + snapshot fix + trust truth table → DONE (v3.0.80-c-stream-r1-ui-state-fix)
 
-Q-STREAM (APP-TO-APP-QUIC-MIGRATION-1 — NOT-STARTED):
-  Q0 (policy lock) ✓ → Q1 (transport auth) → Q2 (signaling) → Q3 (IPC) → Q4 (app wiring) → Q5 (E2E) → Q6 (docs)
+Q-STREAM (APP-TO-APP-QUIC-MIGRATION-1 — IN-PROGRESS):
+  Q0 (policy lock) ✓ → Q1 (transport auth) ✓ → Q2 (signaling) → Q3 (IPC) → Q4 (app wiring) → Q5 (E2E) → Q6 (docs)
 
 N-STREAM-1 (native app + daemon bundling — **CLOSED**):
   N0 (policy lock) ✓ ──┬── N1 (packaging) ✓ ──┐
