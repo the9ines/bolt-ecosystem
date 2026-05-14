@@ -709,8 +709,8 @@ Full specification in `docs/GOVERNANCE_WORKSTREAMS.md` (S-STREAM-R1 section).
 | ID | Item | Routing | Status |
 |----|------|---------|--------|
 | T-STREAM-1 | Browser selective WASM integration | bolt-core-sdk (TS) + WASM + consumers | **DONE** (`sdk-v0.5.32-tstream1-wasm-policy-wiring`, consumers adopted) |
-| PLAT-CORE1 | Shared Rust core + thin platform UIs | TBD | NOT-STARTED |
-| MOB-RUNTIME1 | Mobile embedded runtime model | TBD | NOT-STARTED |
+| PLAT-CORE1 | Shared Rust core + thin platform-native shells | bolt-core-sdk + localbolt-app | IN-PROGRESS (macOS + Linux CLI proven; iOS/Android/Windows TBD) |
+| MOB-RUNTIME1 | Mobile embedded runtime model | localbolt-app + bolt-core-sdk | NOT-STARTED |
 | ARCH-WASM1 | WASM protocol engine (medium risk) | bolt-core-sdk + WASM | NOT-STARTED |
 
 ### Dependency Map
@@ -802,6 +802,9 @@ W2-RUNTIME-VALIDATION-1 (next)
 
 | Component | Owner Repo | Authority |
 |-----------|-----------|-----------|
+| Native/mobile app shells | localbolt-app | Canonical home for platform-native shells over shared Rust core |
+| Production web app | localbolt-v3 | Canonical web version at localbolt.app |
+| Lite self-hosted web app | localbolt | Lightweight self-hosted version |
 | Session/transfer contract (types, validators, schema) | bolt-core-sdk | Canonical — Rust validators are executable authority |
 | Signaling protocol (PeerData, Register, signals) | bolt-rendezvous (protocol crate) | Canonical wire format |
 | WT endpoint + WS endpoint | bolt-daemon | Transport authority |
@@ -809,6 +812,21 @@ W2-RUNTIME-VALIDATION-1 (next)
 | Web session state machine | localbolt-v3 (localbolt-core) | Conforms to contract |
 | Native session state machine | localbolt-app (BoltBridge.swift) | Conforms to contract |
 | Product-specific UX (animation, disconnect display) | Each product repo | Out of contract scope |
+
+### LocalBolt App Repos + CI Discipline
+
+The three main app repos are coordinated consumers of shared ecosystem code:
+
+| Repo | Product Role | Shared Dependencies | CI / Drift Expectations |
+|------|--------------|---------------------|-------------------------|
+| localbolt-app | Native/mobile shells | bolt-app-core, bolt-daemon, bolt-rendezvous signaling, localbolt-core contract concepts | Build/test native bridge and shell code; verify FFI/contract parity; keep platform shells thin |
+| localbolt-v3 | Production web app | bolt-core WASM, localbolt-browser, localbolt-core, bolt-rendezvous signaling | Workspace CI runs TS/Rust tests, build, coverage, and drift guards |
+| localbolt | Lite self-hosted web app | Published bolt-core / bolt-transport-web / localbolt-core packages, bolt-rendezvous subtree | CI verifies package pins, lockfile registry mapping, core drift, and web tests |
+
+Cross-repo changes that affect shared contracts, transport metadata, signaling payloads,
+or session/transfer states must update the shared source first and then update all
+affected app consumers with tests or explicit non-impact evidence. No app repo should
+fork protocol, transport security, or session-state authority.
 
 ### Risks
 

@@ -1,13 +1,15 @@
 # ADR-001: Native App Architecture — Rust-First, Tauri Deprecated
 
-**Status:** SUPERSEDED (2026-04-12). Desktop path updated: platform-native shells for all platforms.
+**Status:** CURRENT (2026-05-14). Platform-native shells for native/mobile targets.
 **Original Status:** PROPOSED (2026-03-22)
 **Supersedes:** Tauri v2 WebView architecture in localbolt-app
-**Superseded by:** Platform-native shell architecture (macOS SwiftUI shell shipping v2.0.0 in localbolt-app)
-**Builds on:** EGUI-NATIVE-1 (CLOSED), RUSTIFY-CORE-1 (CLOSED), bolt-ui crate (delivered)
+**Superseded by:** Platform-native shell architecture in `localbolt-app` (macOS SwiftUI shell shipping v2.0.0; Linux/Steam Deck CLI phase active; iOS/Android future shells)
+**Builds on:** RUSTIFY-CORE-1 (CLOSED), NATIVE-SHELL-1 (CLOSED), EGUI-NATIVE-1 historical evidence
 **Defers to PM:** MOB-RUNTIME1 (mobile runtime)
 
-> **Supersession Note (2026-04-12):** This ADR's core principle — Rust-first with shared `bolt-app-core` — remains valid. What changed: egui is no longer the forward desktop path. The macOS SwiftUI native shell (`localbolt-app/native/macos/`) shipped v2.0.0 with full transfer vertical, proving that platform-native shells are viable and preferred for desktop too. The forward architecture is now platform-native shells for ALL platforms (macOS: SwiftUI, Linux/Windows: TBD, iOS: SwiftUI, Android: Kotlin/Compose), with shared Rust core and daemon as protocol authority. `bolt-ui` (egui) is historical — it served as interim desktop replacement for Tauri but has been superseded. Option B's concern about "unsustainable engineering cost" of platform-native desktop was disproven by the macOS shell shipping successfully.
+> **Supersession Note (2026-04-12):** This ADR's core principle — Rust-first with shared `bolt-app-core` — remains valid. What changed: egui is no longer the forward desktop path. The macOS SwiftUI native shell (`localbolt-app/native/macos/`) shipped v2.0.0 with full transfer vertical, proving that platform-native shells are viable and preferred for desktop too. The forward architecture is now platform-native shells for ALL platforms (macOS: SwiftUI, Linux/Windows: TBD, iOS: SwiftUI, Android: Kotlin/Compose), with shared Rust core and daemon as protocol authority. `bolt-ui` (egui) is historical only — it served as interim desktop replacement for Tauri but has been superseded and is not an active fallback.
+>
+> **Repo Ownership Update (2026-05-14):** `localbolt-app` is the canonical home for native and mobile shells. New platform shells should be added under `localbolt-app/native/` unless governance explicitly approves a separate repo. `localbolt-v3` is the production web version. `localbolt` is the lightweight self-hosted version. Tauri remains retired/stale and must not be used as the forward native architecture.
 
 ---
 
@@ -17,14 +19,16 @@ Adopt a **Rust-first native app architecture** across all platforms:
 
 | Platform | UI Layer | Rust Core | Status |
 |----------|----------|-----------|--------|
-| **Desktop (macOS)** | SwiftUI native shell (localbolt-app) | bolt-core via Rust FFI + bolt-daemon sidecar | **Shipping (v2.0.0)** |
-| **Desktop (Linux/Windows)** | TBD native shell | bolt-core + bolt-daemon | Planned (egui historical, not default) |
-| **iPhone/iPad** | SwiftUI thin shell | Rust core via FFI (UniFFI or C ABI) | Planned |
-| **Android** | Kotlin/Compose thin shell | Rust core via JNI/FFI | Planned |
-| **Browser** | React/TypeScript | bolt-core WASM + bolt-transport-web | Shipped (retained) |
+| **Desktop (macOS)** | SwiftUI native shell (`localbolt-app/native/macos`) | bolt-app-core via Rust FFI + bolt-daemon sidecar | **Shipping (v2.0.0, arm64 + x86_64)** |
+| **Desktop (Linux / Steam Deck)** | Rust CLI helper now, GUI shell TBD (`localbolt-app/native/linux`) | bolt-app-core + bolt-daemon | Phase 1 active |
+| **Desktop (Windows)** | TBD native shell (`localbolt-app/native/windows`) | bolt-app-core + bolt-daemon | Planned |
+| **iPhone/iPad** | SwiftUI thin shell (`localbolt-app/native/ios`) | Rust core via FFI (UniFFI or C ABI) | Planned |
+| **Android** | Kotlin/Compose thin shell (`localbolt-app/native/android`) | Rust core via JNI/FFI | Planned |
+| **Web app** | Vanilla TypeScript (`localbolt-v3`) | bolt-core WASM + bolt-transport-web | Shipped |
+| **Lite self-hosted web** | TypeScript/Vite (`localbolt`) | Published web packages | Shipped |
 | **Desktop (historical)** | ~~egui (bolt-ui)~~ | ~~bolt-core + bolt-daemon IPC~~ | Historical (EGUI-NATIVE-1). Superseded. |
 
-**Tauri and egui are both retired for desktop.** The forward desktop path is platform-native shells. macOS shipped as SwiftUI shell (localbolt-app v2.0.0). Linux and Windows shells are TBD — egui is not the default for those platforms. The shared Rust core (`bolt-app-core`) and daemon remain the protocol authority across all platforms.
+**Tauri and egui are retired.** They are historical implementation paths only, not active product paths, fallback paths, or future defaults. The forward native path is platform-native shells in `localbolt-app`. macOS shipped as a SwiftUI shell (`localbolt-app` v2.0.0). Linux has a Phase 1 CLI helper for Steam Deck validation; Linux GUI and Windows shells remain TBD. The shared Rust core (`bolt-app-core`) and daemon remain the protocol authority across all native/mobile shells.
 
 ---
 
@@ -47,14 +51,14 @@ Adopt a **Rust-first native app architecture** across all platforms:
 - Rust core is shared across ALL platforms (~80% code reuse)
 - SwiftUI and Kotlin/Compose are the officially supported, long-lived UI frameworks
 - Mobile app store compliance is straightforward with native shells
-- Optionality preserved: if egui mobile matures, shells can thin further
+- Historical note: this was believed to preserve optionality at the time; current governance rejects egui mobile as a forward option.
 
 **Weaknesses:**
 - Three UI implementations to maintain (egui + SwiftUI + Kotlin)
 - FFI boundary requires UniFFI or manual C ABI bindings
 - Mobile shells require platform expertise (Swift, Kotlin)
 
-**Verdict:** Best balance of product quality, engineering effort, and long-term maintainability. **Recommended.**
+**Historical verdict:** This was recommended at the time. Current governance keeps the platform-native shell part and retires the egui desktop part.
 
 ### Option B: SwiftUI macOS + Separate Native Shells + Rust Core
 
@@ -73,7 +77,7 @@ Adopt a **Rust-first native app architecture** across all platforms:
 
 **Weaknesses:**
 - **Four separate UI implementations** (SwiftUI, WinUI, GTK, Kotlin) — massive maintenance burden
-- Throws away the working egui desktop (EGUI-NATIVE-1 wasted)
+- Historical concern only: egui desktop evidence remains useful, but egui is not a forward product shell.
 - No path to UI unification
 - Requires 4 platform specialists instead of 1 Rust developer
 - Windows and Linux shells are particularly expensive for the team size
@@ -102,7 +106,7 @@ Adopt a **Rust-first native app architecture** across all platforms:
 - EGUI-WASM-1 already failed in browser (1.3 MiB, 26% reuse) — signals egui portability limits
 - PM-EN-05 (mobile egui) is PENDING, not approved
 
-**Verdict:** Appealing in theory but **premature for mobile**. egui mobile is not production-ready. If it matures, Option A's thin shells can be replaced incrementally. Rejected as primary strategy; preserved as future option.
+**Verdict:** Rejected. egui mobile is not a forward option under current governance.
 
 ### Option D: egui Everywhere Including Website
 
@@ -131,9 +135,9 @@ Adopt a **Rust-first native app architecture** across all platforms:
 | Ratchet | bolt-btr | Bolt Transfer Ratchet (per-transfer DH + chain encryption) |
 | App logic | bolt-app-core (NEW) | Connection state machine, peer discovery model, transfer orchestration, app-level events. Shared view-model layer. |
 | Daemon IPC | bolt-daemon (existing) | IPC client, daemon lifecycle, trust management |
-| Desktop UI | bolt-ui (existing) | egui screens, theme, eframe app shell |
+| Historical desktop UI | bolt-ui | egui screens, theme, eframe app shell; retired, not forward architecture |
 
-**bolt-app-core** is the key new crate. It extracts the app-level state machine and orchestration logic that currently lives in localbolt-app's Tauri commands and IPC bridge into a shared, transport-agnostic Rust layer. This is the boundary that mobile shells call via FFI.
+**bolt-app-core** is the shared app/runtime crate. It carries app-level state machine and orchestration logic that native/mobile shells consume through FFI or direct Rust integration. Tauri-origin extraction history is not the forward architecture.
 
 ### Platform-Native Shells (NOT shared)
 
@@ -180,7 +184,7 @@ This crate becomes the shared foundation that all platform shells (SwiftUI, Kotl
 ### Phase 2: iOS Shell
 
 Create SwiftUI thin shell for iPhone/iPad:
-- New repo: `localbolt-ios` (or subdirectory of localbolt-app)
+- Location: `localbolt-app/native/ios`
 - SwiftUI views calling bolt-app-core via UniFFI
 - Native: file picker, share sheet, backgrounding, push notifications
 - Xcode project + Swift Package Manager for Rust dependency
@@ -190,7 +194,7 @@ Create SwiftUI thin shell for iPhone/iPad:
 ### Phase 3: Android Shell
 
 Create Kotlin/Compose thin shell for Android:
-- New repo: `localbolt-android` (or subdirectory of localbolt-app)
+- Location: `localbolt-app/native/android`
 - Compose UI calling bolt-app-core via UniFFI/JNI
 - Native: file picker, share intent, background service, FCM
 - Gradle project + Rust cross-compilation via `cargo-ndk`
@@ -201,36 +205,31 @@ Create Kotlin/Compose thin shell for Android:
 
 Tauri is retired across all platforms. PM-EN-03 rollback window is CLOSED.
 
-### Future Option: egui Mobile (DEFERRED — NOT DEFAULT)
+### egui Mobile (RETIRED — NOT A FORWARD OPTION)
 
-> **Note (2026-04-12):** egui mobile (EGUI-MOBILE-1) was a deferred proposal. Given that the desktop path has moved to platform-native shells, egui mobile is no longer the default mobile strategy. Platform-native shells (SwiftUI for iOS, Kotlin/Compose for Android) are the forward direction. egui may be revisited only if explicitly reopened by governance.
-
-This is NOT a commitment — it preserves optionality.
+> **Note (2026-05-14):** egui mobile is not a forward option. Platform-native shells (SwiftUI for iOS, Kotlin/Compose for Android) are the native/mobile architecture. Reopening egui would require a new governance decision and new evidence.
 
 ---
 
 ## Repo Strategy
 
-**Recommendation:** Evolve `localbolt-app` + create new mobile repos.
+**Decision:** `localbolt-app` is the canonical repo for native and mobile shells.
 
 | Repo | Role | Action |
 |------|------|--------|
-| **localbolt-app** | Desktop app | Evolve: replace Tauri with egui packaging. Keep repo name. |
-| **localbolt-ios** | iOS app | **New repo.** SwiftUI + UniFFI + bolt-app-core. |
-| **localbolt-android** | Android app | **New repo.** Kotlin/Compose + UniFFI + bolt-app-core. |
-| **bolt-core-sdk** | Shared Rust crates | Add `bolt-app-core` to workspace. bolt-ui already here. |
+| **localbolt-app** | Native/mobile shells | Canonical home for macOS, Linux/Steam Deck, Windows, iOS, and Android shells over shared Rust core. |
+| **localbolt-v3** | Production web app | Browser/web version. Does not own native/mobile shells. |
+| **localbolt** | Lite self-hosted web app | Lightweight self-hosted version for users who want to run LocalBolt on their own network. |
+| **bolt-core-sdk** | Shared Rust crates | Owns `bolt-app-core` and protocol/runtime crates. `bolt-ui` remains historical. |
 | **bolt-daemon** | Daemon binary | Unchanged. Mobile apps embed daemon or use IPC. |
 
-**Why separate mobile repos:**
-- Xcode and Gradle project structures don't mix well with Cargo workspaces
-- App store signing, provisioning, and CI are platform-specific
-- Mobile repos have different release cadences than desktop
-- Clean separation of platform concerns
+**Why keep native/mobile shells in localbolt-app:**
+- The product boundary is "native LocalBolt", not "one repo per platform".
+- Platform shells share the same Rust core, daemon lifecycle model, IPC/session contract, and app-level governance.
+- Keeping shells together reduces drift in FFI, packaging, signaling metadata, app-to-app transport behavior, and release evidence.
+- Platform-specific build files still live in platform-specific subdirectories (`native/macos`, `native/linux`, `native/ios`, `native/android`, etc.).
 
-**Why NOT a monorepo:**
-- Existing multi-repo structure is deliberate (ARCHITECTURE.md)
-- Mobile repos need platform-specific CI (Xcode Cloud, GitHub Actions with Android SDK)
-- Rust core is shared via path/git dependencies, not monorepo coupling
+Separate native/mobile repos require an explicit governance decision. They are not the default path.
 
 ---
 
@@ -248,20 +247,20 @@ This is NOT a commitment — it preserves optionality.
 
 **Outcome:** Shared Rust app-logic crate ready for desktop, iOS, and Android consumers.
 
-### NATIVE-DESKTOP-PKG-1: Desktop egui Packaging
+### NATIVE-DESKTOP-PKG-1: Desktop egui Packaging (HISTORICAL)
 
-**Scope:** Replace Tauri build with egui-only packaging in localbolt-app. Platform installers (DMG, MSI, AppImage). Close Tauri dependency.
+**Scope:** Historical stream that proved non-Tauri desktop packaging. It does not define the current native shell architecture.
 
 **Phases:**
 - NDP1: Packaging scaffold (cargo-bundle or equivalent)
 - NDP2: Platform installer generation + smoke test
 - NDP3: Tauri removal + rollback window closure (requires PM-EN-03 sign-off)
 
-**Outcome:** localbolt-app ships as native egui binary. No WebView.
+**Outcome:** Historical evidence only. The current app path is platform-native shells in `localbolt-app`, not egui.
 
 ### NATIVE-IOS-1: iOS App
 
-**Scope:** SwiftUI thin shell + UniFFI bindings + bolt-app-core integration. Create localbolt-ios repo.
+**Scope:** SwiftUI thin shell + UniFFI/C-ABI bindings + bolt-app-core integration under `localbolt-app/native/ios`.
 
 **Phases:**
 - NI1: UniFFI scaffold + bolt-app-core Swift bindings
@@ -273,7 +272,7 @@ This is NOT a commitment — it preserves optionality.
 
 ### NATIVE-ANDROID-1: Android App
 
-**Scope:** Kotlin/Compose thin shell + UniFFI/JNI bindings + bolt-app-core integration. Create localbolt-android repo.
+**Scope:** Kotlin/Compose thin shell + UniFFI/JNI bindings + bolt-app-core integration under `localbolt-app/native/android`.
 
 **Phases:**
 - NA1: UniFFI scaffold + bolt-app-core Kotlin bindings
@@ -289,9 +288,6 @@ This is NOT a commitment — it preserves optionality.
 
 ```
 NATIVE-APP-CORE-1  ←── must come first (shared foundation)
-    ↓
-NATIVE-DESKTOP-PKG-1  ←── can start after NAC3 (bolt-ui refactored)
-    ↓
 NATIVE-IOS-1  ←── can start after NAC2 (bolt-app-core exists)
     ↓
 NATIVE-ANDROID-1  ←── can start after NAC2, parallel with iOS
@@ -306,10 +302,10 @@ NATIVE-IOS-1 and NATIVE-ANDROID-1 can run in parallel once bolt-app-core is extr
 | Risk | Severity | Mitigation |
 |------|----------|------------|
 | UniFFI complexity / learning curve | MEDIUM | Mozilla-maintained, well-documented. Firefox uses it. Start with minimal surface area. |
-| egui desktop UX limitations (no native dialogs) | LOW | bolt-ui already shipped and working (EN3). Platform dialogs via `rfd` crate. |
+| Reintroducing retired UI stacks (Tauri/egui) | MEDIUM | Governance says platform-native shells are the forward path. Any revival requires a new decision record. |
 | Mobile Rust cross-compilation | MEDIUM | cargo-ndk (Android) and cargo-lipo (iOS) are mature. CI templates exist. |
 | Three UI codebases to maintain | HIGH | Mitigated by thin shells — 80%+ logic in shared Rust. Shells are ~500-1000 lines each. |
-| Tauri deprecation risk (rollback needed) | LOW | PM-EN-03 condition-gated. Dual-path maintained until explicit PM closure. |
+| Stale Tauri/egui docs causing wrong implementation choices | MEDIUM | This ADR is the source of truth. Historical docs must be read through the supersession notes. |
 | App store rejection (custom rendering on desktop) | NONE | Only mobile uses native UI frameworks. Desktop has no app store gate. |
 
 ---
@@ -318,9 +314,9 @@ NATIVE-IOS-1 and NATIVE-ANDROID-1 can run in parallel once bolt-app-core is extr
 
 | Decision | Relationship |
 |----------|-------------|
-| PM-EN-01 (egui for desktop) | **Confirmed and extended.** egui remains desktop UI. |
-| PM-EN-03 (rollback window) | **Unchanged.** Tauri retained until PM closes window. |
-| PM-EN-05 (mobile egui) | **Deferred.** This ADR uses native mobile shells. If PM-EN-05 later approves egui mobile, shells can thin. |
-| EGUI-WASM-1 (browser egui) | **Dead.** Browser retains React/TS. Not revisited. |
+| PM-EN-01 (egui for desktop) | **Superseded.** egui is historical, not the active desktop UI. |
+| PM-EN-03 (rollback window) | **Closed.** Tauri is retired. |
+| PM-EN-05 (mobile egui) | **Superseded.** Mobile uses platform-native shells. |
+| EGUI-WASM-1 (browser egui) | **Dead.** Browser retains web-native TypeScript UI. Not revisited. |
 | PLAT-CORE1 | **Superseded.** bolt-app-core fulfills the shared-core vision. |
 | MOB-RUNTIME1 | **Partially addressed.** This ADR defines mobile runtime architecture. MOB-RUNTIME1 stream may still codify platform-specific details. |
