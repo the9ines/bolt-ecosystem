@@ -423,7 +423,7 @@ C0 (PM policy decision) ← BLOCKER
 | **Production app↔app transport** | WebSocket client mode (NATIVE-CONNECT-1) |
 | **QUIC transport layer** | Functional (tests pass: connect, framing, 1 MiB transfer) |
 | **QUIC cert validation** | Q1 one-way cert-hash pinning on the dialer side; mutual pinning not implemented |
-| **QUIC signaling integration** | None — not wired into rendezvous or WsEndpoint mode |
+| **QUIC signaling integration** | Q2A daemon metadata plumbing in WsEndpoint mode; not wired into rendezvous or localbolt-app yet |
 | **QUIC IPC/pairing** | None — no session events, no pairing approval |
 | **QUIC feature flag** | `transport-quic` (opt-in, not in default features) |
 
@@ -433,7 +433,7 @@ C0 (PM policy decision) ← BLOCKER
 |-------|-------------|--------|-------------|
 | Q0 | Policy + security decision lock (this section; APP-TO-APP-QUIC-SECURITY-DECISION-1 closed 2026-05-10) | **DONE** | None |
 | Q1 | Transport auth milestone (internal, non-production) — replace `Rc3SkipVerification` with one-way cert-hash pinning verifier on the dialer | **DONE** | None |
-| Q2 | Signaling integration + mutual cert-hash pinning (production transport-auth gate) — when implemented, both daemons must exchange cert hashes via rendezvous and verify the peer cert during the QUIC TLS handshake. Not started; mutual pinning does not yet exist. | NOT-STARTED | Q1 |
+| Q2 | Signaling integration + mutual cert-hash pinning (production transport-auth gate) — Q2A daemon metadata is implemented, but rendezvous/native app wiring and mutual pinning remain incomplete. Mutual pinning does not yet exist. | IN-PROGRESS | Q1 |
 | Q3 | IPC/pairing + disconnect propagation — full session lifecycle parity with WS | NOT-STARTED | Q2 |
 | Q4 | Feature flag promotion + localbolt-app wiring (production-promotion gate) — end-to-end native↔native QUIC, with the production promotion blocker (no `Rc3SkipVerification` / accept-any reachable, mutual pinning live) verified | NOT-STARTED | Q3 |
 | Q5 | E2E validation + WS fallback — two-device proof, fallback tested | NOT-STARTED | Q4 |
@@ -472,13 +472,19 @@ mismatch. This does not make QUIC the production app-to-app path.
 
 ### Q2 — Signaling Integration + Mutual Cert-Hash Pinning (Production Transport-Auth Gate)
 
-**Status:** NOT-STARTED. None of the items below currently exist in the codebase. Mutual cert-hash pinning does not yet exist anywhere in bolt-daemon, the rendezvous signaling protocol, or localbolt-app. Q2 is a forward gate that must be crossed; it is not a present-state description.
+**Status:** IN-PROGRESS. Q2A daemon metadata plumbing is implemented in
+bolt-daemon: when built with `transport-quic`, WsEndpoint mode binds a QUIC
+listener on the adjacent QUIC port and writes `quic_info.json` with
+`quic_port` and `quic_cert_hash` for future native-shell consumption. This is
+metadata plumbing only. Mutual cert-hash pinning does not yet exist anywhere in
+the production app↔app path, and rendezvous/localbolt-app wiring is not done.
+Q2 remains a forward gate that must be crossed before production promotion.
 
 **Objective:** Q2 will wire QUIC into the default daemon startup path and the rendezvous signaling protocol, and will establish mutual cert-hash pinning between both daemons. Crossing Q2 — i.e., satisfying every acceptance criterion below and verifying the result — is what would satisfy the APP-TO-APP-QUIC-SECURITY-DECISION-1 production promotion blocker at the transport layer. Until Q2 is crossed, the blocker remains in force and QUIC remains a Reference (RC3) transport. Remaining work (Q3–Q5) covers session-lifecycle parity and validation, not transport-auth.
 
 **Acceptance criteria:**
-- [ ] QUIC listener starts alongside WS + WT in WsEndpoint mode.
-- [ ] Acceptor daemon writes its QUIC listen address and `quicCertHash` for the native app to consume (analogous to `wt_info.json` for WT).
+- [x] QUIC listener starts alongside WS + WT in WsEndpoint mode when bolt-daemon is built with `transport-quic`.
+- [x] Acceptor daemon writes `quic_info.json` containing `quic_port` and `quic_cert_hash` for the native app to consume (analogous to `wt_info.json` for WT).
 - [ ] Native app includes `quicAddr` and `quicCertHash` in the `connection_accepted` signaling payload.
 - [ ] The dialer also publishes its own cert hash so the acceptor can pin it (exact field name — e.g. `quicClientCertHash` — settled during implementation).
 - [ ] Both daemons present client and server certificates via `with_client_auth()` / `ClientCertVerifier` (rustls/quinn), and both sides verify the peer cert hash against the signaling-supplied hash. Mismatch on either side → connection refused, fail-closed.
