@@ -475,18 +475,22 @@ mismatch. This does not make QUIC the production app-to-app path.
 **Status:** IN-PROGRESS. Q2A daemon metadata plumbing is implemented in
 bolt-daemon: when built with `transport-quic`, WsEndpoint mode binds a QUIC
 listener on the adjacent QUIC port and writes `quic_info.json` with
-`quic_port` and `quic_cert_hash` for future native-shell consumption. This is
-metadata plumbing only. Mutual cert-hash pinning does not yet exist anywhere in
-the production app↔app path, and rendezvous/localbolt-app wiring is not done.
-Q2 remains a forward gate that must be crossed before production promotion.
+`quic_port` and `quic_cert_hash` for future native-shell consumption. Q2B
+native-shell metadata signaling is implemented in localbolt-app: the macOS
+SwiftUI shell reads `quic_info.json`, includes `quicAddr` / `quicCertHash` in
+`connection_request` and `connection_accepted`, and preserves incoming request
+metadata for future acceptor-side pinning. This is metadata plumbing only.
+Mutual cert-hash pinning does not yet exist anywhere in the production app↔app
+path, and QUIC routing is not wired. Q2 remains a forward gate that must be
+crossed before production promotion.
 
 **Objective:** Q2 will wire QUIC into the default daemon startup path and the rendezvous signaling protocol, and will establish mutual cert-hash pinning between both daemons. Crossing Q2 — i.e., satisfying every acceptance criterion below and verifying the result — is what would satisfy the APP-TO-APP-QUIC-SECURITY-DECISION-1 production promotion blocker at the transport layer. Until Q2 is crossed, the blocker remains in force and QUIC remains a Reference (RC3) transport. Remaining work (Q3–Q5) covers session-lifecycle parity and validation, not transport-auth.
 
 **Acceptance criteria:**
 - [x] QUIC listener starts alongside WS + WT in WsEndpoint mode when bolt-daemon is built with `transport-quic`.
 - [x] Acceptor daemon writes `quic_info.json` containing `quic_port` and `quic_cert_hash` for the native app to consume (analogous to `wt_info.json` for WT).
-- [ ] Native app includes `quicAddr` and `quicCertHash` in the `connection_accepted` signaling payload.
-- [ ] The dialer also publishes its own cert hash so the acceptor can pin it (exact field name — e.g. `quicClientCertHash` — settled during implementation).
+- [x] Native app includes `quicAddr` and `quicCertHash` in the `connection_accepted` signaling payload.
+- [x] The dialer also publishes its own cert hash in `connection_request` so the acceptor can pin it later (`quicCertHash` field).
 - [ ] Both daemons present client and server certificates via `with_client_auth()` / `ClientCertVerifier` (rustls/quinn), and both sides verify the peer cert hash against the signaling-supplied hash. Mismatch on either side → connection refused, fail-closed.
 - [ ] No production app↔app QUIC path uses `Rc3SkipVerification`, accept-any verification, or otherwise bypasses cert-hash pinning. Static / build-time check preferred where feasible.
 - [ ] Backward compat: if `quicAddr` / `quicCertHash` absent in signaling, fall back to WS client mode.
