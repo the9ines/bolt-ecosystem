@@ -449,6 +449,35 @@ Release promotion follows the dependency graph. Upstream repos MUST pass before 
 | future iOS/Android | UniFFI binding generation + shell smoke | Platform CI (Xcode Cloud, Android SDK). |
 | bolt-ecosystem | Docs/governance consistency checks | No code tests. |
 
+### CI/Deploy Inheritance Map
+
+The three main product repos inherit shared behavior through different delivery
+channels. CI must validate the channel that each product actually uses, not only
+the source repo where the code originated.
+
+| Product Repo | Inherits From | Delivery Channel | Required Gate |
+|--------------|---------------|------------------|---------------|
+| localbolt-app | bolt-core-sdk (`bolt-app-core`), bolt-daemon, bolt-rendezvous signaling | Sibling Rust path deps, daemon sidecar/release artifacts, `signal/` subtree | Native shared Rust bridge tests, platform shell build/smoke, daemon IPC/transport compatibility, subtree drift check |
+| localbolt-v3 | localbolt workspace packages, published `@the9ines/*` packages, bolt-rendezvous signaling | npm workspaces, npm registry, Netlify deploy, Fly.io signaling service | Workspace build/test, registry/lockfile guards, Netlify build/deploy verification, signaling compatibility |
+| localbolt | published `@the9ines/*` packages, bolt-rendezvous signaling | npm registry, `signal/` subtree, self-hosted web build | Registry/lockfile guards, web tests/build, subtree drift check |
+
+Hosted services and registries are part of the promotion chain:
+
+- **Fly.io:** `bolt-rendezvous` and `localbolt-signal` are hosted signaling
+  surfaces. Signaling protocol changes require server CI plus downstream
+  consumer compatibility evidence before deployment.
+- **npmjs.org:** Public `@the9ines/*` packages are the deployable SDK surface
+  for web consumers. Published package version bumps must be reflected in all
+  consuming package manifests and lockfiles.
+- **crates.io:** No active crates.io publish workflow is currently represented
+  in repo CI. Rust sharing is presently path/git/tag based unless a future
+  workstream explicitly adds crate publication.
+
+Current audit note (2026-05-16): the intended inheritance model is sound, but
+CI coverage is uneven. `localbolt-app` still has stale Tauri release/Windows CI
+surfaces while the forward product path is native shells over shared Rust core.
+Before major releases, reconcile workflow coverage against this map.
+
 ### Release Tag Gate
 
 - Tags MUST NOT be created until the repo's full CI suite passes.

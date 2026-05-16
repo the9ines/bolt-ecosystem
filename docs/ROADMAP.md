@@ -834,18 +834,26 @@ W2-RUNTIME-VALIDATION-1 (next)
 
 ### LocalBolt App Repos + CI Discipline
 
-The three main app repos are coordinated consumers of shared ecosystem code:
+The three main app repos are coordinated consumers of shared ecosystem code.
+Each repo inherits shared behavior through a different channel, so CI must
+validate the channel that product actually uses:
 
-| Repo | Product Role | Shared Dependencies | CI / Drift Expectations |
-|------|--------------|---------------------|-------------------------|
-| localbolt-app | Native/mobile shells | bolt-app-core, bolt-daemon, bolt-rendezvous signaling, localbolt-core contract concepts | Build/test native bridge and shell code; verify FFI/contract parity; keep platform shells thin |
-| localbolt-v3 | Production web app | bolt-core WASM, localbolt-browser, localbolt-core, bolt-rendezvous signaling | Workspace CI runs TS/Rust tests, build, coverage, and drift guards |
-| localbolt | Lite self-hosted web app | Published bolt-core / bolt-transport-web / localbolt-core packages, bolt-rendezvous subtree | CI verifies package pins, lockfile registry mapping, core drift, and web tests |
+| Repo | Product Role | Shared Dependencies | Delivery Channel | CI / Drift Expectations |
+|------|--------------|---------------------|------------------|-------------------------|
+| localbolt-app | Native/mobile shells | bolt-app-core, bolt-daemon, bolt-rendezvous signaling, localbolt-core contract concepts | Sibling Rust path deps, daemon sidecar/release artifacts, `signal/` subtree | Build/test native bridge and shell code; verify FFI/contract parity; keep platform shells thin; retire stale Tauri release/Windows surfaces from forward gates |
+| localbolt-v3 | Production web app | bolt-core WASM, localbolt-browser, localbolt-core, bolt-rendezvous signaling | npm workspaces, npm registry, Netlify deploy, Fly.io signaling service | Workspace CI runs TS/Rust tests, build, coverage, registry/lockfile guards, Netlify deploy verification, and drift guards |
+| localbolt | Lite self-hosted web app | Published bolt-core / bolt-transport-web / localbolt-core packages, bolt-rendezvous subtree | npm registry, `signal/` subtree, self-hosted web build | CI verifies package pins, lockfile registry mapping, core drift, subtree drift, and web tests |
 
 Cross-repo changes that affect shared contracts, transport metadata, signaling payloads,
 or session/transfer states must update the shared source first and then update all
 affected app consumers with tests or explicit non-impact evidence. No app repo should
 fork protocol, transport security, or session-state authority.
+
+Hosted services and package registries are release surfaces, not side notes:
+Fly.io hosts rendezvous/signaling services, npmjs.org hosts the public
+`@the9ines/*` packages consumed by web products, and crates.io is not currently
+represented by an active publish workflow. Rust sharing remains path/git/tag
+based unless a future governance task adds crate publication.
 
 ### Risks
 
@@ -857,3 +865,4 @@ fork protocol, transport security, or session-state authority.
 | R21 | Native automated test coverage limited (Swift, no unit test infra) | Medium | Accepted — contract conformance verified by code review + runtime testing. M4 will add CI-level parity checks. |
 | R22 | TRANSPORT_CONTRACT.md falsely claimed QUIC as production app↔app path | Medium | **Closed** | Corrected 2026-05-10: WS client mode documented as current production, QUIC as RC3 strategic target. APP-TO-APP-QUIC-MIGRATION-1 codified. |
 | R23 | QUIC security-gate wording used "default-feature build", which could pass while insecure QUIC remained reachable in a QUIC-enabled production build | Medium | **Closed** | Corrected 2026-05-13: production blocker now applies to any production app↔app QUIC path. |
+| R24 | CI/deploy inheritance drift across the three app repos | Medium | Open | 2026-05-16 audit note: inheritance model is sound, but actual workflows are uneven. `localbolt-app` still has stale Tauri release/Windows CI surfaces while forward native/mobile path is shared Rust core plus thin shells. Follow-up should reconcile CI gates with `ARCHITECTURE.md` CI/Deploy Inheritance Map. |
