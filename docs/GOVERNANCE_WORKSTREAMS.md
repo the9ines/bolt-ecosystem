@@ -6154,6 +6154,20 @@ Evidence: `docs/evidence/WTE1_EVIDENCE.md`
 > **Codified:** ecosystem-v0.1.116-discovery-mode1-codify (2026-03-12)
 > **Status:** **COMPLETE.** DM1–DM4 all DONE (`ecosystem-v0.1.160`, 2026-03-15). All 16 ACs PASS. All 4 PM decisions APPROVED.
 
+> **Supersession note (2026-05-16, LOCALBOLT-LAN-DISCOVERY-RELIABILITY-1):**
+> This section is historical and predates the current hosted `localbolt.app`
+> discovery posture. Current LocalBolt policy is: the website may use the
+> canonical hosted `bolt-rendezvous` endpoint to make same-LAN website users
+> aware of each other, while native apps and self-hosted LocalBolt may also use
+> embedded/local signaling. Hosted rendezvous discovery is not internet-wide
+> LocalBolt discovery; it is scoped by effective client IP and remains backed by
+> LAN-only browser transport policy (no STUN/TURN, host candidates only). The
+> effective-IP scoping can miss real same-LAN mobile devices when privacy/VPN/
+> carrier behavior changes the visible IP; that reliability gap is tracked in
+> `ROADMAP.md` R26. Older statements below that say cloud peers are never shown
+> in LocalBolt discovery or that cloud rendezvous is ByteBolt-only should be read
+> as superseded by this note.
+
 ---
 
 ### Context & Motivation
