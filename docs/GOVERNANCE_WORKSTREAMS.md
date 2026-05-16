@@ -6164,12 +6164,14 @@ Evidence: `docs/evidence/WTE1_EVIDENCE.md`
 > LAN-only browser transport policy (no STUN/TURN; private/link-local/CGNAT or
 > browser mDNS `.local` host candidates only, with public host addresses
 > rejected). The
-> effective-IP scoping can miss real same-LAN mobile devices when privacy/VPN/
-> carrier behavior changes the visible IP; that reliability gap is tracked in
-> `ROADMAP.md` R26. A visible manual peer-code fallback was evaluated but
-> reverted because product UI changes were not approved; R26 must be resolved
-> through automatic discovery behavior without adding user-facing controls.
-> Automatic discovery must not become broad cross-room visibility. Older
+> effective-IP scoping can miss devices whose VPN, carrier, relay, or privacy
+> path changes the visible IP. This is expected LAN-only behavior, not
+> internet-wide discovery. `ROADMAP.md` R26 was closed 2026-05-16 after the
+> observed iPhone/Mac issue was traced to an iPhone VPN exiting in a different
+> state; disabling that VPN restored automatic discovery. A visible manual
+> peer-code fallback was evaluated but reverted because product UI changes were
+> not approved. Automatic discovery must not become broad cross-room visibility.
+> Older
 > statements below that say cloud peers are never shown
 > in LocalBolt discovery or that cloud rendezvous is ByteBolt-only should be read
 > as superseded by this note.
