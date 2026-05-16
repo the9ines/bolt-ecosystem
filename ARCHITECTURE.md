@@ -463,8 +463,9 @@ the source repo where the code originated.
 
 Hosted services and registries are part of the promotion chain:
 
-- **Fly.io:** `bolt-rendezvous` and `localbolt-signal` are hosted signaling
-  surfaces. Signaling protocol changes require server CI plus downstream
+- **Fly.io:** `bolt-rendezvous` is the canonical hosted signaling surface.
+  Historical `localbolt-signal` references are not the current production
+  endpoint. Signaling protocol changes require server CI plus downstream
   consumer compatibility evidence before deployment.
 - **npmjs.org:** Public `@the9ines/*` packages are the deployable SDK surface
   for web consumers. Published package version bumps must be reflected in all
