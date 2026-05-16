@@ -259,9 +259,11 @@ MUST preserve:
 
 localbolt and localbolt-app MUST support:
 - **Offline mode**: local rendezvous server on LAN, no internet required.
-- **Online mode**: optional remote rendezvous for broader discovery.
+- **Online mode**: hosted rendezvous may assist same-network discovery, but
+  LocalBolt must remain LAN/local-network scoped.
 
 The application MUST function without internet connectivity when peers are on the same network.
+LocalBolt MUST NOT expose cross-network or internet-wide peer discovery; ByteBolt owns that product scope.
 
 ### Protocol Integration Rule
 
