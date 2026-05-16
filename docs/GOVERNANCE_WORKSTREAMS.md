@@ -6166,9 +6166,11 @@ Evidence: `docs/evidence/WTE1_EVIDENCE.md`
 > rejected). The
 > effective-IP scoping can miss real same-LAN mobile devices when privacy/VPN/
 > carrier behavior changes the visible IP; that reliability gap is tracked in
-> `ROADMAP.md` R26. R26 mitigation uses explicit manual peer-code fallback via
-> `manual_signal`; it must not change automatic discovery into broad cross-room
-> visibility. Older statements below that say cloud peers are never shown
+> `ROADMAP.md` R26. A visible manual peer-code fallback was evaluated but
+> reverted because product UI changes were not approved; R26 must be resolved
+> through automatic discovery behavior without adding user-facing controls.
+> Automatic discovery must not become broad cross-room visibility. Older
+> statements below that say cloud peers are never shown
 > in LocalBolt discovery or that cloud rendezvous is ByteBolt-only should be read
 > as superseded by this note.
 
