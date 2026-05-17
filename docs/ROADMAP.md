@@ -528,8 +528,11 @@ before session acceptance; answerer-side `ask` without a prior Stage A decision
 fails closed unless an identity pin already exists; persistent deny pins block
 offerer and answerer paths. Tests cover ask-without-pin deny, ask-with-existing
 allow pin, offerer denied pin, and a runtime QUIC adapter denied-identity case
-that receives no HELLO response. This is still not fully validated production
-app↔app QUIC: performance evidence and promotion-guard evidence remain open.
+that receives no HELLO response. Static production guard coverage now scans the
+app-to-app QUIC source paths for accept-any verifier tokens and asserts the only
+custom rustls verifier hook is the cert-hash pin verifier. This is still not
+fully validated production app↔app QUIC: performance evidence and final
+promotion policy remain open.
 
 **Objective:** Q2 will wire QUIC into the default daemon startup path and the rendezvous signaling protocol, and will establish mutual cert-hash pinning between both daemons. Crossing Q2 — i.e., satisfying every acceptance criterion below and verifying the result — is what would satisfy the APP-TO-APP-QUIC-SECURITY-DECISION-1 production promotion blocker at the transport layer. Until Q2 is crossed, the blocker remains in force and QUIC remains a Reference (RC3) transport. Remaining work (Q3–Q5) covers session-lifecycle parity and validation, not transport-auth.
 
@@ -552,7 +555,7 @@ app↔app QUIC: performance evidence and promotion-guard evidence remain open.
 - [x] QUIC disconnect propagation validated: `disconnect_session.signal` closes the active QUIC session, zeroizes BTR state, and clears active session handles on both peers.
 - [x] Pairing approval parity wiring: WS and QUIC identity sessions share Stage B trust-store enforcement, and denied identity pins fail closed before QUIC HELLO acceptance.
 - [x] QUIC IPC transfer-event smoke evidence: a mutual-pinned QUIC session emits `transfer.started`, `transfer.progress`, and `transfer.complete` for both daemon-to-peer send and peer-to-daemon receive paths.
-- [ ] No production app↔app QUIC path uses `Rc3SkipVerification`, accept-any verification, or otherwise bypasses cert-hash pinning. Static / build-time check preferred where feasible.
+- [x] No production app↔app QUIC path uses `Rc3SkipVerification`, accept-any verification, or otherwise bypasses cert-hash pinning. Static guard test scans app-to-app QUIC source paths and permits only the cert-hash pin verifier.
 - [x] Backward compat: if `quicAddr` / `quicCertHash` absent in signaling, fall back to WS client mode.
 - [ ] Unit + integration tests: mutual pin success; one-side mismatch fail-closed; missing-hash fall-back to WS.
 
