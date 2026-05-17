@@ -509,10 +509,17 @@ does not idle out the connection. On 2026-05-17, Mac Studio built both daemon
 binaries locally, copied the x86_64 binary to the MacBook Pro, established
 mutual-pinned QUIC, waited 35 seconds, then sent a one-chunk BTR-protected file
 from Mac Studio to MacBook Pro. The MacBook saved
-`bolt-quic-smoke-keepalive-20260517.txt` with the expected payload. This is
-still not fully validated production app↔app QUIC: bidirectional file-transfer
-parity, disconnect handling, pairing approval parity, and explicit WS fallback
-evidence remain open.
+`bolt-quic-smoke-keepalive-20260517.txt` with the expected payload. Follow-up
+2026-05-17 validation proved bidirectional QUIC/BTR transfer over the same
+active session: Mac Studio saved `bolt-quic-bidi-mbp-to-local-20260517.txt`,
+and MacBook Pro saved `bolt-quic-bidi-local-to-mbp-20260517.txt`, both with the
+expected payloads. WS fallback was also validated with a legacy plain
+`ws://192.168.4.21:19100` `connect_remote.signal`: the daemon took the
+`[WS_CLIENT]` path, not `[QUIC_CLIENT]`, established a WS/BTR session, and the
+MacBook saved `bolt-ws-fallback-local-to-mbp-20260517.txt` with the expected
+payload after macOS incoming-connections firewall approval. This is still not
+fully validated production app↔app QUIC: disconnect handling, pairing approval
+parity, and performance evidence remain open.
 
 **Objective:** Q2 will wire QUIC into the default daemon startup path and the rendezvous signaling protocol, and will establish mutual cert-hash pinning between both daemons. Crossing Q2 — i.e., satisfying every acceptance criterion below and verifying the result — is what would satisfy the APP-TO-APP-QUIC-SECURITY-DECISION-1 production promotion blocker at the transport layer. Until Q2 is crossed, the blocker remains in force and QUIC remains a Reference (RC3) transport. Remaining work (Q3–Q5) covers session-lifecycle parity and validation, not transport-auth.
 
@@ -531,9 +538,10 @@ evidence remain open.
 - [x] QUIC listener binding occurs inside the Tokio runtime in WsEndpoint mode; two-device startup writes `quic_info.json` on both Mac Studio and MacBook Pro.
 - [x] QUIC app-session transport config enables keepalive; two-device smoke on 2026-05-17 survived a 35-second idle gap before sending a BTR-protected file.
 - [x] One-way two-device QUIC BTR file-transfer smoke passed: Mac Studio → MacBook Pro, mutual cert-hash pinning, matching SAS, BTR receive context initialized, file saved with expected contents.
-- [ ] Full QUIC session parity validation: BTR send/receive, file transfer send/receive, IPC transfer events, disconnect handling, and pairing approval match the current WS path under QUIC.
+- [x] Bidirectional two-device QUIC BTR file-transfer smoke passed: Mac Studio ↔ MacBook Pro over the same active QUIC session, with independent BTR send and receive contexts and expected file contents on both machines.
+- [ ] Full QUIC session parity validation: IPC transfer events, disconnect handling, and pairing approval match the current WS path under QUIC.
 - [ ] No production app↔app QUIC path uses `Rc3SkipVerification`, accept-any verification, or otherwise bypasses cert-hash pinning. Static / build-time check preferred where feasible.
-- [ ] Backward compat: if `quicAddr` / `quicCertHash` absent in signaling, fall back to WS client mode.
+- [x] Backward compat: if `quicAddr` / `quicCertHash` absent in signaling, fall back to WS client mode.
 - [ ] Unit + integration tests: mutual pin success; one-side mismatch fail-closed; missing-hash fall-back to WS.
 
 ### Q3 — IPC/Pairing + Disconnect
@@ -566,10 +574,10 @@ evidence remain open.
 
 **Acceptance criteria:**
 - [x] One-way two-device QUIC transfer smoke (Mac Studio → MacBook Pro) with mutual pinning, BTR, and 35-second idle gap before send
-- [ ] Bidirectional two-device QUIC transfer test (Mac Studio ↔ MacBook Pro)
+- [x] Bidirectional two-device QUIC transfer test (Mac Studio ↔ MacBook Pro)
 - [ ] Disconnect propagation validated
 - [ ] Pairing approval validated
-- [ ] WS fallback tested (QUIC unavailable → WS client mode)
+- [x] WS fallback tested (legacy WS-only signal → WS client mode)
 - [ ] Performance comparison vs WS client mode documented
 
 ### Q6 — Docs Graduation
