@@ -435,7 +435,7 @@ C0 (PM policy decision) ← BLOCKER
 | Q1 | Transport auth milestone (internal, non-production) — replace `Rc3SkipVerification` with one-way cert-hash pinning verifier on the dialer | **DONE** | None |
 | Q2 | Signaling integration + mutual cert-hash pinning (production transport-auth gate) — Q2A daemon metadata, Q2B native metadata payloads, Q2C daemon mutual pinning primitives, Q2C2 dynamic listener pin set, Q2D1 structured connect signals, Q2E app-session adapter, Q2F signaling-supplied hash routing, validation, and fallback evidence are implemented. | **DONE** | Q1 |
 | Q3 | IPC/pairing + disconnect propagation — full session lifecycle parity with WS | **DONE** | Q2 |
-| Q4 | Feature flag promotion + localbolt-app wiring (production-promotion gate) — end-to-end native↔native QUIC, with the production promotion blocker (no `Rc3SkipVerification` / accept-any reachable, mutual pinning live) verified | NOT-STARTED | Q3 |
+| Q4 | Feature flag promotion + localbolt-app wiring (production-promotion gate) — end-to-end native↔native QUIC, with the production promotion blocker (no `Rc3SkipVerification` / accept-any reachable, mutual pinning live) verified | **DONE** | Q3 |
 | Q5 | E2E validation + WS fallback — two-device proof, fallback tested | NOT-STARTED | Q4 |
 | Q6 | Docs graduation — TRANSPORT_CONTRACT.md: QUIC → Production, WS → Fallback | NOT-STARTED | Q5 |
 
@@ -571,6 +571,14 @@ promotion policy remain open.
 
 ### Q4 — Feature Flag + App Wiring (Production-Promotion Gate)
 
+**Status:** DONE 2026-05-17. bolt-daemon now exposes a `native-full`
+meta-feature that enables WS + WT + QUIC together without broadening the
+standalone daemon default feature set. localbolt-app's macOS bundle build uses
+`native-full`, so the packaged sidecar starts with QUIC metadata/listener support
+and still keeps WS fallback. The build script completed successfully on Mac
+Studio and produced an ad-hoc signed arm64 `LocalBolt.app` with the native-full
+daemon sidecar.
+
 **Objective:** End-to-end native↔native QUIC path operational and promoted to production. Q4 is the production-promotion gate — promotion is blocked until the APP-TO-APP-QUIC-SECURITY-DECISION-1 production blocker is verifiably satisfied.
 
 **Pre-gate (must be true before Q4 can be marked complete):**
@@ -578,11 +586,11 @@ promotion policy remain open.
 - `Rc3SkipVerification`, accept-any cert verification, and any envelope-only transport-auth code paths are not reachable in any production app↔app QUIC path (verified by code search and, where feasible, a build-time check).
 
 **Acceptance criteria:**
-- [ ] Pre-gate verified (mutual cert-hash pinning live; no accept-any reachable in any production app↔app QUIC path).
-- [ ] `transport-quic` added to default features (or a `native-full` meta-feature) — only after the pre-gate is satisfied.
-- [ ] localbolt-app build enables QUIC feature.
-- [ ] `connect_remote.signal` routes to QUIC when available, WS fallback otherwise.
-- [ ] All existing daemon tests pass with QUIC enabled.
+- [x] Pre-gate verified (mutual cert-hash pinning live; no accept-any reachable in any production app↔app QUIC path).
+- [x] `transport-quic` added to default features (or a `native-full` meta-feature) — only after the pre-gate is satisfied.
+- [x] localbolt-app build enables QUIC feature.
+- [x] `connect_remote.signal` routes to QUIC when available, WS fallback otherwise.
+- [x] All existing daemon tests pass with QUIC enabled.
 
 ### Q5 — E2E Validation
 
@@ -720,7 +728,7 @@ C-STREAM-R1 (UI/state regression recovery, independent of D-stream):
   Single phase: generation guards + snapshot fix + trust truth table → DONE (v3.0.80-c-stream-r1-ui-state-fix)
 
 Q-STREAM (APP-TO-APP-QUIC-MIGRATION-1 — IN-PROGRESS):
-  Q0 (policy lock) ✓ → Q1 (transport auth) ✓ → Q2 (signaling) ✓ → Q3 (IPC) ✓ → Q4 (app wiring) → Q5 (E2E) → Q6 (docs)
+  Q0 (policy lock) ✓ → Q1 (transport auth) ✓ → Q2 (signaling) ✓ → Q3 (IPC) ✓ → Q4 (app wiring) ✓ → Q5 (E2E) → Q6 (docs)
 
 N-STREAM-1 (native app + daemon bundling — **CLOSED**):
   N0 (policy lock) ✓ ──┬── N1 (packaging) ✓ ──┐
