@@ -388,7 +388,7 @@ C0 (PM policy decision) ← BLOCKER
 
 ## Workstream Q — APP-TO-APP-QUIC-MIGRATION-1
 
-**Status:** IN-PROGRESS (Q1 complete 2026-05-14; PM scope locked 2026-05-10; security model locked 2026-05-10 via APP-TO-APP-QUIC-SECURITY-DECISION-1, see Security Decision below)
+**Status:** DONE 2026-05-17 (Q1-Q6 complete; PM scope locked 2026-05-10; security model locked 2026-05-10 via APP-TO-APP-QUIC-SECURITY-DECISION-1, see Security Decision below)
 **Scope:** Promote QUIC from RC3 reference to production native↔native transport in bolt-daemon.
 **Repos:** bolt-daemon (primary), localbolt-app (integration), bolt-core-sdk (doc authority)
 **Dependency:** None blocking. WS client mode remains the production native↔native path until QUIC clears every promotion gate, including the transport-auth gate in Q2.
@@ -420,12 +420,12 @@ C0 (PM policy decision) ← BLOCKER
 
 | | Status |
 |---|---|
-| **Production app↔app transport** | WebSocket client mode (NATIVE-CONNECT-1) |
+| **Production app↔app transport** | QUIC via quinn in native-full app builds; WebSocket client mode retained as fallback |
 | **QUIC transport layer** | Functional (tests pass: connect, framing, 1 MiB transfer) |
 | **QUIC cert validation** | Q1 one-way cert-hash pinning, Q2C mutual pinning primitives, Q2C2 dynamic listener pin set, and signaling-supplied peer hash routing implemented in bolt-daemon |
 | **QUIC signaling integration** | Q2A daemon metadata, Q2B localbolt-app metadata payloads, Q2D1 structured connect signal bridge, and Q2F QUIC-preferred complete signal routing implemented; WS fallback remains active |
-| **QUIC IPC/pairing** | Opt-in daemon adapter emits session lifecycle IPC, shared WS/QUIC identity trust checks, and send/receive transfer IPC events; production routing is not promoted |
-| **QUIC feature flag** | `transport-quic` (opt-in, not in default features) |
+| **QUIC IPC/pairing** | Production daemon adapter emits session lifecycle IPC, shared WS/QUIC identity trust checks, and send/receive transfer IPC events |
+| **QUIC feature flag** | `transport-quic` for daemon QUIC; `native-full` enables WS + WT + QUIC for native app sidecars |
 
 ### Phase Plan
 
@@ -437,7 +437,7 @@ C0 (PM policy decision) ← BLOCKER
 | Q3 | IPC/pairing + disconnect propagation — full session lifecycle parity with WS | **DONE** | Q2 |
 | Q4 | Feature flag promotion + localbolt-app wiring (production-promotion gate) — end-to-end native↔native QUIC, with the production promotion blocker (no `Rc3SkipVerification` / accept-any reachable, mutual pinning live) verified | **DONE** | Q3 |
 | Q5 | E2E validation + WS fallback — two-device proof, fallback tested | **DONE** | Q4 |
-| Q6 | Docs graduation — TRANSPORT_CONTRACT.md: QUIC → Production, WS → Fallback | NOT-STARTED | Q5 |
+| Q6 | Docs graduation — TRANSPORT_CONTRACT.md: QUIC → Production, WS → Fallback | **DONE** | Q5 |
 
 ### Q1 — Transport Auth Milestone (Internal, Non-Production)
 
@@ -535,7 +535,7 @@ complete: two-device QUIC send/receive, disconnect propagation, WS fallback,
 pairing trust enforcement, and QUIC-vs-WS localhost throughput comparison all
 have recorded evidence. Final docs graduation remains open.
 
-**Objective:** Q2 will wire QUIC into the default daemon startup path and the rendezvous signaling protocol, and will establish mutual cert-hash pinning between both daemons. Crossing Q2 — i.e., satisfying every acceptance criterion below and verifying the result — is what would satisfy the APP-TO-APP-QUIC-SECURITY-DECISION-1 production promotion blocker at the transport layer. Until Q2 is crossed, the blocker remains in force and QUIC remains a Reference (RC3) transport. Remaining work (Q3–Q5) covers session-lifecycle parity and validation, not transport-auth.
+**Objective:** Q2 wires QUIC into the daemon startup path and rendezvous signaling protocol, and establishes mutual cert-hash pinning between both daemons. Crossing Q2 satisfies the APP-TO-APP-QUIC-SECURITY-DECISION-1 production promotion blocker at the transport layer; Q3-Q5 then cover session-lifecycle parity and validation.
 
 **Acceptance criteria:**
 - [x] QUIC listener starts alongside WS + WT in WsEndpoint mode when bolt-daemon is built with `transport-quic`.
@@ -627,13 +627,21 @@ echo harness.
 
 ### Q6 — Docs Graduation
 
+**Status:** DONE 2026-05-17. `bolt-core-sdk/docs/TRANSPORT_CONTRACT.md` and
+`bolt-core-sdk/docs/INTEGRATION_GUIDE.md` now list native↔native QUIC as
+Production and WS client mode as Fallback. `bolt-daemon/docs/STATE.md` lists
+QUIC as the production native↔native path in `native-full` builds, with mutual
+cert-hash pinning and WS fallback. The old N1 invariant was updated from
+"WS today / QUIC target" to "QUIC preferred / WS fallback." `localbolt-app`
+state was refreshed to record Q5 validation and native-full packaging.
+
 **Objective:** Remove "reference" label, update transport tables.
 
 **Acceptance criteria:**
-- [ ] TRANSPORT_CONTRACT.md: native↔native row updated to QUIC = Production, WS = Fallback
-- [ ] INTEGRATION_GUIDE.md: same update
-- [ ] bolt-daemon STATE.md: QUIC listed as production
-- [ ] N1 invariant note updated or removed
+- [x] TRANSPORT_CONTRACT.md: native↔native row updated to QUIC = Production, WS = Fallback
+- [x] INTEGRATION_GUIDE.md: same update
+- [x] bolt-daemon STATE.md: QUIC listed as production
+- [x] N1 invariant note updated or removed
 
 ### Risk Register (Q-STREAM)
 
@@ -748,8 +756,8 @@ S-STREAM-R1 (security/foundation recovery, independent of D-stream):
 C-STREAM-R1 (UI/state regression recovery, independent of D-stream):
   Single phase: generation guards + snapshot fix + trust truth table → DONE (v3.0.80-c-stream-r1-ui-state-fix)
 
-Q-STREAM (APP-TO-APP-QUIC-MIGRATION-1 — IN-PROGRESS):
-  Q0 (policy lock) ✓ → Q1 (transport auth) ✓ → Q2 (signaling) ✓ → Q3 (IPC) ✓ → Q4 (app wiring) ✓ → Q5 (E2E) ✓ → Q6 (docs)
+Q-STREAM (APP-TO-APP-QUIC-MIGRATION-1 — DONE):
+  Q0 (policy lock) ✓ → Q1 (transport auth) ✓ → Q2 (signaling) ✓ → Q3 (IPC) ✓ → Q4 (app wiring) ✓ → Q5 (E2E) ✓ → Q6 (docs) ✓
 
 N-STREAM-1 (native app + daemon bundling — **CLOSED**):
   N0 (policy lock) ✓ ──┬── N1 (packaging) ✓ ──┐
@@ -966,7 +974,7 @@ privacy features change the visible IP. That reliability gap is tracked as R26.
 | R19 | WT cert rotation on long-running daemon | Low | Mitigated — daemon generates fresh cert on each start. New hash distributed via signaling. |
 | R20 | No non-core consumer exists yet to validate contract portability | Medium | Open — NONCORE-ADOPTER-1 is the resolution. |
 | R21 | Native automated test coverage limited (Swift, no unit test infra) | Medium | Accepted — contract conformance verified by code review + runtime testing. M4 will add CI-level parity checks. |
-| R22 | TRANSPORT_CONTRACT.md falsely claimed QUIC as production app↔app path | Medium | **Closed** | Corrected 2026-05-10: WS client mode documented as current production, QUIC as RC3 strategic target. APP-TO-APP-QUIC-MIGRATION-1 codified. |
+| R22 | TRANSPORT_CONTRACT.md falsely claimed QUIC as production app↔app path before promotion evidence existed | Medium | **Closed** | Corrected 2026-05-10 by documenting WS client mode as current production and QUIC as RC3 strategic target. Superseded 2026-05-17 by APP-TO-APP-QUIC-MIGRATION-1 Q6: after Q1-Q5 evidence, TRANSPORT_CONTRACT.md now correctly lists QUIC as production native↔native and WS client mode as fallback. |
 | R23 | QUIC security-gate wording used "default-feature build", which could pass while insecure QUIC remained reachable in a QUIC-enabled production build | Medium | **Closed** | Corrected 2026-05-13: production blocker now applies to any production app↔app QUIC path. |
 | R24 | CI/deploy inheritance drift across the three app repos | Medium | **Closed** | 2026-05-16 audit/mitigation complete: `localbolt-app` native CI gates added, stale Tauri release/Windows surfaces retired, `localbolt-v3` Tauri removed from active npm workspace/scripts, publish workflow actions pinned, `localbolt` package pins and coverage gate realigned, Netlify web endpoint verified live at `localbolt.app`, and Fly.io canonical signaling verified live at `bolt-rendezvous.fly.dev`. Stale `localbolt-signal.fly.dev` docs corrected to canonical `bolt-rendezvous`. |
 | R25 | LocalBolt docs and website copy implied cross-network/internet discovery despite LAN-only governance | Medium | Mitigating | 2026-05-16 correction pass continued: visible web copy, JSON-LD, PRDs, README/STATE docs, burn-in checklist, and architecture wording realigned to LAN-only LocalBolt. `localbolt-v3` now generates a static HTML shell at build time so source HTML and runtime copy carry the same LAN-only promise. This is not Netlify legacy prerendering and not runtime SSR; Netlify remains the sponsored static deployment host. `@the9ines/localbolt-browser@0.1.1` and `@the9ines/localbolt-core@0.1.4` are published on npmjs.org; broken `localbolt-core@0.1.3` was deprecated. Self-host `localbolt` now consumes the published LocalBolt product packages instead of legacy `@the9ines/bolt-transport-web`, with package guards retargeted and LAN-only ICE tests enforcing no STUN/TURN and no srflx/relay candidates. Boundary clarified: do not impose LAN-only policy inside `bolt-core-sdk`; LocalBolt owns LAN-only policy, ByteBolt can be referenced in internal governance, and LocalBolt website copy must not mention ByteBolt until that product is released. Remaining follow-up: enforce strict discovery visibility, because hosted rendezvous can enforce same effective IP grouping but cannot by itself prove true LAN membership. |
