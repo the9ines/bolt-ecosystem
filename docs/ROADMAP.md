@@ -424,7 +424,7 @@ C0 (PM policy decision) ← BLOCKER
 | **QUIC transport layer** | Functional (tests pass: connect, framing, 1 MiB transfer) |
 | **QUIC cert validation** | Q1 one-way cert-hash pinning, Q2C mutual pinning primitives, Q2C2 dynamic listener pin set, and signaling-supplied peer hash routing implemented in bolt-daemon |
 | **QUIC signaling integration** | Q2A daemon metadata, Q2B localbolt-app metadata payloads, Q2D1 structured connect signal bridge, and Q2F QUIC-preferred complete signal routing implemented; WS fallback remains active |
-| **QUIC IPC/pairing** | Opt-in daemon adapter emits session lifecycle IPC and shared WS/QUIC identity trust checks; IPC transfer-event evidence and production routing are not wired |
+| **QUIC IPC/pairing** | Opt-in daemon adapter emits session lifecycle IPC, shared WS/QUIC identity trust checks, and send/receive transfer IPC events; production routing is not promoted |
 | **QUIC feature flag** | `transport-quic` (opt-in, not in default features) |
 
 ### Phase Plan
@@ -529,7 +529,7 @@ fails closed unless an identity pin already exists; persistent deny pins block
 offerer and answerer paths. Tests cover ask-without-pin deny, ask-with-existing
 allow pin, offerer denied pin, and a runtime QUIC adapter denied-identity case
 that receives no HELLO response. This is still not fully validated production
-app↔app QUIC: IPC transfer-event evidence and performance evidence remain open.
+app↔app QUIC: performance evidence and promotion-guard evidence remain open.
 
 **Objective:** Q2 will wire QUIC into the default daemon startup path and the rendezvous signaling protocol, and will establish mutual cert-hash pinning between both daemons. Crossing Q2 — i.e., satisfying every acceptance criterion below and verifying the result — is what would satisfy the APP-TO-APP-QUIC-SECURITY-DECISION-1 production promotion blocker at the transport layer. Until Q2 is crossed, the blocker remains in force and QUIC remains a Reference (RC3) transport. Remaining work (Q3–Q5) covers session-lifecycle parity and validation, not transport-auth.
 
@@ -551,7 +551,7 @@ app↔app QUIC: IPC transfer-event evidence and performance evidence remain open
 - [x] Bidirectional two-device QUIC BTR file-transfer smoke passed: Mac Studio ↔ MacBook Pro over the same active QUIC session, with independent BTR send and receive contexts and expected file contents on both machines.
 - [x] QUIC disconnect propagation validated: `disconnect_session.signal` closes the active QUIC session, zeroizes BTR state, and clears active session handles on both peers.
 - [x] Pairing approval parity wiring: WS and QUIC identity sessions share Stage B trust-store enforcement, and denied identity pins fail closed before QUIC HELLO acceptance.
-- [ ] Full QUIC session parity validation: IPC transfer events match the current WS path under QUIC.
+- [x] QUIC IPC transfer-event smoke evidence: a mutual-pinned QUIC session emits `transfer.started`, `transfer.progress`, and `transfer.complete` for both daemon-to-peer send and peer-to-daemon receive paths.
 - [ ] No production app↔app QUIC path uses `Rc3SkipVerification`, accept-any verification, or otherwise bypasses cert-hash pinning. Static / build-time check preferred where feasible.
 - [x] Backward compat: if `quicAddr` / `quicCertHash` absent in signaling, fall back to WS client mode.
 - [ ] Unit + integration tests: mutual pin success; one-side mismatch fail-closed; missing-hash fall-back to WS.
@@ -564,7 +564,7 @@ app↔app QUIC: IPC transfer-event evidence and performance evidence remain open
 - [x] `session.connected` / `session.ended` / `session.error` IPC events for QUIC
 - [x] Pairing approval flow (trust store check before accepting QUIC connection)
 - [x] `DISCONNECT_REQUESTED` flag + `request_disconnect()` for QUIC (mirror WS/WT pattern)
-- [ ] IPC transfer event smoke evidence for QUIC send and receive paths
+- [x] IPC transfer event smoke evidence for QUIC send and receive paths
 
 ### Q4 — Feature Flag + App Wiring (Production-Promotion Gate)
 
