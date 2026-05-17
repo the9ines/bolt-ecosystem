@@ -436,7 +436,7 @@ C0 (PM policy decision) ← BLOCKER
 | Q2 | Signaling integration + mutual cert-hash pinning (production transport-auth gate) — Q2A daemon metadata, Q2B native metadata payloads, Q2C daemon mutual pinning primitives, Q2C2 dynamic listener pin set, Q2D1 structured connect signals, Q2E app-session adapter, Q2F signaling-supplied hash routing, validation, and fallback evidence are implemented. | **DONE** | Q1 |
 | Q3 | IPC/pairing + disconnect propagation — full session lifecycle parity with WS | **DONE** | Q2 |
 | Q4 | Feature flag promotion + localbolt-app wiring (production-promotion gate) — end-to-end native↔native QUIC, with the production promotion blocker (no `Rc3SkipVerification` / accept-any reachable, mutual pinning live) verified | **DONE** | Q3 |
-| Q5 | E2E validation + WS fallback — two-device proof, fallback tested | NOT-STARTED | Q4 |
+| Q5 | E2E validation + WS fallback — two-device proof, fallback tested | **DONE** | Q4 |
 | Q6 | Docs graduation — TRANSPORT_CONTRACT.md: QUIC → Production, WS → Fallback | NOT-STARTED | Q5 |
 
 ### Q1 — Transport Auth Milestone (Internal, Non-Production)
@@ -530,9 +530,10 @@ offerer and answerer paths. Tests cover ask-without-pin deny, ask-with-existing
 allow pin, offerer denied pin, and a runtime QUIC adapter denied-identity case
 that receives no HELLO response. Static production guard coverage now scans the
 app-to-app QUIC source paths for accept-any verifier tokens and asserts the only
-custom rustls verifier hook is the cert-hash pin verifier. This is still not
-fully validated production app↔app QUIC: performance evidence and final
-promotion policy remain open.
+custom rustls verifier hook is the cert-hash pin verifier. Q5 validation is now
+complete: two-device QUIC send/receive, disconnect propagation, WS fallback,
+pairing trust enforcement, and QUIC-vs-WS localhost throughput comparison all
+have recorded evidence. Final docs graduation remains open.
 
 **Objective:** Q2 will wire QUIC into the default daemon startup path and the rendezvous signaling protocol, and will establish mutual cert-hash pinning between both daemons. Crossing Q2 — i.e., satisfying every acceptance criterion below and verifying the result — is what would satisfy the APP-TO-APP-QUIC-SECURITY-DECISION-1 production promotion blocker at the transport layer. Until Q2 is crossed, the blocker remains in force and QUIC remains a Reference (RC3) transport. Remaining work (Q3–Q5) covers session-lifecycle parity and validation, not transport-auth.
 
@@ -594,15 +595,35 @@ daemon sidecar.
 
 ### Q5 — E2E Validation
 
+**Status:** DONE 2026-05-17. Two-device QUIC/BTR smoke passed in both
+directions between Mac Studio and MacBook Pro, WS fallback passed through the
+legacy WS-only signal path, disconnect propagation cleared active sessions and
+zeroized BTR state on both peers, and pairing approval enforcement passed the
+focused Stage B trust tests (`session_trust_*` plus
+`quic_session_adapter_rejects_denied_identity_pin`). Performance comparison is
+documented by `tests/q5_quic_vs_ws_throughput.rs`, which sends the same
+JSON-shaped payloads through WS fallback and QUIC framed streams on localhost.
+Observed debug-profile loopback run on 2026-05-17:
+
+| Payload | Rounds | WS Mbps | QUIC Mbps |
+|---------|--------|---------|-----------|
+| 1 KiB | 40 | 178.15 | 63.98 |
+| 16 KiB | 30 | 953.57 | 299.14 |
+| 64 KiB | 12 | 1536.98 | 420.04 |
+
+These numbers are comparative localhost evidence only, not a LAN/WAN
+performance SLA and not a requirement that QUIC outperform WS in the synthetic
+echo harness.
+
 **Objective:** Production-ready evidence.
 
 **Acceptance criteria:**
 - [x] One-way two-device QUIC transfer smoke (Mac Studio → MacBook Pro) with mutual pinning, BTR, and 35-second idle gap before send
 - [x] Bidirectional two-device QUIC transfer test (Mac Studio ↔ MacBook Pro)
 - [x] Disconnect propagation validated
-- [ ] Pairing approval validated
+- [x] Pairing approval validated
 - [x] WS fallback tested (legacy WS-only signal → WS client mode)
-- [ ] Performance comparison vs WS client mode documented
+- [x] Performance comparison vs WS client mode documented
 
 ### Q6 — Docs Graduation
 
@@ -728,7 +749,7 @@ C-STREAM-R1 (UI/state regression recovery, independent of D-stream):
   Single phase: generation guards + snapshot fix + trust truth table → DONE (v3.0.80-c-stream-r1-ui-state-fix)
 
 Q-STREAM (APP-TO-APP-QUIC-MIGRATION-1 — IN-PROGRESS):
-  Q0 (policy lock) ✓ → Q1 (transport auth) ✓ → Q2 (signaling) ✓ → Q3 (IPC) ✓ → Q4 (app wiring) ✓ → Q5 (E2E) → Q6 (docs)
+  Q0 (policy lock) ✓ → Q1 (transport auth) ✓ → Q2 (signaling) ✓ → Q3 (IPC) ✓ → Q4 (app wiring) ✓ → Q5 (E2E) ✓ → Q6 (docs)
 
 N-STREAM-1 (native app + daemon bundling — **CLOSED**):
   N0 (policy lock) ✓ ──┬── N1 (packaging) ✓ ──┐
