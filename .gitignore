@@ -20,6 +20,8 @@ bytebolt-relay/
 # Build artifacts
 node_modules/
 *.tgz
+target/
+**/target/
 
 # Shell artifacts
 =
