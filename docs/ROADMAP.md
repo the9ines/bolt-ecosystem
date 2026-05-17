@@ -497,10 +497,13 @@ streams can be split into send/receive halves, accepted and dialed QUIC streams
 can run session-key exchange, HELLO, ProfileEnvelopeV1 routing, ACTIVE_SESSION
 registration, session lifecycle IPC, and the WS-shaped file-transfer/BTR loop.
 Focused tests cover mutual-pinned QUIC, HELLO, encrypted ping, and encrypted
-pong over the adapter. This is still not production app↔app QUIC: default
-routing remains WS, the daemon is not yet consuming signaling-supplied peer
-hashes for session establishment, and Q2 remains a forward gate that must be
-crossed before production promotion.
+pong over the adapter. Q2F signaling-supplied hash routing is implemented:
+acceptors write the requester's `quicCertHash` to the daemon allowlist signal
+before sending `connection_accepted`, and initiators route structured
+`connect_remote.signal` payloads to QUIC only when `quicAddr` and
+`quicCertHash` are complete, with WS fallback preserved. This is still not
+fully validated production app↔app QUIC: file-transfer parity, disconnect
+handling, pairing approval parity, and two-device fallback evidence remain open.
 
 **Objective:** Q2 will wire QUIC into the default daemon startup path and the rendezvous signaling protocol, and will establish mutual cert-hash pinning between both daemons. Crossing Q2 — i.e., satisfying every acceptance criterion below and verifying the result — is what would satisfy the APP-TO-APP-QUIC-SECURITY-DECISION-1 production promotion blocker at the transport layer. Until Q2 is crossed, the blocker remains in force and QUIC remains a Reference (RC3) transport. Remaining work (Q3–Q5) covers session-lifecycle parity and validation, not transport-auth.
 
@@ -514,8 +517,8 @@ crossed before production promotion.
 - [x] WsEndpoint QUIC metadata listener uses the dynamic mutual-pin verifier when built with `transport-quic`; routing remains WS until the app session layer is wired.
 - [x] Native bridge writes structured `connect_remote.signal` JSON and daemon parser accepts both structured JSON and legacy plain WS URL signals.
 - [x] Opt-in QUIC app-session adapter exists and is tested for mutual-pinned QUIC, session-key exchange, HELLO, encrypted ProfileEnvelopeV1 ping, and encrypted pong; it is not the default route.
-- [ ] Both daemons present client and server certificates via `with_client_auth()` / `ClientCertVerifier` (rustls/quinn), and both sides verify the peer cert hash against the signaling-supplied hash. Mismatch on either side → connection refused, fail-closed.
-- [ ] Signaling-supplied peer hashes feed the dynamic listener allowlist and outbound QUIC dialer before any production app↔app QUIC route is selected.
+- [x] Signaling-supplied peer hashes feed the dynamic listener allowlist and outbound QUIC dialer before any app↔app QUIC route is selected; missing/incomplete QUIC metadata preserves WS fallback.
+- [x] Both daemons present client and server certificates via `with_client_auth()` / `ClientCertVerifier` (rustls/quinn), and both sides verify the peer cert hash against the signaling-supplied hash. Mismatch on either side → connection refused, fail-closed.
 - [ ] Full QUIC session parity validation: BTR send/receive, file transfer send/receive, IPC transfer events, disconnect handling, and pairing approval match the current WS path under QUIC.
 - [ ] No production app↔app QUIC path uses `Rc3SkipVerification`, accept-any verification, or otherwise bypasses cert-hash pinning. Static / build-time check preferred where feasible.
 - [ ] Backward compat: if `quicAddr` / `quicCertHash` absent in signaling, fall back to WS client mode.
