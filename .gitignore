@@ -5,6 +5,7 @@ bolt-rendezvous/
 bolt-protocol/
 localbolt/
 localbolt-app/
+localbolt-web/
 localbolt-v3/
 bytebolt-app/
 bytebolt-relay/
