@@ -422,7 +422,7 @@ C0 (PM policy decision) ← BLOCKER
 |---|---|
 | **Production app↔app transport** | WebSocket client mode (NATIVE-CONNECT-1) |
 | **QUIC transport layer** | Functional (tests pass: connect, framing, 1 MiB transfer) |
-| **QUIC cert validation** | Q1 one-way cert-hash pinning on the dialer side; Q2C mutual pinning primitives implemented in bolt-daemon; not wired to production routing |
+| **QUIC cert validation** | Q1 one-way cert-hash pinning on the dialer side; Q2C mutual pinning primitives and Q2C2 dynamic listener pin set implemented in bolt-daemon; not wired to production routing |
 | **QUIC signaling integration** | Q2A daemon metadata, Q2B localbolt-app metadata payloads, and Q2D1 structured connect signal bridge implemented; daemon routing still uses WS |
 | **QUIC IPC/pairing** | None — no session events, no pairing approval |
 | **QUIC feature flag** | `transport-quic` (opt-in, not in default features) |
@@ -433,7 +433,7 @@ C0 (PM policy decision) ← BLOCKER
 |-------|-------------|--------|-------------|
 | Q0 | Policy + security decision lock (this section; APP-TO-APP-QUIC-SECURITY-DECISION-1 closed 2026-05-10) | **DONE** | None |
 | Q1 | Transport auth milestone (internal, non-production) — replace `Rc3SkipVerification` with one-way cert-hash pinning verifier on the dialer | **DONE** | None |
-| Q2 | Signaling integration + mutual cert-hash pinning (production transport-auth gate) — Q2A daemon metadata, Q2B native metadata payloads, Q2C daemon mutual pinning primitives, and Q2D1 structured connect signals are implemented. Production QUIC routing and signaling-supplied peer hash use remain incomplete. | IN-PROGRESS | Q1 |
+| Q2 | Signaling integration + mutual cert-hash pinning (production transport-auth gate) — Q2A daemon metadata, Q2B native metadata payloads, Q2C daemon mutual pinning primitives, Q2C2 dynamic listener pin set, and Q2D1 structured connect signals are implemented. Production QUIC routing and signaling-supplied peer hash use remain incomplete. | IN-PROGRESS | Q1 |
 | Q3 | IPC/pairing + disconnect propagation — full session lifecycle parity with WS | NOT-STARTED | Q2 |
 | Q4 | Feature flag promotion + localbolt-app wiring (production-promotion gate) — end-to-end native↔native QUIC, with the production promotion blocker (no `Rc3SkipVerification` / accept-any reachable, mutual pinning live) verified | NOT-STARTED | Q3 |
 | Q5 | E2E validation + WS fallback — two-device proof, fallback tested | NOT-STARTED | Q4 |
@@ -483,13 +483,18 @@ metadata for future acceptor-side pinning. Q2C daemon mutual pinning primitives
 are implemented in bolt-daemon: the listener can require a dialer client cert
 hash, the dialer can present a client cert while pinning the listener cert hash,
 and tests cover success plus missing/wrong client cert fail-closed behavior.
+Q2C2 dynamic listener pinning is implemented in bolt-daemon: QUIC listeners can
+start in fail-closed mode with an initially empty client-cert allowlist, then
+learn accepted peer certificate hashes after signaling supplies them. WsEndpoint
+mode now starts the QUIC metadata listener with that dynamic mutual-pin verifier
+instead of a no-client-auth listener when built with `transport-quic`.
 Q2D1 structured connect signals are implemented across localbolt-app and
 bolt-daemon: the native bridge writes JSON with `wsUrl`, `quicAddr`, and
 `quicCertHash`, and the daemon parser remains backward-compatible with the
 legacy plain `ws://...` signal. This is still not production app↔app QUIC.
-QUIC routing is not wired, the daemon is not yet consuming signaling-supplied
-peer hashes for session establishment, and Q2 remains a forward gate that must
-be crossed before production promotion.
+QUIC routing is not wired, no app session is accepted over QUIC yet, the daemon
+is not yet consuming signaling-supplied peer hashes for session establishment,
+and Q2 remains a forward gate that must be crossed before production promotion.
 
 **Objective:** Q2 will wire QUIC into the default daemon startup path and the rendezvous signaling protocol, and will establish mutual cert-hash pinning between both daemons. Crossing Q2 — i.e., satisfying every acceptance criterion below and verifying the result — is what would satisfy the APP-TO-APP-QUIC-SECURITY-DECISION-1 production promotion blocker at the transport layer. Until Q2 is crossed, the blocker remains in force and QUIC remains a Reference (RC3) transport. Remaining work (Q3–Q5) covers session-lifecycle parity and validation, not transport-auth.
 
@@ -499,8 +504,11 @@ be crossed before production promotion.
 - [x] Native app includes `quicAddr` and `quicCertHash` in the `connection_accepted` signaling payload.
 - [x] The dialer also publishes its own cert hash in `connection_request` so the acceptor can pin it later (`quicCertHash` field).
 - [x] Daemon-side mutual cert-hash pinning primitives exist and are tested without production routing: listener requires expected client cert hash; dialer presents client cert while pinning listener cert hash; missing/wrong client cert fails closed.
+- [x] Daemon-side dynamic client-cert pin set exists and is tested: listener starts fail-closed with an allowlist, accepted peer hashes can be added after signaling, allowed cert succeeds, unlisted cert fails closed.
+- [x] WsEndpoint QUIC metadata listener uses the dynamic mutual-pin verifier when built with `transport-quic`; routing remains WS until the app session layer is wired.
 - [x] Native bridge writes structured `connect_remote.signal` JSON and daemon parser accepts both structured JSON and legacy plain WS URL signals.
 - [ ] Both daemons present client and server certificates via `with_client_auth()` / `ClientCertVerifier` (rustls/quinn), and both sides verify the peer cert hash against the signaling-supplied hash. Mismatch on either side → connection refused, fail-closed.
+- [ ] QUIC app session adapter: accepted/dialed QUIC streams run the same session-key exchange, HELLO, ProfileEnvelopeV1, BTR, file transfer, and IPC lifecycle as the current WS path.
 - [ ] No production app↔app QUIC path uses `Rc3SkipVerification`, accept-any verification, or otherwise bypasses cert-hash pinning. Static / build-time check preferred where feasible.
 - [ ] Backward compat: if `quicAddr` / `quicCertHash` absent in signaling, fall back to WS client mode.
 - [ ] Unit + integration tests: mutual pin success; one-side mismatch fail-closed; missing-hash fall-back to WS.
