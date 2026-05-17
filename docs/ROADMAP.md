@@ -433,8 +433,8 @@ C0 (PM policy decision) ← BLOCKER
 |-------|-------------|--------|-------------|
 | Q0 | Policy + security decision lock (this section; APP-TO-APP-QUIC-SECURITY-DECISION-1 closed 2026-05-10) | **DONE** | None |
 | Q1 | Transport auth milestone (internal, non-production) — replace `Rc3SkipVerification` with one-way cert-hash pinning verifier on the dialer | **DONE** | None |
-| Q2 | Signaling integration + mutual cert-hash pinning (production transport-auth gate) — Q2A daemon metadata, Q2B native metadata payloads, Q2C daemon mutual pinning primitives, Q2C2 dynamic listener pin set, Q2D1 structured connect signals, Q2E app-session adapter, and Q2F signaling-supplied hash routing are implemented. Validation and fallback evidence remain incomplete. | IN-PROGRESS | Q1 |
-| Q3 | IPC/pairing + disconnect propagation — full session lifecycle parity with WS | IN-PROGRESS | Q2 |
+| Q2 | Signaling integration + mutual cert-hash pinning (production transport-auth gate) — Q2A daemon metadata, Q2B native metadata payloads, Q2C daemon mutual pinning primitives, Q2C2 dynamic listener pin set, Q2D1 structured connect signals, Q2E app-session adapter, Q2F signaling-supplied hash routing, validation, and fallback evidence are implemented. | **DONE** | Q1 |
+| Q3 | IPC/pairing + disconnect propagation — full session lifecycle parity with WS | **DONE** | Q2 |
 | Q4 | Feature flag promotion + localbolt-app wiring (production-promotion gate) — end-to-end native↔native QUIC, with the production promotion blocker (no `Rc3SkipVerification` / accept-any reachable, mutual pinning live) verified | NOT-STARTED | Q3 |
 | Q5 | E2E validation + WS fallback — two-device proof, fallback tested | NOT-STARTED | Q4 |
 | Q6 | Docs graduation — TRANSPORT_CONTRACT.md: QUIC → Production, WS → Fallback | NOT-STARTED | Q5 |
@@ -472,7 +472,7 @@ mismatch. This does not make QUIC the production app-to-app path.
 
 ### Q2 — Signaling Integration + Mutual Cert-Hash Pinning (Production Transport-Auth Gate)
 
-**Status:** IN-PROGRESS. Q2A daemon metadata plumbing is implemented in
+**Status:** DONE 2026-05-17. Q2A daemon metadata plumbing is implemented in
 bolt-daemon: when built with `transport-quic`, WsEndpoint mode binds a QUIC
 listener on the adjacent QUIC port and writes `quic_info.json` with
 `quic_port` and `quic_cert_hash` for future native-shell consumption. Q2B
@@ -557,7 +557,7 @@ promotion policy remain open.
 - [x] QUIC IPC transfer-event smoke evidence: a mutual-pinned QUIC session emits `transfer.started`, `transfer.progress`, and `transfer.complete` for both daemon-to-peer send and peer-to-daemon receive paths.
 - [x] No production app↔app QUIC path uses `Rc3SkipVerification`, accept-any verification, or otherwise bypasses cert-hash pinning. Static guard test scans app-to-app QUIC source paths and permits only the cert-hash pin verifier.
 - [x] Backward compat: if `quicAddr` / `quicCertHash` absent in signaling, fall back to WS client mode.
-- [ ] Unit + integration tests: mutual pin success; one-side mismatch fail-closed; missing-hash fall-back to WS.
+- [x] Unit + integration tests: mutual pin success; one-side mismatch fail-closed; missing-hash fall-back to WS.
 
 ### Q3 — IPC/Pairing + Disconnect
 
@@ -720,7 +720,7 @@ C-STREAM-R1 (UI/state regression recovery, independent of D-stream):
   Single phase: generation guards + snapshot fix + trust truth table → DONE (v3.0.80-c-stream-r1-ui-state-fix)
 
 Q-STREAM (APP-TO-APP-QUIC-MIGRATION-1 — IN-PROGRESS):
-  Q0 (policy lock) ✓ → Q1 (transport auth) ✓ → Q2 (signaling) → Q3 (IPC) → Q4 (app wiring) → Q5 (E2E) → Q6 (docs)
+  Q0 (policy lock) ✓ → Q1 (transport auth) ✓ → Q2 (signaling) ✓ → Q3 (IPC) ✓ → Q4 (app wiring) → Q5 (E2E) → Q6 (docs)
 
 N-STREAM-1 (native app + daemon bundling — **CLOSED**):
   N0 (policy lock) ✓ ──┬── N1 (packaging) ✓ ──┐
