@@ -422,8 +422,8 @@ C0 (PM policy decision) ← BLOCKER
 |---|---|
 | **Production app↔app transport** | WebSocket client mode (NATIVE-CONNECT-1) |
 | **QUIC transport layer** | Functional (tests pass: connect, framing, 1 MiB transfer) |
-| **QUIC cert validation** | Q1 one-way cert-hash pinning on the dialer side; Q2C mutual pinning primitives and Q2C2 dynamic listener pin set implemented in bolt-daemon; not wired to production routing |
-| **QUIC signaling integration** | Q2A daemon metadata, Q2B localbolt-app metadata payloads, and Q2D1 structured connect signal bridge implemented; daemon default routing still uses WS |
+| **QUIC cert validation** | Q1 one-way cert-hash pinning, Q2C mutual pinning primitives, Q2C2 dynamic listener pin set, and signaling-supplied peer hash routing implemented in bolt-daemon |
+| **QUIC signaling integration** | Q2A daemon metadata, Q2B localbolt-app metadata payloads, Q2D1 structured connect signal bridge, and Q2F QUIC-preferred complete signal routing implemented; WS fallback remains active |
 | **QUIC IPC/pairing** | Opt-in daemon adapter emits session lifecycle IPC; pairing approval and production routing are not wired |
 | **QUIC feature flag** | `transport-quic` (opt-in, not in default features) |
 
@@ -433,7 +433,7 @@ C0 (PM policy decision) ← BLOCKER
 |-------|-------------|--------|-------------|
 | Q0 | Policy + security decision lock (this section; APP-TO-APP-QUIC-SECURITY-DECISION-1 closed 2026-05-10) | **DONE** | None |
 | Q1 | Transport auth milestone (internal, non-production) — replace `Rc3SkipVerification` with one-way cert-hash pinning verifier on the dialer | **DONE** | None |
-| Q2 | Signaling integration + mutual cert-hash pinning (production transport-auth gate) — Q2A daemon metadata, Q2B native metadata payloads, Q2C daemon mutual pinning primitives, Q2C2 dynamic listener pin set, and Q2D1 structured connect signals are implemented. Production QUIC routing and signaling-supplied peer hash use remain incomplete. | IN-PROGRESS | Q1 |
+| Q2 | Signaling integration + mutual cert-hash pinning (production transport-auth gate) — Q2A daemon metadata, Q2B native metadata payloads, Q2C daemon mutual pinning primitives, Q2C2 dynamic listener pin set, Q2D1 structured connect signals, Q2E app-session adapter, and Q2F signaling-supplied hash routing are implemented. Validation and fallback evidence remain incomplete. | IN-PROGRESS | Q1 |
 | Q3 | IPC/pairing + disconnect propagation — full session lifecycle parity with WS | NOT-STARTED | Q2 |
 | Q4 | Feature flag promotion + localbolt-app wiring (production-promotion gate) — end-to-end native↔native QUIC, with the production promotion blocker (no `Rc3SkipVerification` / accept-any reachable, mutual pinning live) verified | NOT-STARTED | Q3 |
 | Q5 | E2E validation + WS fallback — two-device proof, fallback tested | NOT-STARTED | Q4 |
@@ -501,9 +501,18 @@ pong over the adapter. Q2F signaling-supplied hash routing is implemented:
 acceptors write the requester's `quicCertHash` to the daemon allowlist signal
 before sending `connection_accepted`, and initiators route structured
 `connect_remote.signal` payloads to QUIC only when `quicAddr` and
-`quicCertHash` are complete, with WS fallback preserved. This is still not
-fully validated production app↔app QUIC: file-transfer parity, disconnect
-handling, pairing approval parity, and two-device fallback evidence remain open.
+`quicCertHash` are complete, with WS fallback preserved. Q2G keepalive and
+runtime placement fixes are implemented after two-device smoke exposed two
+startup/session issues: QUIC listener binding must happen inside the Tokio
+runtime, and active app sessions need QUIC keepalive so normal user think time
+does not idle out the connection. On 2026-05-17, Mac Studio built both daemon
+binaries locally, copied the x86_64 binary to the MacBook Pro, established
+mutual-pinned QUIC, waited 35 seconds, then sent a one-chunk BTR-protected file
+from Mac Studio to MacBook Pro. The MacBook saved
+`bolt-quic-smoke-keepalive-20260517.txt` with the expected payload. This is
+still not fully validated production app↔app QUIC: bidirectional file-transfer
+parity, disconnect handling, pairing approval parity, and explicit WS fallback
+evidence remain open.
 
 **Objective:** Q2 will wire QUIC into the default daemon startup path and the rendezvous signaling protocol, and will establish mutual cert-hash pinning between both daemons. Crossing Q2 — i.e., satisfying every acceptance criterion below and verifying the result — is what would satisfy the APP-TO-APP-QUIC-SECURITY-DECISION-1 production promotion blocker at the transport layer. Until Q2 is crossed, the blocker remains in force and QUIC remains a Reference (RC3) transport. Remaining work (Q3–Q5) covers session-lifecycle parity and validation, not transport-auth.
 
@@ -514,11 +523,14 @@ handling, pairing approval parity, and two-device fallback evidence remain open.
 - [x] The dialer also publishes its own cert hash in `connection_request` so the acceptor can pin it later (`quicCertHash` field).
 - [x] Daemon-side mutual cert-hash pinning primitives exist and are tested without production routing: listener requires expected client cert hash; dialer presents client cert while pinning listener cert hash; missing/wrong client cert fails closed.
 - [x] Daemon-side dynamic client-cert pin set exists and is tested: listener starts fail-closed with an allowlist, accepted peer hashes can be added after signaling, allowed cert succeeds, unlisted cert fails closed.
-- [x] WsEndpoint QUIC metadata listener uses the dynamic mutual-pin verifier when built with `transport-quic`; routing remains WS until the app session layer is wired.
+- [x] WsEndpoint QUIC metadata listener uses the dynamic mutual-pin verifier when built with `transport-quic`; complete structured native signals can route to QUIC and WS fallback remains active.
 - [x] Native bridge writes structured `connect_remote.signal` JSON and daemon parser accepts both structured JSON and legacy plain WS URL signals.
 - [x] Opt-in QUIC app-session adapter exists and is tested for mutual-pinned QUIC, session-key exchange, HELLO, encrypted ProfileEnvelopeV1 ping, and encrypted pong; it is not the default route.
 - [x] Signaling-supplied peer hashes feed the dynamic listener allowlist and outbound QUIC dialer before any app↔app QUIC route is selected; missing/incomplete QUIC metadata preserves WS fallback.
 - [x] Both daemons present client and server certificates via `with_client_auth()` / `ClientCertVerifier` (rustls/quinn), and both sides verify the peer cert hash against the signaling-supplied hash. Mismatch on either side → connection refused, fail-closed.
+- [x] QUIC listener binding occurs inside the Tokio runtime in WsEndpoint mode; two-device startup writes `quic_info.json` on both Mac Studio and MacBook Pro.
+- [x] QUIC app-session transport config enables keepalive; two-device smoke on 2026-05-17 survived a 35-second idle gap before sending a BTR-protected file.
+- [x] One-way two-device QUIC BTR file-transfer smoke passed: Mac Studio → MacBook Pro, mutual cert-hash pinning, matching SAS, BTR receive context initialized, file saved with expected contents.
 - [ ] Full QUIC session parity validation: BTR send/receive, file transfer send/receive, IPC transfer events, disconnect handling, and pairing approval match the current WS path under QUIC.
 - [ ] No production app↔app QUIC path uses `Rc3SkipVerification`, accept-any verification, or otherwise bypasses cert-hash pinning. Static / build-time check preferred where feasible.
 - [ ] Backward compat: if `quicAddr` / `quicCertHash` absent in signaling, fall back to WS client mode.
@@ -553,7 +565,8 @@ handling, pairing approval parity, and two-device fallback evidence remain open.
 **Objective:** Production-ready evidence.
 
 **Acceptance criteria:**
-- [ ] Two-device QUIC transfer test (Mac Studio ↔ MacBook Pro)
+- [x] One-way two-device QUIC transfer smoke (Mac Studio → MacBook Pro) with mutual pinning, BTR, and 35-second idle gap before send
+- [ ] Bidirectional two-device QUIC transfer test (Mac Studio ↔ MacBook Pro)
 - [ ] Disconnect propagation validated
 - [ ] Pairing approval validated
 - [ ] WS fallback tested (QUIC unavailable → WS client mode)
