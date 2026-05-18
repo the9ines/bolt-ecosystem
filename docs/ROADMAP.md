@@ -647,9 +647,9 @@ state was refreshed to record Q5 validation and native-full packaging.
 
 | ID | Risk | Severity | Status |
 |----|------|----------|--------|
-| QR1 | Mutual cert-hash pinning requires bidirectional cert-hash exchange in signaling and dual-direction client+server cert verification (rustls `with_client_auth()` + `ClientCertVerifier`) — implementation risk in quinn/rustls integration | Medium | Open |
+| QR1 | Mutual cert-hash pinning requires bidirectional cert-hash exchange in signaling and dual-direction client+server cert verification (rustls `with_client_auth()` + `ClientCertVerifier`) — implementation risk in quinn/rustls integration | Medium | Closed 2026-05-17: Q2/Q4 completed with signaling-supplied hashes, mutual verifier paths, static accept-any guard, and two-device evidence |
 | QR2 | QUIC UDP may be blocked by some corporate firewalls (WS fallback mitigates) | Low | Accepted |
-| QR3 | quinn crate major version changes during migration | Low | Open |
+| QR3 | quinn crate major version changes during migration | Low | Accepted operational dependency risk after Q6; monitor during dependency updates |
 | QR4 | Identity-key-to-TLS-binding alternative (rejected) — rejected by APP-TO-APP-QUIC-SECURITY-DECISION-1 because Bolt identity is X25519/DH-only and an identity migration to Ed25519 is out of scope. Risk: future contributor proposes the rejected approach without consulting the decision record | Low | Mitigated (decision recorded in Security Decision section above) |
 
 ---
@@ -661,7 +661,7 @@ state was refreshed to record Q5 validation and native-full packaging.
 | R1 | H1–H3 on feature branches, not merged to main | High | **Closed** | Merge train complete (2026-02-25) |
 | R2 | Daemon panic surface in production code | High | **Closed** | H4 merged to main (`daemon-v0.2.10-h3-h6-mainline`) |
 | R3 | No CI gate for golden vector drift | Medium | Closed | H6 CI enforcement (sdk-v0.5.2-h6-ci-enforcement) |
-| R4 | Two signal server implementations (bolt-rendezvous + localbolt-signal) | Medium | Open | S0 canonical convergence |
+| R4 | Two signal server implementations (bolt-rendezvous + localbolt-signal) | Medium | **Closed** | S0 canonical convergence: localbolt-v3 uses the canonical bolt-rendezvous wrapper; localbolt-signal is a compatibility wrapper, not an independent protocol authority |
 | R5 | TS is protocol-authoritative (vectors generated from TS) | Low | Accepted | S3 Rust-first generation |
 | R6 | No cross-impl conformance harness | Medium | **Closed** | S1 conformance harness (`sdk-v0.5.4-s1-conformance-harness`) |
 | R7 | Daemon H3 test hermeticity — sibling repo path dependency | High | **Closed** | H3.1 merged to main (`daemon-v0.2.10-h3-h6-mainline`) |
@@ -807,7 +807,7 @@ Full specification in `docs/GOVERNANCE_WORKSTREAMS.md` (S-STREAM-R1 section).
 |----|------|---------|--------|
 | B-XFER-1 | Transfer pause/resume completion (daemon transfer SM remaining scope) | bolt-daemon | **DONE** (`daemon-v0.2.35-bxfer1-pause-resume`) |
 | REL-ARCH1 | Multi-arch daemon build/package matrix | bolt-daemon + ecosystem | **DONE** (`daemon-v0.2.38-relarch1-multiarch-matrix`, `ab56606`) |
-| RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | bolt-core-sdk (TS) + consumers | NOT-STARTED |
+| RECON-XFER-1 | Transfer reconnect recovery after mid-transfer disconnect | bolt-core-sdk (TS) + consumers | PHASE-A-DONE (`sdk-v0.5.35-recon-xfer1-phase-a-tests`, `v3.0.88-recon-xfer1-phase-a`); Phase B consumer verification remains |
 
 **NEXT:**
 | ID | Item | Routing | Status |
