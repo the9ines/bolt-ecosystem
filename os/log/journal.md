@@ -3,6 +3,12 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-03 — **Transport unification pushed to origin (PM-authorized).** Verified clean first
+  (0 divergence, doc/code-scoped diffs, 0 secret hits). Pushed: bolt-daemon `a45b76b..2777357`
+  main + tags `daemon-v0.2.49`…`0.2.54` (P1/P2/WT-test + three that predated the session), and
+  bolt-ecosystem `fb8341d..cc25ab2` main (App↔App root-cause + unification decision + P1/P2/test
+  records). All three transport-unification tags are now immutable. Both repos level with origin.
+
 - 2026-07-03 — **WT session-path test DONE — Phase 2 coverage gap closed** (daemon `2777357`,
   tag `daemon-v0.2.54-wt-session-test`, local/unpushed). `wt_session_emits_ipc_transfer_events_on_receive`
   stands up a real wtransport client+server, drives `handle_incoming_session` through the HELLO
