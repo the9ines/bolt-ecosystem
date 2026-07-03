@@ -3,6 +3,15 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-03 — **Governance OS pushed to origin (PM-authorized).** Verified clean
+  first: zero divergence after fetch, outgoing diffs scoped to governance/doc files
+  only, zero secret-pattern hits. Verification caught and fixed one defect before
+  push: iCloud restored the two git-mv'd rule files to docs/ and a broad git add
+  re-committed them — duplicates removed in f08dac0 (os/rules/ is canonical). Pushed:
+  root main + tags ecosystem-v0.1.197/198, and main in bolt-core-sdk, bolt-daemon,
+  bolt-rendezvous, localbolt, localbolt-app (remote still named localbolt-native),
+  localbolt-v3. Both tags are now immutable.
+
 - 2026-07-03 — **Governance OS Phases 2+3 complete.** Phase 2 (root): timeless rules
   extracted to `os/rules/` — security-model (verbatim from SECURITY_MODEL §1–8+§10),
   validation-protocol, phase-discipline, doc-routing (supersedes docs/DOC_ROUTING.md),
