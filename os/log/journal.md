@@ -3,6 +3,20 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-03 — **Transport unification Phase 2 DONE** (daemon `8248390`, tag
+  `daemon-v0.2.53-transport-unify-p2`, local/unpushed). WebTransport folded onto the shared
+  session loop via `session_frame::{WtFrameSink, wt_message_stream}` (mirroring the QUIC
+  adapters); deleted `wt_endpoint.rs`'s `run_message_loop` (~280 lines, the recovered-May-code
+  copy); WT inherits BTR + `transfer.*` IPC + disconnect from the shared loop. All 3 transports
+  now share ONE session loop. `wt_endpoint.rs` 855→478. Run as ultracode: a 3-agent recon
+  workflow mapped the code + designed the adapter + adversarially enumerated 6 risks; I
+  implemented (threading `ipc_tx` end-to-end — the one real regression risk — and lifting
+  `create_dir_all` into the shared loop); a 3-agent adversarial review of the diff returned
+  CLEAN (all 6 risks handled/benign; IPC delivery identical to the old path — same channel).
+  378 tests green, fmt+clippy clean, WS-only+QUIC-only builds compile. Open follow-up (filed
+  NOW): the WT post-HELLO session path has no execution test (pre-existing gap); runtime
+  browser-over-WT check was blocked by an environmental Chrome WT cert-handshake issue.
+
 - 2026-07-03 — **Transport unification Phase 1 DONE** (daemon `4ca6192`, tag
   `daemon-v0.2.52-transport-unify-p1`, local/unpushed). Unified WS+QUIC onto one session
   loop via a new `session_frame` seam (`FrameSink` + WS/QUIC adapters); deleted the

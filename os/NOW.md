@@ -14,15 +14,23 @@ Seeded 2026-07-03 from the last live items in the frozen backlog
 - **Transport session unification (frame-trait).** Primary workstream. Scope:
   `os/log/decisions/2026-07-03-transport-session-unification.md`. Behavior-preserving;
   protocol/wire untouched.
-  - **Phase 1 DONE** (daemon `4ca6192`, tag `daemon-v0.2.52-transport-unify-p1`, local):
-    WS+QUIC unified onto one session loop via the `session_frame` seam; duplicate QUIC
-    loops deleted; 378 tests green.
-  - **Phase 2 NEXT — fold WebTransport onto the seam** (adapt WT's stream to `FrameSink`
-    + a `Stream<Message>`, delete `wt_endpoint.rs`'s `run_message_loop`; WT then inherits
-    BTR + `transfer.*` events). Awaits Evan's go + a phase prompt.
-  - Phase 3 (opportunistic handshake unify) and Phase 4 (centralize/de-race
-    ACTIVE_SESSION) follow. Plus deferred cosmetic: neutralize the shared loop's `[WS_*]`
-    log tags (QUIC currently logs under them) and rename the misnamed `ws_endpoint.rs`.
+  - **Phase 1 DONE** (daemon `4ca6192`, tag `daemon-v0.2.52-transport-unify-p1`): WS+QUIC
+    unified onto one session loop via the `session_frame` seam; duplicate QUIC loops deleted.
+  - **Phase 2 DONE** (daemon `8248390`, tag `daemon-v0.2.53-transport-unify-p2`): WebTransport
+    folded onto the shared loop via `session_frame::{WtFrameSink, wt_message_stream}`;
+    `wt_endpoint.rs`'s `run_message_loop` deleted (~280 lines); WT inherits BTR + `transfer.*`.
+    `ipc_tx` threaded correctly (the one real risk); 378 tests green; 3-agent adversarial
+    review CLEAN. All three transports now share ONE session loop.
+  - **NOW: WT session-path integration test** — the one open item. No test executes the WT
+    post-HELLO session path (pre-existing gap; never covered even for the recovered May code).
+    Port `ws_endpoint::quic_session_emits_ipc_transfer_events_for_send_and_receive` to WT
+    (in-process wtransport client doing HELLO + a file chunk; assert `transfer.*` IPC + saved
+    bytes). Runtime browser-over-WT check was blocked by an environmental Chrome WT
+    cert-handshake issue (unrelated; WT endpoint confirmed up).
+  - **Phase 3** (opportunistic handshake unify) and **Phase 4** (centralize/de-race
+    ACTIVE_SESSION) remain. Plus deferred cosmetic: neutralize the shared loop's `[WS_*]`
+    log tags (QUIC + now WT log under them) and rename the misnamed `ws_endpoint.rs` (it
+    holds the shared session logic, not WS-specific).
 
 - **BUG: app↔app initiator never dials after accept.** Found 2026-07-03 running the
   App↔App validation cross-machine (Studio ↔ M5, same LAN). Discovery + accept work,
