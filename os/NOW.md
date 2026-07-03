@@ -21,12 +21,11 @@ Seeded 2026-07-03 from the last live items in the frozen backlog
     `wt_endpoint.rs`'s `run_message_loop` deleted (~280 lines); WT inherits BTR + `transfer.*`.
     `ipc_tx` threaded correctly (the one real risk); 378 tests green; 3-agent adversarial
     review CLEAN. All three transports now share ONE session loop.
-  - **NOW: WT session-path integration test** — the one open item. No test executes the WT
-    post-HELLO session path (pre-existing gap; never covered even for the recovered May code).
-    Port `ws_endpoint::quic_session_emits_ipc_transfer_events_for_send_and_receive` to WT
-    (in-process wtransport client doing HELLO + a file chunk; assert `transfer.*` IPC + saved
-    bytes). Runtime browser-over-WT check was blocked by an environmental Chrome WT
-    cert-handshake issue (unrelated; WT endpoint confirmed up).
+  - **WT session-path test DONE** (daemon `2777357`, tag `daemon-v0.2.54-wt-session-test`):
+    `wt_session_emits_ipc_transfer_events_on_receive` stands up a real wtransport client+server,
+    drives `handle_incoming_session` through HELLO, sends an encrypted chunk, and asserts
+    `transfer.started`/`transfer.complete` via the threaded `ipc_tx` + exact saved bytes. Closes
+    the pre-existing gap and runtime-proves Phase 2. 379 tests green. Coverage gap CLOSED.
   - **Phase 3** (opportunistic handshake unify) and **Phase 4** (centralize/de-race
     ACTIVE_SESSION) remain. Plus deferred cosmetic: neutralize the shared loop's `[WS_*]`
     log tags (QUIC + now WT log under them) and rename the misnamed `ws_endpoint.rs` (it

@@ -3,6 +3,15 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-03 — **WT session-path test DONE — Phase 2 coverage gap closed** (daemon `2777357`,
+  tag `daemon-v0.2.54-wt-session-test`, local/unpushed). `wt_session_emits_ipc_transfer_events_on_receive`
+  stands up a real wtransport client+server, drives `handle_incoming_session` through the HELLO
+  handshake, sends one NaCl-sealed file chunk, and asserts the daemon emits `transfer.started`
+  + `transfer.complete` via the threaded `ipc_tx` and saves the exact bytes. Runtime-proves the
+  Phase 2 WT→shared-loop fold + the `ipc_tx` threading (the one real risk) — the log shows
+  `[WT_SESSION] entering shared session loop → [BTR] engine initialized → [WS_TRANSFER] saved`.
+  The WT post-HELLO session path had never been executed by any test before this. 379 tests green.
+
 - 2026-07-03 — **Transport unification Phase 2 DONE** (daemon `8248390`, tag
   `daemon-v0.2.53-transport-unify-p2`, local/unpushed). WebTransport folded onto the shared
   session loop via `session_frame::{WtFrameSink, wt_message_stream}` (mirroring the QUIC
