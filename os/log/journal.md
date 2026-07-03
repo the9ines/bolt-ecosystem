@@ -3,6 +3,20 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-03 — **Fixed the app↔app connect hang (daemon-side QUIC dial timing).** (daemon
+  `3404cac`, tag `daemon-v0.2.55-app-dial-fix`, local.) Diagnosed by reading the localbolt-app
+  signaling flow + the daemon connect watcher, then reproduced same-machine with two manual
+  daemons fed a QUIC-complete `connect_remote` signal (the exact shape the app's FFI writes:
+  wsUrl + quicAddr + quicCertHash). Root cause CORRECTS the morning's note: the app's Swift
+  wiring is correct (it does dial, with a WS fallback URL); the daemon's QUIC handshake
+  (`connect_with_config`) had no short timeout, so a stalled/unreachable QUIC peer blocked ~30s
+  on the idle timeout before the working WS fallback fired — the "hang." Fix: a 5s
+  `QUIC_CONNECT_TIMEOUT`. Verified: repro fallback dropped ~35s→~6s (log: `handshake timed out
+  after 5s → WS connected → session established`, SAS matched); regression test
+  `connect_handshake_fails_fast_for_unreachable_peer` (5.01s); 380 tests green; healthy QUIC
+  unaffected. Lesson: this morning's "zero TCP connections" check missed QUIC (UDP) and didn't
+  wait out the 30s fallback — the app was connecting, just ~30s slow.
+
 - 2026-07-03 — **Transport unification pushed to origin (PM-authorized).** Verified clean first
   (0 divergence, doc/code-scoped diffs, 0 secret hits). Pushed: bolt-daemon `a45b76b..2777357`
   main + tags `daemon-v0.2.49`…`0.2.54` (P1/P2/WT-test + three that predated the session), and
