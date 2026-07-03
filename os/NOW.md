@@ -11,25 +11,24 @@ Seeded 2026-07-03 from the last live items in the frozen backlog
 
 ## Now
 
-- **Manual validation: App ↔ App** (Mac Studio ↔ MacBook) — checklist in
-  GOVERNANCE_WORKSTREAMS "Manual Validation Checklist". Status was NOT YET EXECUTED.
-- **Manual validation: App ↔ Browser** (native app + localbolt.app) — same checklist,
-  also NOT YET EXECUTED.
-- **Uncommitted code from May, surfaced 2026-07-03** — bolt-daemon
-  `src/wt_endpoint.rs` (+106/−11) and localbolt-app `BoltBridge.swift` +
-  `LocalBoltApp.swift` (+56/−34) have uncommitted working-tree changes.
-  Decide: commit, stash, or discard. (`os/bin/status.sh --dirty` shows these.)
+- **Manual validation: App ↔ App** (Mac Studio ↔ MacBook) — **BLOCKED** 2026-07-03:
+  both MacBook nodes offline on Tailscale, ssh times out; needs two physical machines
+  + GUI on both ends. Unblock: wake a MacBook, `bash native/macos/deploy-macbook.sh`,
+  run the 8-step checklist with a human for accept/SAS. Evidence:
+  `docs/evidence/MANUAL_VALIDATION_2026-07-03.md`.
 
 ## Next
 
 - **Tag reconciliation** — the dashboard flags untagged work at HEAD in most repos
   (run `os/bin/status.sh` for live counts; includes the STATE-retirement doc commits).
   Decide: tag the current HEADs once, or codify "tag releases, not every commit."
-- **W2-RUNTIME-VALIDATION-1** — Chrome-on-HTTPS WebTransport session with the native
-  daemon, runtime-confirmed. (Was PENDING; blocks M4-PARITY-1.)
+  (Still parked — Evan unsure. Now larger: recovered-code + validation commits added.)
 
 ## Later
 
+- **W2-RUNTIME-VALIDATION-1 follow-up** — runtime-CONFIRMED 2026-07-03 (WT over HTTPS
+  with cert-hash pinning + full BTR, both file directions; see evidence file). If CI
+  can assert it, add a gate; otherwise this item is closed.
 - **M4-PARITY-1** — cross-product contract parity tests in CI (bolt-core-sdk,
   localbolt-v3, localbolt-app).
 - **ECOSYSTEM-DOCS-1** — bolt-core-sdk integration guide for external adopters.

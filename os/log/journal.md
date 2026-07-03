@@ -3,6 +3,19 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-03 — **Recovered May code kept + App↔Browser validation PASSED.** Assessed
+  the uncommitted May working-tree code: it's coherent, tested progress, so kept per PM
+  direction. daemon `a45b76b` (WT BTR receive path + transfer.* IPC events; `cargo test
+  --features native-full -- --test-threads=1` = 378 passed, fmt+clippy clean) and app
+  `90ff3a7` (order-aware WT lifecycle parse + initiator session handling; `swift build`
+  clean). Then ran the App↔Browser manual checklist on a fresh arm64 build: all 8 steps
+  CONFIRMED over WebTransport+cert-hash-pinning+full-BTR, both file directions verified
+  by sha256 parity, SAS `4F548A` matched on both endpoints (step-8 browser-initiated
+  disconnect had an automation-only renderer stall — native disconnect clean; see
+  evidence). This is the first runtime confirmation of **W2-RUNTIME-VALIDATION-1**.
+  App↔App checklist **BLOCKED** — both MacBooks offline on Tailscale. Evidence:
+  `docs/evidence/MANUAL_VALIDATION_2026-07-03.md`. Recovered-code commits local-only.
+
 - 2026-07-03 — **Governance OS pushed to origin (PM-authorized).** Verified clean
   first: zero divergence after fetch, outgoing diffs scoped to governance/doc files
   only, zero secret-pattern hits. Verification caught and fixed one defect before
