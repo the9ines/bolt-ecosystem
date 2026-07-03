@@ -1,3 +1,6 @@
+> **FROZEN — 2026-07-03 (Governance OS).** Historical record; not maintained.
+> Universal rules extracted to `os/rules/` (phase-discipline.md, validation-protocol.md). Stream records below are immutable history.
+
 # Bolt Ecosystem — Governance Workstreams
 
 > **Status:** Normative

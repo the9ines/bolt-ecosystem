@@ -1,3 +1,6 @@
+> **FROZEN — 2026-07-03 (Governance OS).** Historical record; not maintained.
+> Dated design memo (2026-02-24).
+
 # Rust Canonical Core — Design Memo
 
 > **Status:** DRAFT — design review, no production code yet.

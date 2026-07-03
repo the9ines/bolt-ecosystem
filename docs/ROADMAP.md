@@ -1,3 +1,6 @@
+> **FROZEN — 2026-07-03 (Governance OS).** Historical record; not maintained.
+> Live intent: `os/NOW.md`. History continues in `os/log/journal.md`.
+
 # Bolt Ecosystem — Roadmap
 
 > **Status:** Normative

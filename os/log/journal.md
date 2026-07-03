@@ -3,6 +3,20 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-03 — **Governance OS Phases 2+3 complete.** Phase 2 (root): timeless rules
+  extracted to `os/rules/` — security-model (verbatim from SECURITY_MODEL §1–8+§10),
+  validation-protocol, phase-discipline, doc-routing (supersedes docs/DOC_ROUTING.md),
+  btr-vector-policy + localbolt-core-drift-runbook (moved); docs/ monoliths
+  banner-frozen; AUDIT_TRACKER marked append-only registry; ARCHITECTURE.md + PRD.md
+  given trust-map banners; README + ROADMAP rewritten; stale QUIC handoff (was a loose
+  untracked file) archived to docs/archive/; docs-keeper agent switched to the journal
+  model. Phase 3 (sub-repos): docs/STATE.md retired to stubs and docs/README routing
+  updated in bolt-core-sdk (7e824c8), bolt-daemon (c598727), bolt-rendezvous (35fb5ed),
+  localbolt (f60e18c), localbolt-app (429502c), localbolt-v3 (36df64b — also CLAUDE.md
+  aligned with root: Co-Authored-By mandate, tag-push instruction, and docs-sync
+  ceremony removed). All commits local-only per No-Push Policy.
+  (Root tag: ecosystem-v0.1.198-governance-os-phase2-3)
+
 - 2026-07-03 — **Governance OS Phase 1 live.** Created `os/`: DASHBOARD.md (generated
   by `os/bin/status.sh`, never hand-edited), NOW.md (single intent file), this journal.
   Root CLAUDE.md slimmed to timeless rules with a boot sequence pointing here.

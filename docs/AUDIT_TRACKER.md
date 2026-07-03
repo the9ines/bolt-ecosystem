@@ -1,3 +1,8 @@
+> **REGISTRY OF RECORD — append-only. NOT frozen.** New audit findings still get IDs here
+> (see root CLAUDE.md, Audit Execution Discipline). Status columns and summary counters are
+> historical snapshots (last reconciled ~2026-03-13) — verify against `docs/evidence/` before
+> trusting. Current repo state: `os/DASHBOARD.md`.
+
 # Bolt Ecosystem Audit Tracker
 
 > **Canonical Location:** `bolt-ecosystem/docs/AUDIT_TRACKER.md`

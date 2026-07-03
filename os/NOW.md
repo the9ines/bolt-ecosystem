@@ -11,20 +11,18 @@ Seeded 2026-07-03 from the last live items in the frozen backlog
 
 ## Now
 
-- **Governance OS Phase 2** — extract the timeless rules from the docs/ monoliths into
-  `os/rules/`; banner-freeze the monoliths as historical archive.
 - **Manual validation: App ↔ App** (Mac Studio ↔ MacBook) — checklist in
   GOVERNANCE_WORKSTREAMS "Manual Validation Checklist". Status was NOT YET EXECUTED.
 - **Manual validation: App ↔ Browser** (native app + localbolt.app) — same checklist,
   also NOT YET EXECUTED.
+- **Push authorization** — Governance OS commits (root + 6 sub-repos) are local-only
+  per the No-Push Policy; Evan says when to push.
 
 ## Next
 
-- **Governance OS Phase 3** — sub-repo STATE.md stubs, update DOC_ROUTING.md,
-  fix localbolt-v3/CLAUDE.md contradictions (its Co-Authored-By rule conflicts with root).
-- **Tag reconciliation** — dashboard shows untagged work at HEAD in 7 repos
-  (96 commits at root, 24 daemon, 21 v3, ...). Decide: tag the current HEADs once,
-  or accept "tag releases, not every commit" going forward and codify that.
+- **Tag reconciliation** — the dashboard flags untagged work at HEAD in most repos
+  (run `os/bin/status.sh` for live counts; includes the STATE-retirement doc commits).
+  Decide: tag the current HEADs once, or codify "tag releases, not every commit."
 - **W2-RUNTIME-VALIDATION-1** — Chrome-on-HTTPS WebTransport session with the native
   daemon, runtime-confirmed. (Was PENDING; blocks M4-PARITY-1.)
 

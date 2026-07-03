@@ -1,3 +1,6 @@
+> **FROZEN — 2026-07-03 (Governance OS).** Historical record; not maintained.
+> Current state: `os/bin/status.sh` → `os/DASHBOARD.md`. Intent: `os/NOW.md`.
+
 ---
 Snapshot Derived From:
 - sdk HEAD 6c2ee82 (DAEMON-TRANSFER-CONTROL-1)

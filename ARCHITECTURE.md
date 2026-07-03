@@ -1,5 +1,7 @@
 # Bolt Ecosystem — Architecture
 
+> **Governance OS trust map (2026-07-03):** The invariant and rule content here is normative — especially §1–3 (protocol/security invariants), §7 (ARCH-01..10), §10–11 (security model, daemon role), §13 (modularity). Dated status content — ownership/promotion status in §8, language-migration status in §9, the §12 drift-tracking tables, and inline dated audit notes — is historical. Current state lives in `os/DASHBOARD.md` (generate: `os/bin/status.sh`). Do not update status content here.
+
 > **Status:** Normative
 > **Last Updated:** 2026-04-12
 > **Canonical Protocol Spec:** `bolt-protocol/PROTOCOL.md` (canonical)

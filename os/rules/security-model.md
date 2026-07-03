@@ -1,14 +1,15 @@
-> **FROZEN — 2026-07-03 (Governance OS).** Historical record; not maintained.
-> Canonical model now lives at `os/rules/security-model.md` (extracted verbatim). §9 findings remain here as the dated audit record.
-
 # Bolt Ecosystem — Canonical Security Model
 
-> **Status:** Normative
-> **Stream:** SECURITY-MODEL-1
-> **Created:** 2026-03-24
-> **Authority:** PM-approved. References ARCHITECTURE.md §10–12 and PROTOCOL.md.
-
-This document is the canonical threat model, trust boundary definition, and security invariant registry for the Bolt ecosystem. All hardening streams (DAEMON-BTR-1, DAEMON-HARDENING-1, RENDEZVOUS-HARDENING-1, PROTOCOL-HARDENING-1, ENDPOINT-SECURITY-1, DEWEBRTC-1) derive their scope from this model.
+> **Status:** Normative — this is the canonical home of the security model.
+> **Provenance:** Extracted verbatim 2026-07-03 from `docs/SECURITY_MODEL.md`
+> (SECURITY-MODEL-1, created 2026-03-24), minus its §9 audit-findings snapshot,
+> which remains in the frozen original and in `docs/AUDIT_TRACKER.md`.
+>
+> **Reading rule:** The trust boundaries, attacker model, asset classifications,
+> and invariant STATEMENTS here are timeless law. The Enforcement / Status /
+> Test-Coverage columns and GAP notes record the 2026-03-24 audit — they are
+> evidence pointers, not current claims. Verify against code and
+> `docs/evidence/` before relying on any ENFORCED/NOT-ENFORCED marking.
 
 ---
 
@@ -445,35 +446,6 @@ The following validation is required before any endpoint may claim full BTR supp
 | Rendezvous rate limiting | No rate limit tests | RENDEZVOUS-HARDENING-1 |
 | Protocol compliance matrix | No systematic MUST/MUST NOT coverage audit | PROTOCOL-HARDENING-1 |
 
----
-
-## 9. Audit Findings Summary
-
-Findings from code audit performed 2026-03-24 during SECURITY-MODEL-1.
-
-### High Severity
-
-| ID | Finding | Location | Owning Stream |
-|----|---------|----------|---------------|
-| F-HIGH-01 | Browser identity keys loaded from IndexedDB are never zeroed from memory | `ts/bolt-transport-web/src/services/identity/identity-store.ts` | ENDPOINT-SECURITY-1 |
-| F-HIGH-02 | No received filename path traversal guard | `bolt-daemon/src/ws_endpoint.rs` run_read_loop file save path | ENDPOINT-SECURITY-1 |
-
-### Medium Severity
-
-| ID | Finding | Location | Owning Stream |
-|----|---------|----------|---------------|
-| F-MED-01 | TS sealBoxPayload/openBoxPayload do not zero nonce after use | `ts/bolt-core/src/crypto.ts` | ENDPOINT-SECURITY-1 |
-| F-MED-02 | BtrTransferContext intermediate keys not fully zeroed on cleanup | `ts/bolt-core/src/btr/state.ts` | DAEMON-BTR-1 |
-| F-MED-03 | No IPC client authentication beyond socket permissions | `bolt-daemon/src/ipc/server.rs` | DAEMON-HARDENING-1 |
-| F-MED-04 | Daemon receive path has no transfer replay dedup | `bolt-daemon/src/ws_endpoint.rs` run_read_loop | DAEMON-HARDENING-1 |
-| F-MED-05 | No transfer size limit — unbounded memory accumulation | `bolt-daemon/src/ws_endpoint.rs` active_receives HashMap | DAEMON-HARDENING-1 |
-
-### Low Severity
-
-| ID | Finding | Location | Owning Stream |
-|----|---------|----------|---------------|
-| F-LOW-01 | Trust store JSON load does not validate schema against injection | `bolt-daemon/src/ipc/trust.rs` | DAEMON-HARDENING-1 |
-| F-LOW-02 | Signal file (send_file.signal) path not restricted to data_dir | `bolt-daemon/src/main.rs` signal watcher | DAEMON-HARDENING-1 |
 
 ---
 

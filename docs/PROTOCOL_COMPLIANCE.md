@@ -1,3 +1,6 @@
+> **FROZEN — 2026-07-03 (Governance OS).** Historical record; not maintained.
+> Point-in-time compliance audit (2026-03-24); file:line citations reflect that date.
+
 # Bolt Protocol — Enforcement Compliance Matrix
 
 > **Status:** Normative

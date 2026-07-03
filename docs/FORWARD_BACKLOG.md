@@ -1,3 +1,6 @@
+> **FROZEN — 2026-07-03 (Governance OS).** Historical record; not maintained.
+> Live backlog: `os/NOW.md`. Item dispositions below are immutable history.
+
 # Bolt Ecosystem — Forward Backlog
 
 > **Status:** Normative

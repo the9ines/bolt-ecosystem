@@ -1,3 +1,6 @@
+> **FROZEN — 2026-07-03 (Governance OS).** Historical record; not maintained.
+> Superseded by `os/rules/doc-routing.md`.
+
 # Bolt Ecosystem — Document Routing Table
 
 > **Status:** Normative

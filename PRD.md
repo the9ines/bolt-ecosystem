@@ -1,5 +1,7 @@
 # Bolt Ecosystem — Product Requirements Document
 
+> **Governance OS trust map (2026-07-03):** Product law here (vision, boundary rules, separation rules, §5 invariants, §6 governance model, monetization rules) is normative. The §10 "Current State" table and per-repo stack/maturity claims are as of 2026-02-20 — historical. Current state lives in `os/DASHBOARD.md`.
+
 **Version:** 1.0.0
 **Date:** 2026-02-20
 **Status:** Active

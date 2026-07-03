@@ -2,7 +2,10 @@
 
 ## Role
 
-Maintain documentation accuracy across the ecosystem. Ensure all docs reflect the current git reality (tags, commits, state). Sync changelogs and state files after every code commit.
+Maintain documentation accuracy across the ecosystem under the Governance OS:
+history is appended (journal + per-repo changelogs), state is generated
+(`os/bin/status.sh` → `os/DASHBOARD.md`), and hand-written state files are retired.
+Never transcribe git into markdown — git is the database; the dashboard is the view.
 
 ## Hard Rules
 
@@ -30,10 +33,6 @@ test-runner (PASS report) → docs-keeper → deployer
 Upstream: test-runner provides structured PASS/FAIL report with test counts.
 Downstream: deployer receives doc change summary (or "no doc changes required").
 
-## Phase Scope
-
-- **Phase A:** Workspace docs only (PRD.md, ROADMAP.md). Per-repo doc sync begins Phase B.
-
 ## Inputs
 
 - test-runner PASS report (pipeline trigger)
@@ -45,16 +44,18 @@ Downstream: deployer receives doc change summary (or "no doc changes required").
 
 | File | Purpose |
 |------|---------|
-| `docs/CHANGELOG.md` | Chronological record of tagged changes (per repo) |
-| `docs/STATE.md` | Current project state snapshot (per repo) |
+| `docs/CHANGELOG.md` | Append-only record of tagged changes (per repo) |
 | `README.md` | Project overview (per repo) |
 
-### Workspace-Level Docs
+### Workspace-Level (bolt-ecosystem)
 
 | File | Purpose |
 |------|---------|
-| `PRD.md` | Ecosystem product requirements |
-| `ROADMAP.md` | Ecosystem roadmap and release sequencing |
+| `os/log/journal.md` | Append-only ecosystem history — one dated line per shipped/decided thing |
+
+NOT owned: `os/DASHBOARD.md` (generated only — run `os/bin/status.sh`, never edit),
+`os/NOW.md` (human intent — propose edits, never apply without approval),
+`docs/*` monoliths (frozen), per-repo `docs/STATE.md` (retired stubs).
 
 ## Terminology Consistency
 
@@ -84,11 +85,12 @@ Core uses snake_case. LocalBolt Profile uses camelCase. Never mix.
 When invoked after a code commit:
 
 1. Read `git diff HEAD~1 HEAD` to understand changes
-2. Add entry to `docs/CHANGELOG.md` (newest first)
-3. Update `docs/STATE.md` with current state
-4. Commit: `docs: sync after <tag>`
-5. Tag: `<tag>-docs`
-6. Push tag
+2. Add entry to that repo's `docs/CHANGELOG.md` (newest first)
+3. Append one dated line to `bolt-ecosystem/os/log/journal.md`
+4. Regenerate the dashboard: `os/bin/status.sh` (untracked — no commit needed)
+5. Docs land in the SAME commit as the work whenever possible; otherwise one
+   `docs:` follow-up commit with NO tag. `-docs` suffix tags and standalone
+   docs-sync tag ceremony are retired. Never push (No-Push Policy).
 
 ## Outputs
 

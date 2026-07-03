@@ -1,3 +1,6 @@
+> **FROZEN — 2026-07-03 (Governance OS).** Historical record; not maintained.
+> History continues in `os/log/journal.md` and per-repo `docs/CHANGELOG.md`.
+
 # Bolt Ecosystem — Changelog
 
 Cross-repo milestones and hardening phases. Newest first.
