@@ -11,12 +11,18 @@ Seeded 2026-07-03 from the last live items in the frozen backlog
 
 ## Now
 
-- **Transport session unification (frame-trait).** Primary workstream. Unify the 3
-  duplicated transport session loops (WS / WT / QUIC) onto one transport-neutral frame
-  trait; keep single-session ACTIVE_SESSION but centralize + de-race it. Decision +
-  phased scope: `os/log/decisions/2026-07-03-transport-session-unification.md`.
-  Behavior-preserving; protocol/wire untouched. **Phase 1 awaits Evan's go + a phase
-  prompt** (no daemon code moves until then).
+- **Transport session unification (frame-trait).** Primary workstream. Scope:
+  `os/log/decisions/2026-07-03-transport-session-unification.md`. Behavior-preserving;
+  protocol/wire untouched.
+  - **Phase 1 DONE** (daemon `4ca6192`, tag `daemon-v0.2.52-transport-unify-p1`, local):
+    WS+QUIC unified onto one session loop via the `session_frame` seam; duplicate QUIC
+    loops deleted; 378 tests green.
+  - **Phase 2 NEXT — fold WebTransport onto the seam** (adapt WT's stream to `FrameSink`
+    + a `Stream<Message>`, delete `wt_endpoint.rs`'s `run_message_loop`; WT then inherits
+    BTR + `transfer.*` events). Awaits Evan's go + a phase prompt.
+  - Phase 3 (opportunistic handshake unify) and Phase 4 (centralize/de-race
+    ACTIVE_SESSION) follow. Plus deferred cosmetic: neutralize the shared loop's `[WS_*]`
+    log tags (QUIC currently logs under them) and rename the misnamed `ws_endpoint.rs`.
 
 - **BUG: app↔app initiator never dials after accept.** Found 2026-07-03 running the
   App↔App validation cross-machine (Studio ↔ M5, same LAN). Discovery + accept work,

@@ -3,6 +3,16 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-03 — **Transport unification Phase 1 DONE** (daemon `4ca6192`, tag
+  `daemon-v0.2.52-transport-unify-p1`, local/unpushed). Unified WS+QUIC onto one session
+  loop via a new `session_frame` seam (`FrameSink` + WS/QUIC adapters); deleted the
+  duplicate `run_quic_session_with_outbound` + `run_quic_read_loop` (~390 lines);
+  `ws_endpoint.rs` 3188→2801. Behavior-preserving: 378 tests green (incl. every
+  btr-over-transport + QUIC e2e), fmt + clippy clean, WS-only default build compiles.
+  Executed in two verified stages (WS first, then QUIC) with the suite as oracle. Known
+  cosmetic follow-up: QUIC sessions log under the shared loop's `[WS_*]` tags. Phase 2
+  (fold WebTransport onto the same seam, delete `wt_endpoint.rs`'s loop) is next.
+
 - 2026-07-03 — **Decided: transport session unification (frame-trait); ByteBolt shelved.**
   After the architecture audit, chose to unify the 3 duplicated transport session loops
   (WS/WT/QUIC) onto one transport-neutral frame trait rather than drop a transport, and
