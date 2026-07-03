@@ -11,27 +11,7 @@ Seeded 2026-07-03 from the last live items in the frozen backlog
 
 ## Now
 
-- **Transport session unification (frame-trait).** Primary workstream. Scope:
-  `os/log/decisions/2026-07-03-transport-session-unification.md`. Behavior-preserving;
-  protocol/wire untouched.
-  - **Phase 1 DONE** (daemon `4ca6192`, tag `daemon-v0.2.52-transport-unify-p1`): WS+QUIC
-    unified onto one session loop via the `session_frame` seam; duplicate QUIC loops deleted.
-  - **Phase 2 DONE** (daemon `8248390`, tag `daemon-v0.2.53-transport-unify-p2`): WebTransport
-    folded onto the shared loop via `session_frame::{WtFrameSink, wt_message_stream}`;
-    `wt_endpoint.rs`'s `run_message_loop` deleted (~280 lines); WT inherits BTR + `transfer.*`.
-    `ipc_tx` threaded correctly (the one real risk); 378 tests green; 3-agent adversarial
-    review CLEAN. All three transports now share ONE session loop.
-  - **WT session-path test DONE** (daemon `2777357`, tag `daemon-v0.2.54-wt-session-test`):
-    `wt_session_emits_ipc_transfer_events_on_receive` stands up a real wtransport client+server,
-    drives `handle_incoming_session` through HELLO, sends an encrypted chunk, and asserts
-    `transfer.started`/`transfer.complete` via the threaded `ipc_tx` + exact saved bytes. Closes
-    the pre-existing gap and runtime-proves Phase 2. 379 tests green. Coverage gap CLOSED.
-  - **Cleanup DONE** (daemon `d6515ae`, tag `daemon-v0.2.56-session-loop-cleanup`): the
-    shared loop + send path + pause/resume controls now log transport-neutral
-    `[SESSION]`/`[TRANSFER]` (WS-specific paths keep `[WS_*]`); `ws_endpoint.rs` renamed to
-    `session_loop.rs`. Runtime-confirmed: a WebTransport session logs only `[SESSION]`/`[TRANSFER]`.
-    380 tests. Only **Phase 3** (opportunistic handshake unify) and **Phase 4** (centralize/
-    de-race ACTIVE_SESSION) remain — both low-value/not-urgent, deliberately deferred.
+- _(nothing in flight — transport unification closed at Phases 1+2+cleanup; see journal.)_
 
 ## Next
 

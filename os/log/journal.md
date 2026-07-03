@@ -3,6 +3,26 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-03 — **Transport-unification workstream CLOSED at Phases 1+2 (+ WT test + cleanup).**
+  Assessed Phases 3 and 4 and decided against both, with evidence:
+  • **Phase 3 (handshake unify)** — fails the decision doc's own "small / reviewable /
+    behavior-preserving" gate. There are 5 handshake sites (WS/QUIC client + WS/QUIC/WT server),
+    not 3, and the differences are *intentional*, not duplication: the WS server has a legacy
+    no-identity path; WT deliberately skips identity-pinning because browser↔daemon trust is
+    SAS-based (`BoltBridge.swift:774` uses `.unverified(sas:)`), and browsers are ephemeral so
+    TOFU pinning would reject every reconnection. "Unifying" would be a behavior-changing,
+    security-critical refactor. Skipped.
+  • **Phase 4 (de-race ACTIVE_SESSION)** — only payoff is running the IPC test without
+    `--test-threads=1`; production is single-session so the global is already correct, and
+    "injectable" threads through the just-fixed send path. Not worth the risk. Skipped.
+  • **WT handshake "drift" is NOT a bug**: the missing `session.sas`/`session.connected` IPC is
+    already handled by the app polling the daemon's `[SAS]` stderr for WT sessions
+    (`BoltBridge.swift:70`, `[DAEMON-POLL] WT SAS extracted`) — which is why App↔Browser
+    validation passed; and the missing trust enforcement is by design (SAS not pinning). No fix.
+  Net: all three transports share one session loop (the high-value 80%), shipped and running in
+  production. Remaining phases are intentionally not done; the decision doc's Phase 3/4 stand as
+  "considered and declined" with the reasons above.
+
 - 2026-07-03 — **App↔App transfer CONFIRMED working both directions on real hardware** (Evan,
   Studio↔M5). Closes the whole app↔app thread. Two distinct issues, both resolved: (1) the
   connect hang → the QUIC 5s-timeout dial fix (`daemon-v0.2.55-app-dial-fix`), now confirmed
