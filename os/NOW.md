@@ -17,6 +17,10 @@ Seeded 2026-07-03 from the last live items in the frozen backlog
   also NOT YET EXECUTED.
 - **Push authorization** — Governance OS commits (root + 6 sub-repos) are local-only
   per the No-Push Policy; Evan says when to push.
+- **Uncommitted code from May, surfaced 2026-07-03** — bolt-daemon
+  `src/wt_endpoint.rs` (+106/−11) and localbolt-app `BoltBridge.swift` +
+  `LocalBoltApp.swift` (+56/−34) have uncommitted working-tree changes.
+  Decide: commit, stash, or discard. (`os/bin/status.sh --dirty` shows these.)
 
 ## Next
 
