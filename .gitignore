@@ -34,3 +34,6 @@ AUDIT-2026-02-26.md
 .claude/
 CLAUDE.md
 AGENTS.md
+
+# Governance OS derived state — regenerate with os/bin/status.sh, never commit
+os/DASHBOARD.md
