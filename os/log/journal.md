@@ -3,6 +3,19 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-03 — **App↔App validation run cross-machine → found a real app-layer bug.**
+  M5 MacBook came online (same LAN); deployed the arm64 app and ran the checklist.
+  GUI app↔app HANGS: discovery + accept work but neither daemon dials the other (zero
+  TCP connections between them), so both apps stick at "waiting for encrypted channel."
+  Root-caused with a headless daemon↔daemon pass over the same LAN: full session
+  established (SAS `BE0FBF` matched both sides, BTR negotiated) and bidirectional file
+  transfer checksum-verified (cc26e2cf… Studio→M5, c03ecac6… M5→Studio). So transport,
+  crypto, HELLO, SAS, BTR, and transfer are all sound cross-machine — the bug is purely
+  native-app wiring (initiator never issues the dial after accept). Filed to NOW.md;
+  fix belongs in localbolt-app. En route, diagnosed + fixed a stuck-Tailscale issue on
+  the Studio (backend wedged in "Starting" after an IP change; not the network).
+  Evidence: `docs/evidence/MANUAL_VALIDATION_2026-07-03.md` (UPDATE section).
+
 - 2026-07-03 — **Recovered May code kept + App↔Browser validation PASSED.** Assessed
   the uncommitted May working-tree code: it's coherent, tested progress, so kept per PM
   direction. daemon `a45b76b` (WT BTR receive path + transfer.* IPC events; `cargo test

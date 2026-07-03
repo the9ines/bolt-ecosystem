@@ -11,11 +11,15 @@ Seeded 2026-07-03 from the last live items in the frozen backlog
 
 ## Now
 
-- **Manual validation: App ↔ App** (Mac Studio ↔ MacBook) — **BLOCKED** 2026-07-03:
-  both MacBook nodes offline on Tailscale, ssh times out; needs two physical machines
-  + GUI on both ends. Unblock: wake a MacBook, `bash native/macos/deploy-macbook.sh`,
-  run the 8-step checklist with a human for accept/SAS. Evidence:
-  `docs/evidence/MANUAL_VALIDATION_2026-07-03.md`.
+- **BUG: app↔app initiator never dials after accept.** Found 2026-07-03 running the
+  App↔App validation cross-machine (Studio ↔ M5, same LAN). Discovery + accept work,
+  but neither daemon ever dials the other → both apps hang at "waiting for encrypted
+  channel." Root-caused: headless daemon↔daemon over the same LAN establishes a full
+  session (SAS matched, BTR) and transfers both directions (checksum-verified), so the
+  transport/crypto/daemon are sound. The gap is native-app wiring: after the peer
+  accepts, the initiator never hands the peer's LAN address to its daemon (connect_remote
+  / FFI connect). Fix lives in localbolt-app. Evidence:
+  `docs/evidence/MANUAL_VALIDATION_2026-07-03.md` (see UPDATE section).
 
 ## Next
 

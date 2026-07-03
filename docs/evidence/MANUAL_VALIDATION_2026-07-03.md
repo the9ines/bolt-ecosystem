@@ -49,7 +49,11 @@ Both file directions completed over WT with cert-hash pinning and full BTR. → 
 
 ---
 
-## App ↔ App (Mac Studio ↔ MacBook) — BLOCKED
+## App ↔ App (Mac Studio ↔ MacBook) — RESOLVED (see UPDATE at bottom)
+
+> The BLOCKED status below was the morning state. It was later unblocked the same
+> day (M5 MacBook came online on the same LAN) and run to a definitive conclusion.
+> **See "## App ↔ App — UPDATE" at the end of this file.**
 
 **Blocker:** both MacBook nodes are offline on Tailscale — `evans-macbook-pro`
 (100.93.60.117) last seen ~8 min ago, `eos-macbook-pro` (100.96.250.55) last seen
@@ -68,3 +72,62 @@ both ends; a powered-down/asleep peer cannot be driven remotely.
 **To unblock:** wake a MacBook on Tailscale (no standalone VPN — see
 `macstudio-mobile-access-vpn`), `bash native/macos/deploy-macbook.sh`, then run the
 8-step App↔App checklist with a human present for the accept/SAS-compare steps.
+
+---
+
+## App ↔ App — UPDATE (unblocked + root-caused, 2026-07-03 afternoon)
+
+M5 MacBook (`Evans-MacBook-Pro`, arm64) came online on the **same LAN** as the
+Studio (Studio `192.168.4.210`, M5 `192.168.4.27`). Deployed the arm64
+`LocalBolt.app` (with the recovered code, daemon `a45b76b`) to the M5 via rsync
+(firewall step skipped intentionally). Ran the GUI checklist, then a headless
+root-cause pass. Split result:
+
+### GUI app↔app — FALSIFIED (hangs)
+
+Steps 1–4 CONFIRMED: both apps launched, registered on the cloud rendezvous, and
+**discovered each other cross-machine** (Studio's device list showed "Evan's
+MacBook Pro"). Human tapped Connect on the Studio; the M5 showed the incoming
+request; human accepted on the M5.
+
+Then it **hung** — both apps stuck at "waiting for encrypted channel." Diagnosis:
+`lsof` on both machines showed **zero TCP connections between the two daemons** on
+any port. The network was fine (both daemon ports mutually reachable, TCP and UDP;
+firewall not blocking). So after the accept, **neither daemon ever dialed the
+other** — the dial is never issued.
+
+### Headless daemon↔daemon — CONFIRMED (transport is sound)
+
+To isolate app-layer vs daemon-layer, ran the two daemons directly (bypassing the
+apps) and triggered a dial via the daemon's own `connect_remote.signal`
+(`ws://192.168.4.27:9500`). Result — a **full cross-machine session**:
+
+```
+Studio (initiator)                     M5 (acceptor)
+[WS_CLIENT] connected to ws://…:9500   [WS_SESSION] accepted TCP from 192.168.4.210
+sent/received session-key              session-key exchange
+sent HELLO                             HELLO ok, caps negotiated
+[SAS] BE0FBF                           [SAS] BE0FBF          ← identical SAS
+session established, BTR gen=0          session established, BTR gen=0
+```
+
+Then bidirectional file transfer over that session, **checksum-verified**:
+- Studio → M5: `s2m-test.txt` → `sha256 cc26e2cf…f90b3` ✓ (exact match on M5)
+- M5 → Studio: `m2s-test.txt` → `sha256 c03ecac6…a8faa2c` ✓ (exact match on Studio)
+
+Capabilities negotiated both ways included `bolt.transfer-ratchet-v1` (BTR active).
+
+### Conclusion — bug isolated to the app layer
+
+The daemon-to-daemon path — discovery-independent dial, session-key exchange,
+encrypted HELLO, SAS agreement, BTR, and bidirectional transfer — **works
+perfectly cross-machine over the LAN.** The GUI app↔app hang is therefore **not a
+transport, crypto, or daemon bug.** It is a **native-app wiring bug**: after the
+remote peer accepts, the initiator app never hands the accepted peer's LAN address
+to its daemon (via the connect_remote / FFI connect), so no dial is issued. This
+path is exercised only in true two-machine app↔app, which is why neither the
+browser↔app test nor the localhost suite caught it.
+
+**Classification:** GUI app↔app transfer = FALSIFIED (app-layer connect not wired);
+daemon transport core cross-machine = CONFIRMED (runtime, checksum-verified). New
+bug filed to NOW.md: "app↔app: initiator never dials after accept."
