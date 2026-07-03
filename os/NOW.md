@@ -11,6 +11,13 @@ Seeded 2026-07-03 from the last live items in the frozen backlog
 
 ## Now
 
+- **Transport session unification (frame-trait).** Primary workstream. Unify the 3
+  duplicated transport session loops (WS / WT / QUIC) onto one transport-neutral frame
+  trait; keep single-session ACTIVE_SESSION but centralize + de-race it. Decision +
+  phased scope: `os/log/decisions/2026-07-03-transport-session-unification.md`.
+  Behavior-preserving; protocol/wire untouched. **Phase 1 awaits Evan's go + a phase
+  prompt** (no daemon code moves until then).
+
 - **BUG: app↔app initiator never dials after accept.** Found 2026-07-03 running the
   App↔App validation cross-machine (Studio ↔ M5, same LAN). Discovery + accept work,
   but neither daemon ever dials the other → both apps hang at "waiting for encrypted
@@ -37,4 +44,11 @@ Seeded 2026-07-03 from the last live items in the frozen backlog
   localbolt-v3, localbolt-app).
 - **ECOSYSTEM-DOCS-1** — bolt-core-sdk integration guide for external adopters.
 - **SIDECHANNEL-REDUCTION-1** — product exception audit (quality, blocks nothing).
-- **ByteBolt** — commercial track (bytebolt-app, bytebolt-relay still placeholders).
+
+## Shelved (not now)
+
+- **ByteBolt** — commercial global tier (relay backbone + app). Deferred per Evan
+  2026-07-03: build and harden the open base first. The relay is a connectivity/
+  reliability backbone only — zero server-side storage, strictly P2P, forwards opaque
+  ciphertext. The transport-unification work makes the core *ready* for a relay
+  transport but builds nothing ByteBolt. Do not start ByteBolt work until un-shelved.

@@ -3,6 +3,16 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-03 — **Decided: transport session unification (frame-trait); ByteBolt shelved.**
+  After the architecture audit, chose to unify the 3 duplicated transport session loops
+  (WS/WT/QUIC) onto one transport-neutral frame trait rather than drop a transport, and
+  to keep ACTIVE_SESSION single-session (centralize + de-race, no registry — multi-session
+  is out of scope). Serves the "one protocol, any transport" vision; the future relay is
+  just another transport plugged into the same seam. Phased, behavior-preserving,
+  protocol/wire untouched, each phase gated by its own prompt. Decision + scope:
+  `os/log/decisions/2026-07-03-transport-session-unification.md`. ByteBolt explicitly
+  shelved (NOW.md "Shelved"). No code moved.
+
 - 2026-07-03 — **App↔App validation run cross-machine → found a real app-layer bug.**
   M5 MacBook came online (same LAN); deployed the arm64 app and ran the checklist.
   GUI app↔app HANGS: discovery + accept work but neither daemon dials the other (zero
