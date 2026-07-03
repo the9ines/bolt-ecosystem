@@ -3,6 +3,20 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-03 — **App↔App transfer CONFIRMED working both directions on real hardware** (Evan,
+  Studio↔M5). Closes the whole app↔app thread. Two distinct issues, both resolved: (1) the
+  connect hang → the QUIC 5s-timeout dial fix (`daemon-v0.2.55-app-dial-fix`), now confirmed
+  in the real app — the two machines connect; (2) the "send file → session disconnected" report
+  → NOT a code bug: the installed app was a **stale May 17 daemon build** (~2 months old,
+  predating this session's work and the recovered May code). The current daemon transfers fine
+  — verified locally multi-chunk over WS and QUIC up to 10MB, byte-identical. Fix: rebuilt the
+  macOS app with the current daemon (`build-app.sh release arm64`) and deployed to both machines
+  (`/Applications/LocalBolt.app` on the Studio, `~/Applications` on the M5; old Apr 11 / May 17 /
+  Jul 3-early builds moved to Trash). Lesson: check the *installed binary's build date* before
+  deep-diving a "bug" — I chased multi-chunk/QUIC/network theories for a while before finding the
+  app was simply ancient. Also: the earlier "LAN data black-hole" call was wrong — plain 2KB TCP
+  and large-DF ICMP flow fine between the machines; that stall was a manual-daemon harness artifact.
+
 - 2026-07-03 — **Transport-unify cleanup DONE + app↔app fix reconfirmed cross-machine.**
   (1) Log tags + rename (daemon `d6515ae`, tag `daemon-v0.2.56-session-loop-cleanup`, local):
   the shared session loop, outbound send path, and pause/resume/disconnect controls now log
