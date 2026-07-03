@@ -3,6 +3,20 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-03 — **Transport-unify cleanup DONE + app↔app fix reconfirmed cross-machine.**
+  (1) Log tags + rename (daemon `d6515ae`, tag `daemon-v0.2.56-session-loop-cleanup`, local):
+  the shared session loop, outbound send path, and pause/resume/disconnect controls now log
+  transport-neutral `[SESSION]`/`[TRANSFER]` (WS-specific accept/HELLO paths keep `[WS_*]`);
+  `ws_endpoint.rs` renamed to `session_loop.rs` (`session` was taken by the bolt_core re-export
+  shim), refs across 10 files updated. Runtime-confirmed: a WebTransport session logs only
+  `[SESSION]`/`[TRANSFER]`. 380 tests, fmt+clippy clean. Finishes TRANSPORT-UNIFY-1's cosmetic
+  tail; only the low-value Phase 3/4 remain.
+  (2) 2-machine reconfirm (Studio↔M5): the QUIC-timeout fix is confirmed cross-machine — the
+  handshake to the M5 times out at 5s (was ~30s) then falls back to WS. Could not complete a
+  full cross-machine session that run: an environmental LAN issue black-holed sustained data
+  (TCP handshakes succeed both ways via `nc`, but a raw HTTP probe to the M5 daemon returned 0
+  bytes and both dial directions stalled) — a middlebox/VPN/MTU problem, not the daemon or fix.
+
 - 2026-07-03 — **Fixed the app↔app connect hang (daemon-side QUIC dial timing).** (daemon
   `3404cac`, tag `daemon-v0.2.55-app-dial-fix`, local.) Diagnosed by reading the localbolt-app
   signaling flow + the daemon connect watcher, then reproduced same-machine with two manual

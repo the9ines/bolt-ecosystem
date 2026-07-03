@@ -26,10 +26,12 @@ Seeded 2026-07-03 from the last live items in the frozen backlog
     drives `handle_incoming_session` through HELLO, sends an encrypted chunk, and asserts
     `transfer.started`/`transfer.complete` via the threaded `ipc_tx` + exact saved bytes. Closes
     the pre-existing gap and runtime-proves Phase 2. 379 tests green. Coverage gap CLOSED.
-  - **Phase 3** (opportunistic handshake unify) and **Phase 4** (centralize/de-race
-    ACTIVE_SESSION) remain. Plus deferred cosmetic: neutralize the shared loop's `[WS_*]`
-    log tags (QUIC + now WT log under them) and rename the misnamed `ws_endpoint.rs` (it
-    holds the shared session logic, not WS-specific).
+  - **Cleanup DONE** (daemon `d6515ae`, tag `daemon-v0.2.56-session-loop-cleanup`): the
+    shared loop + send path + pause/resume controls now log transport-neutral
+    `[SESSION]`/`[TRANSFER]` (WS-specific paths keep `[WS_*]`); `ws_endpoint.rs` renamed to
+    `session_loop.rs`. Runtime-confirmed: a WebTransport session logs only `[SESSION]`/`[TRANSFER]`.
+    380 tests. Only **Phase 3** (opportunistic handshake unify) and **Phase 4** (centralize/
+    de-race ACTIVE_SESSION) remain — both low-value/not-urgent, deliberately deferred.
 
 - **FIXED: app↔app "waiting for encrypted channel" hang** (daemon `3404cac`, tag
   `daemon-v0.2.55-app-dial-fix`). Corrected root cause: NOT the localbolt-app Swift wiring
@@ -38,8 +40,12 @@ Seeded 2026-07-03 from the last live items in the frozen backlog
   had **no short timeout** — a stalled/unreachable QUIC peer blocked ~30s on the idle
   timeout before the (working) WS fallback fired, reading as a hang. Fix: `QUIC_CONNECT_TIMEOUT`
   (5s) in `connect_with_config`. Reproduced same-machine (fallback ~6s vs ~35s); regression
-  test added; 380 tests green. Worth a 2-machine end-to-end confirmation when a MacBook is up,
-  but the stall mechanism is fixed and verified.
+  test added; 380 tests green. **2-machine reconfirm (Studio↔M5) 2026-07-03**: the fix is
+  confirmed cross-machine — the QUIC handshake to the M5 times out at 5s (was ~30s) then falls
+  back to WS. Full cross-machine session could NOT be completed that run due to an environmental
+  LAN issue: TCP handshakes succeed both directions (`nc`) but sustained data is black-holed (a
+  raw HTTP probe to the M5 daemon returned 0 bytes; both dial directions stalled) — a middlebox/
+  VPN/MTU problem on the LAN (check Tailscale/VPN on the machines), not the daemon or the fix.
 
 ## Next
 
