@@ -3,6 +3,17 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-03 — **Steam Deck de-risked: daemon cross-compiles for x86_64 Linux; dropped
+  native-tls/OpenSSL.** Checked whether `bolt-daemon` builds for the Deck (Linux x86_64): no
+  macOS-specific code, and ring/quinn/wtransport/tokio/rustls all cross-compile. The one snag
+  was a vestigial `native-tls` (OpenSSL) dep pulled via a `tungstenite` feature — the WS
+  transport only ever speaks plain `ws://` (Bolt's envelope layer does the NaCl encryption;
+  QUIC/WT carry their own rustls/ring TLS). Removed it (daemon `668b19a`, tag
+  `daemon-v0.2.57-drop-native-tls`): crypto is now pure-ring, `openssl`/`openssl-sys`/`native-tls`
+  gone from the tree, 380 tests green, fmt+clippy clean. Verified via `cargo-zigbuild` → a real
+  ELF x86-64 GNU/Linux daemon binary. De-risks the Steam Deck (no OpenSSL in the Flatpak) and
+  Windows tracks. Multi-platform release plan lives in `localbolt-app/native/RELEASE_PLAN.md`.
+
 - 2026-07-03 — **Transport-unification workstream CLOSED at Phases 1+2 (+ WT test + cleanup).**
   Assessed Phases 3 and 4 and decided against both, with evidence:
   • **Phase 3 (handshake unify)** — fails the decision doc's own "small / reviewable /
