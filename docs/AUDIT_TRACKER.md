@@ -665,7 +665,7 @@ No execution findings in this pass. Findings will be registered here with `BTR-F
 | EA12 | Rendezvous unbounded per-peer relay channel + 1 MiB payloads at 50 msg/s → server memory-exhaustion against a slow reader. `bolt-rendezvous/src/server.rs:308`, `room.rs:16`. | AVAILABILITY | RENDEZVOUS-DOS-1 | OPEN |
 | EA13 | Browser direct WT/WS transports perform no TOFU pinning; the cert-hash is rendezvous-supplied (compounds EA1 into a full silent MITM). `localbolt-v3/…/ws-transport/WsDataTransport.ts:233`, `WtDataTransport.ts:240`. | SECURITY | TOFU-IDENTITY-KEY-1 | OPEN |
 | EA14 | Transfer-authorization gate (unverified → blocked) is UI-visibility-only on the sender and absent on the receive path. `localbolt-v3/…/webrtc/TransferManager.ts:698`, `transfer-policy.ts`. Reconciles Q8/C0. | QUALITY | RX-TRANSFER-GATE-1 | OPEN |
-| EA17 | Network-reachable panic: a non-ASCII 32-byte transferId slices inside a UTF-8 char boundary. `bolt-daemon/src/ws_validation.rs:116`. | AVAILABILITY | DAEMON-PARSE-PANIC-1 | OPEN |
+| EA17 | Network-reachable panic: a non-ASCII 32-byte transferId slices inside a UTF-8 char boundary. `bolt-daemon/src/ws_validation.rs:116`. | AVAILABILITY | DAEMON-PARSE-PANIC-1 | DONE-VERIFIED — bolt-daemon `f831ab6` (tid.get() fail-closed instead of a panicking slice; UNIT + ADVERSARIAL tests; fmt-clean at edition 2021). |
 
 ### Confirmed — LOW / INFO
 
