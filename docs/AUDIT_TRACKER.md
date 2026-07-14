@@ -629,3 +629,62 @@ No execution findings in this pass. Findings will be registered here with `BTR-F
 | ID | Finding | Severity | Classification | Status | Evidence |
 |----|---------|----------|----------------|--------|----------|
 | — | No findings yet (stream not executing) | — | — | — | — |
+
+---
+
+## SECURITY AUDIT — 2026-07 FULL ECOSYSTEM (EA-series)
+
+> **Finding series reservation:** `EA1` through `EA99` (Ecosystem Audit). Non-colliding with all existing series (S, I, P, Q, A, M, N, SA, AC, DP, NF, RX, C, RC, W2, H, DR-F, BTR-F, CBTR-F, EN-F, DM-F, BS-F).
+> **Imported:** 2026-07-14.
+> **Method:** 20-surface adversarial static audit (crypto primitives, BTR ratchet/replay, pairing/SAS, envelope parsing, transport + downgrade, IPC boundary, key storage, relay, Rust memory safety, rendezvous rooms, browser crypto/XSS/WebRTC, Swift↔Rust FFI, native distribution, self-host tooling, supply chain, cross-implementation parity, protocol-spec design). Every finding independently re-verified by refutation-oriented reviewers; 40 candidate findings rejected in verification. Full report: `~/Desktop/localbolt-security-audit.md`.
+> **Result:** 0 critical, 6 high, 8 medium, 7 low, 2 info confirmed. Verified SOLID: crypto primitives (fresh OsRng/CSPRNG nonces, no reuse, domain-separated HKDF, constant-time tags), BTR forward secrecy + zeroization, fail-closed envelope parsing, SHA-256 cert-hash pinning (no accept-all verifier), trust-store atomic-write integrity, zero-knowledge rendezvous content-blindness, web XSS/CSP posture.
+> **Reconciliation with prior findings:** EA1 challenges **SA11** (closed DONE-BY-DESIGN — the v1 "bind keys into the SAS" mitigation does NOT stop offline SAS grinding; a commitment scheme is required, not just transcript binding). EA2 is the daemon side of **SA10** (fixed in the web SDK only; never ported to the Rust daemon). EA5 reconciles **S1** (TOFU pinning marked DONE but keyed on the peer code, not the identity key). EA14 reconciles **Q8 / C0** (unverified-blocks-transfer marked DONE-VERIFIED but not enforced on the receive path).
+> **Root cause (EA2 + EA3):** trust enforcement is a per-transport caller responsibility that the WS-legacy branch and the WebTransport handler skip. Recommended remediation: centralize `enforce_session_trust` in the shared session loop so no transport reaches the transfer stage ungated.
+> **Evidence discipline (root CLAUDE.md):** HIGH = INTEROP + ADVERSARIAL; MEDIUM = UNIT + (ADVERSARIAL | INTEROP); LOW = UNIT or documented rationale. Proposed workstreams below are explicit per discipline; confirm before execution. No runtime patch begins outside a declared phase.
+
+### Confirmed — HIGH
+
+| ID | Finding & location | Track | Proposed workstream | Status |
+|----|--------------------|-------|---------------------|--------|
+| EA1 | 24-bit SAS with no commitment is offline-grindable; an active MITM at the rendezvous forces both peers to see a matching "verified" code. `bolt-core-sdk/rust/bolt-core/src/sas.rs:77` (+constants), `localbolt-v3/…/bolt-core-browser/src/sas.ts:77`, `…/webrtc/HandshakeManager.ts:203`, `bolt-protocol/PROTOCOL.md` §SAS. **Reopens SA11.** | PROTOCOL | PAIRING-COMMIT-1 (commit-reveal + ≥30-bit SAS + full transcript binding) | OPEN |
+| EA2 | Attacker-settable `legacy` HELLO flag strips identity binding, SAS, and trust on native WS; the transfer policy then permits no-SAS legacy sessions. `bolt-daemon/src/session_loop.rs:1053,530,599`, `bolt-core-sdk/rust/bolt-app-core/src/contracts/session_contract.rs:90`. Daemon side of SA10. | TRANSPORT | TRUST-GATE-CENTRALIZE-1 | OPEN |
+| EA3 | WebTransport session handler never calls `enforce_session_trust`; the preferred browser↔native transport is ungated. `bolt-daemon/src/wt_endpoint.rs:172-305`. | TRANSPORT | TRUST-GATE-CENTRALIZE-1 | OPEN |
+| EA4 | Native app spawns the daemon with `--pairing-policy allow` on a `0.0.0.0` WS listener → any LAN host silently writes files into `~/Downloads` (no prompt, no SAS). `localbolt-app/native/shared/src/daemon.rs:75,91`. | NATIVE | NATIVE-PAIRING-ASK-1 | OPEN |
+| EA5 | Browser TOFU pin keyed on the ephemeral, rendezvous-controlled peer code instead of the identity key → key-continuity / KEY_MISMATCH never forms. `localbolt-v3/…/webrtc/pin-verify.ts:24`, `HandshakeManager.ts:178,244`. Reconciles S1. | SECURITY | TOFU-IDENTITY-KEY-1 | OPEN |
+| EA6 | Rendezvous connection-slot exhaustion: no pre-registration timeout + global-only cap (no per-IP limit) → single-host DoS of the public discovery service. `bolt-rendezvous/src/server.rs:191,331`, `lib.rs:38,157`. | AVAILABILITY | RENDEZVOUS-DOS-1 | OPEN |
+
+### Confirmed — MEDIUM
+
+| ID | Finding & location | Track | Proposed workstream | Status |
+|----|--------------------|-------|---------------------|--------|
+| EA7 | Receive-side memory exhaustion: the MAX_TRANSFER_SIZE guard checks the declared `file_size`, not buffered bytes → daemon OOM. `bolt-daemon/src/session_loop.rs:1532,1575`. | AVAILABILITY | DAEMON-RX-BOUND-1 | OPEN |
+| EA8 | Daemon identity key + TOFU store live in a predictable world-writable `/tmp/bolt-native-<pid>` dir, regenerated every launch (degrades TOFU/MITM protection). `localbolt-app/native/shared/src/daemon.rs:72-82`; harden `bolt-daemon/src/identity_store.rs` (reject symlink parent, verify uid, O_EXCL 0600). Fix: use `bolt_app_core::platform::default_data_dir()`. | SECURITY | NATIVE-KEYDIR-1 | OPEN |
+| EA9 | Interior-NUL peer metadata → `CString::new().unwrap()` aborts the native app (zero-interaction remote DoS). `localbolt-app/native/shared/src/signaling.rs:214`; sanitize in `bolt-app-core/…/signaling_client.rs:62`. | AVAILABILITY | FFI-PANIC-SAFETY-1 | OPEN |
+| EA10 | Bundled QUIC/WT stack ships quinn-proto 0.11.14 (RUSTSEC-2026-0185): remote memory-exhaustion DoS. `bolt-daemon/Cargo.lock:978`. Fix: `cargo update -p quinn-proto` (≥0.11.15) + quinn TransportConfig stream/window caps. | SUPPLY-CHAIN | DEP-QUINN-1 | OPEN |
+| EA11 | Vendored signal subtrees are 8 security releases stale (missing connection cap, room/peer caps, idle timeout, DP-5 guard, XFF trusted-proxy gating). `localbolt/signal/*`, `localbolt-app/signal/*`. **Fix upstream in bolt-rendezvous, then `git subtree pull` — do NOT edit the subtree directly.** | SECURITY | SUBTREE-SYNC-1 | OPEN |
+| EA12 | Rendezvous unbounded per-peer relay channel + 1 MiB payloads at 50 msg/s → server memory-exhaustion against a slow reader. `bolt-rendezvous/src/server.rs:308`, `room.rs:16`. | AVAILABILITY | RENDEZVOUS-DOS-1 | OPEN |
+| EA13 | Browser direct WT/WS transports perform no TOFU pinning; the cert-hash is rendezvous-supplied (compounds EA1 into a full silent MITM). `localbolt-v3/…/ws-transport/WsDataTransport.ts:233`, `WtDataTransport.ts:240`. | SECURITY | TOFU-IDENTITY-KEY-1 | OPEN |
+| EA14 | Transfer-authorization gate (unverified → blocked) is UI-visibility-only on the sender and absent on the receive path. `localbolt-v3/…/webrtc/TransferManager.ts:698`, `transfer-policy.ts`. Reconciles Q8/C0. | QUALITY | RX-TRANSFER-GATE-1 | OPEN |
+| EA17 | Network-reachable panic: a non-ASCII 32-byte transferId slices inside a UTF-8 char boundary. `bolt-daemon/src/ws_validation.rs:116`. | AVAILABILITY | DAEMON-PARSE-PANIC-1 | OPEN |
+
+### Confirmed — LOW / INFO
+
+| ID | Finding & location | Severity | Track | Status |
+|----|--------------------|----------|-------|--------|
+| EA15 | ReplayGuard `seen` set grows unbounded per session (redundant with the monotonic ORDER-BTR check). `bolt-core-sdk/rust/bolt-btr/src/replay.rs:17`. | LOW | AVAILABILITY | OPEN |
+| EA16 | `negotiate_capabilities` has no mandatory-capability floor (silent security-feature stripping). `bolt-core-sdk/rust/bolt-core/src/session.rs:185`. | LOW | PROTOCOL | OPEN |
+| EA18 | IPC client readers have no line-length bound → memory-exhaustion from a malicious/spoofed daemon. `bolt-core-sdk/rust/bolt-app-core/src/ipc_bridge_core.rs:157`. | LOW | AVAILABILITY | OPEN |
+| EA19 | Single-client IPC server wedges permanently on an idle connected client. `bolt-daemon/src/ipc/server.rs:462`. | LOW | AVAILABILITY | OPEN |
+| EA20 | IPC line-size cap checked after an unbounded `read_until` (local memory DoS). `bolt-daemon/src/ipc/server.rs:52`. | LOW | AVAILABILITY | OPEN |
+| EA21 | Vite dev-server wasm middleware path traversal (dev-only, not production). `localbolt-v3/packages/localbolt-web/vite.config.ts:30`. | LOW | QUALITY | OPEN |
+| EA22 | `start.sh` rustup "checksum verification" is never actually compared + no toolchain pin. `localbolt/start.sh:21`. | LOW | SUPPLY-CHAIN | OPEN |
+| EA23 | `start.sh` self-hosts by exposing the Vite DEV server on `0.0.0.0` instead of a static build. `localbolt/start.sh:98`. | LOW | SECURITY | OPEN |
+| EA24 | FFI boundary has no `catch_unwind` + pervasive `lock().unwrap()` → any panic or poisoned mutex becomes a process abort. `localbolt-app/native/shared/src/lib.rs`. Systemic; see EA9. | INFO | AVAILABILITY | OPEN |
+
+### Needs PM disposition (disputed / policy — no patch until dispositioned)
+
+| ID | Finding & location | Severity | Status |
+|----|--------------------|----------|--------|
+| EA-D1 | Long-lived identity key + TOFU store in a predictable world-writable `/tmp` path for **bolt-ui/egui**. `bolt-core-sdk/rust/bolt-ui/src/app.rs:106`. | HIGH (moot) | CLOSED — bolt-ui/egui product RETIRED (Evan 2026-07-14); no fix required. Follow-up: prune the `bolt-ui` crate and retire the EGUI-NATIVE-1 stream. |
+| EA-D2 | SAS is OPTIONAL ("SHOULD") on first contact → a first-pairing rendezvous key-swap MITM is undetected, and TOFU makes it persistent. `bolt-protocol/PROTOCOL.md:90`. Policy decision; ties to EA1. | HIGH (disputed) | NEEDS-DISPOSITION |
+| EA-D3 | Code signing omits the hardened runtime (`--options runtime`): the shipped app is dylib-injectable and the documented notarization flow cannot succeed. `localbolt-app/native/macos/build-app.sh:136`. | MEDIUM (disputed) | NEEDS-DISPOSITION |
