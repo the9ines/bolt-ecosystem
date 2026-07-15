@@ -154,8 +154,7 @@ Human / PM → auditor → coder → test-runner → docs-keeper → deployer �
 `security-auditor` runs on-demand at any point (not a pipeline stage).
 
 See `.claude/agents/AGENTS.md` for the manifest, authority boundaries, handoff
-artifacts, and escalation rules. Note: the root `AGENTS.md` file is GitNexus
-tooling output, not the agent manifest.
+artifacts, and escalation rules.
 
 docs-keeper's job under the Governance OS: run `os/bin/status.sh`, append the
 journal line, keep per-repo CHANGELOGs — not hand-maintained state tables.
