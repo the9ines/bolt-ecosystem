@@ -19,8 +19,10 @@ or status claims — those rot. Current state is always derived, never declared.
 
 **The read ritual** — when the human says "give me my read": regenerate the
 dashboard, compare it against NOW.md, and report drift: unpushed or untagged work,
-overdue review date, items finished but still listed in NOW.md, items in NOW.md
-contradicted by git reality. Propose journal lines for anything done but unlogged.
+off-release-branch checkouts, missing per-repo CHANGELOGs, un-homed audit artifacts
+on `~/Desktop`, overdue review date, items finished but still listed in NOW.md, items
+in NOW.md contradicted by git reality. Run `os/bin/status.sh --hygiene` for the opt-in
+un-homed-docs scan. Propose journal lines for anything done but unlogged.
 
 ---
 
