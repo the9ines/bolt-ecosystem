@@ -1,14 +1,65 @@
 # Decision: EA1 PAKE v1 Protocol Profile — Proposal
 
 > **Date:** 2026-07-15
-> **Status:** **PROPOSED. NOT WIRE-FROZEN. NOT IMPLEMENTATION-AUTHORIZED.** A design record for
-> review — it freezes nothing on the wire and authorizes no code. EA1 remains **OPEN**.
+> **Status:** **PROPOSED — REVISION REQUIRED. NOT WIRE-FROZEN. NOT IMPLEMENTATION-AUTHORIZED.** A
+> design record for review — it freezes nothing on the wire and authorizes no code. EA1 remains
+> **OPEN**. An adversarial red-team (2026-07-15) returned **HAS-BLOCKERS**; see the *Red-team
+> outcome: REVISION REQUIRED* section below and `docs/evidence/EA1_PAKE_PROFILE_REDTEAM.md`. The
+> profile below is the *reviewed* draft and, as written, has confirmed blockers — read it together
+> with that section, not as an accepted design.
 > **Scope repos:** `bolt-protocol` (spec revision), `bolt-core-sdk` (SDK), downstream products —
 > all future, all gated.
 > **Builds on:** `os/log/decisions/2026-07-15-ea1-adopt-pake-direction.md` (adopt a vetted PAKE;
 > do not hand-roll pairing crypto). **Evidence:** `docs/evidence/EA1_REDTEAM.md`,
 > `docs/evidence/PAKE_EVAL.md`, the EA1 row in `docs/AUDIT_TRACKER.md`, the inert spike crate
 > `bolt-spake2-spike` (bolt-core-sdk commit `664df5a`, branch `spike/spake2-wasm`, unmerged).
+
+## Red-team outcome: REVISION REQUIRED
+
+An UltraCode adversarial review of this proposal (2026-07-15) returned **HAS-BLOCKERS**
+(1 BLOCKER, 3 HIGH, 3 MEDIUM, 3 LOW). Full report:
+**`docs/evidence/EA1_PAKE_PROFILE_REDTEAM.md`**.
+
+- **This proposal is NOT wire-frozen and NOT implementation-authorized.** It remains a design record
+  to be revised.
+- **The design as written has blockers.** The load-bearing one: the X25519 identity key is committed
+  in the transcript and pinned but its *private* key is never exercised, so there is **no proof of
+  possession** — on the reconnect path (no fresh PAKE) an active rendezvous MITM impersonates any
+  pinned peer from the *public* key alone at zero online guesses, reintroducing the very MITM the
+  PAKE was adopted to close. It is a key-schedule/wire change and cannot be retrofitted after a
+  freeze.
+- **Falsified guarantees must be retracted.** Several affirmative closure/authentication claims in
+  the profile below are overstated as written and must be retracted or scoped in the revision —
+  specifically the "Closes the downgrade blocker + EA16 + EA-D2" claim under *Transcript TT*, "the
+  PAKE supplies the authentication a PoP signature would have" under *Identity and typed pins*, and
+  reconnect "authenticates that key via the envelope MAC" under the same section. Until revised, do
+  not read those lines as delivered guarantees.
+- **Mandatory revision areas (summary; full change list in the evidence file):**
+  1. Identity **proof-of-possession** folded into the confirmed key schedule at pairing *and*
+     reconnect (identity-DH / Noise-IK-XX style), or a fresh-code PAKE per reconnect.
+  2. One-time-code **consumption** made atomic + single-flight + receiver-confirms-last so the
+     "one online guess" bound actually holds (rendezvous rate-limiting is non-load-bearing).
+  3. Downgrade **floor** made un-strippable and mutual by binding it to the human code ceremony,
+     default require-PAKE ON; first-contact covered.
+  4. ROUTING/SECRET **boundary** made structural (disjoint alphabets / typed prefix; rendezvous
+     rejects non-ROUTING ids) so SECRET can never reach the untrusted server.
+  5. One canonical **injective** TT/PAIR_INIT codec with strict canonical decode + cross-impl
+     decode-direction vectors.
+  6. Symmetric SPAKE2 **ratified or replaced** by the external cryptographer (vs SPAKE2+ / CPace),
+     with reflection/complement-key discipline pinned.
+  7. **Channel binding** redesigned to fold a locally-observed transport secret (the transmitted +
+     symmetrized field is inert under relay); mandate `ephemeral_key` == the BTR-root ephemeral.
+  8. **Formal-model scope** widened to cover the reconnect path and the consumption/lockout state
+     machine.
+  9. Spec-correctness: reachable `KEY_MISMATCH`, honest "code-confirmed" vs "verified" labeling, the
+     `spake2 0.4.0` unaudited/not-constant-time sign-off, anti-phishing UX, and the claim retractions
+     above.
+- **Phase status:** spec design-freeze *drafting* + formal-model work may begin (in parallel with
+  the cryptographer engagement); **implementation and wire-freeze remain forbidden** until the nine
+  changes land, the external cryptographer signs off, and the widened formal model passes.
+
+The profile that follows is preserved verbatim as the *reviewed draft*; it is superseded in the
+specifics by the revision areas above.
 
 ## Context
 

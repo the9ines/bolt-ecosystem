@@ -3,6 +3,16 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-15 — **EA1 PAKE v1 profile proposal recorded; red-team returned HAS-BLOCKERS.** The
+  type-a-secret PAKE design was preserved as a proposal ADR
+  (`os/log/decisions/2026-07-15-ea1-pake-v1-profile-proposal.md`) and adversarially reviewed
+  (UltraCode, 15 surfaces): verdict HAS-BLOCKERS (1 BLOCKER = no identity proof-of-possession →
+  zero-guess reconnect MITM; 3 HIGH / 3 MEDIUM / 3 LOW; 9 required changes before wire-freeze).
+  Immutable evidence: `docs/evidence/EA1_PAKE_PROFILE_REDTEAM.md`; ADR marked REVISION REQUIRED;
+  EA1 tracker row updated (stays OPEN). Implementation and wire-freeze remain BLOCKED pending
+  revision, external cryptographer sign-off, and a formal model. Design/spec-drafting only; no code,
+  no spec impl, spike stays inert. Root-repo governance only.
+
 - 2026-07-15 — **Tag reconciliation closed: four repos pushed + milestone-tagged.** Pushed `main`
   to origin for the root, bolt-daemon, localbolt-app, and localbolt-v3 (branches now level with
   origin), then created, pushed, and postflight-verified one annotated milestone tag per completed
