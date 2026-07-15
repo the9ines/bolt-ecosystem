@@ -3,6 +3,19 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-15 — **Governance OS v2 Phase 1: EA evidence homed, tracker chain of custody
+  repaired.** Moved the six loose `~/Desktop` EA artifacts into tracked homes: the 42 KB security
+  audit → `docs/AUDITS/2026-07-13-localbolt-security-audit.md`; the EA1/EA3/EA4 red-teams →
+  `docs/evidence/{EA1,EA3,EA4}_REDTEAM.md`; the PAKE library eval → `docs/evidence/PAKE_EVAL.md`;
+  the 270 KB remediation plan → `docs/evidence/EA_REMEDIATION_PROPOSAL_2026-07-14.json` + a
+  `.provenance.md` sidecar marking it a dated superseded proposal, NOT a status source. Repointed
+  the five dangling `~/Desktop` citations in `docs/AUDIT_TRACKER.md` to repo-relative paths, added
+  first-ever citations for the two orphaned artifacts (PAKE eval + remediation JSON), and removed
+  the stale numeric SUMMARY (it claimed Total 112 / OPEN 1 while dozens of rows carry OPEN) →
+  non-numeric derivation pointer. Authority: ADR
+  `os/log/decisions/2026-07-15-governance-os-v2-design.md`. Phases 2+ (routing rule, vocabulary,
+  reconciliation, thin-index, sensor) NOT started; no push, no tag.
+
 - 2026-07-03 — **Steam Deck de-risked: daemon cross-compiles for x86_64 Linux; dropped
   native-tls/OpenSSL.** Checked whether `bolt-daemon` builds for the Deck (Linux x86_64): no
   macOS-specific code, and ring/quinn/wtransport/tokio/rustls all cross-compile. The one snag
