@@ -3,6 +3,16 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-15 — **Tag reconciliation closed: four repos pushed + milestone-tagged.** Pushed `main`
+  to origin for the root, bolt-daemon, localbolt-app, and localbolt-v3 (branches now level with
+  origin), then created, pushed, and postflight-verified one annotated milestone tag per completed
+  workstream — each present locally and on origin, peeling to the exact HEAD commit:
+  `ecosystem-v0.1.199-governance-os-v2` (root `0ccfca9`, Governance OS v2 Phases 1-5),
+  `daemon-v0.2.58-ea-trust-gate` (`5022961`), `localbolt-app-v2.0.2-ea-honest-verify` (`c28dcb8`),
+  and `v3.0.109-ea29-honest-verify` (`14db116`) — the latter three carrying the EA / Track B
+  remediation. bolt-core-sdk spike, bytebolt, localbolt, and rendezvous not tagged this pass.
+  Closes the tag-reconciliation checkpoint. Root-repo governance only; no code, no further push.
+
 - 2026-07-15 — **Tag policy codified: milestone/release checkpoints, not every commit.** Governance
   now tags completed workstream checkpoints + releases, not routine commits (the journal + per-repo
   CHANGELOGs carry detailed history; immutable-tag discipline stands). Recorded in

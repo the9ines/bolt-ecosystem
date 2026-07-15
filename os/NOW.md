@@ -17,12 +17,7 @@
 
 ## Next
 
-- **Tag reconciliation checkpoint** — Governance OS v2 (Phases 1-5) and the EA / Track B
-  remediation are complete but untagged, with unpushed commits in root / daemon / app / v3 (run
-  `os/bin/status.sh`). Policy now DECIDED:
-  `os/log/decisions/2026-07-15-tag-policy-milestones-not-commits.md` (tag workstream checkpoints,
-  not every commit). Pending Evan's authorization (No-Push): push the four repos, then cut one
-  milestone tag per completed workstream. Do NOT tag the bolt-core-sdk spike.
+_Nothing queued._
 
 ## Later
 
