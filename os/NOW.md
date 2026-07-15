@@ -4,36 +4,39 @@
 > When an item finishes: append one line to `os/log/journal.md`, then DELETE it here.
 > Where things stand is NOT recorded here — run `os/bin/status.sh` and read `os/DASHBOARD.md`.
 >
-> **Review by: 2026-07-17.** Reading this later than that? Say "give me my read".
-
-Seeded 2026-07-03 from the last live items in the frozen backlog
-(docs/GOVERNANCE_WORKSTREAMS.md, docs/ROADMAP.md). Prune anything no longer wanted.
+> **Review by: 2026-07-29.** Reading this later than that? Say "give me my read".
 
 ## Now
 
-- _(nothing in flight — transport unification closed at Phases 1+2+cleanup; see journal.)_
+- **Governance OS v2 migration** — the delta that homes audit evidence and retires stale
+  status docs. Phase 1 (evidence homed + tracker custody repaired) and Phase 2 (routing law +
+  status vocabulary) are DONE; Phase 3 (reconcile NOW / journal / ADRs — this) is in progress;
+  Phase 4 (thin `docs/AUDIT_TRACKER.md` to an index) and Phase 5 (sensor Signals + docs-keeper
+  owner) remain. Authority + full plan: `os/log/decisions/2026-07-15-governance-os-v2-design.md`.
+  Each phase needs explicit authorization.
 
 ## Next
 
-- **Tag reconciliation** — the dashboard flags untagged work at HEAD in most repos
-  (run `os/bin/status.sh` for live counts; includes the STATE-retirement doc commits).
-  Decide: tag the current HEADs once, or codify "tag releases, not every commit."
-  (Still parked — Evan unsure. Now larger: recovered-code + validation commits added.)
+- **EA1 — real device verification (SAS / pairing)** — the gating security decision. Red-teamed
+  twice (HAS-BLOCKERS); direction = do NOT hand-roll, adopt a vetted PAKE WITH an external
+  cryptographer (`os/log/decisions/2026-07-15-ea1-adopt-pake-direction.md`). The Rust→WASM spike
+  is done but UNMERGED and not productized. EA1 blocks all "verified" / persistent-pin behavior,
+  including EA4's full interactive-prompt fix. Decision for Evan: when to engage the cryptographer.
+- **Tag reconciliation** — the dashboard flags untagged work at HEAD in most repos (run
+  `os/bin/status.sh` for live counts). Decide: tag the current HEADs once, or codify "tag
+  releases, not every commit." (Parked — Evan's call.)
 
 ## Later
 
-- **W2-RUNTIME-VALIDATION-1 follow-up** — runtime-CONFIRMED 2026-07-03 (WT over HTTPS
-  with cert-hash pinning + full BTR, both file directions; see evidence file). If CI
-  can assert it, add a gate; otherwise this item is closed.
-- **M4-PARITY-1** — cross-product contract parity tests in CI (bolt-core-sdk,
-  localbolt-v3, localbolt-app).
+- **W2-RUNTIME-VALIDATION-1 CI gate** — WT-over-HTTPS runtime was CONFIRMED 2026-07-03 (evidence
+  homed). If CI can assert it, add a gate; otherwise close.
+- **M4-PARITY-1** — cross-product contract parity tests in CI (bolt-core-sdk, localbolt-v3, localbolt-app).
 - **ECOSYSTEM-DOCS-1** — bolt-core-sdk integration guide for external adopters.
 - **SIDECHANNEL-REDUCTION-1** — product exception audit (quality, blocks nothing).
 
 ## Shelved (not now)
 
-- **ByteBolt** — commercial global tier (relay backbone + app). Deferred per Evan
-  2026-07-03: build and harden the open base first. The relay is a connectivity/
-  reliability backbone only — zero server-side storage, strictly P2P, forwards opaque
-  ciphertext. The transport-unification work makes the core *ready* for a relay
-  transport but builds nothing ByteBolt. Do not start ByteBolt work until un-shelved.
+- **ByteBolt** — commercial global relay tier. SHELVED per Evan (build and harden the open base
+  first). Its relay trust boundary is defined ONCE in
+  `os/log/decisions/2026-07-15-bytebolt-relay-trust-boundary.md` — do not restate it elsewhere.
+  Do not start ByteBolt work until un-shelved.

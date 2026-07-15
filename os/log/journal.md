@@ -3,6 +3,15 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-15 — **Governance OS v2 Phase 2: audit-evidence routing law + finding status
+  vocabulary codified.** `os/rules/doc-routing.md` gained the *Audit Evidence & Records* section
+  (one home each for immutable audit reports, evidence, red-teams, tech-evals, proposal snapshots,
+  workstream-ADRs, and living finding status), the closed 6-token status vocabulary
+  (`OPEN`/`IN-PROGRESS`/`DONE-VERIFIED`/`DONE-BY-DESIGN`/`DEFERRED`/`SUPERSEDED-BY`) with the
+  DONE-VERIFIED evidence gate + contradiction rule, and the immutable-vs-living / thin-index /
+  Desktop-scratchpad rules. `os/rules/security-model.md` identity-key label corrected
+  Ed25519→X25519 with an EA1 pointer note (no crypto redesign). Root `19598d2`. No push, no tag.
+
 - 2026-07-15 — **Governance OS v2 Phase 1: EA evidence homed, tracker chain of custody
   repaired.** Moved the six loose `~/Desktop` EA artifacts into tracked homes: the 42 KB security
   audit → `docs/AUDITS/2026-07-13-localbolt-security-audit.md`; the EA1/EA3/EA4 red-teams →
@@ -15,6 +24,24 @@ Entries are never edited or deleted; corrections get their own entry.
   non-numeric derivation pointer. Authority: ADR
   `os/log/decisions/2026-07-15-governance-os-v2-design.md`. Phases 2+ (routing rule, vocabulary,
   reconciliation, thin-index, sensor) NOT started; no push, no tag.
+
+- 2026-07-15 — **Governance OS v2 design committed as an ADR.** An UltraCode read-only design
+  workflow (14 agents; claims verified first-hand) produced the Minimal-Delta plan — evolve v1:
+  home the loose EA evidence, repair the tracker chain of custody, add a routing rule + owner.
+  Preserved as `os/log/decisions/2026-07-15-governance-os-v2-design.md` (root `61fc874`),
+  self-contained with the v2 file tree, kind rules, migration phases, and a Phase 1 execution
+  spec. Design/decision record only — no execution.
+
+- 2026-07-15 — **EA-series security audit + Track B remediation landed.** After the ecosystem
+  security audit (homed in `docs/AUDITS/` + `docs/evidence/`; EA-series registered in
+  `docs/AUDIT_TRACKER.md`), six near-term authorization-hardening items shipped 2026-07-13..15,
+  each mutation-verified and committed separately: (1) async IPC decision channel; (2) fail-closed
+  daemon `trust_config`; (3) WebTransport trust gate (+ code red-team + hardened deny/deny-policy
+  tests); (4) legacy-WS bypass closure; (5) native default `--pairing-policy allow`→`ask` + EA8
+  keydir move to the platform data dir; (6) no false "verified" / persistent-pin pre-EA1 (EA29,
+  across bolt-daemon + localbolt-app macOS Swift + localbolt-v3 web SDK). Authorization gating
+  only — real device verification stays blocked on EA1 (see the adopt-PAKE ADR). Local commits
+  across bolt-daemon, localbolt-app, localbolt-v3, and the ecosystem root; no push.
 
 - 2026-07-03 — **Steam Deck de-risked: daemon cross-compiles for x86_64 Linux; dropped
   native-tls/OpenSSL.** Checked whether `bolt-daemon` builds for the Deck (Linux x86_64): no
