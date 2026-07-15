@@ -63,6 +63,13 @@ Applies to all repositories and all Claude agents. No exceptions.
 
 Tags are immutable. Once pushed, NEVER moved, deleted, or reused.
 
+**Tag milestones, not every commit.** Tag completed workstream checkpoints and releases —
+a stable, shippable point (a landed workstream or a product release) — not routine commits.
+Detailed history is carried per commit by `os/log/journal.md` (ecosystem events) and per-repo
+`docs/CHANGELOG.md` (releases), so a routine commit needs no tag. The dashboard's "untagged work
+at HEAD" Signal is a checkpoint prompt ("is this HEAD a milestone worth a tag?"), not a
+per-commit debt. See `os/log/decisions/2026-07-15-tag-policy-milestones-not-commits.md`.
+
 | Repository | Tag Format | Example |
 |------------|-----------|---------|
 | bolt-ecosystem (root) | `ecosystem-vX.Y.Z-<slug>` | `ecosystem-v0.1.197-governance-os-phase1` |

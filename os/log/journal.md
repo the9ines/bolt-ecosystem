@@ -3,6 +3,32 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-15 — **Tag policy codified: milestone/release checkpoints, not every commit.** Governance
+  now tags completed workstream checkpoints + releases, not routine commits (the journal + per-repo
+  CHANGELOGs carry detailed history; immutable-tag discipline stands). Recorded in
+  `os/log/decisions/2026-07-15-tag-policy-milestones-not-commits.md`; `CLAUDE.md` Tag Discipline
+  updated. In the same pass, reconciled `os/NOW.md` (Governance OS v2 Phases 1-5 complete → removed
+  from Now, EA1/PAKE promoted) and backfilled the Phase 3/4/5 lines below. Root-repo governance only;
+  no push, no tag.
+
+- 2026-07-15 — **Governance OS v2 Phase 5: sensor Signals + opt-in hygiene checks.**
+  `os/bin/status.sh` gained four boot Signals (off-release-branch/spike, per-repo CHANGELOG
+  presence, REPOS-vs-disk drift, un-homed `~/Desktop` top-level glob) plus opt-in `--check`
+  (dashboard freshness) and `--hygiene` (un-homed-docs scan + root cruft) and `--help`; all
+  name-level/`.git`-only at boot (~1.8s, iCloud-safe). The generated `os/DASHBOARD.md` stays
+  untracked. `CLAUDE.md` read-ritual updated. Root `8f2b302`.
+
+- 2026-07-15 — **Governance OS v2 Phase 4: thin-index the active EA-series tracker rows.** Collapsed
+  the overloaded EA1/EA2/EA3/EA4/EA29 essay cells in `docs/AUDIT_TRACKER.md` to thin-index rows
+  (finding | category | workstream | 6-token status + evidence/ADR links); the detail lives in the
+  evidence files + Phase 3 ADRs. SA11 got `SUPERSEDED-BY:EA1` + a reopen pointer, SA10 a
+  "completed by EA2" pointer (frozen history retained, no findings deleted). Root `77c8c97`.
+
+- 2026-07-15 — **Governance OS v2 Phase 3: reconcile NOW / journal / decisions.** Refreshed
+  `os/NOW.md` (replaced the false "nothing in flight"), backfilled the Track B + design-ADR + Phase 2
+  journal lines, and added three ADRs (ByteBolt relay trust boundary; EA1 adopt-PAKE direction;
+  trust-gate + honest verification). Tiny `CLAUDE.md` Phase-2 wording tidy-up. Root `480d229`.
+
 - 2026-07-15 — **Governance OS v2 Phase 2: audit-evidence routing law + finding status
   vocabulary codified.** `os/rules/doc-routing.md` gained the *Audit Evidence & Records* section
   (one home each for immutable audit reports, evidence, red-teams, tech-evals, proposal snapshots,

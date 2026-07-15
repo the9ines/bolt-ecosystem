@@ -8,23 +8,21 @@
 
 ## Now
 
-- **Governance OS v2 migration** — the delta that homes audit evidence and retires stale
-  status docs. Phase 1 (evidence homed + tracker custody repaired) and Phase 2 (routing law +
-  status vocabulary) are DONE; Phase 3 (reconcile NOW / journal / ADRs — this) is in progress;
-  Phase 4 (thin `docs/AUDIT_TRACKER.md` to an index) and Phase 5 (sensor Signals + docs-keeper
-  owner) remain. Authority + full plan: `os/log/decisions/2026-07-15-governance-os-v2-design.md`.
-  Each phase needs explicit authorization.
+- **EA1 — real device verification (SAS / pairing)** — the top strategic item and the gating
+  security decision. Red-teamed twice (HAS-BLOCKERS); direction = do NOT hand-roll, adopt a vetted
+  PAKE WITH an external cryptographer (`os/log/decisions/2026-07-15-ea1-adopt-pake-direction.md`).
+  The Rust→WASM spike is done but UNMERGED and not productized. EA1 blocks all "verified" /
+  persistent-pin behavior, including EA4's full interactive-prompt fix. Decision for Evan: when to
+  engage the cryptographer.
 
 ## Next
 
-- **EA1 — real device verification (SAS / pairing)** — the gating security decision. Red-teamed
-  twice (HAS-BLOCKERS); direction = do NOT hand-roll, adopt a vetted PAKE WITH an external
-  cryptographer (`os/log/decisions/2026-07-15-ea1-adopt-pake-direction.md`). The Rust→WASM spike
-  is done but UNMERGED and not productized. EA1 blocks all "verified" / persistent-pin behavior,
-  including EA4's full interactive-prompt fix. Decision for Evan: when to engage the cryptographer.
-- **Tag reconciliation** — the dashboard flags untagged work at HEAD in most repos (run
-  `os/bin/status.sh` for live counts). Decide: tag the current HEADs once, or codify "tag
-  releases, not every commit." (Parked — Evan's call.)
+- **Tag reconciliation checkpoint** — Governance OS v2 (Phases 1-5) and the EA / Track B
+  remediation are complete but untagged, with unpushed commits in root / daemon / app / v3 (run
+  `os/bin/status.sh`). Policy now DECIDED:
+  `os/log/decisions/2026-07-15-tag-policy-milestones-not-commits.md` (tag workstream checkpoints,
+  not every commit). Pending Evan's authorization (No-Push): push the four repos, then cut one
+  milestone tag per completed workstream. Do NOT tag the bolt-core-sdk spike.
 
 ## Later
 
