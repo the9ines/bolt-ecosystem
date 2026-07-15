@@ -15,7 +15,68 @@ documentation, consult this table. Do not infer or guess a target file.
 | New decisions (ADRs) | `os/log/decisions/YYYY-MM-DD-slug.md` | Dated, immutable once made. Superseding decisions get new files. |
 | Rules (agent-behavioral) | root `CLAUDE.md` | SRE policy, commit/tag discipline, No-Push, doc homes. |
 | Rules (ecosystem law) | `os/rules/` | Security model, validation protocol, phase discipline, this file, BTR vector policy, runbooks. |
-| Audit finding registry | `docs/AUDIT_TRACKER.md` | Append-only registry of finding IDs. Status columns are historical — verify against `docs/evidence/`. |
+| Audit finding registry | `docs/AUDIT_TRACKER.md` | Append-only THIN INDEX of finding IDs + status token + evidence link. No essays, no numeric counts (see **Audit Evidence & Records** below). |
+
+## Audit Evidence & Records
+
+Where audit-produced artifacts live. Durable artifacts are homed here BEFORE the
+finding they support is marked touched — never left on `~/Desktop` or a scratchpad.
+
+| Kind | Home | Rule |
+|------|------|------|
+| Immutable audit report | `docs/AUDITS/YYYY-MM-DD-<slug>.md` | Point-in-time report. Written once, dated, never edited. |
+| Immutable evidence (proof a finding is/was true) | `docs/evidence/<ID>_EVIDENCE.md` | Dated proof (test output, interop run, rationale). Written once, never mutated. |
+| Red-team report | `docs/evidence/<ID>_REDTEAM.md` | Adversarial review of a design or code path. Immutable evidence. |
+| Technical / dependency evaluation | `docs/evidence/<TOPIC>_EVAL.md` | Point-in-time tech/library assessment (e.g. `PAKE_EVAL.md`). Immutable evidence. |
+| Machine plan / proposal export | `docs/evidence/<TOPIC>_<YYYY-MM-DD>.json` + a `.provenance.md` sidecar | A DATED PROPOSAL SNAPSHOT — frozen input, **never a status source** (see *Immutable vs living*). |
+| Post-freeze workstream | `os/log/decisions/YYYY-MM-DD-ws-<NAME>.md` | A workstream is a phased ADR (Context / Decision / Phases-with-gates / Out-of-scope). `docs/GOVERNANCE_WORKSTREAMS.md` is frozen; the tracker's workstream column points at the ADR. |
+| Living finding status | `docs/AUDIT_TRACKER.md` | The SINGLE owner of current finding status (thin index — see below). |
+
+Naming (flat, no subfolders): red-teams `<ID>_REDTEAM.md`; tech-evals `<TOPIC>_EVAL.md`;
+proposal exports `<TOPIC>_<YYYY-MM-DD>.json` + `.provenance.md`. Citations are always
+repo-relative — never `~/Desktop/…` or any absolute path.
+
+### Finding status vocabulary (defined here, and nowhere else)
+
+Every `docs/AUDIT_TRACKER.md` finding carries exactly ONE status token from this closed set:
+
+- `OPEN` — unresolved.
+- `IN-PROGRESS` — actively being worked.
+- `DONE-VERIFIED` — resolved AND linked, by repo-relative path, to immutable evidence meeting the finding's severity minimum (evidence minimums: root `CLAUDE.md` → *Audit Execution Discipline*; validation tiers: `os/rules/validation-protocol.md`). No linked evidence → NOT `DONE-VERIFIED`.
+- `DONE-BY-DESIGN` — no code change needed; a documented rationale is the evidence.
+- `DEFERRED` — consciously postponed (name why / to when).
+- `SUPERSEDED-BY:<ID>` — this finding is replaced or reopened by another; the row stays, the named ID carries current status.
+
+Deprecated, do not use: bare `DONE`, `CODIFIED`, `CLOSED`, `CLOSED-NO-BUG` — resolve each to
+`DONE-VERIFIED` (has evidence) or `DONE-BY-DESIGN` (documented rationale).
+
+**Contradiction rule:** reopening a finding is `SUPERSEDED-BY:<ID>` on the old row PLUS a new
+row — never two live rows silently asserting opposite states.
+
+### Immutable vs living
+
+On landing any artifact, classify it. Ask: *"Will this file's claims change next week?"*
+
+- **No → immutable evidence.** A report, proof, red-team, or eval describes a moment in time. Home it in `docs/AUDITS/` or `docs/evidence/`; write once; never mutate. A change of view is a NEW dated file naming what it supersedes.
+- **Yes → living status.** Decompose into the living home (`os/NOW.md`, `docs/AUDIT_TRACKER.md`, or an ADR) AND freeze the raw file as a dated proposal snapshot so its lineage survives.
+
+Dated evidence and proposal snapshots are **NEVER** a source of current status. `docs/AUDIT_TRACKER.md`
+(and, for what shipped, the journal + per-repo CHANGELOGs) is the only status source; where a
+snapshot disagrees, the tracker wins.
+
+### The tracker is a thin index
+
+`docs/AUDIT_TRACKER.md` is an append-only INDEX: one row per finding =
+`ID │ one-line finding │ severity │ status-token │ evidence-link`. It is NOT a place for essays
+(move the prose into the finding's `docs/evidence/` file and leave the link) and NOT a place for
+hand-typed or "current" numeric counts (they rot — derive counts by a token-grep over the Status
+column; a generated rollup lands in `os/DASHBOARD.md` Signals).
+
+### Desktop is a scratchpad, never a home
+
+`~/Desktop` (and any temp/scratchpad) is never a durable home. An audit / red-team / eval / plan
+artifact is not "done" until it lives at a tracked, repo-relative path AND the tracker cites it
+repo-relative. Home + cite BEFORE the finding is marked touched.
 
 ## Per-Repo Docs
 

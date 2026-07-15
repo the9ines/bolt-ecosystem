@@ -123,10 +123,18 @@
 
 | Asset | Storage | Confidentiality | Integrity | Availability | Persistence |
 |-------|---------|----------------|-----------|-------------|-------------|
-| **Identity keypair (Ed25519)** | Daemon: `data_dir/identity.key` (0600). Browser: IndexedDB (origin-scoped). | HIGH | HIGH | HIGH (loss = new identity) | Persistent across sessions |
+| **Identity keypair (X25519 — see note)** | Daemon: `data_dir/identity.key` (0600). Browser: IndexedDB (origin-scoped). | HIGH | HIGH | HIGH (loss = new identity) | Persistent across sessions |
 | **Ephemeral session keys (X25519)** | Memory only | HIGH | HIGH | Session-scoped | Discarded on disconnect. MUST NOT persist. |
 | **BTR ratchet state** | Memory only | HIGH | HIGH | Transfer-scoped | Cleared after transfer. MUST NOT persist beyond active transfer. |
 | **BTR chain keys / derived keys** | Memory only | HIGH | HIGH | Transfer-scoped | Minimal retention. Cleared with transfer context. |
+
+> **Note (EA1, 2026-07-15):** the identity-key primitive is UNRESOLVED — do not read the
+> parenthetical above as settled fact. This table historically asserted "Ed25519"; the shipping
+> code uses **X25519** (a non-signing key; the HELLO identity is a plaintext field with no
+> proof-of-possession), and `ROADMAP.md` recorded a decision that REJECTED an Ed25519 migration.
+> EA1 (SAS / pairing) is OPEN pending a vetted construction. Authoritative status:
+> `docs/AUDIT_TRACKER.md` (EA1) + `docs/evidence/EA1_REDTEAM.md`. This note points to status
+> only; it does not redesign the crypto (that is EA1 / a future ADR).
 
 ### Trust Material
 
