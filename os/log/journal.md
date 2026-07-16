@@ -3,6 +3,17 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-15 — **EA1 PAKE v2 profile draft created (design-only).** Revised the PAKE profile to
+  address the v1 red-team's nine required changes — identity proof-of-possession via a Noise-style
+  DH key schedule + a reconnect static-DH rule (the top blocker fix; reconnect no longer relies on a
+  public-key match), one-time-code consumption / single-flight / lockout, a ceremony-bound
+  unstrippable downgrade floor, a structural routing/secret split, an injective transcript codec, a
+  CPace-vs-SPAKE2 primitive decision point, fold-locally channel binding, a widened formal-model
+  scope, and a contact_id pin model with honest non-"verified" product states. Draft:
+  `os/log/decisions/2026-07-15-ea1-pake-v2-profile-draft.md`; supersedes-in-specifics the v1
+  proposal; EA1 stays OPEN. NOT wire-frozen, NOT implementation-authorized; unresolved cryptographer
+  decisions marked. No code, no spec, spike inert. Root-repo governance only.
+
 - 2026-07-15 — **EA1 PAKE v1 profile proposal recorded; red-team returned HAS-BLOCKERS.** The
   type-a-secret PAKE design was preserved as a proposal ADR
   (`os/log/decisions/2026-07-15-ea1-pake-v1-profile-proposal.md`) and adversarially reviewed
