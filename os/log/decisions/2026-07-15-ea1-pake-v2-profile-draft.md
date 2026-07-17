@@ -1,8 +1,10 @@
 # Decision: EA1 PAKE v2 Protocol Profile — Revised Draft
 
 > **Date:** 2026-07-15
-> **Status:** **DRAFT — REVISION OF THE v1 PROPOSAL. NOT WIRE-FROZEN. NOT
-> IMPLEMENTATION-AUTHORIZED. NO "verified" PRODUCT BEHAVIOR.** Addresses the nine required changes
+> **Status:** **PROPOSED — REVISION REQUIRED. NOT WIRE-FROZEN. NOT
+> IMPLEMENTATION-AUTHORIZED. NO "verified" PRODUCT BEHAVIOR.** A v2 adversarial red-team (2026-07-16)
+> returned **HAS-BLOCKERS** — see the *Red-team outcome (v2): REVISION REQUIRED* note below and
+> `docs/evidence/EA1_PAKE_V2_REDTEAM.md`. Addresses the nine required changes
 > from the v1 red-team; supersedes the v1 profile *in the specifics* while keeping the type-a-secret
 > PAKE direction. EA1 remains **OPEN**. Contains open items that REQUIRE an external cryptographer —
 > marked **[CRYPTO-DECISION]** — and cannot be wire-frozen until they resolve.
@@ -12,6 +14,36 @@
 > (PROPOSED — REVISION REQUIRED). **Evidence:** `docs/evidence/EA1_PAKE_PROFILE_REDTEAM.md`
 > (HAS-BLOCKERS), `docs/evidence/EA1_REDTEAM.md`, `docs/evidence/PAKE_EVAL.md`. **Builds on:**
 > `os/log/decisions/2026-07-15-ea1-adopt-pake-direction.md`.
+
+## Red-team outcome (v2): REVISION REQUIRED
+
+A v2 UltraCode adversarial review (2026-07-16) returned **HAS-BLOCKERS**. Full report:
+**`docs/evidence/EA1_PAKE_V2_REDTEAM.md`**.
+
+- **This draft is PROPOSED — REVISION REQUIRED. Not wire-frozen, not implementation-authorized.**
+- **Direction validated, but blockers remain.** The review confirmed v2 moved all four v1 blockers
+  the right way and retracted the three falsified v1 claims, and it correctly deferred 13 items to
+  the professional cryptographer — but **7 findings are confirmed** and must be fixed first.
+- **Top blocker (new, fixable):** the §1 identity-DH possession proof is defeated by a **low-order /
+  small-subgroup X25519 point** — X25519 clamps to a multiple of cofactor 8, so DH against a
+  low-order `id_pub` returns the all-zero constant (`ss=es=0`), letting a peer who pairs once get a
+  `possession_proven=true` pin on a key nobody owns and then be impersonated by any codeless MITM on
+  every reconnect (reopens the v1 reconnect blocker, permanently). The draft mandates **no point /
+  all-zero-DH validation** — this is a required normative wire rule (RFC 7748 §6.1), not a deferred
+  cryptographer decision.
+- **The 8 required changes before wire-freeze** are enumerated in the evidence file: (1) low-order
+  point + all-zero-DH abort; (2) structural routing/secret split that does not rely on server
+  honesty; (3) `session_root` bound to the authenticated PAKE/DH transcript + the ephemeral-binding
+  rider as a §8 model obligation; (4) primitive-independent anti-reflection reject; (5) white-box
+  CSPRNG independence for ROUTING/SECRET; (6) reconnect downgrade floor from `possession_proven`
+  pins; (7) CSPRNG `contact_id` + key-rotation semantics; (8) typer-side code consumption without
+  unauthenticated-lockout DoS. Plus retract the falsified §1/§4/§6/§7 sufficiency claims.
+- Old "verified" stays disabled (EA29). Wire-freeze remains FORBIDDEN until these changes land, the
+  external cryptographer signs off the 10 deferred `[CRYPTO-DECISION]` items, and the widened formal
+  model (§8, extended per the review) passes.
+
+This draft is retained verbatim as the *reviewed v2*; the revision that incorporates the 8 changes is
+tracked separately as the v3 draft.
 
 ## What this draft is
 

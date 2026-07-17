@@ -3,6 +3,18 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-16 — **EA1 PAKE v2 draft red-teamed; verdict HAS-BLOCKERS (direction validated).** An
+  UltraCode adversarial review (read-only, 11 surfaces) returned HAS-BLOCKERS: 1 BLOCKER (a low-order
+  X25519 point makes the identity DH return all-zero → forges the §1 possession proof → reopens the
+  reconnect MITM; needs a normative RFC 7748 point/all-zero-DH abort), 2 confirmed HIGH (routing/secret
+  "server can't receive SECRET" overclaim; the ephemeral==session_root binding is prose-only outside
+  the §8 model gate) + 4 confirmed MEDIUM — but the design direction is validated (all four v1
+  blockers moved right; three falsified v1 claims retracted) and 13 items were correctly deferred to
+  the external cryptographer. 8 required changes before wire-freeze. Immutable evidence:
+  `docs/evidence/EA1_PAKE_V2_REDTEAM.md`; the v2 ADR is marked PROPOSED — REVISION REQUIRED; EA1
+  tracker row updated (stays OPEN). A v3 revision incorporating the 8 changes is the next design step.
+  No code, no spec, no wire-freeze, spike inert. Root-repo governance only.
+
 - 2026-07-15 — **EA1 PAKE v2 profile draft created (design-only).** Revised the PAKE profile to
   address the v1 red-team's nine required changes — identity proof-of-possession via a Noise-style
   DH key schedule + a reconnect static-DH rule (the top blocker fix; reconnect no longer relies on a
