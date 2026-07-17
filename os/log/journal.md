@@ -3,6 +3,23 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-17 — **EA1 PAKE v4 profile draft created (design-only).** Revised the PAKE profile to
+  incorporate the v3 review's nine required draft edits: §8 cleanly decouples consume-the-displayed-code
+  (one-guess bound) from device-wide backoff — backoff never escalates from anonymous inbound, only
+  from the typer's local value-keyed attempts (fixes the v3 HIGH); `session_root = HKDF(salt = PRK,
+  ikm = ephemeral_shared_secret)` with TT only in `info` (no public salt); `ephemeral_shared_secret`
+  defined exactly as `ee` with a well-typed pubkey==pubkey binding; structural separate ROUTING/SECRET
+  API inputs so no string containing SECRET reaches the mailbox layer (legacy-parser claim removed);
+  joint anti-reflection (equality reject + TT binding + load-bearing direction-separated confirmation)
+  + a negative vector; canonical X25519 ingress rejection + high-bit-flip vector; differential CSPRNG
+  KAT + negative shared-seed case; reconnect `contact_id` resolution before the identity compare with
+  precise KEY_MISMATCH semantics; and rotation-overwrite gated behind CD1b (no human-confirm-only
+  overwrite). Retracts the falsified v1/v2/v3 claims; carries the 8 cryptographer decisions + widened
+  formal-model and test obligations; honest non-"verified" states. Draft:
+  `os/log/decisions/2026-07-17-ea1-pake-v4-profile-draft.md` (v3 retained verbatim). EA1 stays OPEN.
+  NOT wire-frozen, NOT implementation-authorized. No code, no spec, spike inert. Root-repo governance
+  only.
+
 - 2026-07-16 — **EA1 PAKE v3 draft red-teamed; verdict NEEDS-REVISION (converging).** The third
   UltraCode adversarial pass (read-only, 10 surfaces) returned NEEDS-REVISION: NO confirmed blocker —
   the new §0 low-order/all-zero-DH rule genuinely closes the v2 rank-1 BLOCKER, and the reconnect
