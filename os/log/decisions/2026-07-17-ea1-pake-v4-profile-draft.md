@@ -1,8 +1,11 @@
 # Decision: EA1 PAKE v4 Protocol Profile — Revised Draft
 
 > **Date:** 2026-07-17
-> **Status:** **DRAFT — PROPOSED. NOT WIRE-FROZEN. NOT IMPLEMENTATION-AUTHORIZED. NO "verified"
-> PRODUCT BEHAVIOR.** Incorporates the nine required edits from the v3 adversarial red-team
+> **Status:** **PROPOSED — NEEDS REVISION. NOT WIRE-FROZEN. NOT IMPLEMENTATION-AUTHORIZED. NO
+> "verified" PRODUCT BEHAVIOR.** A v4 adversarial red-team (2026-07-17) returned **NEEDS-REVISION**
+> (cryptographer-ready: No) — see the *Red-team outcome (v4): NEEDS REVISION* note below and
+> `docs/evidence/EA1_PAKE_V4_REDTEAM.md`. Incorporates the nine required edits from the v3 adversarial
+> red-team
 > (`docs/evidence/EA1_PAKE_V3_REDTEAM.md`, verdict NEEDS-REVISION — no blocker, all draft-defects).
 > Supersedes-in-specifics the v3 draft (`os/log/decisions/2026-07-16-ea1-pake-v3-profile-draft.md`,
 > PROPOSED — NEEDS REVISION), which is retained verbatim. EA1 remains **OPEN**. Contains open items
@@ -14,6 +17,40 @@
 > → **this v4 draft.** Evidence: `docs/evidence/EA1_REDTEAM.md`, `docs/evidence/PAKE_EVAL.md`,
 > `docs/evidence/EA1_PAKE_PROFILE_REDTEAM.md`, `docs/evidence/EA1_PAKE_V2_REDTEAM.md`,
 > `docs/evidence/EA1_PAKE_V3_REDTEAM.md`.
+
+## Red-team outcome (v4): NEEDS REVISION
+
+A v4 UltraCode adversarial review (2026-07-17, the fourth pass) returned **NEEDS-REVISION**;
+cryptographer-ready **No**. Full report: **`docs/evidence/EA1_PAKE_V4_REDTEAM.md`**.
+
+- **This draft is PROPOSED — NEEDS REVISION. Not wire-frozen, not implementation-authorized.**
+- **The closest pass yet — no blocker; 7 of 9 v3 edits landed cleanly.** Two confirmed draft-defects
+  the author must fix before cryptographer handoff remain, plus LOW cleanups.
+- **Blocking defect ① (HIGH):** §6's `session_root = HKDF(salt = PRK, …)` is **computed but unused** —
+  the normative (unedited) `PROTOCOL.md` keys the data channel from `ee` alone (non-BTR direct-ee; BTR
+  salt = EMPTY; BTR-INV-01), so §6's data-keying premise + the browser "secret PRK salt" claim are
+  false for the wire and obligation #6 discharges against an unused value. File-byte confidentiality
+  still holds via `ee`-authentication (∴ HIGH, not a blocker). Fix = pick a fork: **(A)** re-root the
+  data/BTR schedule on `session_root` (needs explicitly lifting "no protocol-spec edits" for that one
+  change; adds a PRK-salt backstop vs `ee`-recovery), or **(B)** re-attribute §6 to `ee`-authentication
+  and drop the PRK-salt/browser sentences (design-only, no backstop).
+- **Blocking defect ② (MEDIUM):** inbound `KEY_MISMATCH` is attacker-summonable via the stable
+  rendezvous-visible `reconnect_handle` — an anonymous key-less party presenting a self-generated key
+  forces a hostile "your contact's key changed" alert about the honest contact (obligation #7 + test
+  L348 mandate it). It is the reconnect-path sibling of the §8/FIX-1 anonymous-inbound pattern. Fix =
+  split `KEY_MISMATCH` by initiator (locally-initiated = hostile alert; unauthenticated inbound
+  resolve-then-differ = silent, rate-limited, non-alerting, non-pin-mutating discard) + reconcile the
+  FIX-8/FIX-9 contradiction.
+- **Plus 8 LOW cleanups** (enumerated in the evidence file): §8 DoS honestly re-characterized; strike
+  the byte-layer clause from formal-model obligation #3; fix the RFC 7748 citation; add the reconnect
+  confidentiality chain; narrow the SECRET-off-server claim to conforming reference clients + the
+  harness; pin the §5 L/R comparison basis; add sort-discriminating es/se vectors; give
+  `reconnect_handle` `contact_id`-grade invariants.
+- Old "verified" stays disabled (EA29). Wire-freeze remains FORBIDDEN. After the two blocking fixes +
+  the LOW cleanups, the review expects the draft clears for cryptographer + formal-methods handoff.
+
+This draft is retained verbatim as the *reviewed v4*; the revision (choosing §6 fork A and landing the
+fixes) is tracked separately as the v5 draft.
 
 ## What v4 changes (the nine required edits)
 

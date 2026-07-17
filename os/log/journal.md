@@ -3,6 +3,19 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-17 — **EA1 PAKE v4 draft red-teamed; verdict NEEDS-REVISION, cryptographer-ready No (two
+  fixes away).** The fourth UltraCode adversarial pass (read-only, 10 focus areas) returned
+  NEEDS-REVISION with no blocker and 7 of 9 v3 edits landed cleanly. Two confirmed draft-defects block
+  cryptographer handoff: (HIGH) §6's PRK-salted `session_root` is computed-but-unused — the normative
+  (unedited) PROTOCOL.md keys the data channel from `ee` alone, so §6's data-keying + browser "secret
+  PRK salt" claims are false for the wire (fix = pick fork A re-root the schedule via a future
+  PROTOCOL.md delta, or B re-attribute §6 to ee-authentication); (MEDIUM) §9 inbound KEY_MISMATCH is
+  attacker-summonable via the stable rendezvous-visible `reconnect_handle` (fix = split by initiator).
+  Plus 8 LOW cleanups + 6 cryptographer decisions. Trajectory v1(blocker)→v2(blocker)→v3(9 edits)→v4(2
+  blocking) is converging. Immutable evidence: `docs/evidence/EA1_PAKE_V4_REDTEAM.md`; v4 ADR marked
+  PROPOSED — NEEDS REVISION; EA1 tracker row updated (stays OPEN). No code, no spec, no wire-freeze,
+  spike inert. Root-repo governance only.
+
 - 2026-07-17 — **EA1 PAKE v4 profile draft created (design-only).** Revised the PAKE profile to
   incorporate the v3 review's nine required draft edits: §8 cleanly decouples consume-the-displayed-code
   (one-guess bound) from device-wide backoff — backoff never escalates from anonymous inbound, only
