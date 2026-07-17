@@ -3,6 +3,23 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-17 — **EA1 PAKE v5 draft red-teamed; verdict NEEDS-REVISION, cryptographer-ready No (two
+  author-text edits away).** The fifth UltraCode adversarial pass (read-only, 10 focus areas) returned
+  NEEDS-REVISION with no blocker. **Fork A worked** — it legitimately closes the v4 HIGH (`session_root`
+  is now consumed by obligation #6, no shadow value; the required `PROTOCOL.md` delta is a clearly
+  flagged proposed future change, not asserted as shipped). The only blockers are 2 MEDIUM draft-defects
+  on the `KEY_MISMATCH` surface: (CONFIRMED) `[FIX 2]`'s "the reconnect_handle cannot summon a forged
+  alert about the honest contact" is false as written — the untrusted rendezvous can redirect a
+  locally-initiated reconnect to fire a hostile contact-key-changed verdict about an honest
+  possession_proven contact (fix = narrow the claim to inbound-only or commit strict-KK + a formal
+  no-forged-alert-on-any-path obligation); (PLAUSIBLE) FIX-1's rate-limiter scope is unpinned →
+  reconnect-DoS (fix = a §9 no-throttle-handshake-completing-reconnect invariant). Plus 5 LOW cleanups
+  + 8 cryptographer decisions. Trajectory v1(blocker)→v2(blocker)→v3(9 edits)→v4(2 blocking)→v5(2 MEDIUM
+  text edits) is converging hard; the KEY_MISMATCH/adverse-state class keeps resurfacing on new paths
+  (recommend a class-level invariant, not path-by-path patches). Immutable evidence:
+  `docs/evidence/EA1_PAKE_V5_REDTEAM.md`; v5 ADR marked PROPOSED — NEEDS REVISION; EA1 tracker row
+  updated (stays OPEN). No code, no spec, no wire-freeze, spike inert. Root-repo governance only.
+
 - 2026-07-17 — **EA1 PAKE v5 profile draft created (design-only); chooses §6 fork A.** Revised the
   PAKE profile to adopt §6 fork A — post-handshake data/BTR keys derive from the authenticated
   `session_root = HKDF(salt = PRK, ikm = ephemeral_shared_secret, info = TT/domain labels)`, not bare

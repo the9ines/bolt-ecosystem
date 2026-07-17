@@ -1,8 +1,11 @@
 # Decision: EA1 PAKE v5 Protocol Profile — Revised Draft
 
 > **Date:** 2026-07-17
-> **Status:** **DRAFT — PROPOSED. NOT WIRE-FROZEN. NOT IMPLEMENTATION-AUTHORIZED. NO "verified"
-> PRODUCT BEHAVIOR.** Incorporates the ten required edits from the v4 adversarial red-team
+> **Status:** **PROPOSED — NEEDS REVISION. NOT WIRE-FROZEN. NOT IMPLEMENTATION-AUTHORIZED. NO
+> "verified" PRODUCT BEHAVIOR.** A v5 adversarial red-team (2026-07-17) returned **NEEDS-REVISION**
+> (cryptographer-ready: No — two author-text edits away) — see the *Red-team outcome (v5): NEEDS
+> REVISION* note below and `docs/evidence/EA1_PAKE_V5_REDTEAM.md`. Incorporates the ten required edits
+> from the v4 adversarial red-team
 > (`docs/evidence/EA1_PAKE_V4_REDTEAM.md`, verdict NEEDS-REVISION — no blocker) and adopts **§6 fork
 > A**: EA1 requires a future protocol-spec change so post-handshake data/BTR keys derive from the
 > authenticated `session_root`, not bare `ee`. Supersedes-in-specifics the v4 draft
@@ -16,6 +19,47 @@
 > Evidence: `docs/evidence/EA1_REDTEAM.md`, `docs/evidence/PAKE_EVAL.md`,
 > `docs/evidence/EA1_PAKE_PROFILE_REDTEAM.md`, `docs/evidence/EA1_PAKE_V2_REDTEAM.md`,
 > `docs/evidence/EA1_PAKE_V3_REDTEAM.md`, `docs/evidence/EA1_PAKE_V4_REDTEAM.md`.
+
+## Red-team outcome (v5): NEEDS REVISION
+
+A v5 UltraCode adversarial review (2026-07-17, the fifth pass) returned **NEEDS-REVISION**;
+cryptographer-ready **No** — but two author-text edits away. Full report:
+**`docs/evidence/EA1_PAKE_V5_REDTEAM.md`**.
+
+- **This draft is PROPOSED — NEEDS REVISION. Not wire-frozen, not implementation-authorized.**
+- **Fork A worked.** No blocker. The review confirms fork A **legitimately closes the v4 HIGH**
+  (`session_root` is now consumed by obligation #6, no shadow value; the required `PROTOCOL.md` delta is
+  a clearly-flagged *proposed* future change, not asserted as shipped), and the remaining substantive
+  items are genuine cryptographer decisions with safe interims.
+- **The only blockers are on the `KEY_MISMATCH` surface, again** — two MEDIUM draft-defects (cheap
+  author-text edits, not open crypto):
+  - **(CONFIRMED)** `[FIX 2]`'s standing invariant "the `reconnect_handle` cannot summon a forged alert
+    about the honest contact (satisfies FIX-9)" is **false as written** — it is justified only via the
+    inbound silent-discard, but the untrusted rendezvous can **redirect a locally-initiated reconnect**
+    to an attacker presenting `identity_key ≠ pinned`, firing a hostile "your contact's key changed /
+    re-pair" verdict about an honest `possession_proven` contact (no keys, no SECRET; fail-closed, no
+    impersonation). Fix = (A) commit strict-KK so a redirected responder yields a neutral
+    TAMPER/UNREACHABLE state, or (B) narrow the `[FIX 2]` claim to inbound-only + render a
+    locally-initiated resolve-then-differ as a neutral "couldn't verify B" state — plus a formal
+    obligation that a keyless/SECRET-less rendezvous cannot cause a hostile contact-key-changed verdict
+    on ANY path.
+  - **(PLAUSIBLE)** FIX-1's "silent, rate-limited discard" vs "connection-scoped, never contact-sticky"
+    is inconsistent; the natural per-handle throttle lets an off-path handle-knower poison the honest
+    peer's reconnect (DoS). Fix = a one-line §9 scope invariant — no anonymous inbound may
+    throttle/drop/delay a subsequent handshake-completing reconnect on the same handle.
+- **Plus 5 LOW cleanups** (non-blocking for handoff; enumerated in the evidence file): reconcile the
+  `session_root`/`session_root_key`/`K_session` naming in-draft; the `[FIX 9]` es/se test needs two
+  sort-discriminating vectors (a single `es>se` can't catch a descending-sort impl); pin where the
+  single-code split runs so deployed products inherit SECRET-off-server; pin ROUTING fresh-per-refresh
+  in §1; echo the CD1a strict-vs-static-KK contingency inline.
+- Old "verified" stays disabled (EA29). Wire-freeze remains FORBIDDEN. The reviewer's read: after the
+  two `KEY_MISMATCH` edits + the LOW cleanups, the successor draft clears for cryptographer +
+  formal-methods handoff. Recommended: state the class-level invariant **once** (no keyless/SECRET-less
+  party may cause an adverse verdict/state against an honest contact on ANY path) rather than patch
+  path-by-path.
+
+This draft is retained verbatim as the *reviewed v5*; the revision (landing the two `KEY_MISMATCH`
+edits) is tracked separately as the v6 draft.
 
 ## What v5 changes
 
