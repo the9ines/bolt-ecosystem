@@ -3,6 +3,20 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-16 — **EA1 PAKE v3 draft red-teamed; verdict NEEDS-REVISION (converging).** The third
+  UltraCode adversarial pass (read-only, 10 surfaces) returned NEEDS-REVISION: NO confirmed blocker —
+  the new §0 low-order/all-zero-DH rule genuinely closes the v2 rank-1 BLOCKER, and the reconnect
+  downgrade floor holds. Driven by 1 confirmed HIGH + 4 confirmed MEDIUM, all author-fixable
+  draft-defects: §8 escalates device-wide backoff on a garbage `PAIR_CONFIRM` (relocates the v2
+  probe-DoS); §6 `session_root` salt `(or TT)` permits a public salt + `ephemeral_shared_secret` is
+  undefined/type-confused; §1's "legacy parser rejects `bolt2:`" is code-verified false (deployed
+  `normalizePeerCode` forwards verbatim); §4's "reflection resistance independent of confirmation" is
+  false. 9 required draft edits before wire-freeze; 11 items correctly deferred to the cryptographer.
+  Trajectory v1(no-PoP)→v2(low-order)→v3(no blocker) is the intended convergence; expected
+  ACCEPTABLE-FOR-CRYPTOGRAPHER-REVIEW after the edits (v4). Immutable evidence:
+  `docs/evidence/EA1_PAKE_V3_REDTEAM.md`; v3 ADR marked PROPOSED — NEEDS REVISION; EA1 tracker row
+  updated (stays OPEN). No code, no spec, no wire-freeze, spike inert. Root-repo governance only.
+
 - 2026-07-16 — **EA1 PAKE v3 profile draft created (design-only).** Revised the PAKE profile to
   incorporate the v2 red-team's eight required changes: a new §0 key-validity rule (reject small-order
   Curve25519 u-coordinates + abort all-zero X25519 DH per RFC 7748, identity+ephemeral,

@@ -1,8 +1,10 @@
 # Decision: EA1 PAKE v3 Protocol Profile — Revised Draft
 
 > **Date:** 2026-07-16
-> **Status:** **DRAFT — PROPOSED. NOT WIRE-FROZEN. NOT IMPLEMENTATION-AUTHORIZED. NO "verified"
-> PRODUCT BEHAVIOR.** Incorporates the eight required changes from the v2 adversarial red-team
+> **Status:** **PROPOSED — NEEDS REVISION. NOT WIRE-FROZEN. NOT IMPLEMENTATION-AUTHORIZED. NO
+> "verified" PRODUCT BEHAVIOR.** A v3 adversarial red-team (2026-07-16) returned **NEEDS-REVISION** —
+> see the *Red-team outcome (v3): NEEDS REVISION* note below and `docs/evidence/EA1_PAKE_V3_REDTEAM.md`.
+> Incorporates the eight required changes from the v2 adversarial red-team
 > (`docs/evidence/EA1_PAKE_V2_REDTEAM.md`, verdict HAS-BLOCKERS). Supersedes-in-specifics the v2
 > draft (`os/log/decisions/2026-07-15-ea1-pake-v2-profile-draft.md`, PROPOSED — REVISION REQUIRED),
 > which is retained verbatim. EA1 remains **OPEN**. Contains open items that REQUIRE an external
@@ -13,6 +15,40 @@
 > (`…-ea1-pake-v1-profile-proposal.md`, REVISION REQUIRED) → v2 draft (REVISION REQUIRED) → **this
 > v3 draft.** Evidence: `docs/evidence/EA1_REDTEAM.md`, `docs/evidence/PAKE_EVAL.md`,
 > `docs/evidence/EA1_PAKE_PROFILE_REDTEAM.md`, `docs/evidence/EA1_PAKE_V2_REDTEAM.md`.
+
+## Red-team outcome (v3): NEEDS REVISION
+
+A v3 UltraCode adversarial review (2026-07-16, the third pass) returned **NEEDS-REVISION**. Full
+report: **`docs/evidence/EA1_PAKE_V3_REDTEAM.md`**.
+
+- **This draft is PROPOSED — NEEDS REVISION. Not wire-frozen, not implementation-authorized.**
+- **The process is converging.** No confirmed blocker survives — the §0 low-order/all-zero-DH rule
+  **genuinely closes the v2 rank-1 BLOCKER**, and the reconnect downgrade floor holds. The verdict is
+  driven by **1 confirmed HIGH + 4 confirmed MEDIUM, all draft-defects** (author-fixable prose/spec/
+  wire-precision corrections, not cryptographer primitive decisions), plus 11 items correctly deferred
+  to the external cryptographer.
+- **The confirmed defects:** (HIGH) §8 escalates device-wide backoff on a garbage `PAIR_CONFIRM`,
+  self-contradicting its own "never anonymous inbound probes" and relocating the v2 anonymous-probe
+  DoS; (MEDIUM) §6 `session_root` salt `(or TT)` permits a public salt that voids the backstop and
+  breaks cross-impl determinism; (MEDIUM) §6 `ephemeral_shared_secret` is undefined and the equality
+  MUST is type-confused (public key == DH output); (MEDIUM) §1's "a legacy parser rejects the `bolt2:`
+  container" is *code-verified false* (the deployed `normalizePeerCode` forwards verbatim); (MEDIUM)
+  §4's "reflection resistance independent of the confirmation mechanism" is false (§5's
+  direction-separated confirmation is load-bearing).
+- **The 9 required changes before wire-freeze** are enumerated in the evidence file: (1) §8 decouple
+  consume from device-wide backoff (never escalate on anonymous inbound); (2) §6 mandate `salt = PRK`,
+  drop `(or TT)`, TT only in `info`; (3) §6 define `ephemeral_shared_secret = ee` and fix the
+  type-confused MUST; (4) §1 drop the false legacy-parser claim, strongest = separate ROUTING/SECRET
+  inputs; (5) §4 attribute reflection resistance jointly (reject + TT-bind + mandatory
+  direction-separated confirmation); (6) §4/§0 canonical X25519 equality; (7) §1 differential CSPRNG
+  KAT + negative case; (8) §9 reconnect `contact_id` resolution so KEY_MISMATCH is reachable; (9) §9
+  gate rotation-overwrite behind CD1b.
+- Old "verified" stays disabled (EA29). Wire-freeze remains FORBIDDEN until these edits land, the
+  external cryptographer signs off the deferred `[CRYPTO-DECISION]` items, and the formal model passes.
+  After the nine edits, the draft is expected to reach ACCEPTABLE-FOR-CRYPTOGRAPHER-REVIEW.
+
+This draft is retained verbatim as the *reviewed v3*; the revision that incorporates the nine edits is
+tracked separately as the v4 draft.
 
 ## What v3 changes (the eight required fixes)
 
