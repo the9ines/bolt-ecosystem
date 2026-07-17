@@ -3,6 +3,21 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-16 — **EA1 PAKE v3 profile draft created (design-only).** Revised the PAKE profile to
+  incorporate the v2 red-team's eight required changes: a new §0 key-validity rule (reject small-order
+  Curve25519 u-coordinates + abort all-zero X25519 DH per RFC 7748, identity+ephemeral,
+  pairing+reconnect — fixes the low-order-point BLOCKER); conforming-client routing/secret split with
+  separate artifacts + a version container legacy parsers reject; `session_root` bound to the
+  authenticated transcript with `ephemeral==BTR-root` a fail-closed MUST; a primitive-independent
+  anti-reflection reject; white-box CSPRNG independence (KAT, not a statistical test); a mandatory
+  non-overridable reconnect downgrade floor from `possession_proven` pins; CSPRNG `contact_id` +
+  human-confirmed key rotation; and authenticated-only code consumption (no consume/backoff on
+  unauthenticated probes). Retracts the falsified v1/v2 claims; carries the 10 cryptographer decisions
+  + widened formal-model and test obligations; honest non-"verified" states. Draft:
+  `os/log/decisions/2026-07-16-ea1-pake-v3-profile-draft.md` (v2 draft retained verbatim). EA1 stays
+  OPEN. NOT wire-frozen, NOT implementation-authorized. No code, no spec, spike inert. Root-repo
+  governance only.
+
 - 2026-07-16 — **EA1 PAKE v2 draft red-teamed; verdict HAS-BLOCKERS (direction validated).** An
   UltraCode adversarial review (read-only, 11 surfaces) returned HAS-BLOCKERS: 1 BLOCKER (a low-order
   X25519 point makes the identity DH return all-zero → forges the §1 possession proof → reopens the
