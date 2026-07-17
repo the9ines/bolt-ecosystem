@@ -3,6 +3,25 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-17 — **EA1 PAKE v5 profile draft created (design-only); chooses §6 fork A.** Revised the
+  PAKE profile to adopt §6 fork A — post-handshake data/BTR keys derive from the authenticated
+  `session_root = HKDF(salt = PRK, ikm = ephemeral_shared_secret, info = TT/domain labels)`, not bare
+  `ee`. This is a deliberate change to the FUTURE EA1 wire schedule, captured as a prominent "Required
+  future PROTOCOL.md delta" section: `PROTOCOL.md` is NOT edited in this gate; it currently keys from
+  `ee`, and the cryptographer/formal model must review the PROPOSED session_root-rooted schedule, not
+  the old wire. Also incorporates the ten v4-review required edits: KEY_MISMATCH split by initiator
+  (locally-initiated = hostile alert; unauthenticated inbound resolve-then-differ = silent
+  rate-limited discard, no alert, no pin mutation); FIX-8/FIX-9 reconciled; code-burning DoS
+  re-characterized honestly (no device penalty from consumed-code count); formal-model byte-layer
+  clause struck; RFC 7748 citation fixed; reconnect confidentiality chain added; SECRET-off-server
+  narrowed to conforming reference clients + harness; §5 L/R basis pinned unsigned byte-wise + ≥0x80
+  vector; sort-discriminating es/se vectors; `reconnect_handle` invariants pinned + linkability → CD1c.
+  Retracts the falsified v1/v2/v3/v4 claims; carries the 8 cryptographer decisions + formal-model and
+  test obligations; honest non-"verified" states. Draft:
+  `os/log/decisions/2026-07-17-ea1-pake-v5-profile-draft.md` (v4 retained verbatim). EA1 stays OPEN.
+  NOT wire-frozen, NOT implementation-authorized. No code, no PROTOCOL.md/spec edits, spike inert.
+  Root-repo governance only.
+
 - 2026-07-17 — **EA1 PAKE v4 draft red-teamed; verdict NEEDS-REVISION, cryptographer-ready No (two
   fixes away).** The fourth UltraCode adversarial pass (read-only, 10 focus areas) returned
   NEEDS-REVISION with no blocker and 7 of 9 v3 edits landed cleanly. Two confirmed draft-defects block
