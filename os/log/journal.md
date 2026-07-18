@@ -3,6 +3,26 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-17 — **EA1 PAKE v6 profile draft created (design-only); adds the class-level adverse-verdict
+  invariant.** Revised the PAKE profile to state a §AV invariant ONCE — no keyless/SECRET-less party
+  (including an untrusted rendezvous) may cause any adverse user-visible security verdict, pin mutation,
+  contact-key-changed warning, re-pair prompt, or contact-sticky throttle against an honest
+  possession_proven contact on ANY path — replacing the path-by-path patching that let the same class
+  recur across v4/v5. §9 is now a consequence of §AV: a redirected locally-initiated reconnect →
+  neutral TAMPER/UNREACHABLE (not KEY_MISMATCH/contact-key-changed/re-pair); unauthenticated inbound →
+  silent rate-limited discard; a key-change verdict requires prior-key possession proof (CD1b); never
+  mutate the pin on a keyless failure. The hostile product-facing key_mismatch alert is removed →
+  neutral `tamper_unreachable` state. Fixes the two v5 MEDIUMs (FIX-2 neutral wording via §AV;
+  rate-limiter scope — contact budget only post-identity-DH, garbage DH consumes no contact-sticky
+  budget) + 6 LOW cleanups (K_session retired/naming resolved; both es>se AND es<se vectors; single-code
+  split pinned to the SDK/harness layer; ROUTING fresh-per-refresh §1 MUST + "confidential transport"
+  defined; CD1a contingency echoed inline; "proves possession of the prior key" defined). Fork A
+  retained as a future PROTOCOL.md delta; carries the 8 cryptographer decisions + formal-model (§AV as
+  obligation #0) and test obligations; honest non-"verified" states. Draft:
+  `os/log/decisions/2026-07-17-ea1-pake-v6-profile-draft.md` (v5 retained verbatim). EA1 stays OPEN.
+  NOT wire-frozen, NOT implementation-authorized. No code, no PROTOCOL.md/spec edits, spike inert.
+  Root-repo governance only.
+
 - 2026-07-17 — **EA1 PAKE v5 draft red-teamed; verdict NEEDS-REVISION, cryptographer-ready No (two
   author-text edits away).** The fifth UltraCode adversarial pass (read-only, 10 focus areas) returned
   NEEDS-REVISION with no blocker. **Fork A worked** — it legitimately closes the v4 HIGH (`session_root`
