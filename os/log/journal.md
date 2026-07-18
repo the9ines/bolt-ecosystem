@@ -3,6 +3,23 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-18 — **EA1 PAKE v6 draft red-teamed (2026-07-17 pass); verdict NEEDS-REVISION,
+  cryptographer-ready No (one localized text fix away).** The sixth UltraCode adversarial pass
+  (read-only, 12 focus areas) returned NEEDS-REVISION with no blocker. **§AV worked** — the class-level
+  Adverse-Verdict Invariant holds on all paths, and removing the hostile `key_mismatch` alert is a net
+  security improvement (a keyless-summonable forgeable tripwire replaced by an honest neutral
+  `tamper_unreachable` state), NOT a regression; fork A stays not-shipped + shadow-free. The ONLY
+  handoff-gating defect is one CONFIRMED MEDIUM: the v6 §5 "K_session retirement" over-reached and
+  falsely denies the canonical ratcheting `session_root_key` (contradicts `PROTOCOL.md §16.3` + the
+  draft's own delta; a literal reading collapses per-transfer forward secrecy). Fix = a two-level
+  correction (`session_root` SEEDS the gen-0 BTR `session_root_key`; the ratchet + BTR-INV-01..11 are
+  retained; only the gen-0 seed changes `ee`→`session_root`). Plus 3 LOW editorial cleanups + 7
+  cryptographer decisions. Trajectory v1(blocker)→v2(blocker)→v3(9 edits)→v4(2)→v5(2)→v6(1 MEDIUM, a
+  factual BTR-schedule spec-consistency fix) — §AV closed the recurring KEY_MISMATCH class for good.
+  Immutable evidence: `docs/evidence/EA1_PAKE_V6_REDTEAM.md`; v6 ADR marked PROPOSED — NEEDS REVISION;
+  EA1 tracker row updated (stays OPEN). No code, no spec, no wire-freeze, spike inert. Root-repo
+  governance only.
+
 - 2026-07-17 — **EA1 PAKE v6 profile draft created (design-only); adds the class-level adverse-verdict
   invariant.** Revised the PAKE profile to state a §AV invariant ONCE — no keyless/SECRET-less party
   (including an untrusted rendezvous) may cause any adverse user-visible security verdict, pin mutation,

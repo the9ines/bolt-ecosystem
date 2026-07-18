@@ -1,8 +1,11 @@
 # Decision: EA1 PAKE v6 Protocol Profile — Revised Draft
 
 > **Date:** 2026-07-17
-> **Status:** **DRAFT — PROPOSED. NOT WIRE-FROZEN. NOT IMPLEMENTATION-AUTHORIZED. NO "verified"
-> PRODUCT BEHAVIOR.** Adds the **class-level Adverse-Verdict Invariant** (§AV), fixes the two v5
+> **Status:** **PROPOSED — NEEDS REVISION. NOT WIRE-FROZEN. NOT IMPLEMENTATION-AUTHORIZED. NO
+> "verified" PRODUCT BEHAVIOR.** A v6 adversarial red-team (2026-07-17) returned **NEEDS-REVISION**
+> (cryptographer-ready: No — one localized text fix away) — see the *Red-team outcome (v6): NEEDS
+> REVISION* note below and `docs/evidence/EA1_PAKE_V6_REDTEAM.md`. Adds the **class-level
+> Adverse-Verdict Invariant** (§AV), fixes the two v5
 > `KEY_MISMATCH` MEDIUMs, and lands the v5 LOW cleanups. Retains **§6 fork A** (data/BTR keys derive
 > from the authenticated `session_root` — a future `PROTOCOL.md` delta, below). Supersedes-in-specifics
 > the v5 draft (`os/log/decisions/2026-07-17-ea1-pake-v5-profile-draft.md`, PROPOSED — NEEDS REVISION),
@@ -16,6 +19,43 @@
 > `docs/evidence/EA1_PAKE_PROFILE_REDTEAM.md`, `docs/evidence/EA1_PAKE_V2_REDTEAM.md`,
 > `docs/evidence/EA1_PAKE_V3_REDTEAM.md`, `docs/evidence/EA1_PAKE_V4_REDTEAM.md`,
 > `docs/evidence/EA1_PAKE_V5_REDTEAM.md`.
+
+## Red-team outcome (v6): NEEDS REVISION
+
+A v6 UltraCode adversarial review (2026-07-17, the sixth pass) returned **NEEDS-REVISION**;
+cryptographer-ready **No** — but one localized text fix away. Full report:
+**`docs/evidence/EA1_PAKE_V6_REDTEAM.md`**.
+
+- **This draft is PROPOSED — NEEDS REVISION. Not wire-frozen, not implementation-authorized.**
+- **§AV worked.** No blocker. The review confirms the class-level Adverse-Verdict Invariant **holds on
+  all paths**, and removing the hostile `key_mismatch` alert is a **net security improvement, not a
+  regression** (a keyless-summonable forgeable tripwire replaced by an honest neutral
+  `tamper_unreachable` state). Fork A remains not-shipped and shadow-free. The remaining substantive
+  items are genuine cryptographer decisions with safe interims.
+- **The one handoff-gating defect (CONFIRMED MEDIUM):** the v6 §5 "K_session retirement" over-reached —
+  it falsely states "there is no separate `session_root_key` / all data/BTR keying references
+  `session_root`" (§5, echoed §6 + test-obligation L332). But canonical `PROTOCOL.md §16.3` makes
+  `session_root_key` a **real, load-bearing, ratcheting** BTR root (seeds `transfer_root_key`, advanced
+  by the inter-transfer DH ratchet = per-transfer forward secrecy, subject of BTR-INV-01, an existing
+  conformance vector). So §5 is factually false about the spec fork A modifies, self-contradicts the
+  draft's own delta "restate BTR-INV-01," and — read literally — would collapse per-transfer forward
+  secrecy. Not exploitable (`PROTOCOL.md` is untouched/`ee`-rooted), but a cryptographer hits it
+  immediately. **Fix (two-level correction):** `session_root` **seeds** the generation-0 BTR
+  `session_root_key` (replacing the current `salt=EMPTY`/`ikm=ee` seed); the BTR hierarchy +
+  inter-transfer DH ratchet + BTR-INV-01..11 are **retained** — only the gen-0 seed changes
+  `ee`→`session_root`. Reconcile §6/L332, align delta L98; keep "`K_session` retired."
+- **Plus 3 LOW cleanups** (non-blocking for handoff): soften the §9 rate-limiter's unsatisfiable
+  "never sheds a valid handshake" absolute + disclose the pre-DH availability-DoS honestly; make the
+  es/se role-swap test wire-role-phrased (the current form conflates confirmation-role L/R with wire
+  role and passes a signed-descending sort); pin clamped-X25519 to `es/se/ss` and name clamping in
+  obligation #3. (Optional: restore the "(in `capabilities[]`/TT)" tier-select pin dropped from
+  §6/CD7a.)
+- Old "verified" stays disabled (EA29). Wire-freeze remains FORBIDDEN. The reviewer's read: after the
+  single MEDIUM fix + the three LOW cleanups, the successor draft clears for external cryptographer +
+  formal-methods review.
+
+This draft is retained verbatim as the *reviewed v6*; the revision (the two-level `session_root_key`
+correction + the LOW cleanups) is tracked separately as the v7 draft.
 
 ## What v6 changes
 
