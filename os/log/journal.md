@@ -3,6 +3,25 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-18 — **EA1 PAKE v7 profile draft created (design-only); corrects fork A to re-seed the BTR
+  ratchet, not flatten it.** Revised the PAKE profile to fix the sole v6 MEDIUM: fork A **re-seeds**
+  the existing BTR ratchet rather than replacing it — `session_root` seeds the generation-0 BTR
+  `session_root_key = HKDF(ikm=session_root, info="bolt-btr-session-root-v1")`, replacing the current
+  `PROTOCOL.md §16.3` `salt=EMPTY`/`ikm=ee` seed; the BTR key hierarchy, inter-transfer DH ratchet
+  (`session_root_key → transfer_root_key → chain/message keys`), BTR-INV-01..11, and per-transfer
+  forward secrecy are RETAINED; only the gen-0 seed changes `ee`→authenticated `session_root`. `K_session`
+  (the §5-Expand flat orphan) stays retired, distinct from `session_root_key`. Also lands the four v6
+  LOW cleanups: rate-limiter honesty (no unsatisfiable "never sheds a valid connection" absolute;
+  pre-DH availability-DoS disclosed; budget→CD2a; post-DH contact-sticky rule kept verbatim); es/se
+  WIRE-ROLE negative ("swap initiator↔responder ⇒ es/se transpose ⇒ PRK MUST differ"); clamped-X25519
+  on `ee/es/se/ss` + clamping named in obligation #3; and the exporter/tier-select pin restored into
+  `capabilities[]`/TT (non-forceable). §AV + fork A retained; obligation #6 targets the proposed
+  two-level schedule; honest non-"verified" states. Retracts the falsified v6 §5/§6/L332 flat-schedule
+  claim (v6's `K_session`-retired stays). Draft:
+  `os/log/decisions/2026-07-18-ea1-pake-v7-profile-draft.md` (v6 retained verbatim). EA1 stays OPEN.
+  NOT wire-frozen, NOT implementation-authorized. No code, no `PROTOCOL.md`/spec edits, spike inert.
+  Root-repo governance only.
+
 - 2026-07-18 — **EA1 PAKE v6 draft red-teamed (2026-07-17 pass); verdict NEEDS-REVISION,
   cryptographer-ready No (one localized text fix away).** The sixth UltraCode adversarial pass
   (read-only, 12 focus areas) returned NEEDS-REVISION with no blocker. **§AV worked** — the class-level
