@@ -3,6 +3,26 @@
 Append-only, newest first. One dated line per thing shipped or decided.
 Entries are never edited or deleted; corrections get their own entry.
 
+- 2026-07-18 — **EA1 PAKE v7 draft red-teamed; verdict ACCEPTABLE-FOR-CRYPTOGRAPHER-REVIEW — EA1 is
+  design-complete.** The seventh UltraCode adversarial pass (read-only, 12 focus areas, the fork-A
+  red-teamer verifying line-by-line against canonical `PROTOCOL.md §16.3`) returned
+  ACCEPTABLE-FOR-CRYPTOGRAPHER-REVIEW (cryptographer-ready: Yes) with no blocker and no confirmed
+  HIGH/MEDIUM draft-defect. All three primary checks pass: the fork-A BTR re-seed is correct (gen-0
+  `session_root_key` re-seeded from the authenticated `session_root`; ratchet + `transfer_root_key` +
+  inter-transfer DH ratchet + BTR-INV-01..11 + per-transfer forward secrecy all RETAINED — the v6
+  over-flattening MEDIUM is closed and the delta is not shipped); §AV holds on all paths with no
+  regression; the remaining items are genuine cryptographer/formal-methods decisions. Two remaining
+  draft-defects (a §1 hosted-product SECRET-egress MUST; a §0 5th-DH obligation #3↔#6 alignment) are
+  pre-wire-freeze, not pre-handoff. **Seven-pass convergence:
+  v1(BLOCKER)→v2(BLOCKER)→v3(9 edits)→v4(2)→v5(2)→v6(1)→v7(ACCEPTABLE)** — the adversarial loop found and
+  drove a fix for a real defect each pass and stopped finding protocol-breaking ones. **EA1 is
+  DESIGN-COMPLETE for external cryptographer + formal-methods review — NOT implementation-ready:**
+  wire-freeze remains gated on the resolved [CRYPTO-DECISION] set, the authored+authorized future
+  `PROTOCOL.md` delta, the cryptographer sign-off, and a passing formal model. Immutable evidence:
+  `docs/evidence/EA1_PAKE_V7_REDTEAM.md`; v7 ADR marked PROPOSED — ACCEPTABLE FOR CRYPTOGRAPHER REVIEW;
+  EA1 tracker row updated (stays OPEN, design-complete). No code, no spec, no wire-freeze, spike inert.
+  Root-repo governance only.
+
 - 2026-07-18 — **EA1 PAKE v7 profile draft created (design-only); corrects fork A to re-seed the BTR
   ratchet, not flatten it.** Revised the PAKE profile to fix the sole v6 MEDIUM: fork A **re-seeds**
   the existing BTR ratchet rather than replacing it — `session_root` seeds the generation-0 BTR

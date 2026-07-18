@@ -1,8 +1,13 @@
 # Decision: EA1 PAKE v7 Protocol Profile — Revised Draft
 
 > **Date:** 2026-07-18
-> **Status:** **DRAFT — PROPOSED. NOT WIRE-FROZEN. NOT IMPLEMENTATION-AUTHORIZED. NO "verified"
-> PRODUCT BEHAVIOR.** Corrects the v6 BTR-schedule over-flattening (fork A **re-seeds** the existing
+> **Status:** **PROPOSED — ACCEPTABLE FOR CRYPTOGRAPHER REVIEW. NOT WIRE-FROZEN. NOT
+> IMPLEMENTATION-AUTHORIZED. NO "verified" PRODUCT BEHAVIOR.** A v7 adversarial red-team (2026-07-18,
+> the seventh pass) returned **ACCEPTABLE-FOR-CRYPTOGRAPHER-REVIEW** (cryptographer-ready: Yes; no
+> blocker; all three primary checks verified line-by-line against `PROTOCOL.md §16.3`). The two
+> remaining draft-defects are **pre-wire-freeze, not pre-handoff.** See the *Red-team outcome (v7):
+> ACCEPTABLE FOR CRYPTOGRAPHER REVIEW* note below and `docs/evidence/EA1_PAKE_V7_REDTEAM.md`. Corrects
+> the v6 BTR-schedule over-flattening (fork A **re-seeds** the existing
 > BTR ratchet, it does not replace it) and lands the v6 review's four LOW cleanups. Retains the
 > class-level **§AV Adverse-Verdict Invariant** and **§6 fork A** (a future `PROTOCOL.md` delta, below).
 > Supersedes-in-specifics the v6 draft (`os/log/decisions/2026-07-17-ea1-pake-v6-profile-draft.md`,
@@ -16,6 +21,35 @@
 > `docs/evidence/EA1_PAKE_PROFILE_REDTEAM.md`, `docs/evidence/EA1_PAKE_V2_REDTEAM.md`,
 > `docs/evidence/EA1_PAKE_V3_REDTEAM.md`, `docs/evidence/EA1_PAKE_V4_REDTEAM.md`,
 > `docs/evidence/EA1_PAKE_V5_REDTEAM.md`, `docs/evidence/EA1_PAKE_V6_REDTEAM.md`.
+
+## Red-team outcome (v7): ACCEPTABLE FOR CRYPTOGRAPHER REVIEW
+
+A v7 UltraCode adversarial review (2026-07-18, the seventh pass) returned
+**ACCEPTABLE-FOR-CRYPTOGRAPHER-REVIEW**; cryptographer-ready **Yes**. Full report:
+**`docs/evidence/EA1_PAKE_V7_REDTEAM.md`**.
+
+- **This draft is PROPOSED — ACCEPTABLE FOR CRYPTOGRAPHER REVIEW. Not wire-frozen, not
+  implementation-authorized.** EA1 is **design-complete for external cryptographer + formal-methods
+  review**; it is **not** implementation-ready.
+- **No blocker; all three primary checks pass** (verified line-by-line against `PROTOCOL.md §16.3`):
+  (1) the fork-A BTR re-seed is correct — the gen-0 `session_root_key` is re-seeded from the
+  authenticated `session_root`, and the ratchet / `transfer_root_key` / inter-transfer DH ratchet /
+  BTR-INV-01..11 / per-transfer FS are RETAINED (the v6 over-flattening MEDIUM is closed; the delta is
+  not shipped); (2) §AV holds on all paths with no regression; (3) the remaining items are genuine
+  cryptographer/formal decisions or LOWs.
+- **Two remaining draft-defects are PRE-WIRE-FREEZE, NOT pre-handoff** (orthogonal to the
+  primitive/composition/key-schedule/§AV a cryptographer evaluates): (MEDIUM/PLAUSIBLE, §1) a conforming
+  *hosted* product could still leak the SECRET-bearing combined code via its own analytics/deep-link/
+  error-reporting egress → needs a normative §1 product-handling MUST (raw combined code SECRET-classified
+  end-to-end; two-separate-inputs for any server-facing code surface); (LOW/CONFIRMED, §0) obligation #3
+  (4 DHs) and obligation #6 (models the retained BTR ratchet) disagree on the DH set — the 5th X25519 DH
+  (BTR inter-transfer `dh_output`, §16.3 L1130) isn't in §0's point-validity; extend the all-zero abort
+  to it or scope it out (zero runtime exposure, pre-existing §16.3 posture).
+- **The handoff package** is the full `[CRYPTO-DECISION]` set (CD1a–CD7a) + the formal-model pass over
+  the proposed two-level fork-A schedule + §AV (obligations #0–#10) — which, alongside authoring +
+  authorizing the `PROTOCOL.md` delta, is the hard **wire-freeze** gate.
+- Old "verified" stays disabled (EA29). Seven-pass convergence: v1(BLOCKER)→v2(BLOCKER)→v3(9 edits)→
+  v4(2)→v5(2)→v6(1)→**v7 ACCEPTABLE**.
 
 ## What v7 changes
 
