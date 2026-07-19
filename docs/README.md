@@ -9,8 +9,7 @@ Public docs in this repository are intentionally small.
 | `../PRD.md` | Product requirements |
 | `../ROADMAP.md` | Current public roadmap |
 | `SECURITY_MODEL.md` | Public security model |
-| `PROTOCOL_COMPLIANCE.md` | Protocol compliance notes |
-| `PROTOCOL_ENFORCEMENT.md` | Enforcement notes |
+| `PROTOCOL_ENFORCEMENT.md` | Enforcement posture (frozen historical record) |
 | `CHANGELOG.md` | Public cleanup/current-state changelog |
 
 Internal governance, AI-agent instructions, private audit trackers, and private
