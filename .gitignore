@@ -26,14 +26,14 @@ target/
 # Shell artifacts
 =
 
-# Raw audit sources (canonical copies in docs/AUDITS/)
+# Private audit/governance sources
 AUDIT-2026-02-26.md
 .gitnexus
 
-# Claude Code workspace artifacts
+# Local Claude/Codex operating files
 .claude/
 CLAUDE.md
 AGENTS.md
 
-# Governance OS derived state — regenerate with os/bin/status.sh, never commit
+# Local/private operating state
 os/DASHBOARD.md

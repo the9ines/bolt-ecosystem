@@ -1,6 +1,3 @@
-> **FROZEN — 2026-07-03 (Governance OS).** Historical record; not maintained.
-> Canonical model now lives at `os/rules/security-model.md` (extracted verbatim). §9 findings remain here as the dated audit record.
-
 # Bolt Ecosystem — Canonical Security Model
 
 > **Status:** Normative
