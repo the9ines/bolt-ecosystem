@@ -28,7 +28,6 @@ target/
 
 # Private audit/governance sources
 AUDIT-2026-02-26.md
-.gitnexus
 
 # Local Claude/Codex operating files
 .claude/
